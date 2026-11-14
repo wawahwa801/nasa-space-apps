@@ -1,8 +1,9 @@
 "use client";
 
-// Embeds the standalone NASA comparison dashboard (../../fire-dashboard) in
-// this page. It renders inside a shadow root so its CSS, element IDs and
-// scripts stay separate from the Ember workspace on the same page.
+// Embeds the NASA comparison dashboard (../../fire-dashboard) in this page.
+// It renders inside a shadow root so its CSS, element IDs and scripts stay
+// separate from the rest of the page. Its inputs come from the page's
+// Parameters panel (`inputs`, base units), so it shows results only.
 // The files are copied to public/fire-dashboard by scripts/sync-fire-dashboard.mjs.
 
 import { useEffect, useRef, useState } from "react";
@@ -41,9 +42,20 @@ function loadScripts() {
   return scriptsReady;
 }
 
-export function FireSafetyComparison() {
+/**
+ * Props:
+ *   inputs         - dashboard input values in base units (see fire-dashboard/js/parameters.js)
+ *   onDefinitions  - called once with { sections, units, example } after the scripts load
+ *   onGotoField    - called with a dashboard field id when an assessment item is clicked
+ *   onLoadExample  - called when the user asks for the example scenario
+ */
+export function FireSafetyComparison({ inputs, onDefinitions, onGotoField, onLoadExample }) {
   const hostRef = useRef(null);
+  const mountedRef = useRef(false);
   const [error, setError] = useState("");
+  // Keep the latest props for handlers registered once at mount.
+  const latest = useRef({ inputs, onDefinitions, onGotoField, onLoadExample });
+  latest.current = { inputs, onDefinitions, onGotoField, onLoadExample };
 
   useEffect(() => {
     let cancelled = false;
@@ -60,6 +72,11 @@ export function FireSafetyComparison() {
         page.querySelectorAll("script").forEach((node) => node.remove());
         await loadScripts();
         if (cancelled) return;
+        latest.current.onDefinitions?.({
+          sections: window.PARAMETER_SECTIONS,
+          units: window.UNIT_SYSTEMS,
+          example: window.EXAMPLE_INPUT,
+        });
 
         const host = hostRef.current;
         const shadow = host.shadowRoot || host.attachShadow({ mode: "open" });
@@ -82,7 +99,13 @@ export function FireSafetyComparison() {
         unmount = window.FireDashboard.mount(shadow, {
           embedded: true,
           title: "",
+          externalInputs: true,
+          inputs: latest.current.inputs,
+          subtitle: "Results use the values in the Parameters panel.",
+          onGotoField: (id) => latest.current.onGotoField?.(id),
+          onLoadExample: () => latest.current.onLoadExample?.(),
         });
+        mountedRef.current = true;
       } catch (err) {
         if (!cancelled) {
           setError(
@@ -94,9 +117,14 @@ export function FireSafetyComparison() {
 
     return () => {
       cancelled = true;
+      mountedRef.current = false;
       if (unmount) unmount();
     };
   }, []);
+
+  useEffect(() => {
+    if (mountedRef.current) window.FireDashboard?.setInputs(inputs);
+  }, [inputs]);
 
   return (
     <>
@@ -105,7 +133,7 @@ export function FireSafetyComparison() {
           {error}
         </p>
       )}
-      <div ref={hostRef} className="fire-dashboard-host" data-theme="dark" />
+      <div ref={hostRef} className="fire-dashboard-host" data-theme="ember" />
     </>
   );
 }

@@ -34,6 +34,11 @@
 
   let userDatasets = load(STORE.datasets, []);
   let unitPrefs = load(STORE.units, {});
+  // Mount options. With externalInputs, the host page supplies the values
+  // (via FireDashboard.setInputs) and the dashboard's own form is hidden.
+  let OPTS = {};
+  let externalValues = {};
+  const external = () => Boolean(OPTS.externalInputs);
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // ---------------------------------------------------------------- form
@@ -88,8 +93,30 @@
     return `Enter a value from ${tidy(u.fromBase(f.min))} to ${tidy(u.fromBase(f.max))} ${u.unit}. This value is ignored until it is corrected.`;
   }
 
+  // External mode: values arrive in base units from the host page. Invalid
+  // numbers and unknown choices are left out, just like form input.
+  function readExternal() {
+    const v = {};
+    for (const f of allFields()) {
+      const x = externalValues[f.id];
+      if (f.type === "number") {
+        const n = x === "" || x == null ? NaN : Number(x);
+        const inRange = isFinite(n) && !(f.min != null && n < f.min - 1e-9) && !(f.max != null && n > f.max + 1e-9);
+        v[f.id] = inRange ? n : null;
+      } else if (f.id === "gravity") {
+        // The host may describe gravity as a value (e.g. "0.5 g"); only the
+        // microgravity prefix is used by the assessment.
+        v[f.id] = typeof x === "string" ? x : "";
+      } else {
+        v[f.id] = f.options.includes(x) ? x : "";
+      }
+    }
+    return { v, errors: {} };
+  }
+
   // Values come back in base units. Invalid numbers are reported and left out.
   function readValues() {
+    if (external()) return readExternal();
     const v = {};
     const errors = {};
     for (const f of allFields()) {
@@ -295,7 +322,9 @@
   function renderFlags(result) {
     const list = $("#flags");
     if (!result.flags.length) {
-      list.innerHTML = '<li class="empty">No inputs yet. Fill in the form, or <button type="button" class="link-btn" data-action="example">load the example</button> to see how it works.</li>';
+      list.innerHTML = external()
+        ? '<li class="empty">No inputs yet. Set values in the Parameters panel, or <button type="button" class="link-btn" data-action="example">load the example</button> to see how it works.</li>'
+        : '<li class="empty">No inputs yet. Fill in the form, or <button type="button" class="link-btn" data-action="example">load the example</button> to see how it works.</li>';
       return;
     }
     list.innerHTML = result.flags
@@ -520,9 +549,11 @@
   let timer;
   function update() {
     const { v, errors } = readValues();
-    showErrors(errors);
-    updateCounts(v);
-    save(STORE.values, v);
+    if (!external()) {
+      showErrors(errors);
+      updateCounts(v);
+      save(STORE.values, v);
+    }
     const result = assess(v);
     renderSummary(v, result);
     renderFlags(result);
@@ -549,9 +580,12 @@
     const loadExample = () => { writeValues(window.EXAMPLE_INPUT); update(); status("Example loaded. Change any value to see the dashboard update."); };
     $("#load-example").addEventListener("click", loadExample);
     $("#flags").addEventListener("click", (e) => {
-      if (e.target.closest("[data-action=example]")) { loadExample(); return; }
+      if (e.target.closest("[data-action=example]")) {
+        if (OPTS.onLoadExample) OPTS.onLoadExample(); else loadExample();
+        return;
+      }
       const id = e.target.closest("[data-goto]")?.dataset.goto;
-      if (id) gotoField(id);
+      if (id) (OPTS.onGotoField || gotoField)(id);
     });
     $("#clear-inputs").addEventListener("click", () => {
       const filled = Object.values(readValues().v).filter(has).length;
@@ -576,17 +610,7 @@
     });
 
     $("#export").addEventListener("click", () => {
-      const { v, result } = update();
-      const baseUnits = Object.fromEntries(allFields().filter((f) => f.type === "number").map((f) => [f.id, f.units ? UNITS[f.units][0].unit : f.unit]));
-      const blob = new Blob([JSON.stringify({
-        exported: new Date().toISOString(), inputs: v, units: baseUnits,
-        assessment: result.flags.map((f) => ({ level: f.level, title: f.title, detail: f.detail.replace(/<[^>]+>/g, "") })),
-      }, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `fire-safety-inputs-${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
+      exportJSON();
       status("Exported. Use Import to load this file again later.");
     });
     $("#import-file").addEventListener("change", (e) => {
@@ -660,6 +684,27 @@
     };
   }
 
+  // Download the inputs (base units) and the current assessment as JSON.
+  function exportJSON() {
+    const { v, result } = update();
+    const baseUnits = Object.fromEntries(allFields().filter((f) => f.type === "number").map((f) => [f.id, f.units ? UNITS[f.units][0].unit : f.unit]));
+    const blob = new Blob([JSON.stringify({
+      exported: new Date().toISOString(), inputs: v, units: baseUnits,
+      assessment: result.flags.map((f) => ({ level: f.level, title: f.title, detail: f.detail.replace(/<[^>]+>/g, "") })),
+    }, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `fire-safety-inputs-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // External mode: replace the input values (base units) and refresh.
+  function setInputs(values) {
+    externalValues = values || {};
+    if (cleanup) scheduleUpdate();
+  }
+
   let cleanup = null;
 
   /**
@@ -667,10 +712,25 @@
    * from index.html. Options:
    *   embedded: true  - show the page title as a smaller h2 (the host page has its own h1)
    *   title: string   - replacement title text when embedded; "" removes the title
+   *   externalInputs: true - hide the dashboard's form; values come from
+   *                   options.inputs and FireDashboard.setInputs (base units)
+   *   subtitle: string - replacement intro line
+   *   onGotoField(id), onLoadExample() - host handlers for assessment links
    */
   function mount(root = document, options = {}) {
     if (cleanup) cleanup();
     ROOT = root;
+    OPTS = options;
+    if (options.externalInputs) {
+      externalValues = options.inputs || {};
+      $(".layout").classList.add("external");
+      $(".page-header").classList.add("external");
+      $("#results-bar").style.display = "none";
+    }
+    if (options.subtitle) {
+      const sub = $(".page-header .subtitle");
+      if (sub) sub.textContent = options.subtitle;
+    }
     window.Charts.setTooltipHost(root === document ? document.body : root);
     if (options.embedded) {
       const h1 = $(".page-header h1");
@@ -687,7 +747,7 @@
     return () => { if (cleanup) { cleanup(); cleanup = null; } };
   }
 
-  window.FireDashboard = { mount };
+  window.FireDashboard = { mount, setInputs, exportJSON };
 
   // Standalone page: mount when the dashboard markup is in the document itself.
   const autoMount = () => { if (document.getElementById("input-sections")) mount(document); };

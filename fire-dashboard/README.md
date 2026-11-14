@@ -64,11 +64,22 @@ matching NASA tests: fuels from ACME and SPICE, materials from SAME-R.
 ## Embedded in the Next.js app
 
 The same files also appear as the "NASA data comparison" section of the Next.js
-page in `frontend/`. `frontend/components/fire-safety-comparison.jsx` loads this
-folder's `index.html`, `styles.css` and scripts into a shadow root (so its styles and
-element IDs stay separate from the rest of the page) and calls
-`FireDashboard.mount(shadowRoot, { embedded: true, title: "" })`. The standalone
-page calls `mount(document)` automatically.
+page in `frontend/`, where the flame simulation's **Parameters panel is the only
+place to enter values**:
+
+- O₂, pressure, temperature, CO₂ and gravity are shared with the flame simulation
+  (CO₂ % is converted to ppm; gravity below 0.05 g counts as microgravity).
+- The other inputs here appear in the Parameters panel as extra sections
+  (`frontend/components/nasa-parameter-fields.jsx`), built from `js/parameters.js`,
+  so parameters stay defined in one place.
+- The dashboard runs in a shadow root (`frontend/components/fire-safety-comparison.jsx`)
+  with `FireDashboard.mount(shadowRoot, { externalInputs: true, ... })`: its own form is
+  hidden, values arrive through `FireDashboard.setInputs(values)` in base units, and the
+  `ember` theme (`data-theme="ember"`) matches the flame simulation's look.
+- The results layout follows the space it is given (container queries), so it also
+  fits between the Parameters and chat panels.
+
+The standalone page still has its own form and calls `mount(document)` automatically.
 
 `frontend/scripts/sync-fire-dashboard.mjs` copies this folder into
 `frontend/public/fire-dashboard/` before `npm run dev` and `npm run build`. Keep

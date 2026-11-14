@@ -40,8 +40,10 @@ npm run dev
 
 Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `http://localhost:5000/api/health`.
 
-The page has two independent sections: the Ember workspace, and the NASA data
-comparison from `fire-dashboard/`, which renders below it in an isolated shadow root.
+The page has the Ember flame simulation and, below it, the NASA data comparison from
+`fire-dashboard/` (rendered in an isolated shadow root). Both read the same Parameters
+panel: O₂, pressure, temperature, CO₂ and gravity are shared, and the NASA-only inputs
+appear there as extra sections.
 `npm run dev` and `npm run build` first copy `fire-dashboard/` into
 `frontend/public/fire-dashboard/` (generated, git-ignored), so edit `fire-dashboard/`,
 not the copy.

@@ -1,8 +1,33 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
+import {
+  NasaParameterFields,
+  SHARED_FIELDS,
+  convertRaw,
+  nasaInputsFromRaw,
+  rawFromBase,
+} from "../components/nasa-parameter-fields";
+
+// Shared values: the flame simulation's inputs mapped to the NASA comparison's
+// base units (CO₂ % -> ppm; gravity in g -> microgravity below 0.05 g).
+function sharedNasaInputs(values) {
+  const num = (x) =>
+    x === "" || x === null || x === undefined || !Number.isFinite(Number(x))
+      ? null
+      : Number(x);
+  const g = num(values.gravity);
+  const co2 = num(values.co2);
+  return {
+    o2_pct: num(values.oxygen),
+    pressure_kpa: num(values.pressure),
+    internal_temp_c: num(values.temperature),
+    co2_ppm: co2 === null ? null : co2 * 10000,
+    gravity: g === null ? "" : g < 0.05 ? "Microgravity (~0 g)" : `${g} g`,
+  };
+}
 
 const defaults = {
   oxygen: 20.9,
@@ -151,6 +176,18 @@ export default function Home() {
     }
   }
   const [values, setValues] = useState(defaults);
+  // NASA comparison inputs that the flame simulation doesn't have (raw text in
+  // the chosen unit), their units, and the field definitions from fire-dashboard.
+  const [nasaDefs, setNasaDefs] = useState(null);
+  const [nasaRaw, setNasaRaw] = useState({});
+  const [nasaUnits, setNasaUnits] = useState({});
+  const dashboardInputs = useMemo(
+    () => ({
+      ...nasaInputsFromRaw(nasaDefs, nasaRaw, nasaUnits),
+      ...sharedNasaInputs(values),
+    }),
+    [nasaDefs, nasaRaw, nasaUnits, values],
+  );
   const [unit, setUnit] = useState("C");
   const [snapshot, setSnapshot] = useState(null);
   const [error, setError] = useState("");
@@ -176,6 +213,34 @@ export default function Home() {
     setUnit("C");
     setSnapshot(null);
     setError("");
+    setNasaRaw({});
+  }
+  // Fill both the shared values and the NASA-only inputs from the dashboard's example.
+  function loadNasaExample() {
+    if (!nasaDefs) return;
+    const ex = nasaDefs.example;
+    setValues((v) => ({
+      ...v,
+      oxygen: ex.o2_pct,
+      pressure: ex.pressure_kpa,
+      temperature: ex.internal_temp_c,
+      co2: Number((ex.co2_ppm / 10000).toFixed(4)),
+      gravity: String(ex.gravity).startsWith("Microgravity") ? 0 : v.gravity,
+    }));
+    setNasaRaw(rawFromBase(nasaDefs, ex, nasaUnits));
+    setSnapshot(null);
+    setError("");
+  }
+  // An assessment item was clicked: open Parameters and focus the input behind it.
+  function gotoNasaField(id) {
+    setParametersOpen(true);
+    const target = SHARED_FIELDS[id] || `nasa-${id}`;
+    setTimeout(() => {
+      const el = document.getElementById(target);
+      if (!el) return;
+      el.scrollIntoView({ block: "center" });
+      el.focus({ preventScroll: true });
+    }, 60);
   }
   function preview(event) {
     event.preventDefault();
@@ -478,6 +543,17 @@ export default function Home() {
                 </div>
               </div>
 
+              <NasaParameterFields
+                defs={nasaDefs}
+                raw={nasaRaw}
+                unitPrefs={nasaUnits}
+                onChange={(id, value) => setNasaRaw((r) => ({ ...r, [id]: value }))}
+                onUnitChange={(id, from, to) => {
+                  setNasaRaw((r) => ({ ...r, [id]: convertRaw(nasaDefs, id, r[id], from, to) }));
+                  setNasaUnits((u) => ({ ...u, [id]: to }));
+                }}
+              />
+
               {error && (
                 <p className="form-error" role="alert">
                   {error}
@@ -505,14 +581,45 @@ export default function Home() {
             aria-labelledby="nasa-comparison-title"
           >
             <div className="comparison-heading">
-              <h2 id="nasa-comparison-title">NASA data comparison</h2>
-              <p>
-                Compare conditions with ACME, Saffire-I, SPICE and SAME-R
-                microgravity fire experiments. This section has its own inputs
-                and runs separately from the simulation above.
-              </p>
+              <div>
+                <h2 id="nasa-comparison-title">NASA data comparison</h2>
+                <p>
+                  Your parameters checked against ACME, Saffire-I, SPICE and
+                  SAME-R microgravity fire experiments. Edit values in the
+                  Parameters panel.
+                </p>
+              </div>
+              <div className="comparison-actions">
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => setParametersOpen(true)}
+                >
+                  Edit parameters
+                </button>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={loadNasaExample}
+                  disabled={!nasaDefs}
+                >
+                  Load example
+                </button>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => window.FireDashboard?.exportJSON()}
+                >
+                  Export results
+                </button>
+              </div>
             </div>
-            <FireSafetyComparison />
+            <FireSafetyComparison
+              inputs={dashboardInputs}
+              onDefinitions={setNasaDefs}
+              onGotoField={gotoNasaField}
+              onLoadExample={loadNasaExample}
+            />
           </section>
           </main>
           <aside
