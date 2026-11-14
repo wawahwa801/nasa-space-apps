@@ -1428,3 +1428,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .prediction-note strong { color: #e2e8f4; font-size: 14px; font-weight: 500; }
 .prediction-note p { color: #a6b4c9; font-size: 12px; }
 @media (max-width: 480px) { .prediction-heading h2 { font-size: 17px; } .prediction-metrics { gap: 8px; } }
+
+/* Give the experiment assistant more room while preserving the workspace. */
+@media (min-width: 721px) {
+  .chat-open .content-grid { grid-template-columns: minmax(0, 1fr) min(480px, 42vw); }
+}
+@media (max-width: 720px) {
+  .chat-panel { width: min(480px, 100%); }
+}
