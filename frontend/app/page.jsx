@@ -262,56 +262,49 @@ export default function Home() {
                       className="flame-art"
                     >
                       <defs>
-                        <linearGradient
-                          id="flame-fill"
-                          x1="0"
-                          y1="1"
-                          x2="0"
-                          y2="0"
-                        >
-                          <stop stopColor="#ff622e" />
-                          <stop offset=".5" stopColor="#ffb670" />
-                          <stop offset="1" stopColor="#ffe7be" />
+                        <linearGradient id="flame-fill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0" stopColor="#ff9a43" />
+                          <stop offset=".38" stopColor="#ff9359" />
+                          <stop offset=".61" stopColor="#b475a2" />
+                          <stop offset=".82" stopColor="#287cc4" />
+                          <stop offset="1" stopColor="#2445ad" stopOpacity=".7" />
                         </linearGradient>
-                        <radialGradient id="flame-halo">
-                          <stop stopColor="#ff5a26" stopOpacity=".2" />
-                          <stop
-                            offset="1"
-                            stopColor="#ff5a26"
-                            stopOpacity="0"
-                          />
-                        </radialGradient>
+                        <linearGradient id="flame-rim" x1="0" y1="0" x2="0" y2="1">
+                          <stop stopColor="#2449ce" />
+                          <stop offset=".55" stopColor="#359df1" />
+                          <stop offset="1" stopColor="#4bb9f4" stopOpacity=".65" />
+                        </linearGradient>
+                        <filter id="flame-soft" x="-30%" y="-25%" width="160%" height="150%">
+                          <feGaussianBlur stdDeviation="4" />
+                        </filter>
+                        <filter id="flame-glow" x="-50%" y="-40%" width="200%" height="180%">
+                          <feGaussianBlur stdDeviation="9" />
+                        </filter>
                       </defs>
-                      <ellipse
-                        cx="200"
-                        cy="170"
-                        rx="145"
-                        ry="85"
-                        fill="url(#flame-halo)"
-                      />
-                      <path
-                        d="M45 215H355"
-                        stroke="#ffffff"
-                        strokeOpacity=".12"
-                      />
                       <g className="flame-shape">
                         <path
-                          d="M200 213C142 213 139 175 158 147c-3 24 11 27 14 30-9-37 30-57 27-102 33 32 26 55 21 71 13-6 18-17 17-28 44 47 36 95-37 95Z"
-                          fill="url(#flame-fill)"
+                          d="M146 218C130 191 126 162 132 131C140 87 165 49 200 48C235 49 260 87 268 131C274 162 270 191 254 218Z"
+                          fill="#1d65e8"
+                          opacity=".55"
+                          filter="url(#flame-glow)"
                         />
                         <path
-                          d="M200 213c-28 0-28-23-15-43-1 16 9 12 12 0 2-13 4-25 12-32-2 26 19 37 12 57-3 11-11 18-21 18Z"
-                          fill="#fff0cb"
+                          d="M146 216C132 191 129 163 135 133C143 91 168 53 200 53C232 53 257 91 265 133C271 163 268 191 254 216Z"
+                          fill="url(#flame-fill)"
+                          stroke="url(#flame-rim)"
+                          strokeWidth="9"
+                          filter="url(#flame-soft)"
+                        />
+                        <path
+                          d="M147 211C132 182 133 152 140 130M253 211C268 182 267 152 260 130"
+                          fill="none"
+                          stroke="#50bcff"
+                          strokeWidth="3"
+                          opacity=".65"
+                          filter="url(#flame-soft)"
                         />
                       </g>
-                      <rect
-                        x="167"
-                        y="216"
-                        width="66"
-                        height="8"
-                        rx="4"
-                        fill="#4c3b35"
-                      />
+                      <rect x="171" y="218" width="58" height="10" rx="2" fill="#080b10" />
                     </svg>
                     <span className="stage-label">
                       ILLUSTRATIVE
