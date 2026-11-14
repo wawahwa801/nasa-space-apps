@@ -1441,8 +1441,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 @media (min-width: 1000px) {
   .conversation {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
-    grid-template-areas: "intro intro" "flame parameters" "prediction parameters" "readout-heading parameters" "readouts parameters" "status parameters";
+    grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+    grid-template-areas: "intro intro" "parameters flame" "parameters prediction" "parameters readout-heading" "parameters readouts" "parameters status";
     align-items: start;
     gap: 0 24px;
   }
