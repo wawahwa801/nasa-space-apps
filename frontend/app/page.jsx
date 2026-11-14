@@ -125,9 +125,9 @@ export default function Home() {
   return (
     <div className="app-shell">
       <BlackHole
-        color1="#ff5a14"
-        color2="#080a24"
-        color3="#ffe1aa"
+        color1="#e52436"
+        color2="#050505"
+        color3="#ffb3b3"
         speed={0.6}
         scale={1.2}
         noise={0.14}
@@ -497,23 +497,23 @@ export default function Home() {
                         <path
                           d="M30 0H0V30"
                           fill="none"
-                          stroke="#33413e"
+                          stroke="#443033"
                           strokeWidth="1"
                         />
                       </pattern>
                       <linearGradient id="wall" x2="0" y2="1">
-                        <stop stopColor="#24342f" />
-                        <stop offset="1" stopColor="#15211f" />
+                        <stop stopColor="#302325" />
+                        <stop offset="1" stopColor="#1a1415" />
                       </linearGradient>
                       <radialGradient id="glow">
-                        <stop stopColor="#eba95a" stopOpacity=".3" />
-                        <stop offset="1" stopColor="#eba95a" stopOpacity="0" />
+                        <stop stopColor="#e85050" stopOpacity=".3" />
+                        <stop offset="1" stopColor="#e85050" stopOpacity="0" />
                       </radialGradient>
                     </defs>
                     <path
                       d="m80 165 230-110 230 110-230 112Z"
-                      fill="#182621"
-                      stroke="#52665c"
+                      fill="#191516"
+                      stroke="#70565a"
                     />
                     <path
                       d="m80 165 230-110 230 110-230 112Z"
@@ -523,18 +523,18 @@ export default function Home() {
                       d="M80 165V65L310 5v50Z"
                       fill="url(#wall)"
                       opacity=".65"
-                      stroke="#3c5045"
+                      stroke="#594247"
                     />
                     <path
                       d="M310 55V5l230 60v100Z"
-                      fill="#1c2b26"
+                      fill="#21191b"
                       opacity=".8"
-                      stroke="#3c5045"
+                      stroke="#594247"
                     />
                     <path
                       d="M310 5v50M80 65l230 107 230-107"
                       fill="none"
-                      stroke="#516359"
+                      stroke="#70565a"
                       strokeDasharray="4 6"
                       opacity=".5"
                     />
@@ -546,26 +546,26 @@ export default function Home() {
                       fill="url(#glow)"
                     />
                     <g>
-                      <path d="m270 163 45-22 45 22-45 22Z" fill="#bd975d" />
-                      <path d="m270 163 45 22v35l-45-22Z" fill="#785d39" />
-                      <path d="m315 185 45-22v35l-45 22Z" fill="#9a7847" />
+                      <path d="m270 163 45-22 45 22-45 22Z" fill="#c95058" />
+                      <path d="m270 163 45 22v35l-45-22Z" fill="#742b33" />
+                      <path d="m315 185 45-22v35l-45 22Z" fill="#9a3842" />
                       <path
                         d="m292 153 45 22v35"
                         fill="none"
-                        stroke="#d2b37d"
+                        stroke="#f69a9f"
                       />
                       <path
                         d="M315 139v-30"
-                        stroke="#e8bd77"
+                        stroke="#ff7c86"
                         strokeDasharray="3 4"
                       />
-                      <circle cx="315" cy="106" r="4" fill="#e8bd77" />
+                      <circle cx="315" cy="106" r="4" fill="#ff7c86" />
                       <text
                         x="315"
                         y="92"
                         textAnchor="middle"
-                        fill="#e4d1ac"
-                        fontSize="11"
+                        fill="#ffd1d5"
+                        fontSize="13"
                       >
                         FUEL SOURCE
                       </text>
@@ -575,41 +575,41 @@ export default function Home() {
                         values.machinery === "None identified" ? 0.18 : 1
                       }
                     >
-                      <path d="m415 120 38-18 25 12-38 19Z" fill="#59716b" />
-                      <path d="m415 120 25 13v50l-25-13Z" fill="#344942" />
-                      <path d="m440 133 38-19v50l-38 19Z" fill="#425b51" />
+                      <path d="m415 120 38-18 25 12-38 19Z" fill="#747474" />
+                      <path d="m415 120 25 13v50l-25-13Z" fill="#383838" />
+                      <path d="m440 133 38-19v50l-38 19Z" fill="#515151" />
                       <path
                         d="m447 140 23-11m-23 20 23-11m-23 20 23-11"
-                        stroke="#7f9c8c"
+                        stroke="#ababab"
                       />
-                      <circle cx="449" cy="169" r="2" fill="#b5e8b8" />
+                      <circle cx="449" cy="169" r="2" fill="#ff6b77" />
                     </g>
                     <g
                       transform={`rotate(${Number(values.direction || 0) - 90} 190 195)`}
                       fill="none"
-                      stroke="#a4ccaf"
+                      stroke="#ffaaaa"
                       strokeWidth="2"
                     >
                       <path d="M130 175h80m-12-6 12 6-12 6M120 194h100m-12-6 12 6-12 6M135 213h75m-12-6 12 6-12 6" />
                     </g>
-                    <text x="120" y="253" fill="#a5b8ab" fontSize="11">
+                    <text x="120" y="253" fill="#c8bbbb" fontSize="13">
                       AIRFLOW · {values.flow || 0} m/s
                     </text>
-                    <path d="M465 195v31h44" fill="none" stroke="#718a79" />
-                    <text x="462" y="245" fill="#a5b8ab" fontSize="10">
+                    <path d="M465 195v31h44" fill="none" stroke="#a38b90" />
+                    <text x="462" y="245" fill="#c8bbbb" fontSize="12">
                       EQUIPMENT ZONE
                     </text>
                     <path
                       d="m310 277 0 22m-10-5 10 5 10-5"
-                      stroke="#718a79"
+                      stroke="#a38b90"
                       fill="none"
                     />
                     <text
                       x="310"
                       y="320"
-                      fill="#789084"
+                      fill="#b29da1"
                       textAnchor="middle"
-                      fontSize="10"
+                      fontSize="12"
                     >
                       ILLUSTRATIVE · NOT TO SCALE
                     </text>
