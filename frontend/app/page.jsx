@@ -206,6 +206,7 @@ export default function Home() {
           </a>
           <button
             className="text-button"
+            aria-label="New scenario"
             onClick={() => {
               reset();
               setMessages([]);
@@ -213,7 +214,7 @@ export default function Home() {
               setPaused(false);
             }}
           >
-            + New scenario
+            +
           </button>
           <button className="panel-toggle" aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
           <button
@@ -256,7 +257,7 @@ export default function Home() {
                       <span className="card-icon warm">
                         <Symbol name="flame" />
                       </span>
-                      <h2 id="flame-heading">Flame simulation</h2>
+                      <h2 id="flame-heading" className="sr-only">Flame preview</h2>
                     </div>
                     <span className="preview-badge">Preview</span>
                   </div>
@@ -271,7 +272,7 @@ export default function Home() {
                         return <circle key={i} cx={x} cy={y} r={i % 13 === 0 ? 1.5 : .65} fill={i % 4 === 0 ? "#ffad64" : "#e6542d"} opacity={.2 + (i % 5) * .1} />;
                       })}
                     </svg>
-                    <div className="field-overlay" aria-hidden="true"><span>RELATIVE FIELD</span><span>+Y</span><span>+X →</span></div>
+
                     <div className="field-annotations" aria-label="Current flame scenario inputs">
                       <div className="field-annotation annotation-oxygen"><span>ATMOSPHERE / O₂</span><strong>{values.oxygen}<small> %</small></strong><i /></div>
                       <div className="field-annotation annotation-pressure"><span>AMBIENT PRESSURE</span><strong>{values.pressure}<small> kPa</small></strong><i /></div>
@@ -331,12 +332,10 @@ export default function Home() {
                         />
                       </g>
                     </svg>
-                    <span className="stage-label">
-                      ILLUSTRATIVE
-                    </span>
+
                   </div>
                   <div className="card-footer">
-                    <span>{values.fuel} · Illustrative graphic</span>
+                    <span>{values.fuel}</span>
                     <div className="playback-controls"><label>Speed <select value={speed} onChange={e => setSpeed(Number(e.target.value))} aria-label="Animation playback speed"><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option></select></label>
                     <button className="text-button" type="button" onClick={() => { setAnimationKey(k => k + 1); setPaused(false); }}>Restart</button>
                     <button
