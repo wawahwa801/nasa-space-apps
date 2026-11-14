@@ -58,3 +58,27 @@ The dashboard should retain the document's exploratory framing until independent
 On the downloaded 80-frame sample, 10 epochs trained on 59 pairs and evaluated on 19 same-video pairs. CNN pixel MSE was **0.02738**, versus **0.002934** for persistence. The CNN performed worse than persistence, so this checkpoint demonstrates the pipeline only and should not be used for simulation. Source SHA-256: `5b92c74d633f816070ec893d9b06c6448f545c48b97b47a61d3dee1c25d01417`.
 
 Raw-data acquisition and target-label decisions are tracked in [issue #4](https://github.com/wawahwa801/nasa-space-apps/issues/4).
+
+## BASS-II rerun and interactive test lab
+
+The public table endpoint has now been identified: `https://psi.nasa.gov/geode-py/ws/repo/investigations/PSI-25`. The old `/studies/PSI-25` metadata request was the wrong route for that table. `fetch_bass.py` uses the public catalog and download endpoints to acquire two unrestricted small raw videos, B1 (sample 147) and B3 (sample 148), and the experimental CSV. The catalog reports CC0-1.0. Earlier access-gap notes above describe the first attempt.
+
+From the repository root:
+
+```bash
+source ml/.venv/bin/activate
+pip install -r ml/requirements.txt
+python ml/fetch_bass.py
+python ml/flame.py prepare --video 'ml/data/PSI-25_Raw Data_BASS_GMT50_SAMPLE_147_TEST_B1.mp4' --run-id bass-b1 --source https://psi.nasa.gov/physci/repo/data/investigations/PSI-25 --start 15 --frames 80
+python ml/flame.py prepare --video 'ml/data/PSI-25_Raw Data_BASS_GMT50_SAMPLE_148_TEST_B3.mp4' --run-id bass-b3 --source https://psi.nasa.gov/physci/repo/data/investigations/PSI-25 --start 15 --frames 80
+python ml/flame.py train --run-id bass-b1 --val-run bass-b3 --epochs 30
+python ml/lab.py
+```
+
+Open **http://127.0.0.1:5050**. This separate local Flask interface leaves the team's Next.js dashboard and API unchanged. It loads the checkpoint once at startup; restart the server after retraining.
+
+Controls select a recorded source frame, brightness, contrast, and 1–8 repeated prediction steps. The actual CNN generates every output; the browser does not draw a procedural flame. Brightness and contrast test visual input sensitivity, not physical effects. Repeated steps can accumulate errors. The expandable recorded target is comparable only for an unmodified input and one prediction step.
+
+The B1/B3 CSV reports initial oxygen of 22.2% for both runs, fan display 62/47, and air display 5/2. These are recorded display readings, not inferred m/s. No calibrated condition channels have been fitted. More trials spanning conditions and calibrated, time-aligned labels are needed before meaningful oxygen/airflow controls can be trained. The other three PSI investigations have not yet been sampled by this script.
+
+The final BASS-II smoke run used 80 frames from 15.00–34.75 s in each video, 79 training pairs and 79 validation pairs, 30 epochs, seed 42. Validation MSE: **0.006789**; persistence MSE: **0.0006226**. The CNN still loses to persistence. This is a functioning test lab, not a useful physical surrogate yet. Source SHA-256 values: B1 `e82f64268c51efeea73a3f11e690a2f6e504845e980fb60356a6ef1584d273cd`; B3 `421b7089bb60dfe14d5d784dec63ef7be7fd710006608daee21840b5dfc70034`.

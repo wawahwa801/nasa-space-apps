@@ -48,3 +48,5 @@ Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `
 ## Small CNN experiment
 
 See [ml/README.md](ml/README.md) for sample acquisition, training and prediction commands, measured baseline results, and a plan for expanding to raw PSI experiment data. The current sample is public SAFFIRE-V media, not the requested raw PSI datasets; this is an image prediction pipeline demonstration.
+
+For the local interactive CNN test lab, follow [the BASS-II rerun instructions](ml/README.md#bass-ii-rerun-and-interactive-test-lab), then run `python ml/lab.py` and open `http://127.0.0.1:5050`. Change source frame, brightness, contrast, or prediction steps to run inference. Environmental condition controls require further training data and are not fitted in this prototype.

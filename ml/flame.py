@@ -101,6 +101,7 @@ def train(args):
     OUT.mkdir(exist_ok=True)
     torch.save(net.state_dict(), OUT / 'tiny.pt')
     report = dict(parameters=sum(p.numel() for p in net.parameters()), epochs=args.epochs,
+                  train_run=args.run_id, validation_run=args.val_run,
                   train_pairs=len(x), validation_pairs=len(vx), validation_mse=mse,
                   persistence_mse=baseline, evaluation=scope, seed=42)
     (OUT / 'metrics.json').write_text(json.dumps(report, indent=2))
