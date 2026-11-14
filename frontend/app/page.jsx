@@ -237,14 +237,6 @@ export default function Home() {
             />
           )}
           <main className="conversation">
-            <div className="workspace-heading">
-              <div>
-                <p className="eyebrow">ENVIRONMENTAL FIRE RESEARCH</p>
-                <h1>Simulation workspace</h1>
-                <p>Configure a scenario and explore the flame preview.</p>
-              </div>
-              <span className="workspace-status">Exploratory preview</span>
-            </div>
             <div
               className={`simulation-grid ${view !== "workspace" ? "single-view" : ""}`}
             >
@@ -347,8 +339,7 @@ export default function Home() {
           >
             <div className="parameters-heading">
               <div>
-                <h2 id="parameters-heading">Scenario parameters</h2>
-                <p>Define the atmosphere, fuel, and surroundings.</p>
+                <h2 id="parameters-heading">Parameters</h2>
 
               </div>
               <Symbol name="sliders" />
