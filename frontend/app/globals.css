@@ -1,0 +1,37 @@
+:root {
+  color-scheme: dark;
+  --background: #0b1020;
+  --surface: #121a2d;
+  --muted: #98a4bd;
+  --text: #f1f4fb;
+  --accent: #77d6c2;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at 50% -20%, #1b3150 0%, var(--background) 55%);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+.dashboard { max-width: 1080px; margin: 0 auto; padding: 28px 24px 80px; }
+.topbar { display: flex; align-items: center; justify-content: space-between; }
+.brand { color: var(--text); font-size: 15px; font-weight: 700; text-decoration: none; }
+.badge { border: 1px solid #34415a; border-radius: 999px; color: var(--muted); font-size: 12px; padding: 6px 11px; }
+.welcome { padding: 90px 0 42px; }
+.eyebrow, .card-label { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+h1 { font-size: clamp(38px, 6vw, 64px); letter-spacing: -.05em; margin: 12px 0; }
+.subtitle { color: var(--muted); font-size: 17px; line-height: 1.6; max-width: 600px; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.card { background: color-mix(in srgb, var(--surface) 90%, transparent); border: 1px solid #26314a; border-radius: 14px; min-height: 155px; padding: 22px; }
+.card-label { color: var(--muted); margin: 0 0 22px; }
+.card-value { font-size: 20px; font-weight: 600; margin: 0 0 8px; }
+.card-note { color: var(--muted); font-size: 13px; margin: 0; }
+
+@media (max-width: 700px) {
+  .welcome { padding-top: 64px; }
+  .cards { grid-template-columns: 1fr; }
+}
