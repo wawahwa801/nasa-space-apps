@@ -1,0 +1,26 @@
+{
+  "investigation": "PSI-98",
+  "run_id": "SAFFIRE-I Sample 2 (team-supplied filename; channel interpretation unverified)",
+  "sha256": "83ec7af7b36592198d0b3d2a54959c4829cc343f0eb7f39ff67af44360a57a4b",
+  "sheets": [
+    "Anemometer Tach and Igniter",
+    "Radiometer",
+    "Plume Temperature",
+    "Sample Temperature",
+    "CO2",
+    "O2",
+    "Pressure",
+    "Humidity",
+    "Inlet Temperature",
+    "Camera Exposure and Gain",
+    "Calibrated Data"
+  ],
+  "role": "Sensor workbook audit only; not calibrated or used as model input",
+  "missing": [
+    "matched surface ignition positions/times",
+    "material thermal properties",
+    "sensor geometry mapping",
+    "verified channel units",
+    "upstream reuse terms"
+  ]
+}
