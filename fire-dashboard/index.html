@@ -17,18 +17,20 @@
   </header>
 
   <main class="layout">
-    <aside class="panel inputs" aria-label="Inputs">
+    <aside class="panel inputs" id="inputs" aria-label="Inputs">
+      <div class="toolbar">
+        <button type="button" id="load-example">Load example</button>
+        <button type="button" id="export" class="secondary">Export</button>
+        <label class="file-btn secondary">Import<input id="import-file" type="file" accept=".json,application/json"></label>
+        <button type="button" id="clear-inputs" class="secondary">Clear</button>
+      </div>
+      <p id="input-status" class="hint" role="status">Inputs save automatically in this browser. Click a field to see what it is used for.</p>
       <form id="input-form" novalidate>
-        <div class="toolbar">
-          <button type="button" id="load-example">Load example</button>
-          <button type="button" id="clear-inputs" class="secondary">Clear</button>
-          <button type="button" id="export" class="secondary">Export JSON</button>
-        </div>
         <div id="input-sections"></div>
       </form>
     </aside>
 
-    <section class="dashboard" aria-label="Dashboard">
+    <section class="dashboard" id="results" aria-label="Dashboard">
       <div id="summary" class="tiles"></div>
 
       <div class="grid-2">
@@ -84,6 +86,11 @@
       </article>
     </section>
   </main>
+
+  <button type="button" id="results-bar" class="results-bar">
+    <span id="results-bar-summary">No inputs yet</span>
+    <span id="results-bar-action">View results ↓</span>
+  </button>
 
   <script src="data/reference-data.js"></script>
   <script src="js/parameters.js"></script>

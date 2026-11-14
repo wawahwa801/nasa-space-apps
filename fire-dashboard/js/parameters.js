@@ -5,7 +5,8 @@
 // rule that uses it.
 //
 // Field types:
-//   number - numeric input; `unit` is shown beside it
+//   number - numeric input. Either a fixed `unit`, or `units` naming one of
+//            UNIT_SYSTEMS so the user can pick the unit.
 //   choice - pick one of `options`
 
 (function () {
@@ -24,47 +25,90 @@
 
   const LEAK = ["None detected", "Suspected", "Confirmed", "Unknown"];
 
+  // Units a user can enter values in. The first unit of each system is the
+  // base unit: values are stored and assessed in it.
+  window.UNIT_SYSTEMS = {
+    pressure: [
+      { unit: "kPa", toBase: (x) => x, fromBase: (x) => x },
+      { unit: "psia", toBase: (x) => x * 6.894757, fromBase: (x) => x / 6.894757 },
+      { unit: "atm", toBase: (x) => x * 101.325, fromBase: (x) => x / 101.325 },
+    ],
+    temperature: [
+      { unit: "°C", toBase: (x) => x, fromBase: (x) => x },
+      { unit: "K", toBase: (x) => x - 273.15, fromBase: (x) => x + 273.15 },
+      { unit: "°F", toBase: (x) => ((x - 32) * 5) / 9, fromBase: (x) => (x * 9) / 5 + 32 },
+    ],
+    concentration: [
+      { unit: "ppm", toBase: (x) => x, fromBase: (x) => x },
+      { unit: "%", toBase: (x) => x * 10000, fromBase: (x) => x / 10000 },
+    ],
+    length: [
+      { unit: "m", toBase: (x) => x, fromBase: (x) => x },
+      { unit: "cm", toBase: (x) => x / 100, fromBase: (x) => x * 100 },
+      { unit: "ft", toBase: (x) => x * 0.3048, fromBase: (x) => x / 0.3048 },
+    ],
+  };
+
+  // `min`/`max` are in the base unit. `hint` says what the input is used for.
   window.PARAMETER_SECTIONS = [
     {
       id: "environment",
       title: "Environment",
       fields: [
-        { id: "environment", label: "Environmental condition", type: "choice", options: ["Pressurised", "Partially pressurised", "Vacuum"] },
-        { id: "gravity", label: "Gravity condition", type: "choice", options: ["Microgravity (~0 g)", "Lunar (0.17 g)", "Martian (0.38 g)", "Earth (1 g)"] },
-        { id: "internal_temp_c", label: "Internal temperature", type: "number", unit: "°C", step: "0.1" },
-        { id: "pressure_kpa", label: "Internal pressure", type: "number", unit: "kPa", min: 0, step: "0.1" },
+        { id: "environment", label: "Environmental condition", type: "choice", options: ["Pressurised", "Partially pressurised", "Vacuum"],
+          hint: "Checked against the pressure reading." },
+        { id: "gravity", label: "Gravity condition", type: "choice", options: ["Microgravity (~0 g)", "Lunar (0.17 g)", "Martian (0.38 g)", "Earth (1 g)"],
+          hint: "Microgravity changes how a flame gets oxygen. All loaded NASA tests are in microgravity." },
+        { id: "internal_temp_c", label: "Internal temperature", type: "number", units: "temperature", min: -273.15, max: 2000,
+          hint: "Shown against plume temperatures from the Saffire-I burn." },
+        { id: "pressure_kpa", label: "Internal pressure", type: "number", units: "pressure", min: 0, max: 1000,
+          hint: "Used with O₂ for partial pressure and to find similar ACME tests." },
       ],
     },
     {
       id: "atmosphere",
       title: "Atmospheric composition",
       fields: [
-        { id: "o2_pct", label: "Oxygen (O₂) concentration", type: "number", unit: "%", min: 0, max: 100, step: "0.1" },
-        { id: "n2_pct", label: "Nitrogen (N₂) concentration", type: "number", unit: "%", min: 0, max: 100, step: "0.1" },
-        { id: "co2_ppm", label: "Carbon dioxide (CO₂) concentration", type: "number", unit: "ppm", min: 0 },
-        { id: "h2_ppm", label: "Hydrogen (H₂) concentration", type: "number", unit: "ppm", min: 0 },
-        { id: "ch4_ppm", label: "Methane (CH₄) concentration", type: "number", unit: "ppm", min: 0 },
-        { id: "co_ppm", label: "Carbon monoxide (CO) concentration", type: "number", unit: "ppm", min: 0 },
-        { id: "monitoring", label: "Atmospheric monitoring status", type: "choice", options: ["Nominal", "Degraded", "Offline", "Unknown"] },
-        { id: "oxidizer_leak", label: "Oxygen / oxidizer leakage status", type: "choice", options: LEAK },
+        { id: "o2_pct", label: "Oxygen (O₂) concentration", type: "number", unit: "%", min: 0, max: 100,
+          hint: "Checked for enrichment and deficiency, and placed on the ACME chart." },
+        { id: "n2_pct", label: "Nitrogen (N₂) concentration", type: "number", unit: "%", min: 0, max: 100,
+          hint: "Checked with O₂ so the gas percentages add up." },
+        { id: "co2_ppm", label: "Carbon dioxide (CO₂) concentration", type: "number", units: "concentration", min: 0, max: 1e6,
+          hint: "Compared with NIOSH exposure limits and the Saffire-I burn." },
+        { id: "h2_ppm", label: "Hydrogen (H₂) concentration", type: "number", units: "concentration", min: 0, max: 1e6,
+          hint: "Compared with hydrogen's lower flammability limit (4%)." },
+        { id: "ch4_ppm", label: "Methane (CH₄) concentration", type: "number", units: "concentration", min: 0, max: 1e6,
+          hint: "Compared with methane's lower flammability limit (5%)." },
+        { id: "co_ppm", label: "Carbon monoxide (CO) concentration", type: "number", units: "concentration", min: 0, max: 1e6,
+          hint: "Compared with NIOSH limits. Rising CO can signal smouldering." },
+        { id: "monitoring", label: "Atmospheric monitoring status", type: "choice", options: ["Nominal", "Degraded", "Offline", "Unknown"],
+          hint: "Degraded or offline monitoring makes the gas readings less reliable." },
+        { id: "oxidizer_leak", label: "Oxygen / oxidizer leakage status", type: "choice", options: LEAK,
+          hint: "A leak can enrich O₂ locally, above the measured level." },
       ],
     },
     {
       id: "fuels",
       title: "Nearby fuels (gases)",
       fields: [
-        { id: "fuel_type", label: "Fuel type", type: "choice", options: fuels },
-        { id: "fuel_storage", label: "Fuel storage condition", type: "choice", options: ["Sealed cylinder", "Plumbed line (in use)", "Open / vented"] },
-        { id: "fuel_leak", label: "Fuel leakage status", type: "choice", options: LEAK },
-        { id: "fuel_distance_m", label: "Fuel distance from ignition sources", type: "number", unit: "m", min: 0, step: "0.01" },
+        { id: "fuel_type", label: "Fuel type", type: "choice", options: fuels,
+          hint: "Filters the ACME chart and finds SPICE flame runs for this fuel." },
+        { id: "fuel_storage", label: "Fuel storage condition", type: "choice", options: ["Sealed cylinder", "Plumbed line (in use)", "Open / vented"],
+          hint: "Open or vented fuel is flagged." },
+        { id: "fuel_leak", label: "Fuel leakage status", type: "choice", options: LEAK,
+          hint: "Suspected or confirmed leaks are flagged, more severely with an oxidizer leak." },
+        { id: "fuel_distance_m", label: "Fuel distance from ignition sources", type: "number", units: "length", min: 0, max: 1000,
+          hint: "Flagged when closer than the minimum separation in parameters.js." },
       ],
     },
     {
       id: "materials",
       title: "Combustible materials (solids)",
       fields: [
-        { id: "material_type", label: "Material type", type: "choice", options: materials },
-        { id: "material_distance_m", label: "Material distance from ignition sources", type: "number", unit: "m", min: 0, step: "0.01" },
+        { id: "material_type", label: "Material type", type: "choice", options: materials,
+          hint: "Finds SAME-R smoke tests for this material." },
+        { id: "material_distance_m", label: "Material distance from ignition sources", type: "number", units: "length", min: 0, max: 1000,
+          hint: "Flagged when closer than the minimum separation in parameters.js." },
       ],
     },
   ];

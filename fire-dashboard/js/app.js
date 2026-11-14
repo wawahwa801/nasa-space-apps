@@ -5,9 +5,10 @@
   const REF = window.REFERENCE_DATA;
   const T = window.THRESHOLDS;
   const SECTIONS = window.PARAMETER_SECTIONS;
+  const UNITS = window.UNIT_SYSTEMS;
   const { fmt } = window.Charts;
 
-  const STORE = { values: "fd.values", datasets: "fd.datasets" };
+  const STORE = { values: "fd.values", datasets: "fd.datasets", units: "fd.units" };
   const LEVELS = {
     critical: { label: "Critical", icon: "✕", rank: 4 },
     serious: { label: "Serious", icon: "▲", rank: 3 },
@@ -27,6 +28,8 @@
   }
 
   let userDatasets = load(STORE.datasets, []);
+  let unitPrefs = load(STORE.units, {});
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // ---------------------------------------------------------------- form
 
@@ -36,31 +39,69 @@
     return out;
   }
 
+  const FIELDS = Object.fromEntries(allFields().map((f) => [f.id, f]));
+
+  // The unit a field is currently entered in ({unit, toBase, fromBase}).
+  function unitOf(f) {
+    if (!f.units) return { unit: f.unit || "", toBase: (x) => x, fromBase: (x) => x };
+    const sys = UNITS[f.units];
+    return sys.find((u) => u.unit === unitPrefs[f.id]) || sys[0];
+  }
+  // Up to 6 significant figures, without trailing zeros.
+  const tidy = (x) => String(Number(x.toPrecision(6)));
+
   function fieldHtml(f) {
     const id = `f-${f.id}`;
-    const control = f.type === "number"
-      ? `<div class="with-unit"><input id="${id}" type="number" inputmode="decimal" ${f.min != null ? `min="${f.min}"` : ""} ${f.max != null ? `max="${f.max}"` : ""} step="${f.step || "any"}"><span class="unit">${esc(f.unit || "")}</span></div>`
-      : `<select id="${id}"><option value="">Not specified</option>${f.options.map((o) => `<option>${esc(o)}</option>`).join("")}</select>`;
-    return `<div class="field"><label for="${id}">${esc(f.label)}</label>${control}</div>`;
+    const described = `${id}-hint ${id}-err`;
+    let control;
+    if (f.type === "number") {
+      const cur = unitOf(f).unit;
+      const unit = f.units
+        ? `<select id="${id}-unit" class="unit-select" data-field="${f.id}" data-prev="${esc(cur)}" aria-label="${esc(f.label)} unit">${UNITS[f.units]
+            .map((u) => `<option ${u.unit === cur ? "selected" : ""}>${esc(u.unit)}</option>`).join("")}</select>`
+        : `<span class="unit">${esc(f.unit || "")}</span>`;
+      control = `<div class="with-unit"><input id="${id}" type="number" inputmode="decimal" step="any" aria-describedby="${described}">${unit}</div>`;
+    } else {
+      control = `<select id="${id}" aria-describedby="${described}"><option value="">Not specified</option>${f.options.map((o) => `<option>${esc(o)}</option>`).join("")}</select>`;
+    }
+    return `<div class="field" data-field="${f.id}"><label for="${id}">${esc(f.label)}</label>${control}
+      <p class="field-error" id="${id}-err" hidden></p>
+      ${f.hint ? `<p class="field-hint" id="${id}-hint">${esc(f.hint)}</p>` : ""}</div>`;
   }
 
   function renderForm() {
     $("#input-sections").innerHTML = SECTIONS
       .map((s) => `<details class="input-section" open>
-          <summary>${esc(s.title)} <span class="count">${s.fields.length}</span></summary>
+          <summary>${esc(s.title)} <span class="count" data-count="${s.id}"></span></summary>
           <div class="fields">${s.fields.map(fieldHtml).join("")}</div>
         </details>`)
       .join("");
   }
 
+  function rangeMessage(f) {
+    const u = unitOf(f);
+    return `Enter a value from ${tidy(u.fromBase(f.min))} to ${tidy(u.fromBase(f.max))} ${u.unit}. This value is ignored until it is corrected.`;
+  }
+
+  // Values come back in base units. Invalid numbers are reported and left out.
   function readValues() {
     const v = {};
+    const errors = {};
     for (const f of allFields()) {
       const node = $(`#f-${CSS.escape(f.id)}`);
       if (!node) continue;
-      v[f.id] = f.type === "number" ? (node.value === "" ? null : Number(node.value)) : node.value;
+      if (f.type !== "number") { v[f.id] = node.value; continue; }
+      v[f.id] = null;
+      if (node.value === "") {
+        if (node.validity && node.validity.badInput) errors[f.id] = "Enter a number.";
+        continue;
+      }
+      const base = unitOf(f).toBase(Number(node.value));
+      if (!isFinite(base)) errors[f.id] = "Enter a number.";
+      else if ((f.min != null && base < f.min - 1e-9) || (f.max != null && base > f.max + 1e-9)) errors[f.id] = rangeMessage(f);
+      else v[f.id] = base;
     }
-    return v;
+    return { v, errors };
   }
 
   function writeValues(v) {
@@ -68,9 +109,47 @@
       const node = $(`#f-${CSS.escape(f.id)}`);
       if (!node) continue;
       const x = v[f.id];
+      if (f.type === "number") node.value = typeof x === "number" && isFinite(x) ? tidy(unitOf(f).fromBase(x)) : "";
       // Ignore saved values that are no longer valid options.
-      node.value = f.type === "choice" && !f.options.includes(x) ? "" : x ?? "";
+      else node.value = f.options.includes(x) ? x : "";
     }
+  }
+
+  function showErrors(errors) {
+    for (const f of allFields()) {
+      const box = $(`#f-${CSS.escape(f.id)}-err`);
+      const input = $(`#f-${CSS.escape(f.id)}`);
+      if (!box || !input) continue;
+      const msg = errors[f.id];
+      box.textContent = msg || "";
+      box.hidden = !msg;
+      if (msg) input.setAttribute("aria-invalid", "true");
+      else input.removeAttribute("aria-invalid");
+    }
+  }
+
+  function updateCounts(v) {
+    for (const s of SECTIONS) {
+      const filled = s.fields.filter((f) => has(v[f.id])).length;
+      const node = $(`[data-count="${s.id}"]`);
+      node.textContent = `${filled}/${s.fields.length}`;
+      node.classList.toggle("complete", filled === s.fields.length);
+      node.setAttribute("aria-label", `${filled} of ${s.fields.length} filled`);
+    }
+  }
+
+  // Open the field's section, scroll to it and focus it.
+  function gotoField(id) {
+    const input = $(`#f-${CSS.escape(id)}`);
+    if (!input) return;
+    const details = input.closest("details");
+    if (details) details.open = true;
+    input.scrollIntoView({ block: "center", behavior: reducedMotion ? "auto" : "smooth" });
+    input.focus({ preventScroll: true });
+    const field = input.closest(".field");
+    field.classList.remove("flash");
+    void field.offsetWidth; // restart the highlight animation
+    field.classList.add("flash");
   }
 
   // ---------------------------------------------------------- assessment
@@ -111,59 +190,59 @@
 
   function assess(v) {
     const flags = [];
-    const add = (level, title, detail) => flags.push({ level, title, detail });
+    const add = (level, title, detail, field) => flags.push({ level, title, detail, field });
 
     if (has(v.o2_pct)) {
-      if (v.o2_pct > T.o2_enriched_pct) add("serious", "Oxygen-enriched atmosphere", `O₂ is ${fmt(v.o2_pct)}%, above ${T.o2_enriched_pct}%. Materials ignite more easily and burn faster.`);
-      else if (v.o2_pct < T.o2_deficient_pct) add("warning", "Oxygen-deficient atmosphere", `O₂ is ${fmt(v.o2_pct)}%, below ${T.o2_deficient_pct}%. A crew health concern; check for leaks of other gases.`);
-      else add("good", "Oxygen concentration in normal range", `O₂ is ${fmt(v.o2_pct)}%.`);
+      if (v.o2_pct > T.o2_enriched_pct) add("serious", "Oxygen-enriched atmosphere", `O₂ is ${fmt(v.o2_pct)}%, above ${T.o2_enriched_pct}%. Materials ignite more easily and burn faster.`, "o2_pct");
+      else if (v.o2_pct < T.o2_deficient_pct) add("warning", "Oxygen-deficient atmosphere", `O₂ is ${fmt(v.o2_pct)}%, below ${T.o2_deficient_pct}%. A crew health concern; check for leaks of other gases.`, "o2_pct");
+      else add("good", "Oxygen concentration in normal range", `O₂ is ${fmt(v.o2_pct)}%.`, "o2_pct");
     }
     if (has(v.o2_pct) && has(v.pressure_kpa)) {
       const pp = (v.o2_pct / 100) * v.pressure_kpa;
-      if (pp > T.sea_level_ppo2_kpa * 1.05) add("info", "Oxygen partial pressure above sea-level air", `${fmt(pp)} kPa vs ${T.sea_level_ppo2_kpa} kPa at sea level. Flammability depends on both O₂ % and pressure.`);
+      if (pp > T.sea_level_ppo2_kpa * 1.05) add("info", "Oxygen partial pressure above sea-level air", `${fmt(pp)} kPa vs ${T.sea_level_ppo2_kpa} kPa at sea level. Flammability depends on both O₂ % and pressure.`, "pressure_kpa");
     }
     if (has(v.o2_pct) && has(v.n2_pct) && v.o2_pct + v.n2_pct > 100.5) {
-      add("warning", "Gas percentages add up to more than 100%", `O₂ ${fmt(v.o2_pct)}% + N₂ ${fmt(v.n2_pct)}% = ${fmt(v.o2_pct + v.n2_pct)}%. Check the readings.`);
+      add("warning", "Gas percentages add up to more than 100%", `O₂ ${fmt(v.o2_pct)}% + N₂ ${fmt(v.n2_pct)}% = ${fmt(v.o2_pct + v.n2_pct)}%. Check the readings.`, "n2_pct");
     }
 
     for (const [key, gas, name] of [["h2_ppm", "h2", "Hydrogen"], ["ch4_ppm", "ch4", "Methane"]]) {
       if (!has(v[key])) continue;
       const share = v[key] / (T.lfl_pct[gas] * 10000);
       const pct = `${fmt(share * 100)}% of its lower flammability limit (${T.lfl_pct[gas]}% by volume)`;
-      if (share >= T.lfl_critical_share) add("critical", `${name} near flammable concentration`, `${fmt(v[key])} ppm is ${pct}.`);
-      else if (share >= T.lfl_warning_share) add("warning", `${name} elevated`, `${fmt(v[key])} ppm is ${pct}.`);
+      if (share >= T.lfl_critical_share) add("critical", `${name} near flammable concentration`, `${fmt(v[key])} ppm is ${pct}.`, key);
+      else if (share >= T.lfl_warning_share) add("warning", `${name} elevated`, `${fmt(v[key])} ppm is ${pct}.`, key);
     }
     if (has(v.co_ppm)) {
-      if (v.co_ppm > T.co_ppm.serious) add("serious", "Carbon monoxide very high", `${fmt(v.co_ppm)} ppm, above the ${T.co_ppm.serious} ppm NIOSH ceiling. CO can indicate smouldering or incomplete combustion.`);
-      else if (v.co_ppm > T.co_ppm.warning) add("warning", "Carbon monoxide elevated", `${fmt(v.co_ppm)} ppm, above the ${T.co_ppm.warning} ppm NIOSH exposure limit. CO can indicate smouldering.`);
+      if (v.co_ppm > T.co_ppm.serious) add("serious", "Carbon monoxide very high", `${fmt(v.co_ppm)} ppm, above the ${T.co_ppm.serious} ppm NIOSH ceiling. CO can indicate smouldering or incomplete combustion.`, "co_ppm");
+      else if (v.co_ppm > T.co_ppm.warning) add("warning", "Carbon monoxide elevated", `${fmt(v.co_ppm)} ppm, above the ${T.co_ppm.warning} ppm NIOSH exposure limit. CO can indicate smouldering.`, "co_ppm");
     }
     if (has(v.co2_ppm)) {
-      if (v.co2_ppm > T.co2_ppm.serious) add("serious", "Carbon dioxide very high", `${fmt(v.co2_ppm)} ppm, above the ${fmt(T.co2_ppm.serious)} ppm NIOSH short-term limit.`);
-      else if (v.co2_ppm > T.co2_ppm.warning) add("warning", "Carbon dioxide elevated", `${fmt(v.co2_ppm)} ppm, above the ${fmt(T.co2_ppm.warning)} ppm NIOSH exposure limit.`);
+      if (v.co2_ppm > T.co2_ppm.serious) add("serious", "Carbon dioxide very high", `${fmt(v.co2_ppm)} ppm, above the ${fmt(T.co2_ppm.serious)} ppm NIOSH short-term limit.`, "co2_ppm");
+      else if (v.co2_ppm > T.co2_ppm.warning) add("warning", "Carbon dioxide elevated", `${fmt(v.co2_ppm)} ppm, above the ${fmt(T.co2_ppm.warning)} ppm NIOSH exposure limit.`, "co2_ppm");
     }
 
     const fl = leakLevel(v.fuel_leak);
     const ol = leakLevel(v.oxidizer_leak);
-    if (fl) add(fl, `Fuel leakage: ${v.fuel_leak.toLowerCase()}`, `${v.fuel_type ? esc(v.fuel_type) + ": " : ""}a leaking fuel can form a flammable mixture away from its storage location.`);
-    if (ol) add(ol, `Oxygen / oxidizer leakage: ${v.oxidizer_leak.toLowerCase()}`, "A leak can locally enrich the atmosphere above the measured O₂ level.");
+    if (fl) add(fl, `Fuel leakage: ${v.fuel_leak.toLowerCase()}`, `${v.fuel_type ? esc(v.fuel_type) + ": " : ""}a leaking fuel can form a flammable mixture away from its storage location.`, "fuel_leak");
+    if (ol) add(ol, `Oxygen / oxidizer leakage: ${v.oxidizer_leak.toLowerCase()}`, "A leak can locally enrich the atmosphere above the measured O₂ level.", "oxidizer_leak");
     if (["Suspected", "Confirmed"].includes(v.fuel_leak) && ["Suspected", "Confirmed"].includes(v.oxidizer_leak)) {
-      add("critical", "Fuel and oxidizer both leaking", "Fuel and oxidizer leaks together greatly increase the chance of ignition.");
+      add("critical", "Fuel and oxidizer both leaking", "Fuel and oxidizer leaks together greatly increase the chance of ignition.", "fuel_leak");
     }
     for (const [key, what, type] of [["fuel_distance_m", "Fuel", v.fuel_type], ["material_distance_m", "Material", v.material_type]]) {
       if (has(v[key]) && v[key] < T.min_ignition_distance_m) {
-        add("warning", `${what} close to an ignition source`, `${type ? esc(type) + " is " : ""}${fmt(v[key])} m away, under the ${T.min_ignition_distance_m} m separation set in parameters.js.`);
+        add("warning", `${what} close to an ignition source`, `${type ? esc(type) + " is " : ""}${fmt(v[key])} m away, under the ${T.min_ignition_distance_m} m separation set in parameters.js.`, key);
       }
     }
-    if (v.fuel_storage === "Open / vented") add("warning", "Fuel open or vented", `${v.fuel_type ? esc(v.fuel_type) : "The fuel"} is not contained, so it can mix with the cabin air.`);
+    if (v.fuel_storage === "Open / vented") add("warning", "Fuel open or vented", `${v.fuel_type ? esc(v.fuel_type) : "The fuel"} is not contained, so it can mix with the cabin air.`, "fuel_storage");
 
-    if (v.monitoring === "Offline") add("serious", "Atmospheric monitoring offline", "Gas readings may be stale or missing.");
-    else if (v.monitoring === "Degraded" || v.monitoring === "Unknown") add("warning", `Atmospheric monitoring ${v.monitoring.toLowerCase()}`, "Treat gas readings with caution.");
+    if (v.monitoring === "Offline") add("serious", "Atmospheric monitoring offline", "Gas readings may be stale or missing.", "monitoring");
+    else if (v.monitoring === "Degraded" || v.monitoring === "Unknown") add("warning", `Atmospheric monitoring ${v.monitoring.toLowerCase()}`, "Treat gas readings with caution.", "monitoring");
 
     if (v.environment === "Vacuum" && has(v.pressure_kpa) && v.pressure_kpa > 1) {
-      add("warning", "Condition and pressure disagree", `Marked as vacuum, but pressure is ${fmt(v.pressure_kpa)} kPa.`);
+      add("warning", "Condition and pressure disagree", `Marked as vacuum, but pressure is ${fmt(v.pressure_kpa)} kPa.`, "environment");
     }
     if ((v.gravity || "").startsWith("Microgravity")) {
-      add("info", "Microgravity", "With no buoyant flow, a flame's oxygen supply depends on ventilation. Flames can spread upstream into the airflow and may persist at lower O₂ than on Earth.");
+      add("info", "Microgravity", "With no buoyant flow, a flame's oxygen supply depends on ventilation. Flames can spread upstream into the airflow and may persist at lower O₂ than on Earth.", "gravity");
     }
 
     const near = nearestAcme(v);
@@ -174,7 +253,7 @@
       add(level, `${near.ignited} of ${near.tests.length} similar ACME tests ignited`,
         `ACME test points with the closest O₂ % and pressure${near.fuelMatched ? ` using a fuel matching "${esc(v.fuel_type)}"` : " (all fuels)"}. ` +
         "Those tests had a gaseous fuel and a deliberate igniter, so this indicates whether the atmosphere can support burning, not whether a fire will start." +
-        (near.outOfRange ? " Your conditions are outside the range ACME tested." : ""));
+        (near.outOfRange ? " Your conditions are outside the range ACME tested." : ""), near.fuelMatched ? "fuel_type" : "o2_pct");
     }
 
     flags.sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank);
@@ -190,6 +269,7 @@
   function renderSummary(v, result) {
     const issues = result.flags.filter((f) => LEVELS[f.level].rank >= 2);
     const top = issues[0]?.level || (result.flags.length ? "good" : null);
+    const pu = unitOf(FIELDS.pressure_kpa);
     const pp = has(v.o2_pct) && has(v.pressure_kpa) ? (v.o2_pct / 100) * v.pressure_kpa : null;
     const tile = (label, value, unit, sub) =>
       `<div class="tile"><div class="tile-label">${label}</div><div class="tile-value">${value}<span class="tile-unit">${unit}</span></div>${sub ? `<div class="tile-sub">${sub}</div>` : ""}</div>`;
@@ -200,18 +280,23 @@
         <div class="tile-sub">${top ? badge(top) + (issues.length ? " highest severity" : " nothing flagged") : "Enter conditions to assess"}</div>
       </div>
       ${tile("Oxygen", has(v.o2_pct) ? fmt(v.o2_pct) : "–", "%", has(v.o2_pct) ? `Enrichment threshold ${T.o2_enriched_pct}%` : "")}
-      ${tile("O₂ partial pressure", pp != null ? fmt(pp) : "–", "kPa", `Sea-level air ${T.sea_level_ppo2_kpa} kPa`)}
-      ${tile("Internal pressure", has(v.pressure_kpa) ? fmt(v.pressure_kpa) : "–", "kPa", v.environment ? esc(v.environment) : "")}`;
+      ${tile("O₂ partial pressure", pp != null ? fmt(pu.fromBase(pp)) : "–", pu.unit, `Sea-level air ${fmt(pu.fromBase(T.sea_level_ppo2_kpa))} ${pu.unit}`)}
+      ${tile("Internal pressure", has(v.pressure_kpa) ? fmt(pu.fromBase(v.pressure_kpa)) : "–", pu.unit, v.environment ? esc(v.environment) : "")}`;
+    $("#results-bar-summary").innerHTML = top
+      ? `${badge(top)} ${issues.length} issue${issues.length === 1 ? "" : "s"}`
+      : "No inputs yet";
   }
 
   function renderFlags(result) {
     const list = $("#flags");
     if (!result.flags.length) {
-      list.innerHTML = '<li class="empty">No inputs yet. Fill in the form or load the example.</li>';
+      list.innerHTML = '<li class="empty">No inputs yet. Fill in the form, or <button type="button" class="link-btn" data-action="example">load the example</button> to see how it works.</li>';
       return;
     }
     list.innerHTML = result.flags
-      .map((f) => `<li class="flag">${badge(f.level)}<div><div class="flag-title">${f.title}</div><div class="flag-detail">${f.detail}</div></div></li>`)
+      .map((f) => `<li class="flag">${badge(f.level)}<div>${f.field
+        ? `<button type="button" class="flag-title flag-link" data-goto="${f.field}" title="Go to ${esc(FIELDS[f.field]?.label || "input")}">${f.title}</button>`
+        : `<div class="flag-title">${f.title}</div>`}<div class="flag-detail">${f.detail}</div></div></li>`)
       .join("");
   }
 
@@ -264,7 +349,8 @@
       caption = esc(acmeFilter);
     } else caption = "All fuels";
     const nearIds = new Set((result.near?.tests || []).map((t) => t.id));
-    $("#acme-caption").innerHTML = `${caption} · ${tests.length} test points · ${tests.filter((t) => t.ignited).length} ignited`;
+    $("#acme-caption").innerHTML = `${caption} · ${tests.length} test points · ${tests.filter((t) => t.ignited).length} ignited` +
+      (has(v.o2_pct) && has(v.pressure_kpa) ? "" : '<br><span class="muted">Enter O₂ and internal pressure to place your conditions on the chart.</span>');
 
     const point = (t) => ({
       x: t.o2_pct, y: t.pressure_kpa, series: t.ignited ? "yes" : "no",
@@ -428,7 +514,9 @@
 
   let timer;
   function update() {
-    const v = readValues();
+    const { v, errors } = readValues();
+    showErrors(errors);
+    updateCounts(v);
     save(STORE.values, v);
     const result = assess(v);
     renderSummary(v, result);
@@ -452,19 +540,83 @@
     $("#input-form").addEventListener("input", scheduleUpdate);
     $("#input-form").addEventListener("change", scheduleUpdate);
     $("#input-form").addEventListener("submit", (e) => e.preventDefault());
-    $("#load-example").addEventListener("click", () => { writeValues(window.EXAMPLE_INPUT); update(); });
-    $("#clear-inputs").addEventListener("click", () => { writeValues({}); update(); });
+    const status = (msg) => { $("#input-status").textContent = msg; };
+    const loadExample = () => { writeValues(window.EXAMPLE_INPUT); update(); status("Example loaded. Change any value to see the dashboard update."); };
+    $("#load-example").addEventListener("click", loadExample);
+    $("#flags").addEventListener("click", (e) => {
+      if (e.target.closest("[data-action=example]")) { loadExample(); return; }
+      const id = e.target.closest("[data-goto]")?.dataset.goto;
+      if (id) gotoField(id);
+    });
+    $("#clear-inputs").addEventListener("click", () => {
+      const filled = Object.values(readValues().v).filter(has).length;
+      if (filled && !window.confirm(`Clear all ${filled} inputs? Export them first if you want to keep them.`)) return;
+      writeValues({});
+      update();
+      status("Inputs cleared.");
+    });
+
+    // Changing a unit converts the value already entered.
+    $("#input-sections").addEventListener("change", (e) => {
+      const sel = e.target.closest(".unit-select");
+      if (!sel) return;
+      const f = FIELDS[sel.dataset.field];
+      const input = $(`#f-${CSS.escape(f.id)}`);
+      const prev = UNITS[f.units].find((u) => u.unit === sel.dataset.prev) || UNITS[f.units][0];
+      const next = UNITS[f.units].find((u) => u.unit === sel.value);
+      if (input.value !== "" && isFinite(Number(input.value))) input.value = tidy(next.fromBase(prev.toBase(Number(input.value))));
+      sel.dataset.prev = next.unit;
+      unitPrefs[f.id] = next.unit;
+      save(STORE.units, unitPrefs);
+    });
+
     $("#export").addEventListener("click", () => {
       const { v, result } = update();
+      const baseUnits = Object.fromEntries(allFields().filter((f) => f.type === "number").map((f) => [f.id, f.units ? UNITS[f.units][0].unit : f.unit]));
       const blob = new Blob([JSON.stringify({
-        exported: new Date().toISOString(), inputs: v,
+        exported: new Date().toISOString(), inputs: v, units: baseUnits,
         assessment: result.flags.map((f) => ({ level: f.level, title: f.title, detail: f.detail.replace(/<[^>]+>/g, "") })),
       }, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "fire-safety-inputs.json";
+      a.download = `fire-safety-inputs-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(a.href);
+      status("Exported. Use Import to load this file again later.");
+    });
+    $("#import-file").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(String(reader.result));
+          const inputs = data && typeof data.inputs === "object" ? data.inputs : data;
+          const known = Object.keys(inputs || {}).filter((k) => FIELDS[k]);
+          if (!known.length) throw new Error("no recognised inputs");
+          writeValues(Object.fromEntries(known.map((k) => [k, inputs[k]])));
+          update();
+          status(`Imported ${known.length} inputs from ${file.name}.`);
+        } catch {
+          status(`${file.name} is not an export from this dashboard.`);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Phone layout: a bar that jumps between the inputs and the results.
+    const bar = $("#results-bar");
+    let resultsVisible = false;
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([entry]) => {
+        resultsVisible = entry.isIntersecting;
+        $("#results-bar-action").textContent = resultsVisible ? "Edit inputs ↑" : "View results ↓";
+      }, { threshold: 0.15 }).observe($("#results"));
+    }
+    bar.addEventListener("click", () => {
+      const target = resultsVisible ? $("#inputs") : $("#results");
+      target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     });
 
     $("#acme-fuel").addEventListener("change", (e) => { acmeFilter = e.target.value; update(); });

@@ -14,6 +14,19 @@ plain HTML, CSS and JavaScript, with no dependencies and no build step.
 Open `fire-dashboard/index.html` in a browser. No server is needed, and nothing
 is sent over the network. Click **Load example** to see a filled-in dashboard.
 
+## Using it
+
+- **Units:** pressure (kPa, psia, atm), temperature (°C, K, °F), gas concentrations
+  (ppm, %) and distances (m, cm, ft) can be entered in any listed unit. Switching the
+  unit converts the value already entered.
+- **Help and checks:** click a field to see what it is used for. Values outside a
+  sensible range (for example O₂ above 100%) are marked and ignored until corrected.
+- **Progress:** each section heading shows how many of its fields are filled.
+- **From result to input:** click an item in the assessment to jump to the input behind it.
+- **Saving:** inputs save automatically in the browser. **Export** downloads them as
+  JSON (in kPa, °C, ppm and m) and **Import** loads such a file again.
+- **On a phone:** a bar at the bottom shows the issue count and jumps between inputs and results.
+
 ## What it shows
 
 - **Summary tiles:** issue count and highest severity, O₂ %, O₂ partial pressure, internal pressure.
