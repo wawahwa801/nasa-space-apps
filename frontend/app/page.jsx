@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 
 const defaults = {
@@ -56,12 +56,101 @@ function Symbol({ name, ...props }) {
   );
 }
 
+function Slider({ name, label, suffix, min, max, step, value, onChange }) {
+  const change = (v) =>
+    onChange(Number(Math.min(max, Math.max(min, v)).toFixed(2)));
+  return (
+    <div className="slider-field">
+      <div>
+        <label htmlFor={name}>{label}</label>
+        <output htmlFor={name}>
+          {value} {suffix}
+        </output>
+      </div>
+      <input
+        id={name}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        aria-valuetext={`${value} ${suffix}`}
+        onChange={(e) => change(Number(e.target.value))}
+      />
+      <div className="slider-limits">
+        <span>{min}</span>
+        <button
+          type="button"
+          aria-label={`Decrease ${label}`}
+          disabled={value <= min}
+          onClick={() => change(Number(value) - step)}
+        >
+          −
+        </button>
+        <button
+          type="button"
+          aria-label={`Increase ${label}`}
+          disabled={value >= max}
+          onClick={() => change(Number(value) + step)}
+        >
+          +
+        </button>
+        <span>
+          {max} {suffix}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
+  const [chatOpen, setChatOpen] = useState(false);
+  const [mobile, setMobile] = useState(false);
+  const chatRef = useRef(null),
+    chatTrigger = useRef(null);
+  useEffect(() => {
+    const media = matchMedia("(min-width: 1100px)");
+    const sync = () => {
+      setMobile(!media.matches);
+      setChatOpen(media.matches);
+    };
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+  useEffect(() => {
+    if (chatOpen && mobile) chatRef.current?.focus();
+  }, [chatOpen, mobile]);
+  function closeChat() {
+    setChatOpen(false);
+    chatTrigger.current?.focus();
+  }
+  function handleChatKey(e) {
+    if (e.key === "Escape") closeChat();
+    if (e.key === "Tab" && mobile) {
+      const nodes = chatRef.current.querySelectorAll(
+        "button:not(:disabled),textarea,a[href]",
+      );
+      const first = nodes[0],
+        last = nodes[nodes.length - 1];
+      if (
+        e.shiftKey &&
+        (document.activeElement === first ||
+          document.activeElement === chatRef.current)
+      ) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
   const [values, setValues] = useState(defaults);
   const [unit, setUnit] = useState("C");
   const [snapshot, setSnapshot] = useState(null);
   const [error, setError] = useState("");
-  const [view, setView] = useState("workspace");
+  const view = "flame";
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
   const [paused, setPaused] = useState(false);
@@ -102,61 +191,34 @@ export default function Home() {
   const nav = [
     ["workspace", "Workspace", "chat"],
     ["flame", "Flame simulation", "flame"],
-    ["physics", "Physics simulation", "physics"],
   ];
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <a
-          className="brand"
-          href="#workspace"
-          onClick={() => setView("workspace")}
-        >
-          ember<span>.</span>
-        </a>
-        <button
-          className="new-scenario"
-          onClick={() => {
-            reset();
-            setMessages([]);
-            setPrompt("");
-            setView("workspace");
-          }}
-        >
-          <Symbol name="plus" /> New scenario
-        </button>
-        <p className="nav-caption">YOUR WORKSPACE</p>
-        <nav aria-label="Simulation workspace">
-          {nav.map(([key, label, icon]) => (
-            <button
-              key={key}
-              className={`nav-item ${view === key ? "active" : ""}`}
-              aria-pressed={view === key}
-              onClick={() => setView(key)}
-            >
-              <Symbol name={icon} />
-              {label}
-            </button>
-          ))}
-          <a className="nav-item" href="#parameters">
-            <Symbol name="sliders" />
-            Parameters
-          </a>
-        </nav>
-        <div className="sidebar-note">
-          <span className="status-dot" />
-          Local workspace
-          <p>Your scenarios stay in this page. Models are not connected.</p>
-        </div>
-        <div className="profile">
-          <span className="avatar">JW</span>
-          <div>
-            Research workspace<small>Personal environment</small>
-          </div>
-        </div>
-      </aside>
+    <div className={`app-shell ${chatOpen ? "chat-open" : ""}`}>
       <div className="workspace-shell" id="workspace">
         <header className="topbar">
+          <a className="brand" href="#workspace">
+            ember<span>.</span>
+          </a>
+          <button
+            className="text-button"
+            onClick={() => {
+              reset();
+              setMessages([]);
+              setPrompt("");
+              setPaused(false);
+            }}
+          >
+            + New scenario
+          </button>
+          <button
+            ref={chatTrigger}
+            className="chat-toggle"
+            aria-expanded={chatOpen}
+            aria-controls="chat-panel"
+            onClick={() => (chatOpen ? closeChat() : setChatOpen(true))}
+          >
+            Chat
+          </button>
           <span>
             Ember <span className="header-divider">/</span>{" "}
             <b>{nav.find(([key]) => key === view)[1]}</b>
@@ -167,11 +229,18 @@ export default function Home() {
           </a>
         </header>
         <div className="content-grid">
+          {chatOpen && mobile && (
+            <button
+              className="chat-backdrop"
+              aria-label="Dismiss chat"
+              onClick={closeChat}
+            />
+          )}
           <main className="conversation">
             <section className="page-heading">
               <span className="eyebrow">FIRE & ENVIRONMENT LAB</span>
-              <h1>What would you like to explore?</h1>
-              <p>Define the environment. Explore the flame and the physics.</p>
+              <h1>Flame workspace</h1>
+              <p>Define your environment. Explore flame behavior.</p>
             </section>
             <div
               className={`simulation-grid ${view !== "workspace" ? "single-view" : ""}`}
@@ -268,169 +337,6 @@ export default function Home() {
                   </p>
                 </section>
               )}
-              {view !== "flame" && (
-                <section
-                  className="simulation-card physics-card"
-                  aria-labelledby="physics-heading"
-                >
-                  <div className="card-heading">
-                    <div className="card-title">
-                      <span className="card-icon">
-                        <Symbol name="physics" />
-                      </span>
-                      <h2 id="physics-heading">Physics simulation</h2>
-                    </div>
-                    <span className="preview-badge">Scene preview</span>
-                  </div>
-                  <div className="physics-stage">
-                    <svg
-                      className="room-diagram"
-                      viewBox="0 0 620 330"
-                      role="img"
-                      aria-label="Illustrative room schematic showing fuel, equipment and airflow; not a simulation"
-                    >
-                      <defs>
-                        <pattern
-                          id="floorGrid"
-                          width="30"
-                          height="30"
-                          patternUnits="userSpaceOnUse"
-                          patternTransform="matrix(1 .48 -1 .48 310 90)"
-                        >
-                          <path
-                            d="M30 0H0V30"
-                            fill="none"
-                            stroke="#443033"
-                            strokeWidth="1"
-                          />
-                        </pattern>
-                        <linearGradient id="wall" x2="0" y2="1">
-                          <stop stopColor="#302325" />
-                          <stop offset="1" stopColor="#1a1415" />
-                        </linearGradient>
-                        <radialGradient id="glow">
-                          <stop stopColor="#e85050" stopOpacity=".3" />
-                          <stop
-                            offset="1"
-                            stopColor="#e85050"
-                            stopOpacity="0"
-                          />
-                        </radialGradient>
-                      </defs>
-                      <path
-                        d="m80 165 230-110 230 110-230 112Z"
-                        fill="#191516"
-                        stroke="#70565a"
-                      />
-                      <path
-                        d="m80 165 230-110 230 110-230 112Z"
-                        fill="url(#floorGrid)"
-                      />
-                      <path
-                        d="M80 165V65L310 5v50Z"
-                        fill="url(#wall)"
-                        opacity=".65"
-                        stroke="#594247"
-                      />
-                      <path
-                        d="M310 55V5l230 60v100Z"
-                        fill="#21191b"
-                        opacity=".8"
-                        stroke="#594247"
-                      />
-                      <path
-                        d="M310 5v50M80 65l230 107 230-107"
-                        fill="none"
-                        stroke="#70565a"
-                        strokeDasharray="4 6"
-                        opacity=".5"
-                      />
-                      <ellipse
-                        cx="310"
-                        cy="190"
-                        rx="110"
-                        ry="55"
-                        fill="url(#glow)"
-                      />
-                      <g>
-                        <path d="m270 163 45-22 45 22-45 22Z" fill="#c95058" />
-                        <path d="m270 163 45 22v35l-45-22Z" fill="#742b33" />
-                        <path d="m315 185 45-22v35l-45 22Z" fill="#9a3842" />
-                        <path
-                          d="m292 153 45 22v35"
-                          fill="none"
-                          stroke="#f69a9f"
-                        />
-                        <path
-                          d="M315 139v-30"
-                          stroke="#ff7c86"
-                          strokeDasharray="3 4"
-                        />
-                        <circle cx="315" cy="106" r="4" fill="#ff7c86" />
-                        <text
-                          x="315"
-                          y="92"
-                          textAnchor="middle"
-                          fill="#ffd1d5"
-                          fontSize="13"
-                        >
-                          FUEL SOURCE
-                        </text>
-                      </g>
-                      <g
-                        opacity={
-                          values.machinery === "None identified" ? 0.18 : 1
-                        }
-                      >
-                        <path d="m415 120 38-18 25 12-38 19Z" fill="#747474" />
-                        <path d="m415 120 25 13v50l-25-13Z" fill="#383838" />
-                        <path d="m440 133 38-19v50l-38 19Z" fill="#515151" />
-                        <path
-                          d="m447 140 23-11m-23 20 23-11m-23 20 23-11"
-                          stroke="#ababab"
-                        />
-                        <circle cx="449" cy="169" r="2" fill="#ff6b77" />
-                      </g>
-                      <g
-                        transform={`rotate(${Number(values.direction || 0) - 90} 190 195)`}
-                        fill="none"
-                        stroke="#ffaaaa"
-                        strokeWidth="2"
-                      >
-                        <path d="M130 175h80m-12-6 12 6-12 6M120 194h100m-12-6 12 6-12 6M135 213h75m-12-6 12 6-12 6" />
-                      </g>
-                      <text x="120" y="253" fill="#c8bbbb" fontSize="13">
-                        AIRFLOW · {values.flow || 0} m/s
-                      </text>
-                      <path d="M465 195v31h44" fill="none" stroke="#a38b90" />
-                      <text x="462" y="245" fill="#c8bbbb" fontSize="12">
-                        EQUIPMENT ZONE
-                      </text>
-                      <path
-                        d="m310 277 0 22m-10-5 10 5 10-5"
-                        stroke="#a38b90"
-                        fill="none"
-                      />
-                      <text
-                        x="310"
-                        y="320"
-                        fill="#b29da1"
-                        textAnchor="middle"
-                        fontSize="12"
-                      >
-                        ILLUSTRATIVE · NOT TO SCALE
-                      </text>
-                    </svg>
-                  </div>
-                  <div className="card-footer">
-                    <span>Airflow · {values.flow || 0} m/s</span>
-                    <span>Gravity · {values.gravity || 0} g</span>
-                  </div>
-                  <p className="model-note">
-                    Physics solver not connected. Arrows show input direction.
-                  </p>
-                </section>
-              )}
             </div>
             <div className="scenario-strip" role="status">
               <span className={`status-dot ${snapshot ? "ready" : ""}`} />
@@ -438,6 +344,24 @@ export default function Home() {
                 ? "Parameters applied locally · Ready for a model connection"
                 : "Edit parameters to set up your scenario"}
             </div>
+          </main>
+          <aside
+            className="chat-panel"
+            id="chat-panel"
+            hidden={!chatOpen}
+            ref={chatRef}
+            tabIndex={-1}
+            role={mobile ? "dialog" : undefined}
+            aria-modal={mobile || undefined}
+            aria-label="Scenario chat"
+            onKeyDown={handleChatKey}
+          >
+            <div className="chat-heading">
+              <h2>Scenario chat</h2>
+              <button onClick={closeChat} aria-label="Close chat">
+                ×
+              </button>
+            </div>{" "}
             <section
               className="conversation-log"
               aria-label="Scenario conversation"
@@ -513,7 +437,7 @@ export default function Home() {
                 generated.
               </p>
             </div>
-          </main>
+          </aside>{" "}
           <aside
             className="parameter-panel"
             id="parameters"
@@ -532,97 +456,43 @@ export default function Home() {
                   Atmospheric conditions
                 </span>
                 <div className="fields-grid">
-                  {fields
-                    .slice(0, 4)
-                    .map(([key, label, suffix, min, max, step]) => (
-                      <label className="field" key={key}>
-                        <span>{label}</span>
-                        <div className="input-wrap">
-                          <input
-                            type="number"
-                            required
-                            min={min}
-                            max={max}
-                            step={step}
-                            value={values[key]}
-                            onChange={(e) => update(key, e.target.value)}
-                          />
-                          <span>{suffix}</span>
-                        </div>
-                      </label>
-                    ))}
-                  <div className="field">
-                    <span>
-                      <label htmlFor="temperature">Temperature</label>
-                      <button
-                        className="unit-toggle"
-                        type="button"
-                        onClick={() => setUnit(unit === "C" ? "K" : "C")}
-                        aria-label={`Switch temperature to ${unit === "C" ? "Kelvin" : "Celsius"}`}
-                      >
-                        °C / K
-                      </button>
-                    </span>
-                    <div className="input-wrap">
-                      <input
-                        id="temperature"
-                        type="number"
-                        required
-                        min={unit === "C" ? -273.15 : 0}
-                        max={unit === "C" ? 2000 : 2273.15}
-                        step="any"
-                        value={temperature}
-                        onChange={(e) =>
-                          update(
-                            "temperature",
-                            e.target.value === ""
-                              ? ""
-                              : Number(e.target.value) -
-                                  (unit === "K" ? 273.15 : 0),
-                          )
-                        }
-                      />
-                      <span>{unit === "C" ? "°C" : "K"}</span>
-                    </div>
-                  </div>
-                  {fields
-                    .slice(4, 5)
-                    .map(([key, label, suffix, min, max, step]) => (
-                      <label className="field" key={key}>
-                        <span>{label}</span>
-                        <div className="input-wrap">
-                          <input
-                            type="number"
-                            required
-                            min={min}
-                            max={max}
-                            step={step}
-                            value={values[key]}
-                            onChange={(e) => update(key, e.target.value)}
-                          />
-                          <span>{suffix}</span>
-                        </div>
-                      </label>
-                    ))}
-                  {fields
-                    .slice(6)
-                    .map(([key, label, suffix, min, max, step]) => (
-                      <label className="field" key={key}>
-                        <span>{label}</span>
-                        <div className="input-wrap">
-                          <input
-                            type="number"
-                            required
-                            min={min}
-                            max={max}
-                            step={step}
-                            value={values[key]}
-                            onChange={(e) => update(key, e.target.value)}
-                          />
-                          <span>{suffix}</span>
-                        </div>
-                      </label>
-                    ))}
+                  {[
+                    ...fields.filter(([key]) => key !== "area"),
+                    [
+                      "temperature",
+                      "Temperature",
+                      unit === "C" ? "°C" : "K",
+                      unit === "C" ? -273.15 : 0,
+                      unit === "C" ? 2000 : 2273.15,
+                      0.01,
+                    ],
+                  ].map(([key, label, suffix, min, max, step]) => (
+                    <Slider
+                      key={key}
+                      name={key}
+                      label={label}
+                      suffix={suffix}
+                      min={min}
+                      max={max}
+                      step={step}
+                      value={key === "temperature" ? temperature : values[key]}
+                      onChange={(v) =>
+                        update(
+                          key,
+                          key === "temperature" && unit === "K"
+                            ? Number((v - 273.15).toFixed(2))
+                            : v,
+                        )
+                      }
+                    />
+                  ))}
+                  <button
+                    type="button"
+                    className="unit-toggle"
+                    onClick={() => setUnit(unit === "C" ? "K" : "C")}
+                  >
+                    Temperature unit: {unit === "C" ? "°C → K" : "K → °C"}
+                  </button>
                 </div>
               </div>
               <div className="field-section">
@@ -646,21 +516,16 @@ export default function Home() {
                       ))}
                     </select>
                   </label>
-                  <label className="field">
-                    <span>Fuel surface area</span>
-                    <div className="input-wrap">
-                      <input
-                        type="number"
-                        required
-                        min="0"
-                        max="100000"
-                        step="any"
-                        value={values.area}
-                        onChange={(e) => update("area", e.target.value)}
-                      />
-                      <span>cm²</span>
-                    </div>
-                  </label>
+                  <Slider
+                    name="area"
+                    label="Fuel surface area"
+                    suffix="cm²"
+                    min={0}
+                    max={100000}
+                    step={1}
+                    value={values.area}
+                    onChange={(v) => update("area", v)}
+                  />{" "}
                   <label className="field full">
                     <span>Location</span>
                     <input
