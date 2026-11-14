@@ -1529,3 +1529,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
   .parameter-panel .fields-grid { grid-template-columns: minmax(0, 1fr); }
   .parameter-panel .field input, .parameter-panel .field select, .parameter-panel .editable-value input { font-size: 16px; }
 }
+
+/* Hide the bottom playback bar in the full-screen view. */
+.card-footer { display: none; }
