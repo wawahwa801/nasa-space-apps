@@ -15,8 +15,8 @@ This repository is worked on by three people using Codex and/or Claude agents. K
 ## Pull requests and review
 
 - Open a GitHub pull request for each completed task and describe the purpose, notable changes, and checks performed. Link related issues when applicable.
-- Before merge, have one of the other two project members inspect the full diff independently and check correctness, unintended effects, and verification results. If the reviewer is satisfied and all required checks pass, merge the pull request into `main`.
-- The reviewing member's agent should read the full diff at the current head commit, run relevant checks in an isolated checkout, and submit an approval or request for changes through that member's authorized GitHub account. Follow the account's permissions and required human approval settings; never use the author's credentials to approve their PR. If access or approval is unavailable, report the blocker and continue independent work.
+- Before merge, have one independent reviewer inspect the full diff and check correctness, unintended effects, and verification results. The reviewer may be a project member or an agent acting for a project member; the reviewer must be different from the author of the PR. If the reviewer is satisfied and all required checks and repository approval rules pass, merge the pull request into `main`.
+- The reviewer must read the full diff at the current head commit and run relevant checks in an isolated checkout. Any formal GitHub approval must use the reviewer-authorizing member's own account and permissions; never use the author's credentials to approve their PR. If access or approval is unavailable, report the blocker and continue independent work.
 - When the independent review is satisfactory and all required checks and GitHub approvals are satisfied, merge into `main` without waiting for another merge request. Recheck the head commit before merging; new commits require another inspection.
 - If the reviewer is not satisfied, do not merge. Leave a brief, specific comment stating what needs attention, then return the pull request to its author for changes. Re-review after updates.
 - The authoring agent must not be the sole reviewer of its own work. Address review comments in a follow-up commit and request another look when the changes affect the review.
@@ -25,9 +25,9 @@ This repository is worked on by three people using Codex and/or Claude agents. K
 
 ## GitHub identity and agent use
 
-- Agents are tools operated by the three people, not project members or GitHub accounts. Do not create agent accounts, add agents as collaborators, or share personal access tokens, SSH keys, or login sessions between people or agents.
+- Agents are tools operated by the three people, not GitHub accounts. Do not create agent accounts, add agents as collaborators, or share personal access tokens, SSH keys, or login sessions between people or agents.
 - Keep Git commits and pull requests attributed to the human who authorized the work, using that person's own GitHub credentials and configured Git identity. Never impersonate another person or fabricate a review, approval, or status check.
-- A reviewing agent acts for its authorizing project member using that member's account and permissions. A comment or document message alone is not a formal GitHub approval. Where human confirmation is required, have that member submit or authorize the formal review before merge.
+- A reviewing agent acts for its authorizing project member and must not review that member's own PR. A comment or document message alone is not a formal GitHub approval. Follow any required formal GitHub approval rules before merge.
 - Do not add reviewers or collaborators automatically. The humans decide who has repository access and who formally reviews each pull request.
 
 ## Review checklist
