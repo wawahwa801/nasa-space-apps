@@ -104,12 +104,12 @@ function Slider({ name, label, suffix, min, max, step, value, onChange }) {
 }
 
 export default function Home() {
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true);
   const [mobile, setMobile] = useState(false);
   const chatRef = useRef(null),
     chatTrigger = useRef(null);
   useEffect(() => {
-    const media = matchMedia("(min-width: 1100px)");
+    const media = matchMedia("(min-width: 721px)");
     const sync = () => {
       setMobile(!media.matches);
       setChatOpen(media.matches);
@@ -217,7 +217,7 @@ export default function Home() {
             aria-controls="chat-panel"
             onClick={() => (chatOpen ? closeChat() : setChatOpen(true))}
           >
-            Chat
+            Scenario chat
           </button>
           <span>
             Ember <span className="header-divider">/</span>{" "}
