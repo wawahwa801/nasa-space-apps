@@ -1293,3 +1293,44 @@ body {
 .parameter-panel .editable-value input {width:90px;height:36px;padding:5px 8px;text-align:right;font-size:16px;border:1px solid #ffffff24;border-radius:8px;background:#101319b3;color:#f1d1ba;font-variant-numeric:tabular-nums;}
 .parameter-panel .editable-value input:invalid {border-color:#ed9c88;}
 .slider-field>div:first-child {align-items:center;flex-wrap:wrap;}
+
+/* Dashboard layout */
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+.topbar { height: 70px; padding: 0 32px; background: #080b10e8; border-bottom: 1px solid #ffffff12; }
+.topbar .brand { font-size: 25px; letter-spacing: -1px; }
+.chat-toggle, .chat-heading button { border-radius: 8px; background: #ffffff0a; font-size: 12px; }
+.conversation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 430px); gap: 16px 20px; max-width: 1440px; margin: 0 auto; padding: 32px; }
+.simulation-grid { grid-column: 1; grid-row: 1; align-self: start; }
+.simulation-card, .parameter-panel { border: 1px solid #ffffff16; border-radius: 16px; background: #10141bd9; box-shadow: 0 12px 36px #0003; }
+.card-heading { padding: 22px 24px 0; }
+.card-title h2 { font-weight: 600; }
+.preview-badge { padding: 4px 8px; border: 1px solid #ffffff1c; border-radius: 6px; color: #aaa; }
+.flame-stage { height: 360px; }
+.flame-art { height: 320px; }
+.card-footer { padding: 14px 24px; }
+.scenario-strip { grid-column: 1; grid-row: 2; justify-content: flex-start; margin: 0 4px; }
+.parameter-panel { grid-column: 2; grid-row: 1 / 3; margin: 0; padding: 24px; }
+.parameter-panel h2 { font-size: 18px; font-weight: 600; }
+.parameters-heading { margin-bottom: 24px; }
+.parameter-panel .fields-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+.parameter-panel .field > span, .slider-field > div:first-child { font-size: 12px; color: #b8bdc6; }
+.parameter-panel .field input, .parameter-panel .field select { height: 42px; font-size: 14px; border-radius: 8px; background: #080b10b3; }
+.parameter-panel .editable-value input { height: 36px; font-size: 14px; border-radius: 7px; }
+.field-section-title { font-size: 12px; color: #d1d3d7; margin-bottom: 18px; }
+.field-section + .field-section { margin-top: 24px; padding-top: 24px; }
+.chat-panel { background: #0b1018f2; border-color: #ffffff16; }
+@media (max-width: 900px) {
+  .conversation { display: block; padding: 24px; }
+  .scenario-strip { margin: 14px 4px; }
+  .parameter-panel { margin-top: 20px; }
+  .parameter-panel .fields-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .topbar { padding: 0 16px; gap: 8px; }
+  .conversation { padding: 18px 16px; }
+  .parameter-panel { padding: 20px 16px; }
+  .parameter-panel .fields-grid { grid-template-columns: minmax(0, 1fr); }
+  .parameter-panel .field input, .parameter-panel .field select, .parameter-panel .editable-value input { font-size: 16px; }
+  .flame-stage { height: 280px; }
+  .flame-art { height: 250px; }
+}
