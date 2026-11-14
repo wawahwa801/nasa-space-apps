@@ -57,15 +57,15 @@ function Symbol({ name, ...props }) {
 }
 
 function Slider({ name, label, suffix, min, max, step, value, onChange }) {
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => setDraft(String(value)), [value]);
   const change = (v) =>
     onChange(Number(Math.min(max, Math.max(min, v)).toFixed(2)));
   return (
     <div className="slider-field">
       <div>
         <label htmlFor={name}>{label}</label>
-        <output htmlFor={name}>
-          {value} {suffix}
-        </output>
+        <span className="editable-value"><input aria-label={`${label} value`} type="number" required min={min} max={max} step={step} value={draft} onChange={e => {setDraft(e.target.value); const n=e.target.valueAsNumber; if(Number.isFinite(n) && n>=min && n<=max) onChange(n);}} onBlur={() => {const n=Number(draft); if(draft.trim() && Number.isFinite(n)) {const bounded=Number(Math.min(max,Math.max(min,n)).toFixed(2));onChange(bounded);setDraft(String(bounded));} else setDraft(String(value));}}/><span>{suffix}</span></span>
       </div>
       <input
         id={name}
@@ -237,11 +237,6 @@ export default function Home() {
             />
           )}
           <main className="conversation">
-            <section className="page-heading">
-              <span className="eyebrow">FIRE & ENVIRONMENT LAB</span>
-              <h1>Flame workspace</h1>
-              <p>Define your environment. Explore flame behavior.</p>
-            </section>
             <div
               className={`simulation-grid ${view !== "workspace" ? "single-view" : ""}`}
             >
