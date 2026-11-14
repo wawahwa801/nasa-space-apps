@@ -1,8 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Project Dashboard",
-  description: "Interactive project dashboard",
+  title: "Ember | Environmental Fire Safety Dashboard",
+  description:
+    "Explore environmental and fuel parameters in an interactive fire safety dashboard preview.",
 };
 
 export default function RootLayout({ children }) {
