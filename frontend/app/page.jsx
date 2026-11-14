@@ -154,6 +154,8 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
   const [paused, setPaused] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [animationKey, setAnimationKey] = useState(0);
   const update = (key, value) => {
     setValues((v) => ({ ...v, [key]: value }));
     setSnapshot(null);
@@ -258,7 +260,8 @@ export default function Home() {
                     </div>
                     <span className="preview-badge">Preview</span>
                   </div>
-                  <div className={`flame-stage ${paused ? "paused" : ""}`}>
+                  <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
+                    <div className="field-overlay" aria-hidden="true"><span>RELATIVE FIELD</span><span>+Y</span><span>+X →</span></div>
                     <svg
                       viewBox="0 0 400 250"
                       role="img"
@@ -318,24 +321,29 @@ export default function Home() {
                     </span>
                   </div>
                   <div className="card-footer">
-                    <span>{values.fuel}</span>
+                    <span>{values.fuel} · Illustrative graphic</span>
+                    <div className="playback-controls"><label>Speed <select value={speed} onChange={e => setSpeed(Number(e.target.value))} aria-label="Animation playback speed"><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option></select></label>
+                    <button className="text-button" type="button" onClick={() => { setAnimationKey(k => k + 1); setPaused(false); }}>Restart</button>
                     <button
                       className="text-button"
                       aria-pressed={paused}
                       onClick={() => setPaused(!paused)}
                     >
                       {paused ? "Play" : "Pause"}
-                    </button>
+                    </button></div>
                   </div>
                 </section>
               )}
             </div>
+            <div className="readouts-heading"><h2>Environmental conditions</h2><span>Current inputs</span></div>
             <div className="dashboard-readouts" aria-label="Current scenario inputs">
-              <div><span>Oxygen</span><strong>{values.oxygen}<small> %</small></strong></div>
-              <div><span>Pressure</span><strong>{values.pressure}<small> kPa</small></strong></div>
-              <div><span>Airflow</span><strong>{values.flow}<small> m/s</small></strong></div>
-              <div><span>Gravity</span><strong>{values.gravity}<small> g</small></strong></div>
+              {[["Oxygen", values.oxygen, "%", "Reference: Earth 20.9%", 100, "oxygen"], ["Pressure", values.pressure, "kPa", "Reference: Earth 101.3 kPa", 500, "pressure"], ["Airflow", values.flow, "m/s", "Input range: 0–100 m/s", 100, "airflow"], ["Gravity", values.gravity, "g", "Reference: Earth 1 g", 5, "gravity"]].map(([label, value, unitLabel, context, max, kind]) => <div className={`instrument ${kind}`} key={kind}><span>{label}</span><strong>{value}<small> {unitLabel}</small></strong><div className="instrument-track" aria-hidden="true"><i style={{ width: `${Math.min(100, Math.max(0, Number(value) / max * 100))}%` }} /></div><p>{context}</p></div>)}
             </div>
+            <section className="prediction-panel" aria-labelledby="prediction-heading">
+              <div className="prediction-heading"><div><p className="dashboard-kicker">MODEL OUTPUT</p><h2 id="prediction-heading">Prediction analysis</h2></div><span className="model-status">Awaiting model</span></div>
+              <div className="prediction-metrics"><div><span>Flame height</span><strong>— <small>mm</small></strong></div><div><span>Peak temperature</span><strong>— <small>K</small></strong></div><div><span>Model confidence</span><strong>— <small>%</small></strong></div></div>
+              <div className="prediction-note"><strong>AI interpretation</strong><p>Model predictions and interpretation will appear here when a prediction model is connected.</p></div>
+            </section>
             <div className="scenario-strip" role="status">
               <span className={`status-dot ${snapshot ? "ready" : ""}`} />
               {snapshot
@@ -493,11 +501,12 @@ export default function Home() {
             onKeyDown={handleChatKey}
           >
             <div className="chat-heading">
-              <h2>Scenario chat</h2>
+              <h2>Experiment assistant</h2>
               <button onClick={closeChat} aria-label="Close chat">
                 ×
               </button>
             </div>{" "}
+            <div className="chat-summary"><span>CURRENT INPUTS</span><p>{values.oxygen}% O₂ · {values.pressure} kPa · {values.gravity} g</p><small>Notes are saved locally for this session. AI explanations are not connected.</small></div>
             <section
               className="conversation-log"
               aria-label="Scenario conversation"
@@ -509,7 +518,7 @@ export default function Home() {
                   <div>
                     <h2>Scenario notes</h2>
                     <p>
-                      Save a note with your parameters.
+                      Save experiment observations with the current parameter values.
                     </p>
                   </div>
                 </div>
