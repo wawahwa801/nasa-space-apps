@@ -315,19 +315,44 @@ h2 {
   margin-top: -10px;
 }
 .flame-shape {
-  transform-origin: 200px 214px;
-  animation: flicker 2.5s ease-in-out infinite alternate;
+  transform-origin: 200px 218px;
+  animation: flame-breathe 4.8s ease-in-out infinite;
 }
-.paused .flame-shape {
+.flame-aura,
+.flame-core,
+.flame-edge {
+  transform-origin: 200px 218px;
+}
+.flame-aura {
+  animation: flame-glow 3.7s ease-in-out infinite;
+}
+.flame-core {
+  animation: flame-waver 2.9s ease-in-out infinite;
+}
+.flame-edge {
+  animation: flame-shimmer 2.3s ease-in-out infinite;
+}
+.paused .flame-shape,
+.paused .flame-shape * {
   animation-play-state: paused;
 }
-@keyframes flicker {
-  from {
-    transform: scale(0.98, 1);
-  }
-  to {
-    transform: scale(1.025, 0.955);
-  }
+@keyframes flame-breathe {
+  0%, 100% { transform: scale(.98, .98); }
+  50% { transform: scale(1.025, 1.035); }
+}
+@keyframes flame-glow {
+  0%, 100% { opacity: .38; transform: scale(.98, 1); }
+  50% { opacity: .72; transform: scale(1.08, 1.035); }
+}
+@keyframes flame-waver {
+  0%, 100% { transform: skewX(-.8deg) scaleX(.99); }
+  35% { transform: skewX(1deg) scaleX(1.015); }
+  70% { transform: skewX(-.3deg) scaleX(1.005); }
+}
+@keyframes flame-shimmer {
+  0%, 100% { opacity: .4; transform: skewX(.7deg) scaleX(.99); }
+  45% { opacity: .85; transform: skewX(-1deg) scaleX(1.025); }
+  75% { opacity: .55; transform: skewX(.4deg) scaleX(1.01); }
 }
 .room-diagram {
   display: block;
@@ -1024,7 +1049,8 @@ h2 {
   html {
     scroll-behavior: auto;
   }
-  .flame-shape {
+  .flame-shape,
+  .flame-shape * {
     animation: none;
   }
   .liquid-button {

@@ -283,12 +283,14 @@ export default function Home() {
                       </defs>
                       <g className="flame-shape">
                         <path
+                          className="flame-aura"
                           d="M146 218C130 191 126 162 132 131C140 87 165 49 200 48C235 49 260 87 268 131C274 162 270 191 254 218Z"
                           fill="#1d65e8"
                           opacity=".55"
                           filter="url(#flame-glow)"
                         />
                         <path
+                          className="flame-core"
                           d="M146 216C132 191 129 163 135 133C143 91 168 53 200 53C232 53 257 91 265 133C271 163 268 191 254 216Z"
                           fill="url(#flame-fill)"
                           stroke="url(#flame-rim)"
@@ -296,6 +298,7 @@ export default function Home() {
                           filter="url(#flame-soft)"
                         />
                         <path
+                          className="flame-edge"
                           d="M147 211C132 182 133 152 140 130M253 211C268 182 267 152 260 130"
                           fill="none"
                           stroke="#50bcff"
