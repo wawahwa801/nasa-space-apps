@@ -237,6 +237,10 @@ export default function Home() {
             />
           )}
           <main className="conversation">
+            <div className="dashboard-intro">
+              <div><p className="dashboard-kicker">EMBER / WORKSPACE</p><h1>Flame simulation</h1><p>Explore a scenario by adjusting the environment below.</p></div>
+              <a className="dashboard-link" href="#parameters">Adjust parameters <span aria-hidden="true">↓</span></a>
+            </div>
             <div
               className={`simulation-grid ${view !== "workspace" ? "single-view" : ""}`}
             >
@@ -325,6 +329,12 @@ export default function Home() {
                   </div>
                 </section>
               )}
+            </div>
+            <div className="dashboard-readouts" aria-label="Current scenario inputs">
+              <div><span>Oxygen</span><strong>{values.oxygen}<small> %</small></strong></div>
+              <div><span>Pressure</span><strong>{values.pressure}<small> kPa</small></strong></div>
+              <div><span>Airflow</span><strong>{values.flow}<small> m/s</small></strong></div>
+              <div><span>Gravity</span><strong>{values.gravity}<small> g</small></strong></div>
             </div>
             <div className="scenario-strip" role="status">
               <span className={`status-dot ${snapshot ? "ready" : ""}`} />
