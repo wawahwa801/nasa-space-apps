@@ -335,15 +335,15 @@ export default function Home() {
                 </section>
               )}
             </div>
+            <section className="prediction-panel" aria-labelledby="prediction-heading">
+              <div className="prediction-heading"><div className="prediction-title"><span className="prediction-icon" aria-hidden="true">✧</span><h2 id="prediction-heading">Prediction analysis</h2></div><span className="model-status">Awaiting model</span></div>
+              <div className="prediction-metrics"><div><span>Flame height</span><strong>— <small>mm</small></strong></div><div><span>Peak temperature</span><strong>— <small>K</small></strong></div><div><span>Model confidence</span><strong>— <small>%</small></strong></div></div>
+              <div className="prediction-note"><span className="prediction-info" aria-hidden="true">ⓘ</span><div><strong>AI interpretation</strong><p>Model predictions and interpretation will appear here when a prediction model is connected.</p></div></div>
+            </section>
             <div className="readouts-heading"><h2>Environmental conditions</h2><span>Current inputs</span></div>
             <div className="dashboard-readouts" aria-label="Current scenario inputs">
               {[["Oxygen", values.oxygen, "%", "Reference: Earth 20.9%", 100, "oxygen"], ["Pressure", values.pressure, "kPa", "Reference: Earth 101.3 kPa", 500, "pressure"], ["Airflow", values.flow, "m/s", "Input range: 0–100 m/s", 100, "airflow"], ["Gravity", values.gravity, "g", "Reference: Earth 1 g", 5, "gravity"]].map(([label, value, unitLabel, context, max, kind]) => <div className={`instrument ${kind}`} key={kind}><span>{label}</span><strong>{value}<small> {unitLabel}</small></strong><div className="instrument-track" aria-hidden="true"><i style={{ width: `${Math.min(100, Math.max(0, Number(value) / max * 100))}%` }} /></div><p>{context}</p></div>)}
             </div>
-            <section className="prediction-panel" aria-labelledby="prediction-heading">
-              <div className="prediction-heading"><div><p className="dashboard-kicker">MODEL OUTPUT</p><h2 id="prediction-heading">Prediction analysis</h2></div><span className="model-status">Awaiting model</span></div>
-              <div className="prediction-metrics"><div><span>Flame height</span><strong>— <small>mm</small></strong></div><div><span>Peak temperature</span><strong>— <small>K</small></strong></div><div><span>Model confidence</span><strong>— <small>%</small></strong></div></div>
-              <div className="prediction-note"><strong>AI interpretation</strong><p>Model predictions and interpretation will appear here when a prediction model is connected.</p></div>
-            </section>
             <div className="scenario-strip" role="status">
               <span className={`status-dot ${snapshot ? "ready" : ""}`} />
               {snapshot
