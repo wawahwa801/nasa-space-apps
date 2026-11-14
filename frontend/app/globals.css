@@ -247,13 +247,13 @@ h2 {
 .composer {
   border: 1px solid var(--border);
   background:
-    radial-gradient(ellipse at 0% 0%, #ffffff08, transparent 65%),
-    linear-gradient(145deg, #ffffff08, #ffffff02);
+    radial-gradient(ellipse at 0% 0%, #ffffff0a, transparent 55%),
+    linear-gradient(145deg, #ffffff04, #ffffff01);
   box-shadow:
-    inset 0 1px 0 #ffffff0e,
+    inset 0 1px 0 #ffffff30,
     0 12px 30px #0004;
-  -webkit-backdrop-filter: blur(22px);
-  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
   border-radius: 20px;
 }
 .simulation-card {
@@ -435,7 +435,7 @@ h2 {
 .composer {
   padding: 16px 16px 10px;
   border-radius: 24px;
-  background: linear-gradient(145deg, #ffffff0e, #ffffff05);
+  background: linear-gradient(145deg, #ffffff08, #ffffff02);
 }
 .composer textarea {
   width: 100%;
@@ -1073,9 +1073,10 @@ h2 {
   padding: 30px;
   border: 1px solid var(--border);
   border-radius: 24px;
-  background: radial-gradient(ellipse at top left, #ffffff0d, transparent 65%),linear-gradient(145deg,#ffffff08,#ffffff02);
+  background: radial-gradient(ellipse at top left, #ffffff0a, transparent 55%),linear-gradient(145deg,#ffffff04,#ffffff01);
   box-shadow: inset 0 1px 0 #ffffff18;
-  backdrop-filter: blur(24px);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 .parameter-panel h2 {font-size:22px;}
 .parameters-heading p,.field-section-title {font-size:14px;}
@@ -1159,7 +1160,10 @@ h2 {
   flex-direction: column;
   min-width: 0;
   border-left: 1px solid var(--border);
-  background: linear-gradient(160deg,#191919,#0b0b0b);
+  background: linear-gradient(160deg,#171a204d,#080b1033);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: inset 1px 0 0 #ffffff12;
 }
 .chat-panel[hidden] {
   display: none;
@@ -1251,6 +1255,6 @@ h2 {
 /* Static stars keep the glass workspace calm and legible. */
 body {background-color:#030508;background-image:radial-gradient(1.5px 1.5px at 23px 31px,#ffffffcc 90%,transparent),radial-gradient(1px 1px at 139px 87px,#b8d5ffb3 90%,transparent),radial-gradient(2px 2px at 119px 73px,#ffffffb3 90%,transparent),radial-gradient(1px 1px at 71px 137px,#ffffff80 90%,transparent);background-size:157px 193px,239px 227px,277px 251px,193px 269px;background-attachment:fixed;}
 .editable-value {display:flex;align-items:center;gap:6px;flex-shrink:0;color:#edc3a7;font-size:13px;}
-.parameter-panel .editable-value input {width:90px;height:36px;padding:5px 8px;text-align:right;font-size:16px;border:1px solid #ffffff24;border-radius:8px;background:#101319e6;color:#f1d1ba;font-variant-numeric:tabular-nums;}
+.parameter-panel .editable-value input {width:90px;height:36px;padding:5px 8px;text-align:right;font-size:16px;border:1px solid #ffffff24;border-radius:8px;background:#10131966;color:#f1d1ba;font-variant-numeric:tabular-nums;}
 .parameter-panel .editable-value input:invalid {border-color:#ed9c88;}
 .slider-field>div:first-child {align-items:center;flex-wrap:wrap;}
