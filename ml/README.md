@@ -1,79 +1,104 @@
-# Four-source condition-to-image CNN prototype
+# Focused BASS-II and FLEX flame experiments
 
-The current lab uses **600 image–feature pairs, about 150 from each of four sources**, and predicts a **256×256 RGB typical flame appearance**. No video time, brightness slider, instrument display reading or source image enters the model. Timestamps remain in provenance only.
+The local page now has one experiment selector, the relevant physical inputs, a CNN image, a nearest-training-trial image and an optional mask view. Detailed scores and NASA conditions are collapsed below. Two separately trained models avoid pooling solid PMMA films with liquid methanol droplets. Both produce 256×256 images and remain experimental.
 
-| Source | Pairs | Included evidence | Validation |
+| Experiment | Independent targets | Train / validation / test | Source frames used |
 | --- | --- | --- | --- |
-| [BASS-II / PSI-25](https://psi.nasa.gov/physci/repo/data/investigations/PSI-25) | 150 | 25 frames each from B1, B3, B4, B5, B12, B16 | Entire B3 held out (25 pairs) |
-| [SAFFIRE-I / PSI-98](https://psi.nasa.gov/physci/repo/data/investigations/PSI-98) | 150 | S1C1 actual fabric-burn images | No independent held-out burn |
-| [SAFFIRE-III / PSI-100](https://psi.nasa.gov/physci/repo/data/investigations/PSI-100) | 150 | S1C1 actual fabric-burn images | No independent held-out burn |
-| [SPICE / PSI-107](https://psi.nasa.gov/physci/repo/data/investigations/PSI-107) | 150 | 75 frames each from two documented fuel phases in GMT062 trial 99 | Both phases stay in training; they are one experiment |
+| BASS-II, documented PMMA | 12 | 8 / 2 / 2 whole trials | 120 selected frames |
+| FLEX, methanol, camera B | 8 | 4 / 2 / 2 whole runs | 119 mid-burn frames + 120 post-reported-burn baseline frames |
 
-SAFFIRE-III supplies another accessible solid-fuel source. PSI-62 currently exposed metadata without raw flame targets in the inspected catalog; SoFIE public montages did not provide 150 matched raw examples. SPICE remains a separate gas-jet domain. Combining four sources does not make their cameras, scales or fuel physics interchangeable. Each record preserves its source, trial/phase, original conditions and material description.
+Each target summarizes one experiment. The selected frames are not counted as independent environmental conditions. Neither model takes a source image or video time at inference.
 
-## Run locally
+## Setup and run
 
-Use the isolated CNN checkout so other tasks can switch branches without disrupting the server. From a checkout containing this code, with Python 3.14 (tested on macOS CPU):
+Use a dedicated checkout so other tasks can switch branches without disturbing the server. From the repository root (Python 3.14 tested, macOS CPU):
 
 ```bash
 python3 -m venv ml/.venv
 source ml/.venv/bin/activate
 pip install -r ml/requirements.txt
-python ml/multisource_data.py fetch
-python ml/multisource_data.py prepare
-python ml/multi_model.py --epochs 200
+python ml/fetch_bass.py
+python ml/bass_study.py fetch
+python ml/bass_study.py prepare
+python ml/bass_train.py --epochs 400
+python ml/flex_data.py
+python ml/flex_images.py fetch
+python ml/flex_images.py prepare
+python ml/flex_train.py --epochs 400
+python ml/flex_data.py
 python ml/lab.py
 ```
 
-Open **http://127.0.0.1:5050**. If the prepared data and `multi.pt` already exist, run only the last command. Restart after retraining. The server loads its template/model/data at startup and continues serving if unrelated files later change.
+Open **http://127.0.0.1:5050**. If the current artifacts already exist, only the final command is needed. Stop any previous server on that port first; restart after retraining. The template, models and data are held in memory after startup.
 
-Downloads are capped at 120 MB per file, restricted files are rejected, and only a selected subset is acquired. The catalog reports CC0 for these PSI sources. The selected raw data total roughly 250 MB, mostly SAFFIRE image archives; data and weights stay outside Git. Exploratory downloads from development are not required by `fetch`.
+The previous four-source model is preserved in [LEGACY.md](LEGACY.md), `multi_model.py`, `legacy_lab.py` and `templates/legacy.html`. It uses separate artifacts and is not the current page. Run `python ml/legacy_lab.py` after stopping the active server if you need the old interface.
 
-## Physical inputs and missing values
+## BASS-II: comparable material and standardized targets
 
-The numeric schema includes documented oxygen lower/upper bounds, airflow (m/s), pressure (kPa), sample thickness (mm), width/length (cm), initial CO₂ (%), nozzle diameter (mm), and fuel-flow lower/upper bounds (sccm). A material category and investigation/domain identifier are also encoded. Numeric values are accompanied by explicit known/missing masks. Computational zeros behind a missing mask are not claimed measurements.
+[PSI-25 BASS-II](https://psi.nasa.gov/physci/repo/data/investigations/PSI-25) supplies original material, geometry and initial oxygen labels. The experiment uses only explicitly documented PMMA and uniquely matched primary-view videos. It attempted 15 trials; B14, B18 and B20 failed decoding and were excluded with reasons. Ambiguous B15 and missing-primary-view B17 were not candidates.
 
-- BASS supplies initial oxygen, thickness, width and initial CO₂. Fan/air display values are **not** treated as calibrated airflow. Some films lack an explicit polymer name; they remain “Unspecified film.” B16's table sample ID is 150m while its video uses 150; it is joined by the documented B16 trial ID, retaining the original row.
-- SAFFIRE-I supplies SIBAL fabric dimensions, 20 cm/s airflow and a documented 21.5–21.7% O₂ interval. The interval is retained, not replaced by an invented exact oxygen value.
-- SAFFIRE-III supplies SIBAL fabric dimensions and 30 cm/s airflow. Its table does not report oxygen or pressure; those stay missing.
-- SPICE uses the original `Spice Flight Test Data II modified.xls` workbook. Zero-based rows 295/297 (Excel rows 296/298) document the high-fuel phase; row 296 (Excel row 297) documents the lower-fuel phase. Pressure is converted from Pa to kPa and calibrated air rate from cm/s to m/s. These are nominal documented phase conditions, not a reconstructed per-frame sensor stream. The clip clock and fuel/air display were inspected over the selected segments.
+A fixed rule searches the early video for a five-second window with low luminous-area variation. Ten 2-fps snapshots define that window; this is a visually stable-stage proxy, **not proof of physically steady conditions**. A fixed camera ROI, aspect-preserving padding, color-based mask and translation-only registration produce a representative target. Relative pixel extent is retained; camera scale is not physically calibrated. Glowing fuel and imperfect masks remain limitations requiring manual review.
 
-Select a source and documented trial/phase in the interface. Only known values appear. Values with no variation in that source's training sample are read-only. New combinations within the bounds remain illustrative; this small dataset cannot isolate causal effects. Temperature, humidity and variable gravity remain unsupported. Pressure is documented only at a single setting in SPICE, so pressure effects cannot be learned here.
+Inputs are **initial oxygen (% by volume), film thickness (mm), and film width (cm)**. Initial oxygen is trial-level, not a synchronized per-frame measurement. Calibrated airflow, pressure, temperature, humidity and gravity variation are not invented or supplied as fake constants.
 
-## Sampling and image clarity
+Frozen splits before fitting:
 
-Sampling increases from 4 to **6 fps**, and target resolution is now **256×256** (four times the pixels of the previous 128×128 targets). Frame rate controls temporal density; pixel resolution controls image detail. Higher sampling does not create new independent experiments or turn the still-image decoder into a video forecaster.
+- Train: B1, B2, B4, B6, B8, B16, B21, B22.
+- Validation: B9, B10. B20 had been assigned here but its video failed decoding.
+- Test: B11, B19.
 
-BASS videos use 25 unique source frames per trial from 15 s, at 6 fps. SPICE uses 75 unique frames each from offsets 15 s and 40 s in the same readable GMT62_11.41 clip, at 6 fps. Other inspected SPICE clips failed decoding and are excluded.
+## FLEX: real raw-image joins
 
-SAFFIRE JPEG filenames contain source timestamps at approximately native video cadence. Preparation requests a 6 fps sampling grid within the inspected S1C1 part1 archives, rejects duplicate members, green camera-illumination shots and frames without a minimum luminous red region, then keeps 150 qualified frames per source. Rejection creates timing gaps; these are not synthesized into a continuous 6 fps sequence. F1 streams are pre-test flow visualization and are excluded.
+The release-change metadata initially appeared to list conditions only. That was not a complete inventory: NASA's full public `/geode-py/ws/files/v2` browser listing exposes the older raw assets. The FLEX ingestion now uses that full listing and matches exact `FLEX Identifier` values to named camera-B archives.
 
-SAFFIRE targets and evidence use the same fixed low-light display transform `clip((RGB - 3) * 6, 0, 255)` and an explicit camera ROI. This enhances visibility; it is not radiometric or heat-flux calibration. BASS/SPICE crops remove upper telemetry. Aspect-preserving padding fits every selected image to 256×256. Camera orientation/scale differences remain.
+[FLEX / PSI-69](https://psi.nasa.gov/physci/repo/data/investigations/PSI-69) contributes eight selected methanol runs:
 
-Without time or simulation state, different moments from the same conditions share a feature vector. The decoder therefore estimates typical appearance and can blur changing flames. Accurate phase-specific generation would require a documented state/phase input or a temporal model; timestamps are not secretly reintroduced.
+- Train: C06M101, C07M101, C07M201, C05M301.
+- Validation: C05M101, C06M201.
+- Test: C05M201, C06M401.
 
-## Model and measured result
+Inputs are **initial oxygen (% mole fraction), pressure (kPa), initial CO₂ (% mole fraction), and initial droplet diameter (mm)**. Pressure is converted from source mmHg using approximately 0.133322 kPa/mmHg; fractions are multiplied by 100. Original rows and units remain available. Methanol is fixed; other fuels and helium mixtures are not silently mixed in.
 
-`multi_model.py` encodes normalized numeric features, missing masks, source and material indicators through two linear layers, then five convolutional upsampling layers generate RGB output. There are **147,819 parameters**. Only training records determine scaling and material categories. Weighted pixel MSE emphasizes observed luminous regions. The earlier `conditional.py`/`flame.py` scripts are historical baselines and are not used by the current lab.
+The native TIFFs are **16-bit monochrome flame-camera data**. Direct ordinary RGB conversion would clip their intensities. Preparation retains the raw counts, joins TIFF members to the archive timestamp table, and selects frames 25–65% through the reported burn duration relative to `Test GMT`. Treating that timestamp as burn start is an explicit alignment proxy needing verification. It uses timestamp-selected frames after the reported burn as a camera baseline; these are not certified dark frames and are not guaranteed free of residual/cool-flame signal.
 
-The earlier 128-pixel, 200-epoch CPU run (seed 42) used **575 training pairs + 25 held-out BASS-B3 pairs**. Held-out MSE was **0.0092805** versus **0.0009329** for the BASS training mean-image baseline. The CNN is worse than that baseline. No independent accuracy claim can be made for the other three domains in this sample. This is an acquisition/conditioning/interface prototype, not a validated fire predictor or a complete physics/CNN spread simulation.
+Targets use mean signal minus a median camera baseline, Gaussian smoothing, a fixed 100-count weak-mask threshold, small-component filtering, translation registration and a fixed 2000-count display scale. The result is a **normalized monochrome flame-signal image**, not an RGB color, temperature or heat-flux prediction. Exposure/response calibration and weak-mask review remain necessary. C06M101 has timestamp gaps and only seven qualifying mid-burn frames; the other runs supply 16 each. Actual counts are retained without duplicated frames.
 
-## Artifacts and provenance
+Archive acquisition uses bounded HTTP Range requests through NASA's public download URLs rather than downloading every large ZIP. Servers must honor ranges; each individual range is capped at 16 MB and each remote archive session at 60 MB. Needed members are CRC-checked by `zipfile`, SHA-256 recorded and verified on cached reads. Source resource IDs, archive versions and timestamps are retained. Full-archive SHA-256 is not claimed for ranged reads. A locally cached whole archive may be reused. Hardware-view camera D was inspected and excluded; its images are not mislabeled as flames.
 
-- `ml/data/multi-images.npz`: 600 target images.
-- `ml/data/multi-manifest.json`: source counts, experiment-level physical labels, explicit nulls, original rows/workbook references, image locations, timestamps, display transforms and source file hashes.
-- `ml/data/multi-pairs.csv`: readable image-index-to-feature joins. Blank cells mean missing measurements. Video time appears only as provenance.
-- `ml/artifacts/multi.pt`: architecture ID, weights, normalization, material categories and metrics.
-- `ml/artifacts/multi-metrics.json`: counts, split, resolution, cadence target and per-source validation availability/results.
+## Model selection and results
 
-`GET /api/info` reports sources, known feature ranges, experiments and metrics. `GET /api/predict?source=PSI-25&run=BASS-B1` returns a generated PNG and a separately retrieved same-source/material evidence frame. Unsupported, missing, nonfinite and out-of-range inputs are rejected. `time` and image inputs are rejected.
+The small residual CNN begins at the training mean image, then learns condition-dependent RGB corrections and a mask using bilinear upsampling and convolutions. Separate PMMA and methanol checkpoints have their own input normalization and targets. Only training trials define scaling and initialization.
 
-## Improve the actual model
+The two objectives (`rgb-focused`, `shape-assisted`) and checkpoint selection rule were declared before inspecting test results. Selection uses validation RGB MSE; test results are computed after selection. No test-set model tuning was performed. Future model development needs an additional untouched test set or nested evaluation, rather than repeated optimization against these reported tests.
 
-Acquire more independent, comparable trials spanning the requested conditions, verify material identities, and hold out entire burns in every source. Add pressure/temperature/gravity variation only where matched labels exist. Compare against retrieval and source-specific mean-image baselines using flame-region and geometry metrics. Calibrate camera scale/intensity before treating images as physical fields. Heat flux requires measured labels, not RGB brightness. Stream larger data with a DataLoader and GPU once this baseline is useful. Track remaining work in [issue #4](https://github.com/wawahwa801/nasa-space-apps/issues/4).
+| Experiment / test metric | CNN | Mean-image baseline |
+| --- | --- | --- |
+| BASS RGB MSE | 0.0027612 | 0.0027619 |
+| BASS weak-mask IoU | 0.434 | 0.378 |
+| FLEX RGB MSE | 0.0015738 | 0.0015856 |
+| FLEX weak-mask IoU | 0.662 | 0.728 |
 
-## 256-pixel update
+BASS's pixel gain is about 0.03%; FLEX's is about 0.75%. BASS area/height errors are worse, and FLEX mask overlap is worse. These are **not meaningful, validated accuracy wins** on just two test runs per domain and weak image-derived labels. Neither model is qualified for promotion as a physical predictor. The page exposes them as inspectable experiments, with recorded evidence and explicit limitations. Scores cannot be compared directly with the historical four-source model because the target construction differs.
 
-Targets are regenerated from the selected raw images at 256×256 and the CNN has a fifth learned upsampling stage. The checkpoint architecture ID is `multi-source-conditions-v2-256`; old 128-pixel checkpoints are incompatible. Training and serving reject mismatched target/checkpoint dimensions.
+Selected candidates: BASS `shape-assisted` at epoch 120; FLEX `shape-assisted` at epoch 40, each from predeclared 400-epoch candidate runs. Detailed validation/test/baseline scores are in [reports/bass-stage-v1.json](reports/bass-stage-v1.json) and [reports/flex-methanol-v1.json](reports/flex-methanol-v1.json).
 
-The 200-epoch 256-pixel run retained 575 training and 25 held-out pairs. BASS-B3 MSE was **0.0103019**, versus **0.0009303** for the source mean-image baseline. Higher resolution increases spatial detail but does not resolve the model's accuracy limitations. Sampling remains 6 fps and time remains excluded from model inputs.
+## FLEX conditions browser
+
+The folded NASA section includes **274 FLEX rows** and **8 FLEX-2 rows**, with search and original CSV downloads. Counts are source rows, not a claim of 282 independently image-labeled experiments. Only the eight verified FLEX methanol runs above enter this image experiment. [FLEX-2 / PSI-68](https://psi.nasa.gov/physci/repo/data/investigations/PSI-68) remains conditions-only in this prototype; its raw images have not been selected or trained here.
+
+Original column names, units, values, source URLs, hashes and licenses are preserved. FLEX's source CSV uses Windows-1252, handled explicitly. FLEX pressure columns use mmHg; FLEX-2 uses atm. The browser preserves those original units. PSI catalogs report CC0.
+
+## Artifacts and API
+
+Generated data and weights remain outside Git:
+
+- `ml/data/bass-study/`: acquisition inventory, preparation/exclusion manifest, standardized `prepared.npz` and QA montage.
+- `ml/data/flex/conditions.json`: both original conditions releases and matched-image availability.
+- `ml/data/flex/full-file-tree.json`: complete public file-browser inventory used for source discovery.
+- `ml/data/flex/study/`: run/member selections, cached original TIFFs/timestamps, source hashes, preprocessing parameters, prepared targets and QA montage.
+- `ml/artifacts/bass-study/selected.pt` and `ml/artifacts/flex-study/selected.pt`: separate validation-selected models and reports.
+- `ml/reports/`: tracked review copies of both reports.
+
+`GET /api/info?domain=bass` or `?domain=flex` reports that model's features, actual sample counts and scores. `GET /api/predict?domain=flex` runs its documented defaults and returns CNN RGB/mask PNGs plus the nearest **training** target and actual conditions. Extra, nonfinite or out-of-range fields are rejected; time and image inputs are unsupported. `/api/flex` returns original conditions metadata and selected image-training scope; `/api/flex/csv/PSI-69` and `/api/flex/csv/PSI-68` serve the original CSV bytes.
+
+Next work is manual stage/mask review, camera/exposure calibration, synchronized conditions and more comparable independent trials. Bigger images or more adjacent frames alone cannot supply those labels. Track remaining work in [issue #4](https://github.com/wawahwa801/nasa-space-apps/issues/4).

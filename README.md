@@ -45,6 +45,6 @@ Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `
 - Add model training code and document its data, configuration, and outputs before connecting it to the API.
 - Keep secrets in environment variables; do not commit credentials or private data.
 
-## Feature-to-image CNN experiment
+## Flame-model experiments
 
-See [ml/README.md](ml/README.md) to acquire 150 image–feature pairs each from BASS-II, SAFFIRE-I, SAFFIRE-III and SPICE, train the condition-only CNN, and run the local lab at `http://127.0.0.1:5050`. The current sample uses 600 pairs, 256×256 targets and a 6 fps sampling target. Time is provenance only. Physical measurements are used where documented; missing features remain unknown. Predictions are illustrative and do not yet outperform the held-out mean-image baseline.
+See [ml/README.md](ml/README.md) for separate BASS-II PMMA and NASA FLEX methanol experiments. The simplified local page at `http://127.0.0.1:5050` has one experiment selector, relevant physical controls and two 256×256 comparison images. Models use independent whole-run splits and explicit baselines; neither has demonstrated a meaningful accuracy win. The page also includes 274 FLEX and 8 FLEX-2 conditions rows and original CSV downloads. The previous four-source prototype is preserved in `ml/LEGACY.md`.
