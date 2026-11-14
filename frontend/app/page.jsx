@@ -198,7 +198,7 @@ export default function Home() {
     ["flame", "Flame simulation", "flame"],
   ];
   return (
-    <div className={`app-shell ${chatOpen ? "chat-open" : ""}`}>
+    <div className={`app-shell ${chatOpen ? "chat-open" : ""} ${parametersOpen ? "controls-open" : ""}`}>
       <div className="workspace-shell" id="workspace">
         <header className="topbar">
           <a className="brand" href="#workspace">
@@ -214,7 +214,7 @@ export default function Home() {
               setPaused(false);
             }}
           >
-            +
+            New scenario
           </button>
           <button className="panel-toggle" aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
           <button

@@ -1532,3 +1532,53 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 
 /* Hide the bottom playback bar in the full-screen view. */
 .card-footer { display: none; }
+
+/* Refined instrument workspace */
+:root { --border: rgb(161 177 199 / 15%); }
+.topbar { height: 64px; padding: 0 24px; gap: 10px; background: #090d13ed; border-bottom: 1px solid var(--border); }
+.topbar .brand { font-size: 26px; padding: 0; letter-spacing: -1px; }
+.topbar > .text-button, .panel-toggle, .chat-toggle { min-height: 36px; padding: 8px 14px; font-size: 12px; border: 1px solid #ffffff18; border-radius: 8px; background: #ffffff04; color: #b9c1cd; transition: background .18s, border-color .18s; }
+.panel-toggle[aria-expanded="true"], .chat-toggle[aria-expanded="true"] { color: #f2c4a5; background: #e9a47412; border-color: #e9a47440; }
+.topbar button:hover { background: #ffffff10; border-color: #ffffff35; }
+.simulation-card { padding-top: 64px; background: #080b10; }
+.flame-stage { background: radial-gradient(ellipse at 50% 55%, #57231355, transparent 58%), linear-gradient(#b9cee907 1px, transparent 1px), linear-gradient(90deg, #b9cee907 1px, transparent 1px), #080b10; background-size: auto, 64px 64px, 64px 64px, auto; }
+.flame-art { height: min(58dvh, 540px); }
+.field-overlay { inset: 24px 24px 28px; color: #6e7d90; }
+.field-annotation span { color: #8c9caf; font-size: 9px; letter-spacing: .1em; }
+.field-annotation strong { color: #e6ebf2; font-size: 18px; }
+.field-annotation small { color: #8c9caf; }
+.field-annotation i { opacity: .5; }
+.parameter-panel, .chat-panel { top: 80px; bottom: 16px; border: 1px solid #263140; border-radius: 14px; background: #101720f5; box-shadow: 0 12px 32px #0004; padding: 22px; scrollbar-width: thin; scrollbar-color: #384353 transparent; }
+.parameter-panel { left: 16px; }
+.chat-panel { right: 16px; }
+.parameters-heading h2, .chat-heading h2 { font-size: 16px; font-weight: 600; letter-spacing: -.3px; }
+.parameters-close, .chat-heading button { height: 32px; min-width: 32px; padding: 4px 8px; font-size: 18px; background: #ffffff06; border: 1px solid #ffffff18; border-radius: 7px; }
+.parameter-panel .fields-grid { gap: 22px 16px; }
+.parameter-panel .field > span, .slider-field > div:first-child { font-size: 11px; color: #a9b4c3; }
+.parameter-panel .field input, .parameter-panel .field select, .parameter-panel .editable-value input { background: #090f17; border-color: #283444; color: #e4eaf2; border-radius: 7px; }
+.field-section-title { color: #dde3eb; font-weight: 500; font-size: 12px; }
+.parameter-panel .liquid-button { background: #e7b18e; color: #21150d; border: 0; border-radius: 8px; box-shadow: none; font-size: 12px; }
+.chat-summary { background: #151f2b; border-color: #2b3746; border-radius: 10px; }
+.chat-summary small, .conversation-intro p { color: #9daaba; }
+.composer { background: #0b111a; border: 1px solid #344152; border-radius: 12px; box-shadow: none; }
+.composer textarea { font-size: 13px; }
+.composer textarea::placeholder { color: #8290a2; }
+.assistant-mark { background: #e9a4740e; color: #edb58f; border-color: #e9a47424; }
+@media (min-width: 1200px) {
+  .parameter-panel, .chat-panel { width: 320px; }
+  .parameter-panel .fields-grid { grid-template-columns: minmax(0, 1fr); }
+  .controls-open .simulation-grid { margin-left: 352px; }
+  .chat-open .simulation-grid { margin-right: 352px; }
+}
+@media (max-width: 720px) {
+  .topbar { padding: 0 12px; gap: 6px; }
+  .topbar .brand { font-size: 22px; }
+  .topbar > .text-button, .panel-toggle, .chat-toggle { padding: 7px 8px; font-size: 10px; }
+  .parameter-panel, .chat-panel { top: 76px; bottom: 12px; padding: 18px; }
+  .parameter-panel { left: 12px; }
+  .chat-panel { right: 12px; }
+  .parameter-panel .fields-grid { grid-template-columns: minmax(0, 1fr); }
+  .composer textarea { font-size: 16px; }
+  .flame-art { height: min(48dvh, 380px); }
+}
+@media (prefers-reduced-motion: reduce) { .topbar > .text-button, .panel-toggle, .chat-toggle { transition: none; } }
