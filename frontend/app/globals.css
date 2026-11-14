@@ -1462,3 +1462,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
   .conversation { grid-template-columns: minmax(440px, 48%) minmax(0, 1fr); }
   .parameter-panel .fields-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 18px; }
 }
+
+/* Decorative ember field around the illustrative flame. */
+.flame-stage {
+  isolation: isolate;
+  background: radial-gradient(ellipse at 50% 58%, #5e1b0f9c, transparent 58%), linear-gradient(#ff81400c 1px, transparent 1px), linear-gradient(90deg, #ff81400c 1px, transparent 1px), #130b0b;
+  background-size: auto, 48px 48px, 48px 48px, auto;
+}
+.ember-particles { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .8; animation: ember-drift 9s ease-in-out infinite alternate; }
+.flame-art, .stage-label { position: relative; z-index: 1; }
+.field-overlay { z-index: 2; }
+.paused .ember-particles { animation-play-state: paused; }
+@keyframes ember-drift { from { opacity: .58; transform: scale(1) translateX(-4px); } to { opacity: .9; transform: scale(1.04) translateX(4px); } }
+@media (prefers-reduced-motion: reduce) { .ember-particles { animation: none; } }

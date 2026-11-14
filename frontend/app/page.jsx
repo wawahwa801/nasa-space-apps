@@ -261,6 +261,16 @@ export default function Home() {
                     <span className="preview-badge">Preview</span>
                   </div>
                   <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
+                    <svg className="ember-particles" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                      <defs><radialGradient id="particle-glow"><stop stopColor="#f35b25" stopOpacity=".28" /><stop offset="1" stopColor="#f35b25" stopOpacity="0" /></radialGradient></defs>
+                      <ellipse cx="300" cy="165" rx="250" ry="130" fill="url(#particle-glow)" />
+                      {Array.from({ length: 180 }, (_, i) => {
+                        const x = (i * 137.508) % 600;
+                        const spread = ((i * 79) % 100) / 100;
+                        const y = 155 + Math.sin(x / 85) * 38 + (spread - .5) * (50 + 95 * Math.abs(x - 300) / 300);
+                        return <circle key={i} cx={x} cy={y} r={i % 13 === 0 ? 1.5 : .65} fill={i % 4 === 0 ? "#ffad64" : "#e6542d"} opacity={.2 + (i % 5) * .1} />;
+                      })}
+                    </svg>
                     <div className="field-overlay" aria-hidden="true"><span>RELATIVE FIELD</span><span>+Y</span><span>+X →</span></div>
                     <svg
                       viewBox="0 0 400 250"
