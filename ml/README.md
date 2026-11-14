@@ -1,6 +1,6 @@
 # Four-source condition-to-image CNN prototype
 
-The current lab uses **600 image–feature pairs, about 150 from each of four sources**, and predicts a **128×128 RGB typical flame appearance**. No video time, brightness slider, instrument display reading or source image enters the model. Timestamps remain in provenance only.
+The current lab uses **600 image–feature pairs, about 150 from each of four sources**, and predicts a **256×256 RGB typical flame appearance**. No video time, brightness slider, instrument display reading or source image enters the model. Timestamps remain in provenance only.
 
 | Source | Pairs | Included evidence | Validation |
 | --- | --- | --- | --- |
@@ -42,21 +42,21 @@ Select a source and documented trial/phase in the interface. Only known values a
 
 ## Sampling and image clarity
 
-Sampling increases from 4 to **6 fps**, and target resolution increases from 64×64 to **128×128**. Frame rate controls temporal density; pixel resolution controls image detail. Higher sampling does not create new independent experiments or turn the still-image decoder into a video forecaster.
+Sampling increases from 4 to **6 fps**, and target resolution is now **256×256** (four times the pixels of the previous 128×128 targets). Frame rate controls temporal density; pixel resolution controls image detail. Higher sampling does not create new independent experiments or turn the still-image decoder into a video forecaster.
 
 BASS videos use 25 unique source frames per trial from 15 s, at 6 fps. SPICE uses 75 unique frames each from offsets 15 s and 40 s in the same readable GMT62_11.41 clip, at 6 fps. Other inspected SPICE clips failed decoding and are excluded.
 
 SAFFIRE JPEG filenames contain source timestamps at approximately native video cadence. Preparation requests a 6 fps sampling grid within the inspected S1C1 part1 archives, rejects duplicate members, green camera-illumination shots and frames without a minimum luminous red region, then keeps 150 qualified frames per source. Rejection creates timing gaps; these are not synthesized into a continuous 6 fps sequence. F1 streams are pre-test flow visualization and are excluded.
 
-SAFFIRE targets and evidence use the same fixed low-light display transform `clip((RGB - 3) * 6, 0, 255)` and an explicit camera ROI. This enhances visibility; it is not radiometric or heat-flux calibration. BASS/SPICE crops remove upper telemetry. Aspect-preserving padding fits every selected image to 128×128. Camera orientation/scale differences remain.
+SAFFIRE targets and evidence use the same fixed low-light display transform `clip((RGB - 3) * 6, 0, 255)` and an explicit camera ROI. This enhances visibility; it is not radiometric or heat-flux calibration. BASS/SPICE crops remove upper telemetry. Aspect-preserving padding fits every selected image to 256×256. Camera orientation/scale differences remain.
 
 Without time or simulation state, different moments from the same conditions share a feature vector. The decoder therefore estimates typical appearance and can blur changing flames. Accurate phase-specific generation would require a documented state/phase input or a temporal model; timestamps are not secretly reintroduced.
 
 ## Model and measured result
 
-`multi_model.py` encodes normalized numeric features, missing masks, source and material indicators through two linear layers, then four convolutional upsampling layers generate RGB output. There are **146,787 parameters**. Only training records determine scaling and material categories. Weighted pixel MSE emphasizes observed luminous regions. The earlier `conditional.py`/`flame.py` scripts are historical baselines and are not used by the current lab.
+`multi_model.py` encodes normalized numeric features, missing masks, source and material indicators through two linear layers, then five convolutional upsampling layers generate RGB output. There are **147,819 parameters**. Only training records determine scaling and material categories. Weighted pixel MSE emphasizes observed luminous regions. The earlier `conditional.py`/`flame.py` scripts are historical baselines and are not used by the current lab.
 
-The 200-epoch CPU run (seed 42) used **575 training pairs + 25 held-out BASS-B3 pairs**. Held-out MSE was **0.0092805** versus **0.0009329** for the BASS training mean-image baseline. The CNN is worse than that baseline. No independent accuracy claim can be made for the other three domains in this sample. This is an acquisition/conditioning/interface prototype, not a validated fire predictor or a complete physics/CNN spread simulation.
+The earlier 128-pixel, 200-epoch CPU run (seed 42) used **575 training pairs + 25 held-out BASS-B3 pairs**. Held-out MSE was **0.0092805** versus **0.0009329** for the BASS training mean-image baseline. The CNN is worse than that baseline. No independent accuracy claim can be made for the other three domains in this sample. This is an acquisition/conditioning/interface prototype, not a validated fire predictor or a complete physics/CNN spread simulation.
 
 ## Artifacts and provenance
 
@@ -71,3 +71,9 @@ The 200-epoch CPU run (seed 42) used **575 training pairs + 25 held-out BASS-B3 
 ## Improve the actual model
 
 Acquire more independent, comparable trials spanning the requested conditions, verify material identities, and hold out entire burns in every source. Add pressure/temperature/gravity variation only where matched labels exist. Compare against retrieval and source-specific mean-image baselines using flame-region and geometry metrics. Calibrate camera scale/intensity before treating images as physical fields. Heat flux requires measured labels, not RGB brightness. Stream larger data with a DataLoader and GPU once this baseline is useful. Track remaining work in [issue #4](https://github.com/wawahwa801/nasa-space-apps/issues/4).
+
+## 256-pixel update
+
+Targets are regenerated from the selected raw images at 256×256 and the CNN has a fifth learned upsampling stage. The checkpoint architecture ID is `multi-source-conditions-v2-256`; old 128-pixel checkpoints are incompatible. Training and serving reject mismatched target/checkpoint dimensions.
+
+The 200-epoch 256-pixel run retained 575 training and 25 held-out pairs. BASS-B3 MSE was **0.0103019**, versus **0.0009303** for the source mean-image baseline. Higher resolution increases spatial detail but does not resolve the model's accuracy limitations. Sampling remains 6 fps and time remains excluded from model inputs.

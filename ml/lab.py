@@ -30,6 +30,9 @@ def create_app():
     net,saved=load_model()
     manifest=json.loads((DATA/'multi-manifest.json').read_text())
     images=np.load(DATA/'multi-images.npz')['images']
+    size=saved['metrics']['resolution']
+    if images.shape[1:]!=(size,size,3):
+        raise ValueError('Image targets and checkpoint resolutions differ; regenerate targets and retrain')
     experiments={e['run']:e for e in manifest['experiments']}
     records=manifest['records']
     specifications={}

@@ -47,4 +47,4 @@ Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `
 
 ## Feature-to-image CNN experiment
 
-See [ml/README.md](ml/README.md) to acquire 150 image–feature pairs each from BASS-II, SAFFIRE-I, SAFFIRE-III and SPICE, train the condition-only CNN, and run the local lab at `http://127.0.0.1:5050`. The current sample uses 600 pairs, 128×128 targets and a 6 fps sampling target. Time is provenance only. Physical measurements are used where documented; missing features remain unknown. Predictions are illustrative and do not yet outperform the held-out mean-image baseline.
+See [ml/README.md](ml/README.md) to acquire 150 image–feature pairs each from BASS-II, SAFFIRE-I, SAFFIRE-III and SPICE, train the condition-only CNN, and run the local lab at `http://127.0.0.1:5050`. The current sample uses 600 pairs, 256×256 targets and a 6 fps sampling target. Time is provenance only. Physical measurements are used where documented; missing features remain unknown. Predictions are illustrative and do not yet outperform the held-out mean-image baseline.

@@ -9,7 +9,7 @@ from torch import nn
 from flame import DATA,OUT
 from multisource_data import FIELDS,SOURCE_IDS,SIZE,FPS
 
-VERSION='multi-source-conditions-v1'
+VERSION='multi-source-conditions-v2-256'
 
 
 class MultiCNN(nn.Module):
@@ -18,6 +18,7 @@ class MultiCNN(nn.Module):
         self.encode=nn.Sequential(nn.Linear(inputs,64),nn.ReLU(),nn.Linear(64,32*8*8),nn.ReLU())
         self.decode=nn.Sequential(nn.ConvTranspose2d(32,16,4,2,1),nn.ReLU(),
             nn.ConvTranspose2d(16,8,4,2,1),nn.ReLU(),nn.ConvTranspose2d(8,8,4,2,1),nn.ReLU(),
+            nn.ConvTranspose2d(8,8,4,2,1),nn.ReLU(),
             nn.ConvTranspose2d(8,3,4,2,1),nn.Sigmoid())
         nn.init.normal_(self.decode[-2].weight,std=.01);nn.init.constant_(self.decode[-2].bias,-2)
 
@@ -55,7 +56,10 @@ def train(epochs):
     mask=np.array([r['split']=='train' for r in records])
     schema=fit_schema([r for r in records if r['split']=='train'])
     x=encode(records,schema)
-    y=torch.from_numpy(np.load(DATA/'multi-images.npz')['images']).permute(0,3,1,2).float()/255
+    image_data=np.load(DATA/'multi-images.npz')['images']
+    if image_data.shape[1:] != (SIZE,SIZE,3):
+        raise ValueError('Run multisource_data.py prepare to regenerate targets at the current resolution')
+    y=torch.from_numpy(image_data).permute(0,3,1,2).float()/255
     net=MultiCNN(x.shape[1]);opt=torch.optim.Adam(net.parameters(),lr=.0007)
     tx,ty=x[mask],y[mask]
     for epoch in range(epochs):

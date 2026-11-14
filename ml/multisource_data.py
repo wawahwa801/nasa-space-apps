@@ -48,7 +48,7 @@ FIELDS=[
     ('fuel_high','Fuel flow upper bound','sccm')]
 SOURCE_IDS=['PSI-25','PSI-98','PSI-100','PSI-107']
 FPS=6
-SIZE=128
+SIZE=256
 SAFFIRE_START={'PSI-98':800,'PSI-100':800}
 
 
