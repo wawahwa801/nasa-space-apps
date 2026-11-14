@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { LiquidButton } from "../components/ui/liquid-glass-button";
 
 const defaults = {
   oxygen: 20.9,
@@ -242,9 +243,9 @@ export default function Home() {
                 </p>
               )}
               <div className="form-actions">
-                <button className="primary-button" type="submit">
+                <LiquidButton className="primary-button" type="submit">
                   Update scenario <span aria-hidden="true">→</span>
-                </button>
+                </LiquidButton>
                 <button
                   className="reset-button"
                   type="button"
