@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fire Safety Dashboard</title>
+  <meta name="description" content="Prototype dashboard comparing user-entered spacecraft fire safety conditions with NASA experiment data.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="page-header">
+    <div>
+      <h1>Fire safety dashboard</h1>
+      <p class="subtitle">Enter cabin conditions and nearby fuels. They are compared with NASA microgravity fire experiments.</p>
+    </div>
+    <p class="disclaimer"><strong>Prototype.</strong> Exploratory decision support only, not a certified safety assessment. Thresholds are editable reference values in <code>js/parameters.js</code>.</p>
+  </header>
+
+  <main class="layout">
+    <aside class="panel inputs" aria-label="Inputs">
+      <form id="input-form" novalidate>
+        <div class="toolbar">
+          <button type="button" id="load-example">Load example</button>
+          <button type="button" id="clear-inputs" class="secondary">Clear</button>
+          <button type="button" id="export" class="secondary">Export JSON</button>
+        </div>
+        <div id="input-sections"></div>
+      </form>
+
+      <details class="input-section add-param">
+        <summary>Add a parameter</summary>
+        <form id="add-param" class="fields">
+          <div class="field"><label for="param-label">Name</label><input id="param-label" required placeholder="e.g. Ventilation flow"></div>
+          <div class="field"><label for="param-section">Section</label><select id="param-section"></select></div>
+          <div class="field"><label for="param-type">Type</label>
+            <select id="param-type"><option value="number">Number</option><option value="text">Text</option></select></div>
+          <div class="field"><label for="param-unit">Unit (optional)</label><input id="param-unit" placeholder="e.g. m/s"></div>
+          <button type="submit">Add parameter</button>
+          <p class="hint">Saved in this browser. To add a parameter for everyone, add it to <code>js/parameters.js</code>.</p>
+        </form>
+      </details>
+    </aside>
+
+    <section class="dashboard" aria-label="Dashboard">
+      <div id="summary" class="tiles"></div>
+
+      <div class="grid-2">
+        <article class="card">
+          <h2>Assessment</h2>
+          <ul id="flags" class="flags"></ul>
+        </article>
+        <article class="card">
+          <h2>Gas levels</h2>
+          <p class="card-sub">Each bar fills toward the limit it is measured against.</p>
+          <div id="meters" class="meters"></div>
+        </article>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <h2>Your atmosphere vs ACME ignition tests</h2>
+            <p class="card-sub" id="acme-caption"></p>
+          </div>
+          <label class="filter">Fuel <select id="acme-fuel"><option value="auto">Match my fuel</option></select></label>
+        </div>
+        <ul class="legend" aria-label="Legend">
+          <li><span class="swatch dot s1"></span>Did not ignite</li>
+          <li><span class="swatch dot s2"></span>Ignited</li>
+          <li><span class="swatch diamond"></span>Your input</li>
+        </ul>
+        <div id="acme-chart" class="chart"></div>
+        <details class="table-view"><summary>Show data table <span class="muted">(rows closest to your input are highlighted)</span></summary><div id="acme-table" class="table-wrap"></div></details>
+      </article>
+
+      <article class="card">
+        <h2>Saffire-I sample 2: conditions during a large-scale burn</h2>
+        <p class="card-sub">Sensor readings over the test, with your values drawn as a horizontal line for comparison.</p>
+        <div id="saffire-charts" class="minis"></div>
+      </article>
+
+      <article class="card">
+        <h2>Related NASA tests for your fuel</h2>
+        <ul id="related" class="related"></ul>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <h2>Data sets</h2>
+            <p class="card-sub">Built-in data generated <span id="generated"></span> from the <code>data/</code> folder. Add your own CSV to chart it here.</p>
+          </div>
+          <label class="file-btn">Add CSV data set<input id="dataset-file" type="file" accept=".csv,text/csv" multiple></label>
+        </div>
+        <p id="dataset-status" class="hint" role="status"></p>
+        <ul id="datasets" class="datasets"></ul>
+      </article>
+    </section>
+  </main>
+
+  <script src="data/reference-data.js"></script>
+  <script src="js/parameters.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

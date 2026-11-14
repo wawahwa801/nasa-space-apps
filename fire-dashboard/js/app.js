@@ -1,0 +1,571 @@
+// Fire safety dashboard prototype.
+// The layout is fixed; user input fills it in. Nothing is sent over the network.
+
+(function () {
+  const REF = window.REFERENCE_DATA;
+  const T = window.THRESHOLDS;
+  const SECTIONS = window.PARAMETER_SECTIONS;
+  const { fmt } = window.Charts;
+
+  const STORE = { values: "fd.values", params: "fd.customParams", datasets: "fd.datasets" };
+  const LEVELS = {
+    critical: { label: "Critical", icon: "✕", rank: 4 },
+    serious: { label: "Serious", icon: "▲", rank: 3 },
+    warning: { label: "Warning", icon: "!", rank: 2 },
+    info: { label: "Note", icon: "i", rank: 1 },
+    good: { label: "OK", icon: "✓", rank: 0 },
+  };
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+  function load(key, fallback) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
+  }
+  function save(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; }
+  }
+
+  let customParams = load(STORE.params, []);
+  let userDatasets = load(STORE.datasets, []);
+
+  // ---------------------------------------------------------------- form
+
+  function allFields() {
+    const out = [];
+    for (const s of SECTIONS) for (const f of s.fields) out.push({ ...f, section: s.id });
+    for (const p of customParams) out.push({ ...p, custom: true });
+    return out;
+  }
+
+  function fieldHtml(f) {
+    const id = `f-${f.id}`;
+    const remove = f.custom
+      ? `<button type="button" class="icon-btn" data-remove-param="${esc(f.id)}" aria-label="Remove ${esc(f.label)}">×</button>`
+      : "";
+    const unit = f.unit ? `<span class="unit">${esc(f.unit)}</span>` : "";
+    let control;
+    if (f.type === "number") {
+      control = `<div class="with-unit"><input id="${id}" type="number" inputmode="decimal" ${f.min != null ? `min="${f.min}"` : ""} ${f.max != null ? `max="${f.max}"` : ""} step="${f.step || "any"}">${unit}</div>`;
+    } else if (f.type === "choice") {
+      control = `<select id="${id}"><option value="">—</option>${f.options.map((o) => `<option>${esc(o)}</option>`).join("")}</select>`;
+    } else if (f.type === "suggest") {
+      control = `<input id="${id}" list="${id}-list" autocomplete="off"><datalist id="${id}-list">${f.options.map((o) => `<option value="${esc(o)}">`).join("")}</datalist>`;
+    } else if (f.type === "quantity") {
+      control = `<div class="with-unit"><input id="${id}" type="number" inputmode="decimal" min="0" step="any"><select id="${id}-unit" aria-label="${esc(f.label)} unit">${f.units.map((u) => `<option>${esc(u)}</option>`).join("")}</select></div>`;
+    } else if (f.type === "textarea") {
+      control = `<textarea id="${id}" rows="3" placeholder="${esc(f.placeholder || "")}"></textarea>`;
+    } else {
+      control = `<div class="with-unit"><input id="${id}" type="text" placeholder="${esc(f.placeholder || "")}">${unit}</div>`;
+    }
+    return `<div class="field"><label for="${id}">${esc(f.label)}${remove}</label>${control}</div>`;
+  }
+
+  function renderForm() {
+    const sections = SECTIONS.map((s) => ({ ...s, fields: [...s.fields] }));
+    const custom = { id: "custom", title: "Custom parameters", fields: [] };
+    for (const p of customParams) {
+      const target = sections.find((s) => s.id === p.section) || custom;
+      target.fields.push({ ...p, custom: true });
+    }
+    if (custom.fields.length) sections.push(custom);
+    $("#input-sections").innerHTML = sections
+      .map((s, i) => `<details class="input-section" ${i < 3 || s.id === "custom" ? "open" : ""}>
+          <summary>${esc(s.title)} <span class="count">${s.fields.length}</span></summary>
+          <div class="fields">${s.fields.map(fieldHtml).join("")}</div>
+        </details>`)
+      .join("");
+    $("#param-section").innerHTML = SECTIONS.filter((s) => s.id !== "notes")
+      .map((s) => `<option value="${s.id}">${esc(s.title)}</option>`)
+      .join("") + '<option value="custom">Custom parameters</option>';
+  }
+
+  function readValues() {
+    const v = {};
+    for (const f of allFields()) {
+      const node = $(`#f-${CSS.escape(f.id)}`);
+      if (!node) continue;
+      if (f.type === "number") {
+        v[f.id] = node.value === "" ? null : Number(node.value);
+      } else if (f.type === "quantity") {
+        v[f.id] = node.value === "" ? null : { value: Number(node.value), unit: $(`#f-${CSS.escape(f.id)}-unit`).value };
+      } else {
+        v[f.id] = node.value.trim();
+      }
+    }
+    return v;
+  }
+
+  function writeValues(v) {
+    for (const f of allFields()) {
+      const node = $(`#f-${CSS.escape(f.id)}`);
+      if (!node) continue;
+      const x = v[f.id];
+      if (f.type === "quantity") {
+        node.value = x?.value ?? "";
+        if (x?.unit) $(`#f-${CSS.escape(f.id)}-unit`).value = x.unit;
+      } else {
+        node.value = x ?? "";
+      }
+    }
+  }
+
+  // ---------------------------------------------------------- assessment
+
+  const has = (x) => x != null && x !== "" && !(typeof x === "number" && isNaN(x));
+
+  function fuelKey(text) {
+    return (text || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter((w) => w.length > 2);
+  }
+  function matches(name, fuelText) {
+    const words = fuelKey(fuelText);
+    const n = name.toLowerCase();
+    return words.length > 0 && words.some((w) => n.includes(w));
+  }
+
+  function nearestAcme(v) {
+    if (!has(v.o2_pct) || !has(v.pressure_kpa)) return null;
+    let pool = REF.acme.tests.filter((t) => t.pressure_kpa != null);
+    const fuelMatched = pool.filter((t) => matches(t.fuel, v.fuel_type));
+    if (fuelMatched.length >= T.acme_neighbours) pool = fuelMatched;
+    const o2s = pool.map((t) => t.o2_pct);
+    const ps = pool.map((t) => t.pressure_kpa);
+    const o2Span = Math.max(...o2s) - Math.min(...o2s) || 1;
+    const pSpan = Math.max(...ps) - Math.min(...ps) || 1;
+    const ranked = pool
+      .map((t) => ({ t, d: Math.hypot((t.o2_pct - v.o2_pct) / o2Span, (t.pressure_kpa - v.pressure_kpa) / pSpan) }))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, T.acme_neighbours)
+      .map((r) => r.t);
+    const outOfRange =
+      v.o2_pct < Math.min(...o2s) || v.o2_pct > Math.max(...o2s) || v.pressure_kpa < Math.min(...ps) || v.pressure_kpa > Math.max(...ps);
+    return { tests: ranked, ignited: ranked.filter((t) => t.ignited).length, fuelMatched: pool === fuelMatched, outOfRange };
+  }
+
+  function leakLevel(status) {
+    return status === "Confirmed" ? "critical" : status === "Suspected" ? "serious" : status === "Unknown" ? "warning" : null;
+  }
+
+  function assess(v) {
+    const flags = [];
+    const add = (level, title, detail) => flags.push({ level, title, detail });
+
+    if (has(v.o2_pct)) {
+      if (v.o2_pct > T.o2_enriched_pct) add("serious", "Oxygen-enriched atmosphere", `O₂ is ${fmt(v.o2_pct)}%, above ${T.o2_enriched_pct}%. Materials ignite more easily and burn faster.`);
+      else if (v.o2_pct < T.o2_deficient_pct) add("warning", "Oxygen-deficient atmosphere", `O₂ is ${fmt(v.o2_pct)}%, below ${T.o2_deficient_pct}%. A crew health concern; check for leaks of other gases.`);
+      else add("good", "Oxygen concentration in normal range", `O₂ is ${fmt(v.o2_pct)}%.`);
+    }
+    if (has(v.o2_pct) && has(v.pressure_kpa)) {
+      const pp = (v.o2_pct / 100) * v.pressure_kpa;
+      if (pp > T.sea_level_ppo2_kpa * 1.05) add("info", "Oxygen partial pressure above sea-level air", `${fmt(pp)} kPa vs ${T.sea_level_ppo2_kpa} kPa at sea level. Flammability depends on both O₂ % and pressure.`);
+    }
+    if (has(v.o2_pct) && has(v.n2_pct) && v.o2_pct + v.n2_pct > 100.5) {
+      add("warning", "Gas percentages add up to more than 100%", `O₂ ${fmt(v.o2_pct)}% + N₂ ${fmt(v.n2_pct)}% = ${fmt(v.o2_pct + v.n2_pct)}%. Check the readings.`);
+    }
+
+    for (const [key, gas, name] of [["h2_ppm", "h2", "Hydrogen"], ["ch4_ppm", "ch4", "Methane"]]) {
+      if (!has(v[key])) continue;
+      const share = v[key] / (T.lfl_pct[gas] * 10000);
+      const pct = `${fmt(share * 100)}% of its lower flammability limit (${T.lfl_pct[gas]}% by volume)`;
+      if (share >= T.lfl_critical_share) add("critical", `${name} near flammable concentration`, `${fmt(v[key])} ppm is ${pct}.`);
+      else if (share >= T.lfl_warning_share) add("warning", `${name} elevated`, `${fmt(v[key])} ppm is ${pct}.`);
+    }
+    if (has(v.co_ppm)) {
+      if (v.co_ppm > T.co_ppm.serious) add("serious", "Carbon monoxide very high", `${fmt(v.co_ppm)} ppm, above the ${T.co_ppm.serious} ppm NIOSH ceiling. CO can indicate smouldering or incomplete combustion.`);
+      else if (v.co_ppm > T.co_ppm.warning) add("warning", "Carbon monoxide elevated", `${fmt(v.co_ppm)} ppm, above the ${T.co_ppm.warning} ppm NIOSH exposure limit. CO can indicate smouldering.`);
+    }
+    if (has(v.co2_ppm)) {
+      if (v.co2_ppm > T.co2_ppm.serious) add("serious", "Carbon dioxide very high", `${fmt(v.co2_ppm)} ppm, above the ${fmt(T.co2_ppm.serious)} ppm NIOSH short-term limit.`);
+      else if (v.co2_ppm > T.co2_ppm.warning) add("warning", "Carbon dioxide elevated", `${fmt(v.co2_ppm)} ppm, above the ${fmt(T.co2_ppm.warning)} ppm NIOSH exposure limit.`);
+    }
+    if (v.other_gas_types) add("info", "Other gases reported", `${esc(v.other_gas_types)}${v.other_gas_conc ? ` (${esc(v.other_gas_conc)})` : ""}. Not assessed automatically.`);
+
+    const fl = leakLevel(v.fuel_leak);
+    const ol = leakLevel(v.oxidizer_leak);
+    if (fl) add(fl, `Fuel leakage: ${v.fuel_leak.toLowerCase()}`, `${v.fuel_type ? esc(v.fuel_type) + ": " : ""}a leaking fuel can form a flammable mixture away from its storage location.`);
+    if (ol) add(ol, `Oxidizer leakage: ${v.oxidizer_leak.toLowerCase()}`, `${v.oxidizer_type ? esc(v.oxidizer_type) + ": " : ""}a leak can locally enrich the atmosphere.`);
+    if (["Suspected", "Confirmed"].includes(v.fuel_leak) && ["Suspected", "Confirmed"].includes(v.oxidizer_leak)) {
+      add("critical", "Fuel and oxidizer both leaking", "Fuel and oxidizer leaks together greatly increase the chance of ignition.");
+    }
+    if (has(v.ignition_distance_m) && v.ignition_distance_m < T.min_ignition_distance_m) {
+      add("warning", "Fuel close to an ignition source", `${fmt(v.ignition_distance_m)} m, under the ${T.min_ignition_distance_m} m separation set in parameters.js.`);
+    }
+    if (v.storage === "Open / exposed" && v.fuel_type) add("warning", "Fuel stored open", `${esc(v.fuel_type)} is exposed rather than contained.`);
+
+    if (v.monitoring === "Offline") add("serious", "Atmospheric monitoring offline", "Gas readings may be stale or missing.");
+    else if (v.monitoring === "Degraded" || v.monitoring === "Unknown") add("warning", `Atmospheric monitoring ${v.monitoring.toLowerCase()}`, "Treat gas readings with caution.");
+
+    if (v.environment === "Vacuum" && has(v.pressure_kpa) && v.pressure_kpa > 1) {
+      add("warning", "Condition and pressure disagree", `Marked as vacuum, but pressure is ${fmt(v.pressure_kpa)} kPa.`);
+    }
+    if ((v.gravity || "").startsWith("Microgravity")) {
+      add("info", "Microgravity", "With no buoyant flow, a flame's oxygen supply depends on ventilation. Flames can spread upstream into the airflow and may persist at lower O₂ than on Earth.");
+    }
+
+    const near = nearestAcme(v);
+    if (near) {
+      const share = near.ignited / near.tests.length;
+      // Only warn when the comparison uses the same fuel; otherwise it is context.
+      const level = !near.outOfRange && near.fuelMatched && share >= 0.5 ? "warning" : "info";
+      add(level, `${near.ignited} of ${near.tests.length} similar ACME tests ignited`,
+        `ACME test points with the closest O₂ % and pressure${near.fuelMatched ? ` using a fuel matching "${esc(v.fuel_type)}"` : " (all fuels)"}. ` +
+        "Those tests had a gaseous fuel and a deliberate igniter, so this indicates whether the atmosphere can support burning, not whether a fire will start." +
+        (near.outOfRange ? " Your conditions are outside the range ACME tested." : ""));
+    }
+    for (const p of customParams) {
+      if (has(v[p.id])) add("info", `${esc(p.label)}`, `${esc(typeof v[p.id] === "number" ? fmt(v[p.id]) : v[p.id])} ${esc(p.unit || "")}. Custom parameter, not assessed automatically.`);
+    }
+
+    flags.sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank);
+    return { flags, near };
+  }
+
+  // ------------------------------------------------------------ rendering
+
+  function badge(level) {
+    return `<span class="status status-${level}"><span class="status-icon" aria-hidden="true">${LEVELS[level].icon}</span>${LEVELS[level].label}</span>`;
+  }
+
+  function renderSummary(v, result) {
+    const issues = result.flags.filter((f) => LEVELS[f.level].rank >= 2);
+    const top = issues[0]?.level || (result.flags.length ? "good" : null);
+    const pp = has(v.o2_pct) && has(v.pressure_kpa) ? (v.o2_pct / 100) * v.pressure_kpa : null;
+    const tile = (label, value, unit, sub) =>
+      `<div class="tile"><div class="tile-label">${label}</div><div class="tile-value">${value}<span class="tile-unit">${unit}</span></div>${sub ? `<div class="tile-sub">${sub}</div>` : ""}</div>`;
+    $("#summary").innerHTML = `
+      <div class="tile hero">
+        <div class="tile-label">Issues found</div>
+        <div class="hero-value">${top ? issues.length : "–"}</div>
+        <div class="tile-sub">${top ? badge(top) + (issues.length ? " highest severity" : " nothing flagged") : "Enter conditions to assess"}</div>
+      </div>
+      ${tile("Oxygen", has(v.o2_pct) ? fmt(v.o2_pct) : "–", "%", has(v.o2_pct) ? `Enrichment threshold ${T.o2_enriched_pct}%` : "")}
+      ${tile("O₂ partial pressure", pp != null ? fmt(pp) : "–", "kPa", `Sea-level air ${T.sea_level_ppo2_kpa} kPa`)}
+      ${tile("Internal pressure", has(v.pressure_kpa) ? fmt(v.pressure_kpa) : "–", "kPa", v.environment ? esc(v.environment) : "")}`;
+  }
+
+  function renderFlags(result) {
+    const list = $("#flags");
+    if (!result.flags.length) {
+      list.innerHTML = '<li class="empty">No inputs yet. Fill in the form or load the example.</li>';
+      return;
+    }
+    list.innerHTML = result.flags
+      .map((f) => `<li class="flag">${badge(f.level)}<div><div class="flag-title">${f.title}</div><div class="flag-detail">${f.detail}</div></div></li>`)
+      .join("");
+  }
+
+  function meter(label, value, limit, unitText, levels) {
+    if (!has(value)) return `<div class="meter"><div class="meter-head"><span>${label}</span><span class="muted">no reading</span></div><div class="meter-track"></div></div>`;
+    const share = value / limit;
+    const level = share >= levels[1] ? "critical" : share >= levels[0] ? "warning" : "good";
+    const width = Math.min(share, 1) * 100;
+    return `<div class="meter">
+      <div class="meter-head"><span>${label}</span><span>${unitText} ${badge(level)}</span></div>
+      <div class="meter-track track-${level}" role="meter" aria-valuemin="0" aria-valuemax="${limit}" aria-valuenow="${value}" aria-label="${label}">
+        <div class="meter-fill fill-${level}" style="width:${Math.max(width, 1)}%"></div>
+      </div></div>`;
+  }
+
+  function renderMeters(v) {
+    const lfl = (gas, key, name) => {
+      const limit = T.lfl_pct[gas] * 10000;
+      return meter(`${name}, share of flammability limit`, v[key], limit,
+        has(v[key]) ? `${fmt((v[key] / limit) * 100)}% of LFL` : "", [T.lfl_warning_share, T.lfl_critical_share]);
+    };
+    const exposure = (key, name, limits) =>
+      meter(`${name}, share of NIOSH limit`, v[key], limits.serious, has(v[key]) ? `${fmt(v[key])} ppm` : "",
+        [limits.warning / limits.serious, 1]);
+    $("#meters").innerHTML = [
+      lfl("h2", "h2_ppm", "Hydrogen"),
+      lfl("ch4", "ch4_ppm", "Methane"),
+      exposure("co_ppm", "Carbon monoxide", T.co_ppm),
+      exposure("co2_ppm", "Carbon dioxide", T.co2_ppm),
+    ].join("");
+  }
+
+  let acmeFilter = "auto";
+
+  function renderAcme(v, result) {
+    const fuels = [...new Set(REF.acme.tests.map((t) => t.fuel))].sort();
+    const sel = $("#acme-fuel");
+    if (sel.options.length <= 1) {
+      sel.innerHTML = `<option value="auto">Match my fuel</option><option value="all">All fuels</option>` +
+        fuels.map((f) => `<option value="${esc(f)}">${esc(f)}</option>`).join("");
+      sel.value = acmeFilter;
+    }
+    let tests = REF.acme.tests.filter((t) => t.pressure_kpa != null);
+    let caption;
+    if (acmeFilter === "auto") {
+      const m = tests.filter((t) => matches(t.fuel, v.fuel_type));
+      if (m.length) { tests = m; caption = `Fuels matching "${esc(v.fuel_type)}"`; } else caption = v.fuel_type ? `No ACME fuel matches "${esc(v.fuel_type)}"; showing all fuels` : "All fuels";
+    } else if (acmeFilter !== "all") {
+      tests = tests.filter((t) => t.fuel === acmeFilter);
+      caption = esc(acmeFilter);
+    } else caption = "All fuels";
+    const nearIds = new Set((result.near?.tests || []).map((t) => t.id));
+    $("#acme-caption").innerHTML = `${caption} · ${tests.length} test points · ${tests.filter((t) => t.ignited).length} ignited`;
+
+    const point = (t) => ({
+      x: t.o2_pct, y: t.pressure_kpa, series: t.ignited ? "yes" : "no",
+      tip: `<strong>${t.ignited ? "Ignited" : "Did not ignite"}</strong><br>${esc(t.fuel)}<br>O₂ ${fmt(t.o2_pct)}% · ${fmt(t.pressure_kpa)} kPa<br>Fuel ${fmt(t.fuel_pct)}% · ${esc(t.date)}<br><span class="muted">${esc(t.id)}</span>`,
+    });
+    Charts.scatter($("#acme-chart"), {
+      points: tests.map(point),
+      series: [{ id: "no", name: "Did not ignite", cls: "s1" }, { id: "yes", name: "Ignited", cls: "s2" }],
+      xLabel: "Oxygen in chamber mixture (%)",
+      yLabel: "Chamber pressure (kPa)",
+      height: 320,
+      marker: has(v.o2_pct) && has(v.pressure_kpa) ? { x: v.o2_pct, y: v.pressure_kpa, label: "Your input" } : null,
+    });
+    $("#acme-table").innerHTML = `<table><thead><tr><th>Test point</th><th>Fuel</th><th>O₂ %</th><th>Pressure kPa</th><th>Fuel %</th><th>Result</th></tr></thead><tbody>${tests
+      .map((t) => `<tr class="${nearIds.has(t.id) ? "highlight" : ""}"><td>${esc(t.id)}</td><td>${esc(t.fuel)}</td><td>${fmt(t.o2_pct)}</td><td>${fmt(t.pressure_kpa)}</td><td>${fmt(t.fuel_pct)}</td><td>${t.ignited ? "Ignited" : "No ignition"}</td></tr>`)
+      .join("")}</tbody></table>`;
+  }
+
+  function renderSaffire(v) {
+    const s = REF.saffire.series;
+    const panels = [
+      { key: "o2_pct", title: "Oxygen", unit: "%", ref: has(v.o2_pct) ? v.o2_pct : null },
+      { key: "co2_pct", title: "Carbon dioxide", unit: "%", ref: has(v.co2_ppm) ? v.co2_ppm / 10000 : null },
+      { key: "pressure_kpa", title: "Pressure", unit: "kPa", ref: has(v.pressure_kpa) ? v.pressure_kpa : null },
+      { key: "plume_max_c", title: "Hottest plume thermocouple", unit: "°C", ref: has(v.internal_temp_c) ? v.internal_temp_c : null, refName: "Your internal temp" },
+    ];
+    $("#saffire-charts").innerHTML = panels.map((p) => `<figure class="mini"><figcaption>${p.title} <span class="muted">(${p.unit})</span></figcaption><div class="chart" id="saffire-${p.key}"></div></figure>`).join("");
+    for (const p of panels) {
+      Charts.line($(`#saffire-${p.key}`), {
+        x: s.t_s, y: s[p.key], xLabel: "Time (s)", yLabel: p.unit, unit: p.unit, height: 170,
+        ref: p.ref != null ? { value: p.ref, label: `${p.refName || "Your input"}: ${fmt(p.ref)} ${p.unit}` } : null,
+      });
+    }
+  }
+
+  function range(values) {
+    const xs = values.filter((x) => x != null);
+    return xs.length ? `${fmt(Math.min(...xs))}–${fmt(Math.max(...xs))}` : "–";
+  }
+
+  function renderRelated(v) {
+    const out = [];
+    if (v.fuel_type) {
+      const same = REF.samer.tests.filter((t) => matches(t.material, v.fuel_type));
+      if (same.length) {
+        out.push(`<li><strong>SAME-R smoke tests:</strong> ${same.length} tests heated ${esc(same[0].material)}, with heater ratio Rt/R0 ${range(same.map((t) => t.heater_ratio))} and flow ${range(same.map((t) => t.inlet_velocity_cm_s))} cm/s. Useful for how its smoke would look to a detector.</li>`);
+      }
+      const spice = REF.spice.runs.filter((r) => matches(r.fuel, v.fuel_type));
+      if (spice.length) {
+        out.push(`<li><strong>SPICE gas-jet flames:</strong> ${spice.length} runs burned ${esc(spice[0].fuel)}${new Set(spice.map((r) => r.fuel)).size > 1 ? " and similar mixtures" : ""}, at fuel rates ${range(spice.map((r) => r.fuel_rate_mg_s))} mg/s and coflow ${range(spice.map((r) => r.air_rate_cm_s))} cm/s.</li>`);
+      }
+      const acme = REF.acme.tests.filter((t) => matches(t.fuel, v.fuel_type));
+      if (acme.length) {
+        const lit = acme.filter((t) => t.ignited);
+        out.push(`<li><strong>ACME chamber tests:</strong> ${acme.length} test points used ${esc(v.fuel_type)} mixtures; ${lit.length} ignited${lit.length ? `, at O₂ as low as ${fmt(Math.min(...lit.map((t) => t.o2_pct)))}%` : ""}.</li>`);
+      }
+      if (!out.length) out.push(`<li>No loaded dataset tested "${esc(v.fuel_type)}" directly. Add a dataset below to compare against it.</li>`);
+    } else {
+      out.push('<li class="muted">Enter a fuel / material type to find related NASA tests.</li>');
+    }
+    $("#related").innerHTML = out.join("");
+  }
+
+  // ------------------------------------------------------------- datasets
+
+  function parseCsv(text) {
+    const rows = [];
+    let row = [], cell = "", quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (quoted) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') quoted = false;
+        else cell += c;
+      } else if (c === '"') quoted = true;
+      else if (c === ",") { row.push(cell); cell = ""; }
+      else if (c === "\n" || c === "\r") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        row.push(cell); rows.push(row); row = []; cell = "";
+      } else cell += c;
+    }
+    if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+    const nonEmpty = rows.filter((r) => r.some((x) => x.trim() !== ""));
+    const header = (nonEmpty.shift() || []).map((h, i) => h.trim() || `Column ${i + 1}`);
+    return { columns: header, rows: nonEmpty };
+  }
+
+  function numericColumns(ds) {
+    return ds.columns
+      .map((name, i) => {
+        const vals = ds.rows.map((r) => (r[i] === undefined || r[i].trim() === "" ? null : Number(r[i]))).filter((x) => x !== null);
+        const nums = vals.filter((x) => isFinite(x));
+        return { name, i, nums, numeric: nums.length >= Math.max(2, vals.length * 0.8) };
+      })
+      .filter((c) => c.numeric);
+  }
+
+  function builtInRows() {
+    return [
+      { name: REF.acme.name, file: REF.acme.file, rows: REF.acme.tests.length, desc: REF.acme.description },
+      { name: REF.saffire.name, file: REF.saffire.file, rows: REF.saffire.series.t_s.length, desc: REF.saffire.description },
+      { name: REF.spice.name, file: REF.spice.file, rows: REF.spice.runs.length, desc: REF.spice.description },
+      { name: REF.samer.name, file: REF.samer.file, rows: REF.samer.tests.length, desc: REF.samer.description },
+    ];
+  }
+
+  function renderDatasets() {
+    const builtIn = builtInRows()
+      .map((d) => `<li><div class="ds-name">${esc(d.name)} <span class="muted">· ${d.rows} rows · built in</span></div><div class="ds-desc">${esc(d.desc)}</div><div class="ds-file muted">data/${esc(d.file)}</div></li>`)
+      .join("");
+    const mine = userDatasets
+      .map((d, k) => {
+        const cols = numericColumns(d);
+        const opts = (sel) => cols.map((c) => `<option value="${c.i}" ${c.i === sel ? "selected" : ""}>${esc(c.name)}</option>`).join("");
+        const yi = d.y ?? cols[1]?.i ?? cols[0]?.i;
+        const summary = cols.map((c) => {
+          const mean = c.nums.reduce((a, b) => a + b, 0) / c.nums.length;
+          return `<tr><td>${esc(c.name)}</td><td>${fmt(Math.min(...c.nums))}</td><td>${fmt(mean)}</td><td>${fmt(Math.max(...c.nums))}</td></tr>`;
+        }).join("");
+        return `<li class="user-ds">
+          <div class="ds-name">${esc(d.name)} <span class="muted">· ${d.rows.length} rows · ${d.columns.length} columns · added by you</span>
+            <button type="button" class="link-btn" data-remove-ds="${k}">Remove</button></div>
+          ${cols.length ? `<div class="ds-controls">
+              <label>X <select data-ds="${k}" data-axis="x"><option value="-1">Row number</option>${opts(d.x ?? -1)}</select></label>
+              <label>Y <select data-ds="${k}" data-axis="y">${opts(yi)}</select></label></div>
+            <div class="chart" id="ds-chart-${k}"></div>
+            <details><summary>Column summary</summary><table><thead><tr><th>Column</th><th>Min</th><th>Mean</th><th>Max</th></tr></thead><tbody>${summary}</tbody></table></details>`
+          : '<p class="muted">No numeric columns found to chart.</p>'}
+        </li>`;
+      })
+      .join("");
+    $("#datasets").innerHTML = builtIn + mine;
+    userDatasets.forEach((d, k) => {
+      const cols = numericColumns(d);
+      if (!cols.length) return;
+      const yi = d.y ?? cols[1]?.i ?? cols[0]?.i;
+      const xi = d.x ?? -1;
+      const col = (i) => d.rows.map((r) => (r[i] === undefined || r[i].trim() === "" ? null : Number(r[i])));
+      const ys = col(yi).map((x) => (isFinite(x) ? x : null));
+      const xs = xi < 0 ? ys.map((_, j) => j + 1) : col(xi).map((x) => (isFinite(x) ? x : null));
+      const yName = d.columns[yi];
+      Charts.line($(`#ds-chart-${k}`), { x: xs, y: ys, xLabel: xi < 0 ? "Row" : d.columns[xi], yLabel: yName, unit: "", height: 200 });
+    });
+  }
+
+  function addDataset(file) {
+    const status = $("#dataset-status");
+    if (!/\.csv$/i.test(file.name)) { status.textContent = "Only .csv files can be added here. Save Excel sheets as CSV first."; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const parsed = parseCsv(String(reader.result));
+      if (!parsed.rows.length) { status.textContent = `${file.name} has no data rows.`; return; }
+      userDatasets.push({ name: file.name, ...parsed });
+      const saved = save(STORE.datasets, userDatasets);
+      status.textContent = `Added ${file.name} (${parsed.rows.length} rows).` + (saved ? "" : " It is too large to keep after reloading the page.");
+      renderDatasets();
+    };
+    reader.onerror = () => { status.textContent = `Could not read ${file.name}.`; };
+    reader.readAsText(file);
+  }
+
+  // ---------------------------------------------------------------- wiring
+
+  let timer;
+  function update() {
+    const v = readValues();
+    save(STORE.values, v);
+    const result = assess(v);
+    renderSummary(v, result);
+    renderFlags(result);
+    renderMeters(v);
+    renderAcme(v, result);
+    renderSaffire(v);
+    renderRelated(v);
+    return { v, result };
+  }
+  const scheduleUpdate = () => { clearTimeout(timer); timer = setTimeout(update, 150); };
+
+  function slug(label) {
+    const base = "custom_" + label.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+    let id = base, n = 2;
+    const taken = new Set(allFields().map((f) => f.id));
+    while (taken.has(id)) id = `${base}_${n++}`;
+    return id;
+  }
+
+  function init() {
+    renderForm();
+    writeValues(load(STORE.values, {}));
+    renderDatasets();
+    update();
+    $("#generated").textContent = REF.generated;
+
+    $("#input-form").addEventListener("input", scheduleUpdate);
+    $("#input-form").addEventListener("change", scheduleUpdate);
+    $("#input-form").addEventListener("submit", (e) => e.preventDefault());
+    $("#input-sections").addEventListener("click", (e) => {
+      const id = e.target.closest("[data-remove-param]")?.dataset.removeParam;
+      if (!id) return;
+      e.preventDefault();
+      const v = readValues();
+      customParams = customParams.filter((p) => p.id !== id);
+      save(STORE.params, customParams);
+      renderForm();
+      writeValues(v);
+      update();
+    });
+    $("#load-example").addEventListener("click", () => { writeValues(window.EXAMPLE_INPUT); update(); });
+    $("#clear-inputs").addEventListener("click", () => { writeValues({}); update(); });
+    $("#export").addEventListener("click", () => {
+      const { v, result } = update();
+      const blob = new Blob([JSON.stringify({
+        exported: new Date().toISOString(), inputs: v, custom_parameters: customParams,
+        assessment: result.flags.map((f) => ({ level: f.level, title: f.title, detail: f.detail.replace(/<[^>]+>/g, "") })),
+      }, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "fire-safety-inputs.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    $("#add-param").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const label = $("#param-label").value.trim();
+      if (!label) return;
+      const v = readValues();
+      customParams.push({
+        id: slug(label), label, section: $("#param-section").value,
+        type: $("#param-type").value, unit: $("#param-unit").value.trim(),
+      });
+      save(STORE.params, customParams);
+      e.target.reset();
+      renderForm();
+      writeValues(v);
+      update();
+    });
+
+    $("#acme-fuel").addEventListener("change", (e) => { acmeFilter = e.target.value; update(); });
+
+    $("#dataset-file").addEventListener("change", (e) => {
+      for (const f of e.target.files) addDataset(f);
+      e.target.value = "";
+    });
+    $("#datasets").addEventListener("change", (e) => {
+      const k = e.target.dataset.ds;
+      if (k === undefined) return;
+      userDatasets[k][e.target.dataset.axis] = Number(e.target.value);
+      save(STORE.datasets, userDatasets);
+      renderDatasets();
+    });
+    $("#datasets").addEventListener("click", (e) => {
+      const k = e.target.dataset.removeDs;
+      if (k === undefined) return;
+      userDatasets.splice(Number(k), 1);
+      save(STORE.datasets, userDatasets);
+      renderDatasets();
+    });
+
+    let resizeTimer;
+    window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { update(); renderDatasets(); }, 200); });
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
