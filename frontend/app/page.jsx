@@ -330,7 +330,6 @@ export default function Home() {
                           filter="url(#flame-soft)"
                         />
                       </g>
-                      <rect x="171" y="218" width="58" height="10" rx="2" fill="#080b10" />
                     </svg>
                     <span className="stage-label">
                       ILLUSTRATIVE
