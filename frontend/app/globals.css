@@ -1278,10 +1278,12 @@ h2 {
 
 @media (min-width:721px) and (max-width:1099px){.chat-open .content-grid{grid-template-columns:minmax(0,1fr) 310px}.parameter-panel .fields-grid{grid-template-columns:minmax(0,1fr)}.conversation{padding:24px 18px}.parameter-panel{padding:22px}.chat-panel{padding:18px}}
 
-/* Supplied star photograph behind the glass workspace. */
+/* Static black-hole-inspired gradient behind the glass workspace. */
 body {
   background-color: #030508;
-  background-image: linear-gradient(rgb(0 0 0 / 80%), rgb(0 0 0 / 80%)), url("/stars.jpg");
+  background-image:
+    radial-gradient(ellipse at 50% 28%, #020305 0%, #020305 20%, transparent 58%),
+    radial-gradient(ellipse at 50% 42%, #19152b 0%, #0b1421 38%, #030508 75%);
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
