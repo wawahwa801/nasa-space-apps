@@ -17,11 +17,24 @@ OUT = ROOT / 'artifacts'
 SOURCE = 'https://images-assets.nasa.gov/video/GRC-2021-CN-00008/GRC-2021-CN-00008~mobile.mp4'
 
 
+class ResidualCNN(nn.Module):
+    """Start at persistence and learn a bounded next-frame correction."""
+
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.Sequential(nn.Conv2d(3, 8, 3, padding=1), nn.ReLU(),
+                                    nn.Conv2d(8, 16, 3, padding=1), nn.ReLU(),
+                                    nn.Conv2d(16, 3, 3, padding=1))
+        nn.init.zeros_(self.layers[-1].weight)
+        nn.init.zeros_(self.layers[-1].bias)
+
+    def forward(self, image):
+        return (image + .1 * torch.tanh(self.layers(image))).clamp(0, 1)
+
+
 def model():
     # 1,827 parameters; image-only pipeline demonstration, not a heat-flux model.
-    return nn.Sequential(nn.Conv2d(3, 8, 3, padding=1), nn.ReLU(),
-                         nn.Conv2d(8, 16, 3, padding=1), nn.ReLU(),
-                         nn.Conv2d(16, 3, 3, padding=1), nn.Sigmoid())
+    return ResidualCNN()
 
 
 def prepare(args):

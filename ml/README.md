@@ -82,3 +82,9 @@ Controls select a recorded source frame, brightness, contrast, and 1–8 repeate
 The B1/B3 CSV reports initial oxygen of 22.2% for both runs, fan display 62/47, and air display 5/2. These are recorded display readings, not inferred m/s. No calibrated condition channels have been fitted. More trials spanning conditions and calibrated, time-aligned labels are needed before meaningful oxygen/airflow controls can be trained. The other three PSI investigations have not yet been sampled by this script.
 
 The final BASS-II smoke run used 80 frames from 15.00–34.75 s in each video, 79 training pairs and 79 validation pairs, 30 epochs, seed 42. Validation MSE: **0.006789**; persistence MSE: **0.0006226**. The CNN still loses to persistence. This is a functioning test lab, not a useful physical surrogate yet. Source SHA-256 values: B1 `e82f64268c51efeea73a3f11e690a2f6e504845e980fb60356a6ef1584d273cd`; B3 `421b7089bb60dfe14d5d784dec63ef7be7fd710006608daee21840b5dfc70034`.
+
+### Fix for nearly black predictions
+
+The original direct RGB predictor collapsed toward the dark background, producing an apparently blank output. The CNN now starts from the input frame and learns a bounded residual correction (±0.1 per normalized RGB channel), initialized at persistence. It still has 1,827 trainable parameters. Retrain before using this architecture; older `tiny.pt` files are incompatible.
+
+With the same B1/B3 windows and 30-epoch procedure, validation MSE is **0.0006166**, versus **0.0006226** for persistence. This is only a small improvement on one held-out trial, not evidence of physical predictive accuracy. This result supersedes the direct-predictor metrics above. The visible flame comes from preserving the observed frame and applying the CNN's learned correction; it is not unconstrained image generation.
