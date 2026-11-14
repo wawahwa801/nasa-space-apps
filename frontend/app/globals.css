@@ -1457,3 +1457,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
   .chat-open .conversation { display: block; }
   .chat-open .parameter-panel { margin-top: 20px; }
 }
+
+@media (min-width: 1000px) {
+  .conversation { grid-template-columns: minmax(440px, 48%) minmax(0, 1fr); }
+  .parameter-panel .fields-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 18px; }
+}
