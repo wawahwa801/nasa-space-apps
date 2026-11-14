@@ -104,7 +104,7 @@ function Slider({ name, label, suffix, min, max, step, value, onChange }) {
 }
 
 export default function Home() {
-  const [chatOpen, setChatOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
   const [mobile, setMobile] = useState(false);
   const chatRef = useRef(null),
     chatTrigger = useRef(null);
@@ -112,7 +112,7 @@ export default function Home() {
     const media = matchMedia("(min-width: 721px)");
     const sync = () => {
       setMobile(!media.matches);
-      setChatOpen(media.matches);
+
     };
     sync();
     media.addEventListener("change", sync);

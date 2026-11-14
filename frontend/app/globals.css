@@ -248,7 +248,7 @@ h2 {
   border: 1px solid var(--border);
   background:
     radial-gradient(ellipse at 0% 0%, #ffffff0a, transparent 55%),
-    linear-gradient(145deg, #ffffff04, #ffffff01);
+    linear-gradient(145deg, #131820b3, #080c1299);
   box-shadow:
     inset 0 1px 0 #ffffff30,
     0 12px 30px #0004;
@@ -435,7 +435,7 @@ h2 {
 .composer {
   padding: 16px 16px 10px;
   border-radius: 24px;
-  background: linear-gradient(145deg, #ffffff08, #ffffff02);
+  background: linear-gradient(145deg, #161b22b3, #0b0e1499);
 }
 .composer textarea {
   width: 100%;
@@ -883,7 +883,7 @@ h2 {
     margin: 0 20px 24px;
     border: 1px solid var(--border);
     border-radius: 22px;
-    background: linear-gradient(145deg, #ffffff08, #ffffff02);
+    background: linear-gradient(145deg, #161b22b3, #0b0e1499);
   }
   .parameter-panel .fields-grid {
     gap: 16px;
@@ -1073,7 +1073,7 @@ h2 {
   padding: 30px;
   border: 1px solid var(--border);
   border-radius: 24px;
-  background: radial-gradient(ellipse at top left, #ffffff0a, transparent 55%),linear-gradient(145deg,#ffffff04,#ffffff01);
+  background: radial-gradient(ellipse at top left, #ffffff0a, transparent 55%),linear-gradient(145deg,#131820b3,#080c1299);
   box-shadow: inset 0 1px 0 #ffffff18;
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
@@ -1160,7 +1160,7 @@ h2 {
   flex-direction: column;
   min-width: 0;
   border-left: 1px solid var(--border);
-  background: linear-gradient(160deg,#171a204d,#080b1033);
+  background: linear-gradient(160deg,#171a20cc,#080b10b3);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   box-shadow: inset 1px 0 0 #ffffff12;
@@ -1262,6 +1262,6 @@ body {
   background-attachment: fixed;
 }
 .editable-value {display:flex;align-items:center;gap:6px;flex-shrink:0;color:#edc3a7;font-size:13px;}
-.parameter-panel .editable-value input {width:90px;height:36px;padding:5px 8px;text-align:right;font-size:16px;border:1px solid #ffffff24;border-radius:8px;background:#10131966;color:#f1d1ba;font-variant-numeric:tabular-nums;}
+.parameter-panel .editable-value input {width:90px;height:36px;padding:5px 8px;text-align:right;font-size:16px;border:1px solid #ffffff24;border-radius:8px;background:#101319b3;color:#f1d1ba;font-variant-numeric:tabular-nums;}
 .parameter-panel .editable-value input:invalid {border-color:#ed9c88;}
 .slider-field>div:first-child {align-items:center;flex-wrap:wrap;}
