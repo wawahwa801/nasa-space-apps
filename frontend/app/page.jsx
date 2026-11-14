@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BlackHole } from "../components/ui/black-hole";
 
 const defaults = {
   oxygen: 20.9,
@@ -55,15 +54,6 @@ export default function Home() {
   }
   return (
     <div className="app-shell">
-      <BlackHole
-        color1="#e52436"
-        color2="#050505"
-        color3="#ffb3b3"
-        speed={0.6}
-        scale={1.2}
-        noise={0.14}
-        className="dashboard-background"
-      />
       <header className="topbar">
         <Link className="brand" href="/" aria-label="Ember home">
           ember<span>.</span>
