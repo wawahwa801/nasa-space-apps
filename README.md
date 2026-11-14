@@ -44,3 +44,7 @@ Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `
 - Add API integrations and application endpoints in `backend/app.py`.
 - Add model training code and document its data, configuration, and outputs before connecting it to the API.
 - Keep secrets in environment variables; do not commit credentials or private data.
+
+## Small CNN experiment
+
+See [ml/README.md](ml/README.md) for sample acquisition, training and prediction commands, measured baseline results, and a plan for expanding to raw PSI experiment data. The current sample is public SAFFIRE-V media, not the requested raw PSI datasets; this is an image prediction pipeline demonstration.
