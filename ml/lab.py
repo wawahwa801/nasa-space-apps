@@ -3,11 +3,13 @@ import base64
 from io import BytesIO
 import json
 import math
+from pathlib import Path
 
 import numpy as np
 from PIL import Image
 import torch
 from flask import Flask, jsonify, render_template, request
+from jinja2 import DictLoader
 
 from flame import DATA
 from conditional import load_model
@@ -21,6 +23,9 @@ def png(array):
 
 def create_app():
     app=Flask(__name__);torch.set_num_threads(2)
+    # Keep the page available even if files change after this process starts.
+    template_path=Path(__file__).resolve().parent/'templates'/'lab.html'
+    app.jinja_loader=DictLoader({'lab.html':template_path.read_text(encoding='utf-8')})
     net,saved=load_model()
     manifest=json.loads((DATA/'conditional-manifest.json').read_text())
     data=np.load(DATA/'conditional.npz')

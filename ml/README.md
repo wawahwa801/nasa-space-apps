@@ -83,3 +83,9 @@ Data and physical-label work is tracked in [issue #4](https://github.com/wawahwa
 ### 400-pair rerun
 
 After doubling extraction to 4 fps, the 250-epoch run (seed 42) used **320 training pairs + 80 held-out pairs = 400 total**. Held-out MSE was **0.003251**, versus **0.001630** for the mean-image baseline. It still underperforms that baseline. This sample adds temporal resolution, not new experimental conditions. See `conditional-pairs.csv` for the explicit image-to-feature joins and source frame indices.
+
+## Keep a running lab separate from other work
+
+A server started inside a shared checkout can lose its files when another task switches branches. Run the lab from a dedicated checkout/worktree containing the CNN code, data and checkpoints. For example, create a detached worktree with `git worktree add --detach ../nasa-cnn-lab origin/feature/cnn-test-lab`, then follow the setup instructions there. Each worktree needs access to the prepared data and model artifacts.
+
+The lab now loads the page template into memory at startup, along with its model and data. A later template-file removal no longer breaks requests. Restart from a checkout that contains the template when deploying page updates.
