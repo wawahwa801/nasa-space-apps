@@ -14,9 +14,10 @@ This repository is worked on by three people using Codex and/or Claude agents. K
 ## Pull requests and review
 
 - Open a GitHub pull request for each completed task and describe the purpose, notable changes, and checks performed. Link related issues when applicable.
-- Before merge, ask one of the other two project members to review the diff. The reviewer should inspect the changes independently, check for correctness and unintended effects, and leave actionable findings or explicitly state approval.
+- Before merge, have one of the other two project members inspect the full diff independently and check correctness, unintended effects, and verification results. If the reviewer is satisfied and all required checks pass, merge the pull request into `main`.
+- If the reviewer is not satisfied, do not merge. Leave a brief, specific comment stating what needs attention, then return the pull request to its author for changes. Re-review after updates.
 - The authoring agent must not be the sole reviewer of its own work. Address review comments in a follow-up commit and request another look when the changes affect the review.
-- Merge only after the human project members' agreed review process is satisfied. Do not self-merge unless explicitly authorized by the repository owner.
+- Follow any GitHub branch protection or required approval rules; do not bypass them. Do not self-approve a pull request you authored.
 - For bugs, risks, or other issues found during implementation or review that cannot be fixed immediately, or need clarification from the user, create a GitHub issue describing the problem, impact, and what is needed to resolve it. Link the issue from the pull request and keep it open until addressed; update or close it after resolution.
 
 ## GitHub identity and agent use
