@@ -344,101 +344,7 @@ export default function Home() {
                 ? "Parameters applied locally · Ready for a model connection"
                 : "Edit parameters to set up your scenario"}
             </div>
-          </main>
-          <aside
-            className="chat-panel"
-            id="chat-panel"
-            hidden={!chatOpen}
-            ref={chatRef}
-            tabIndex={-1}
-            role={mobile ? "dialog" : undefined}
-            aria-modal={mobile || undefined}
-            aria-label="Scenario chat"
-            onKeyDown={handleChatKey}
-          >
-            <div className="chat-heading">
-              <h2>Scenario chat</h2>
-              <button onClick={closeChat} aria-label="Close chat">
-                ×
-              </button>
-            </div>{" "}
-            <section
-              className="conversation-log"
-              aria-label="Scenario conversation"
-              aria-live="polite"
-            >
-              {messages.length === 0 ? (
-                <div className="conversation-intro">
-                  <span className="assistant-mark">e.</span>
-                  <div>
-                    <h2>A space for your scenario</h2>
-                    <p>
-                      Add a question or describe what you want to explore. Your
-                      note and parameters will be kept together here.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                messages.map((message, index) => (
-                  <article className="conversation-turn" key={index}>
-                    <div className="user-message">{message.text}</div>
-                    <div className="assistant-message">
-                      <span className="assistant-mark">e.</span>
-                      <div>
-                        <p>
-                          Scenario note saved with {message.parameters.oxygen}%
-                          oxygen, {message.parameters.pressure} kPa pressure,{" "}
-                          {message.parameters.flow} m/s airflow and{" "}
-                          {message.parameters.gravity} g gravity.
-                        </p>
-                        <p className="muted">
-                          No model is connected, so I can’t generate a
-                          simulation or assess this scenario yet.
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                ))
-              )}
-            </section>
-            <div className="composer-area">
-              <div className="composer">
-                <label className="sr-only" htmlFor="scenario-prompt">
-                  Describe your scenario
-                </label>
-                <textarea
-                  id="scenario-prompt"
-                  form="scenario-form"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe a scenario or ask about your environment…"
-                  maxLength={2000}
-                  rows={2}
-                />
-                <div className="composer-toolbar">
-                  <a href="#parameters">
-                    <Symbol name="sliders" />
-                    Parameters
-                  </a>
-                  <button
-                    type="submit"
-                    form="scenario-form"
-                    value="send"
-                    className="send-button"
-                    aria-label="Save scenario note"
-                    disabled={!prompt.trim()}
-                  >
-                    <Symbol name="arrow" />
-                  </button>
-                </div>
-              </div>
-              <p className="composer-disclaimer">
-                Local preview · No AI response or validated simulation is
-                generated.
-              </p>
-            </div>
-          </aside>{" "}
-          <aside
+          <section
             className="parameter-panel"
             id="parameters"
             aria-labelledby="parameters-heading"
@@ -578,7 +484,102 @@ export default function Home() {
                 Inputs stay in this page. No server request is made.
               </p>
             </form>
-          </aside>
+          </section>
+          </main>
+          <aside
+            className="chat-panel"
+            id="chat-panel"
+            hidden={!chatOpen}
+            ref={chatRef}
+            tabIndex={-1}
+            role={mobile ? "dialog" : undefined}
+            aria-modal={mobile || undefined}
+            aria-label="Scenario chat"
+            onKeyDown={handleChatKey}
+          >
+            <div className="chat-heading">
+              <h2>Scenario chat</h2>
+              <button onClick={closeChat} aria-label="Close chat">
+                ×
+              </button>
+            </div>{" "}
+            <section
+              className="conversation-log"
+              aria-label="Scenario conversation"
+              aria-live="polite"
+            >
+              {messages.length === 0 ? (
+                <div className="conversation-intro">
+                  <span className="assistant-mark">e.</span>
+                  <div>
+                    <h2>A space for your scenario</h2>
+                    <p>
+                      Add a question or describe what you want to explore. Your
+                      note and parameters will be kept together here.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                messages.map((message, index) => (
+                  <article className="conversation-turn" key={index}>
+                    <div className="user-message">{message.text}</div>
+                    <div className="assistant-message">
+                      <span className="assistant-mark">e.</span>
+                      <div>
+                        <p>
+                          Scenario note saved with {message.parameters.oxygen}%
+                          oxygen, {message.parameters.pressure} kPa pressure,{" "}
+                          {message.parameters.flow} m/s airflow and{" "}
+                          {message.parameters.gravity} g gravity.
+                        </p>
+                        <p className="muted">
+                          No model is connected, so I can’t generate a
+                          simulation or assess this scenario yet.
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              )}
+            </section>
+            <div className="composer-area">
+              <div className="composer">
+                <label className="sr-only" htmlFor="scenario-prompt">
+                  Describe your scenario
+                </label>
+                <textarea
+                  id="scenario-prompt"
+                  form="scenario-form"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Describe a scenario or ask about your environment…"
+                  maxLength={2000}
+                  rows={2}
+                />
+                <div className="composer-toolbar">
+                  <a href="#parameters">
+                    <Symbol name="sliders" />
+                    Parameters
+                  </a>
+                  <button
+                    type="submit"
+                    form="scenario-form"
+                    value="send"
+                    className="send-button"
+                    aria-label="Save scenario note"
+                    disabled={!prompt.trim()}
+                  >
+                    <Symbol name="arrow" />
+                  </button>
+                </div>
+              </div>
+              <p className="composer-disclaimer">
+                Local preview · No AI response or validated simulation is
+                generated.
+              </p>
+            </div>
+          </aside>{" "}
+
         </div>
       </div>
     </div>
