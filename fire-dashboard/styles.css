@@ -120,8 +120,9 @@ code { font-size: 0.9em; background: var(--surface-2); padding: 1px 4px; border-
 .inputs {
   align-self: start;
   position: sticky;
-  top: 16px;
-  max-height: calc(100vh - 32px);
+  /* A host page with a fixed header can set --fd-sticky-top on the embed. */
+  top: var(--fd-sticky-top, 16px);
+  max-height: calc(100vh - var(--fd-sticky-top, 16px) - 16px);
   overflow-y: auto;
   padding: 12px;
 }
@@ -244,7 +245,7 @@ textarea { resize: vertical; }
 .chart-svg .marker-label { fill: var(--text-primary); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; }
 
 .chart-tooltip {
-  position: fixed; z-index: 10; display: none; pointer-events: none;
+  position: fixed; z-index: 60; display: none; pointer-events: none;
   max-width: 260px; padding: 8px 10px; border-radius: 8px;
   background: var(--surface); color: var(--text-primary);
   border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
