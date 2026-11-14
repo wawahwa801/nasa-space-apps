@@ -252,7 +252,7 @@ export default function Home() {
                       </span>
                       <h2 id="flame-heading">Flame simulation</h2>
                     </div>
-                    <span className="preview-badge">Visual preview</span>
+                    <span className="preview-badge">Preview</span>
                   </div>
                   <div className={`flame-stage ${paused ? "paused" : ""}`}>
                     <svg
@@ -314,7 +314,7 @@ export default function Home() {
                       />
                     </svg>
                     <span className="stage-label">
-                      ILLUSTRATIVE · NOT MODEL OUTPUT
+                      ILLUSTRATIVE
                     </span>
                   </div>
                   <div className="card-footer">
@@ -324,20 +324,17 @@ export default function Home() {
                       aria-pressed={paused}
                       onClick={() => setPaused(!paused)}
                     >
-                      {paused ? "Play preview" : "Pause preview"}
+                      {paused ? "Play" : "Pause"}
                     </button>
                   </div>
-                  <p className="model-note">
-                    Flame prediction model not connected.
-                  </p>
                 </section>
               )}
             </div>
             <div className="scenario-strip" role="status">
               <span className={`status-dot ${snapshot ? "ready" : ""}`} />
               {snapshot
-                ? "Parameters applied locally · Ready for a model connection"
-                : "Edit parameters to set up your scenario"}
+                ? "Parameters applied"
+                : "Adjust parameters below"}
             </div>
           <section
             className="parameter-panel"
@@ -347,7 +344,7 @@ export default function Home() {
             <div className="parameters-heading">
               <div>
                 <h2 id="parameters-heading">Parameters</h2>
-                <p>Define your environment</p>
+
               </div>
               <Symbol name="sliders" />
             </div>
@@ -475,9 +472,6 @@ export default function Home() {
                   Reset
                 </button>
               </div>
-              <p className="form-footnote">
-                Inputs stay in this page. No server request is made.
-              </p>
             </form>
           </section>
           </main>
@@ -507,10 +501,9 @@ export default function Home() {
                 <div className="conversation-intro">
                   <span className="assistant-mark">e.</span>
                   <div>
-                    <h2>A space for your scenario</h2>
+                    <h2>Scenario notes</h2>
                     <p>
-                      Add a question or describe what you want to explore. Your
-                      note and parameters will be kept together here.
+                      Save a note with your parameters.
                     </p>
                   </div>
                 </div>
@@ -522,14 +515,10 @@ export default function Home() {
                       <span className="assistant-mark">e.</span>
                       <div>
                         <p>
-                          Scenario note saved with {message.parameters.oxygen}%
+                          Saved · {message.parameters.oxygen}%
                           oxygen, {message.parameters.pressure} kPa pressure,{" "}
                           {message.parameters.flow} m/s airflow and{" "}
                           {message.parameters.gravity} g gravity.
-                        </p>
-                        <p className="muted">
-                          No model is connected, so I can’t generate a
-                          simulation or assess this scenario yet.
                         </p>
                       </div>
                     </div>
@@ -547,7 +536,7 @@ export default function Home() {
                   form="scenario-form"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe a scenario or ask about your environment…"
+                  placeholder="Add a scenario note…"
                   maxLength={2000}
                   rows={2}
                 />
@@ -569,8 +558,7 @@ export default function Home() {
                 </div>
               </div>
               <p className="composer-disclaimer">
-                Local preview · No AI response or validated simulation is
-                generated.
+                Model not connected · Notes only.
               </p>
             </div>
           </aside>{" "}
