@@ -272,6 +272,12 @@ export default function Home() {
                       })}
                     </svg>
                     <div className="field-overlay" aria-hidden="true"><span>RELATIVE FIELD</span><span>+Y</span><span>+X →</span></div>
+                    <div className="field-annotations" aria-label="Current flame scenario inputs">
+                      <div className="field-annotation annotation-oxygen"><span>ATMOSPHERE / O₂</span><strong>{values.oxygen}<small> %</small></strong><i /></div>
+                      <div className="field-annotation annotation-pressure"><span>AMBIENT PRESSURE</span><strong>{values.pressure}<small> kPa</small></strong><i /></div>
+                      <div className="field-annotation annotation-airflow"><span>AIRFLOW</span><strong>{values.flow}<small> m/s</small></strong><i /></div>
+                      <div className="field-annotation annotation-gravity"><span>GRAVITY</span><strong>{values.gravity}<small> g</small></strong><i /></div>
+                    </div>
                     <svg
                       viewBox="0 0 400 250"
                       role="img"

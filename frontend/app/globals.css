@@ -1475,3 +1475,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .paused .ember-particles { animation-play-state: paused; }
 @keyframes ember-drift { from { opacity: .58; transform: scale(1) translateX(-4px); } to { opacity: .9; transform: scale(1.04) translateX(4px); } }
 @media (prefers-reduced-motion: reduce) { .ember-particles { animation: none; } }
+
+/* Live scenario annotations frame the illustrative flame. */
+.field-annotations { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.field-annotation { position: absolute; width: 22%; max-width: 145px; color: #f0c1a0; font-family: ui-monospace, monospace; }
+.field-annotation span { display: block; color: #c39078; font-size: 9px; letter-spacing: .09em; }
+.field-annotation strong { display: block; margin-top: 6px; color: #f4d3bc; font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.field-annotation small { color: #c39078; font-size: 10px; }
+.field-annotation i { display: block; height: 1px; margin-top: 8px; background: linear-gradient(90deg, #ee8559a6, transparent); }
+.annotation-oxygen { top: 24%; left: 5%; }
+.annotation-pressure { bottom: 24%; left: 5%; }
+.annotation-airflow { top: 24%; right: 5%; text-align: right; }
+.annotation-gravity { bottom: 24%; right: 5%; text-align: right; }
+.annotation-airflow i, .annotation-gravity i { background: linear-gradient(270deg, #ee8559a6, transparent); }
+@media (max-width: 600px) { .field-annotation { width: 25%; } .field-annotation span { font-size: 8px; letter-spacing: 0; } .field-annotation strong { font-size: 13px; } .annotation-oxygen, .annotation-pressure { left: 3%; } .annotation-airflow, .annotation-gravity { right: 3%; } }
