@@ -4,4 +4,10 @@ import { FlatCompat } from "@eslint/eslintrc";
 
 const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
 
-export default [...compat.extends("next/core-web-vitals", "next/typescript")];
+const config = [
+  // Generated copy of ../fire-dashboard (see scripts/sync-fire-dashboard.mjs).
+  { ignores: [".next/**", "public/fire-dashboard/**"] },
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+];
+
+export default config;

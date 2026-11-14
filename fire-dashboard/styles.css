@@ -1,4 +1,6 @@
-:root {
+/* `:host` rules apply when the dashboard is embedded in a shadow root
+   (see frontend/components/fire-safety-comparison.jsx). */
+:root, :host {
   color-scheme: light;
   --page: #f9f9f7;
   --surface: #fcfcfb;
@@ -27,7 +29,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme="light"]), :host(:not([data-theme="light"])) {
     color-scheme: dark;
     --page: #0d0d0d;
     --surface: #1a1a19;
@@ -49,7 +51,7 @@
   }
 }
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"], :host([data-theme="dark"]) {
   color-scheme: dark;
   --page: #0d0d0d;
   --surface: #1a1a19;
@@ -72,7 +74,9 @@
 
 * { box-sizing: border-box; }
 
-body {
+:host { display: block; }
+
+body, :host {
   margin: 0;
   background: var(--page);
   color: var(--text-primary);
@@ -80,6 +84,7 @@ body {
 }
 
 h1 { font-size: 1.6rem; margin: 0; letter-spacing: -0.01em; }
+.embedded-title { font-size: 1.35rem; margin: 0; letter-spacing: -0.01em; }
 h2 { font-size: 1.05rem; margin: 0 0 4px; }
 code { font-size: 0.9em; background: var(--surface-2); padding: 1px 4px; border-radius: 4px; }
 .muted { color: var(--text-muted); }
@@ -329,6 +334,6 @@ input[aria-invalid="true"] { border-color: var(--critical); }
   }
   .results-bar:hover { filter: none; }
   #results-bar-action { color: var(--accent); font-weight: 600; white-space: nowrap; }
-  body { padding-bottom: 76px; }
+  body, :host { padding-bottom: 76px; }
   .dashboard, .inputs { scroll-margin-top: 12px; }
 }

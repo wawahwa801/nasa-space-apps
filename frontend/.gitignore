@@ -1,0 +1,6 @@
+node_modules/
+.next/
+next-env.d.ts
+
+# Generated from ../fire-dashboard by scripts/sync-fire-dashboard.mjs
+public/fire-dashboard/

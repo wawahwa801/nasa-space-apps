@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { BlackHole } from "../components/ui/black-hole";
+import { FireSafetyComparison } from "../components/fire-safety-comparison";
 
 const defaults = {
   oxygen: 20.9,
@@ -155,6 +156,10 @@ export default function Home() {
           <a className="nav-item" href="#insights">
             <Icon name="chart" />
             Insights
+          </a>
+          <a className="nav-item" href="#nasa-comparison">
+            <Icon name="flame" />
+            NASA data
           </a>
         </nav>
         <div className="sidebar-bottom">
@@ -715,6 +720,26 @@ export default function Home() {
               </section>
             </div>
           </div>
+
+          <section
+            className="comparison-section"
+            id="nasa-comparison"
+            aria-labelledby="nasa-comparison-title"
+          >
+            <div className="panel-heading">
+              <div>
+                <h2 id="nasa-comparison-title">NASA data comparison</h2>
+                <p>
+                  Compare conditions with ACME, Saffire-I, SPICE and SAME-R
+                  microgravity fire experiments. This section has its own
+                  inputs and runs separately from the workspace above.
+                </p>
+              </div>
+              <span className="section-number">02</span>
+            </div>
+            <FireSafetyComparison />
+          </section>
+
           <footer className="footer">
             <span>
               <span className="footer-dot" /> Environmental Fire Safety

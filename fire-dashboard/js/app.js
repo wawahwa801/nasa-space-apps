@@ -1,5 +1,8 @@
 // Fire safety dashboard prototype.
 // The layout is fixed; user input fills it in. Nothing is sent over the network.
+//
+// FireDashboard.mount(root) starts the dashboard inside `root` (the document,
+// or a shadow root when embedded in another page) and returns a cleanup function.
 
 (function () {
   const REF = window.REFERENCE_DATA;
@@ -17,7 +20,9 @@
     good: { label: "OK", icon: "✓", rank: 0 },
   };
 
-  const $ = (sel, root = document) => root.querySelector(sel);
+  // All lookups go through ROOT so the dashboard also works inside a shadow root.
+  let ROOT = document;
+  const $ = (sel, root = ROOT) => root.querySelector(sel);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
   function load(key, fallback) {
@@ -608,11 +613,13 @@
     // Phone layout: a bar that jumps between the inputs and the results.
     const bar = $("#results-bar");
     let resultsVisible = false;
+    let observer = null;
     if ("IntersectionObserver" in window) {
-      new IntersectionObserver(([entry]) => {
+      observer = new IntersectionObserver(([entry]) => {
         resultsVisible = entry.isIntersecting;
         $("#results-bar-action").textContent = resultsVisible ? "Edit inputs ↑" : "View results ↓";
-      }, { threshold: 0.15 }).observe($("#results"));
+      }, { threshold: 0.15 });
+      observer.observe($("#results"));
     }
     bar.addEventListener("click", () => {
       const target = resultsVisible ? $("#inputs") : $("#results");
@@ -641,8 +648,49 @@
     });
 
     let resizeTimer;
-    window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { update(); renderDatasets(); }, 200); });
+    const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { update(); renderDatasets(); }, 200); };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (observer) observer.disconnect();
+      clearTimeout(resizeTimer);
+      clearTimeout(timer);
+      window.Charts.removeTooltip();
+    };
   }
 
-  document.addEventListener("DOMContentLoaded", init);
+  let cleanup = null;
+
+  /**
+   * Start the dashboard inside `root`, which must already contain the markup
+   * from index.html. Options:
+   *   embedded: true  - show the page title as a smaller h2 (the host page has its own h1)
+   *   title: string   - replacement title text when embedded; "" removes the title
+   */
+  function mount(root = document, options = {}) {
+    if (cleanup) cleanup();
+    ROOT = root;
+    window.Charts.setTooltipHost(root === document ? document.body : root);
+    if (options.embedded) {
+      const h1 = $(".page-header h1");
+      if (h1 && options.title === "") {
+        h1.remove();
+      } else if (h1) {
+        const h2 = document.createElement("h2");
+        h2.className = "embedded-title";
+        h2.textContent = options.title || h1.textContent;
+        h1.replaceWith(h2);
+      }
+    }
+    cleanup = init();
+    return () => { if (cleanup) { cleanup(); cleanup = null; } };
+  }
+
+  window.FireDashboard = { mount };
+
+  // Standalone page: mount when the dashboard markup is in the document itself.
+  const autoMount = () => { if (document.getElementById("input-sections")) mount(document); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", autoMount);
+  else autoMount();
 })();

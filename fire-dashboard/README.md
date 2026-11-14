@@ -4,8 +4,8 @@ A standalone page that takes quantitative and qualitative fire safety inputs
 (cabin conditions, atmosphere, nearby fuels) and compares them with NASA
 microgravity fire experiment data from the repository's `data/` folder.
 
-It is separate from the Next.js app in `frontend/` and the CNN work in `ml/`:
-plain HTML, CSS and JavaScript, with no dependencies and no build step.
+It is plain HTML, CSS and JavaScript, with no dependencies and no build step.
+It can be opened on its own or viewed inside the Next.js app in `frontend/`.
 
 > Prototype for exploration only. It is not a certified safety assessment.
 
@@ -60,6 +60,19 @@ matching NASA tests: fuels from ACME and SPICE, materials from SAME-R.
   that browser only.
 - **New built-in data:** put the file in `data/`, extend
   `scripts/build_reference_data.py` to read it, and rebuild (below).
+
+## Embedded in the Next.js app
+
+The same files also appear as the "NASA data comparison" section of the Next.js
+page in `frontend/`. `frontend/components/fire-safety-comparison.jsx` loads this
+folder's `index.html`, `styles.css` and scripts into a shadow root (so its styles and
+element IDs stay separate from the rest of the page) and calls
+`FireDashboard.mount(shadowRoot, { embedded: true, title: "" })`. The standalone
+page calls `mount(document)` automatically.
+
+`frontend/scripts/sync-fire-dashboard.mjs` copies this folder into
+`frontend/public/fire-dashboard/` before `npm run dev` and `npm run build`. Keep
+editing the files here; the copy is regenerated.
 
 ## Rebuilding the reference data
 

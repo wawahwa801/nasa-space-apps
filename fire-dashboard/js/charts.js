@@ -50,14 +50,24 @@
     return v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   }
 
-  // One shared tooltip element.
+  // One shared tooltip element. It lives in the dashboard's root so it picks up
+  // the dashboard's styles (inside a shadow root when embedded).
   let tip;
+  let tipHost = null;
+  function setTooltipHost(node) {
+    removeTooltip();
+    tipHost = node;
+  }
+  function removeTooltip() {
+    if (tip) tip.remove();
+    tip = null;
+  }
   function tooltip() {
     if (!tip) {
       tip = document.createElement("div");
       tip.className = "chart-tooltip";
       tip.setAttribute("role", "status");
-      document.body.appendChild(tip);
+      (tipHost || document.body).appendChild(tip);
     }
     return tip;
   }
@@ -197,5 +207,5 @@
     });
   }
 
-  window.Charts = { scatter, line, fmt };
+  window.Charts = { scatter, line, fmt, setTooltipHost, removeTooltip };
 })();

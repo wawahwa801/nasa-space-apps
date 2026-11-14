@@ -1026,3 +1026,20 @@ h2 {
 .main-content {
   background: linear-gradient(180deg, rgb(8 10 24 / 35%), rgb(8 10 24 / 58%));
 }
+
+/* NASA data comparison (components/fire-safety-comparison.jsx).
+   The dashboard inside renders in a shadow root with its own styles;
+   these rules only frame it. No overflow: hidden, so its input panel can stay sticky. */
+.comparison-section {
+  margin-top: 22px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: rgb(19 23 25 / 90%);
+  scroll-margin-top: 20px;
+}
+.fire-dashboard-host {
+  display: block;
+  min-height: 240px;
+  border-radius: 0 0 9px 9px;
+  overflow: clip;
+}
