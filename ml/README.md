@@ -26,21 +26,28 @@ Choose a documented trial preset or change the sliders. Every prediction is comp
 | Fan display | 46.5–62 | Instrument display reading; **not m/s** |
 | Air display | 2–5 | Instrument display reading; **not m/s** |
 | Initial CO₂ | 0.43–0.51% by volume | Trial-level initial measurement, not a per-frame sensor reading |
-| Video time | 15–34.5 s | Time from start of video, not ignition |
+| Video time | 15–34.75 s | Time from start of video, not ignition |
 
 Initial oxygen is 22.2%, film width is 2 cm, and flow restrictor is 2 across this sample; their effects cannot be learned here. Pressure, calibrated airflow, gravity variation, temperature, humidity, and fuel categories remain unsupported. The table explicitly identifies PMMA for B1/B4 but does not name the polymer in every selected film description. Preserve those original descriptions; confirm material comparability before expanding training.
+
+## Why video frames are image–feature examples
+
+BASS-II provides raw experimental videos alongside a trial-level conditions table. We extract image targets from the videos and join each target to the table by trial/sample ID. Each supervised example is `(thickness, fan display, air display, initial CO₂, video time) → flame image`. Four inputs describe the trial; video time varies for each extracted image. Initial trial conditions are not continuously measured per-frame values.
+
+Denser extraction gives more temporal examples from the same five trials, not more independent environmental settings. The split still holds out the entire B3 trial, so nearby frames cannot leak from that trial into training.
 
 ## Architecture and training
 
 `conditional.py` encodes the five normalized scalars through linear layers (5 → 64 → 32×8×8), then three transposed convolutions decode to 16×16, 32×32, and 64×64 RGB output. Sigmoid bounds the image to [0,1]. The network learns from experimental images, not manually specified flame shapes.
 
-Only training trials determine normalization ranges. B1, B4, B5, and B12 provide 160 training frames; the entire B3 trial provides 40 held-out frames. Frames are sampled every 0.5 s from 15 to 34.5 s. A fixed normalized ROI (x 5–95%, y 22–95%) removes upper telemetry; aspect-preserving padding fits the ROI to 64×64. Background dominates these videos, so the loss uses pixel MSE weighted by `1 + 100 × target maximum RGB intensity`. This emphasizes observed luminous pixels; it does not supply physical heat-flux labels.
+Only training trials determine normalization ranges. B1, B4, B5, and B12 provide 320 training image–feature pairs; the entire B3 trial provides 80 held-out image–feature pairs. The 400 image–feature pairs are sampled at 4 fps (every 0.25 s) from 15 to 34.75 s, twice the previous 2 fps. The raw videos run at approximately 29.97 fps; sampling does not change their native frame rate. Each target image is joined to its trial features and timestamp, not trained as an unlabeled frame. A fixed normalized ROI (x 5–95%, y 22–95%) removes upper telemetry; aspect-preserving padding fits the ROI to 64×64. Background dominates these videos, so the loss uses pixel MSE weighted by `1 + 100 × target maximum RGB intensity`. This emphasizes observed luminous pixels; it does not supply physical heat-flux labels.
 
-The 250-epoch run (seed 42, CPU) gave held-out pixel MSE **0.005215**, versus **0.001571** for the mean training image. The model responds to all five features but **does not outperform that baseline**. Correlated settings from only four trials cannot isolate causal effects. Treat generated images as illustrative and avoid interpreting them as safety predictions, calibrated flame geometry, or heat flux. This is a feature-conditioned generator prototype, not the complete physics/CNN coupling in the Planning document.
+The earlier 200-pair, 250-epoch run (seed 42, CPU) gave held-out pixel MSE **0.005215**, versus **0.001571** for the mean training image. The model responds to all five features but **does not outperform that baseline**. Correlated settings from only four trials cannot isolate causal effects. Treat generated images as illustrative and avoid interpreting them as safety predictions, calibrated flame geometry, or heat flux. This is a feature-conditioned generator prototype, not the complete physics/CNN coupling in the Planning document.
 
 Artifacts (ignored by Git):
 
-- `ml/data/conditional.npz`: feature vectors, image targets, trial IDs.
+- `ml/data/conditional.npz`: feature vectors, image targets, trial IDs, and sampling rate.
+- `ml/data/conditional-pairs.csv`: one row per image target, with archive index, trial/sample ID, source video/frame index, decoded timestamp, all five model inputs, and train/validation split.
 - `ml/data/conditional-manifest.json`: exact CSV rows, source videos, hashes, timestamps, and original material descriptions.
 - `ml/artifacts/conditional.pt`: weights, architecture ID, training-only normalization, feature specification, metrics.
 - `ml/artifacts/conditional-metrics.json`: held-out error, baseline, and per-feature sensitivity probes.
@@ -72,3 +79,7 @@ Data and physical-label work is tracked in [issue #4](https://github.com/wawahwa
 ## Earlier image-input baseline
 
 `flame.py` still supports `prepare`, `train`, and `predict` for the residual next-frame CNN. It uses separate `tiny.pt` weights. Those weights are incompatible with the conditional decoder and are not used by the current lab. Historical B1/B3 residual MSE was 0.0006166 versus persistence 0.0006226 on a different frame-preparation pipeline; it is not directly comparable to the conditional model's held-out score.
+
+### 400-pair rerun
+
+After doubling extraction to 4 fps, the 250-epoch run (seed 42) used **320 training pairs + 80 held-out pairs = 400 total**. Held-out MSE was **0.003251**, versus **0.001630** for the mean-image baseline. It still underperforms that baseline. This sample adds temporal resolution, not new experimental conditions. See `conditional-pairs.csv` for the explicit image-to-feature joins and source frame indices.

@@ -22,6 +22,8 @@ FEATURES = [
 ]
 TRIALS = ['B1', 'B3', 'B4', 'B5', 'B12']
 ARCHITECTURE = 'condition-decoder-v1'
+SAMPLE_FPS = 4
+TIMESTAMPS = np.arange(15, 35, 1 / SAMPLE_FPS)
 
 
 class ConditionalCNN(nn.Module):
@@ -42,7 +44,7 @@ class ConditionalCNN(nn.Module):
 def prepare():
     with (DATA/'PSI-25_Experimental table_BASS-II.csv').open(encoding='utf-8-sig') as f:
         rows = {r['Test #']:r for r in csv.DictReader(f)}
-    features, images, groups, manifest = [], [], [], []
+    features, images, groups, manifest, pairs = [], [], [], [], []
     for trial in TRIALS:
         row = rows[trial]
         material = row['Fuel Sample Material']
@@ -56,13 +58,18 @@ def prepare():
             raise ValueError('Need exactly one source video for '+trial)
         video = candidates[0]
         capture = cv2.VideoCapture(str(video))
-        timestamps = []
+        source_fps = capture.get(cv2.CAP_PROP_FPS)
+        timestamps, source_indices, decoded_times = [], [], []
         try:
-            for t in np.arange(15, 35, .5):
+            for t in TIMESTAMPS:
                 capture.set(cv2.CAP_PROP_POS_MSEC, float(t)*1000)
                 ok, frame = capture.read()
                 if not ok:
                     raise ValueError(f'{trial}: no frame at {t}')
+                source_index = int(round(capture.get(cv2.CAP_PROP_POS_FRAMES))) - 1
+                decoded_time = capture.get(cv2.CAP_PROP_POS_MSEC) / 1000
+                if source_index in source_indices:
+                    raise ValueError(f'{trial}: duplicate source frame at {t}')
                 h,w = frame.shape[:2]
                 # Fixed normalized ROI removes top telemetry; pad to preserve aspect ratio.
                 frame = frame[int(.22*h):int(.95*h), int(.05*w):int(.95*w)]
@@ -71,16 +78,26 @@ def prepare():
                 features.append([float(thickness.group(1))/1000, float(row['Fan display']),
                     float(row['Air display']), float(row['Initial CO2 % by vol']), float(t)])
                 images.append(np.array(image));groups.append(trial);timestamps.append(float(t))
+                source_indices.append(source_index);decoded_times.append(decoded_time)
+                pairs.append(dict(image_archive='conditional.npz', image_index=len(images)-1,
+                    trial=trial, sample=row['Sample #'], video=video.name,
+                    split='validation' if trial == 'B3' else 'train',
+                    source_frame_index=source_index, decoded_time_seconds=decoded_time,
+                    **{spec['key']:value for spec,value in zip(FEATURES,features[-1])}))
         finally:
             capture.release()
         manifest.append(dict(trial=trial, sample=row['Sample #'], material=material,
             width_cm=float(width.group(1)), initial_oxygen_percent=float(row['Calibrated  initial O2 % by vol ']),
             video=video.name, sha256=hashlib.sha256(video.read_bytes()).hexdigest(),
-            row=row, timestamps=timestamps, source='https://psi.nasa.gov/physci/repo/data/investigations/PSI-25'))
+            row=row, timestamps=timestamps, source_fps=source_fps, sampled_fps=SAMPLE_FPS,
+            source_frame_indices=source_indices, decoded_timestamps_seconds=decoded_times,
+            source='https://psi.nasa.gov/physci/repo/data/investigations/PSI-25'))
     np.savez_compressed(DATA/'conditional.npz', features=np.array(features,dtype='float32'),
-                        images=np.array(images), groups=np.array(groups))
+                        images=np.array(images), groups=np.array(groups), sampled_fps=SAMPLE_FPS)
     (DATA/'conditional-manifest.json').write_text(json.dumps(manifest,indent=2))
-    print(f'Prepared {len(images)} labeled images across {len(manifest)} trials')
+    with (DATA/'conditional-pairs.csv').open('w',newline='') as f:
+        writer=csv.DictWriter(f,fieldnames=list(pairs[0]));writer.writeheader();writer.writerows(pairs)
+    print(f'Prepared {len(images)} image-feature pairs across {len(manifest)} trials at {SAMPLE_FPS} fps')
 
 
 def train(epochs):
@@ -120,6 +137,7 @@ def train(epochs):
     metrics=dict(architecture=ARCHITECTURE,epochs=epochs,seed=42,
         parameters=sum(p.numel() for p in net.parameters()),train_trials=['B1','B4','B5','B12'],
         validation_trials=['B3'],train_images=int(train_mask.sum()),validation_images=int((~train_mask).sum()),
+        total_image_feature_pairs=len(x),sampled_fps=float(data['sampled_fps']),
         validation_mse=mse,mean_image_baseline_mse=baseline,feature_sensitivity=sensitivity)
     OUT.mkdir(exist_ok=True)
     torch.save(dict(architecture=ARCHITECTURE,state=net.state_dict(),low=low,scale=scale,
