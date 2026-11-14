@@ -154,3 +154,44 @@ def test_status_and_health():
     status = client.get("/api/llm/status").get_json()
     assert status["provider"] == "recording"
     assert "mock" in status["available_providers"]
+
+
+# Regression tests for the PR #6 review findings.
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        '{"data": [1e308, 1e308]}',  # finite inputs whose sum overflows
+        '{"data": [' + "1" + "0" * 400 + "]}",  # integer too large for a float
+        '{"data": {"a": [1e308, 1e308]}}',
+        '{"data": [{"a": 1e308}, {"a": 1e308}]}',
+        '{"data": [{"a": ' + "1" + "0" * 400 + '}, {"a": 2}]}',
+    ],
+)
+def test_out_of_range_numbers_return_400(body):
+    resp = make_client().post("/api/analyze", data=body, content_type="application/json")
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()
+
+
+def test_size_limit_checked_before_summaries(monkeypatch):
+    import llm.input_processing as ip
+
+    def fail(*_args, **_kwargs):
+        raise AssertionError("summary computed for oversize data")
+
+    monkeypatch.setattr(ip, "_summarize_series", fail)
+    monkeypatch.setattr(ip, "_summarize_records", fail)
+    with pytest.raises(InputValidationError, match="character limit"):
+        process_input(list(range(1000)), max_chars=100)
+    with pytest.raises(InputValidationError, match="character limit"):
+        process_input([{"a": i} for i in range(1000)], max_chars=100)
+
+
+def test_too_many_columns_rejected():
+    sparse = [{f"k{i}": i} for i in range(500)]
+    with pytest.raises(InputValidationError, match="columns"):
+        process_input(sparse)
+    with pytest.raises(InputValidationError, match="columns"):
+        process_input({f"k{i}": [i] for i in range(500)})

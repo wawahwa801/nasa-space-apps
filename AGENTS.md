@@ -27,6 +27,7 @@ This repository is worked on by three people using Codex and/or Claude agents. K
 
 - Agents are tools operated by the three people, not GitHub accounts. Do not create agent accounts, add agents as collaborators, or share personal access tokens, SSH keys, or login sessions between people or agents.
 - Keep Git commits and pull requests attributed to the human who authorized the work, using that person's own GitHub credentials and configured Git identity. Never impersonate another person or fabricate a review, approval, or status check.
+- Do not add Codex, Claude Code, or another AI agent as a commit co-author or collaborator in commit messages, pull requests, or merge attribution. Attribute repository changes to the authorizing human; agents are tools, not project contributors.
 - A reviewing agent acts for its authorizing project member and must not review that member's own PR. A comment or document message alone is not a formal GitHub approval. Follow any required formal GitHub approval rules before merge.
 - Do not add reviewers or collaborators automatically. The humans decide who has repository access and who formally reviews each pull request.
 

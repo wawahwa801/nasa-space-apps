@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from typing import Any
 
 DATA_TYPES = ("auto", "quantitative", "qualitative")
+MAX_COLUMNS = 100
 
 
 class InputValidationError(ValueError):
@@ -39,24 +40,41 @@ class ProcessedInput:
     data_text: str  # serialized data included in the prompt
 
 
+_OUT_OF_RANGE = "Numbers are too large to analyze. Rescale or convert the units of the data."
+
+
 def _is_number(value: Any) -> bool:
-    return (
-        isinstance(value, (int, float))
-        and not isinstance(value, bool)
-        and math.isfinite(value)
-    )
+    """True for finite ints and floats. Raises for integers too large for a float."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        raise InputValidationError(_OUT_OF_RANGE) from None
 
 
 def _numeric_stats(values: list[float]) -> dict[str, Any]:
-    stats: dict[str, Any] = {
-        "count": len(values),
-        "mean": statistics.fmean(values),
-        "median": statistics.median(values),
-        "min": min(values),
-        "max": max(values),
-    }
-    stats["stdev"] = statistics.stdev(values) if len(values) >= 2 else None
+    try:
+        stats: dict[str, Any] = {
+            "count": len(values),
+            "mean": statistics.fmean(values),
+            "median": statistics.median(values),
+            "min": min(values),
+            "max": max(values),
+        }
+        stats["stdev"] = statistics.stdev(values) if len(values) >= 2 else None
+    except OverflowError:
+        raise InputValidationError(_OUT_OF_RANGE) from None
+    if any(isinstance(v, float) and not math.isfinite(v) for v in stats.values()):
+        raise InputValidationError(_OUT_OF_RANGE)
     return {k: (round(v, 6) if isinstance(v, float) else v) for k, v in stats.items()}
+
+
+def _check_column_count(count: int) -> None:
+    if count > MAX_COLUMNS:
+        raise InputValidationError(
+            f"Data has more than {MAX_COLUMNS} columns. Send fewer columns or pre-aggregate it."
+        )
 
 
 def _column_summary(values: list[Any]) -> dict[str, Any]:
@@ -83,6 +101,7 @@ def _summarize_series(data: list[Any]) -> dict[str, Any]:
 
 
 def _summarize_named_series(data: dict[str, Any]) -> dict[str, Any]:
+    _check_column_count(len(data))
     columns: dict[str, Any] = {}
     for name, values in data.items():
         if not isinstance(values, list) or not values:
@@ -92,11 +111,11 @@ def _summarize_named_series(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def _summarize_records(data: list[dict[str, Any]]) -> dict[str, Any]:
-    keys: list[str] = []
+    keys: dict[str, None] = {}  # insertion-ordered set
     for row in data:
         for key in row:
-            if key not in keys:
-                keys.append(key)
+            keys[key] = None
+        _check_column_count(len(keys))
     columns = {str(k): _column_summary([row.get(k) for row in data]) for k in keys}
     return {"row_count": len(data), "columns": columns}
 
@@ -132,6 +151,20 @@ def process_input(data: Any, data_type: str = "auto", *, max_chars: int = 50_000
             f"'data_type' is '{data_type}' but the data looks {detected_type}."
         )
 
+    # Check size before computing summaries so oversize payloads are rejected cheaply.
+    if shape == "text":
+        data_text = data
+    elif shape == "text_list":
+        data_text = "\n".join(f"{i}. {s}" for i, s in enumerate(data, start=1))
+    else:
+        data_text = json.dumps(data, ensure_ascii=False, default=str)
+
+    if len(data_text) > max_chars:
+        raise InputValidationError(
+            f"Data is {len(data_text):,} characters, over the {max_chars:,} character limit. "
+            "Send a smaller subset or pre-aggregate it."
+        )
+
     if shape == "series":
         summary = _summarize_series(data)
     elif shape == "named_series":
@@ -145,18 +178,5 @@ def process_input(data: Any, data_type: str = "auto", *, max_chars: int = 50_000
             "entries": len(data),
             "total_characters": sum(len(s) for s in data),
         }
-
-    if shape == "text":
-        data_text = data
-    elif shape == "text_list":
-        data_text = "\n".join(f"{i}. {s}" for i, s in enumerate(data, start=1))
-    else:
-        data_text = json.dumps(data, ensure_ascii=False, default=str)
-
-    if len(data_text) > max_chars:
-        raise InputValidationError(
-            f"Data is {len(data_text):,} characters, over the {max_chars:,} character limit. "
-            "Send a smaller subset or pre-aggregate it."
-        )
 
     return ProcessedInput(data_type=detected_type, shape=shape, summary=summary, data_text=data_text)
