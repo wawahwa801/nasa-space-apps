@@ -247,12 +247,8 @@ export default function Home() {
                 >
                   <div className="card-heading">
                     <div className="card-title">
-                      <span className="card-icon warm">
-                        <Symbol name="flame" />
-                      </span>
                       <h2 id="flame-heading">Flame simulation</h2>
                     </div>
-                    <span className="preview-badge">Preview</span>
                   </div>
                   <div className={`flame-stage ${paused ? "paused" : ""}`}>
                     <svg
@@ -342,7 +338,6 @@ export default function Home() {
                 <h2 id="parameters-heading">Parameters</h2>
 
               </div>
-              <Symbol name="sliders" />
             </div>
             <form id="scenario-form" onSubmit={preview}>
               <div className="field-section">
@@ -457,7 +452,7 @@ export default function Home() {
               )}
               <div className="form-actions">
                 <LiquidButton type="submit">
-                  Apply parameters <span aria-hidden="true">↗</span>
+                  Apply parameters
                 </LiquidButton>
                 <button
                   className="reset-button"

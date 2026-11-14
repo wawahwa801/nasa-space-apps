@@ -1291,3 +1291,70 @@ body {
 .parameter-panel .editable-value input {width:90px;height:36px;padding:5px 8px;text-align:right;font-size:16px;border:1px solid #ffffff24;border-radius:8px;background:#101319b3;color:#f1d1ba;font-variant-numeric:tabular-nums;}
 .parameter-panel .editable-value input:invalid {border-color:#ed9c88;}
 .slider-field>div:first-child {align-items:center;flex-wrap:wrap;}
+
+/* Quiet surfaces keep attention on the flame and scenario controls. */
+.conversation {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 32px 40px;
+}
+.topbar { height: 64px; padding: 0 28px; }
+.topbar .brand { font-size: 24px; }
+.chat-toggle, .chat-heading button {
+  background: transparent;
+  border-radius: 6px;
+  padding: 7px 12px;
+}
+.simulation-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.card-heading { padding: 8px 0 0; }
+.card-title h2 { font-size: 13px; font-weight: 400; color: #aaa; }
+.card-footer { padding: 10px 0; border-top: 0; }
+.flame-stage { height: 320px; }
+.flame-art { height: 290px; }
+.scenario-strip { margin-top: 8px; font-size: 10px; }
+.parameter-panel {
+  margin-top: 24px;
+  padding: 24px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.parameter-panel h2 { font-size: 16px; font-weight: 500; }
+.parameters-heading { margin-bottom: 24px; }
+.field-section-title { font-size: 12px; margin-bottom: 20px; }
+.parameter-panel .field > span, .slider-field > div:first-child { font-size: 12px; }
+.fields-grid { gap: 24px 28px; }
+.parameter-panel .field input, .parameter-panel .field select {
+  height: 42px;
+  border-radius: 6px;
+  background: #0d1015b3;
+  font-size: 14px;
+}
+.parameter-panel .editable-value input { border-radius: 5px; font-size: 14px; }
+.slider-limits button { border-radius: 5px; background: transparent; }
+.parameter-panel .liquid-button {
+  background: #e2d0c3;
+  color: #171412;
+  border-radius: 7px;
+  box-shadow: none;
+  font-size: 12px;
+}
+@media (max-width: 720px) {
+  .conversation { padding: 20px 18px 32px; }
+  .topbar { padding: 0 18px; gap: 12px; }
+  .flame-stage { height: 280px; }
+  .flame-art { height: 250px; }
+  .parameter-panel { margin-top: 20px; padding: 24px 0 0; }
+  .parameter-panel .field input, .parameter-panel .field select,
+  .parameter-panel .editable-value input { font-size: 16px; }
+}
