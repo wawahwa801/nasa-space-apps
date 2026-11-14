@@ -1255,7 +1255,7 @@ h2 {
 /* Supplied star photograph behind the glass workspace. */
 body {
   background-color: #030508;
-  background-image: url("/stars.jpg");
+  background-image: linear-gradient(#0009, #0009), url("/stars.jpg");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
