@@ -1278,18 +1278,153 @@ h2 {
 
 @media (min-width:721px) and (max-width:1099px){.chat-open .content-grid{grid-template-columns:minmax(0,1fr) 310px}.parameter-panel .fields-grid{grid-template-columns:minmax(0,1fr)}.conversation{padding:24px 18px}.parameter-panel{padding:22px}.chat-panel{padding:18px}}
 
-/* Static black-hole-inspired gradient behind the glass workspace. */
-body {
-  background-color: #030508;
-  background-image:
-    radial-gradient(ellipse at 50% 28%, #020305 0%, #020305 20%, transparent 58%),
-    radial-gradient(ellipse at 50% 42%, #19152b 0%, #0b1421 38%, #030508 75%);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
 .editable-value {display:flex;align-items:center;gap:6px;flex-shrink:0;color:#edc3a7;font-size:13px;}
 .parameter-panel .editable-value input {width:90px;height:36px;padding:5px 8px;text-align:right;font-size:16px;border:1px solid #ffffff24;border-radius:8px;background:#101319b3;color:#f1d1ba;font-variant-numeric:tabular-nums;}
 .parameter-panel .editable-value input:invalid {border-color:#ed9c88;}
 .slider-field>div:first-child {align-items:center;flex-wrap:wrap;}
+
+/* Aqua workspace: soft canvas, white cards, and a single teal accent. */
+:root {
+  color-scheme: light;
+  --background: #eaf5f8;
+  --text: #293e50;
+  --muted: #64798a;
+  --border: rgb(48 88 109 / 13%);
+  --accent: #008f9c;
+}
+body {
+  background: linear-gradient(145deg, #c3e7e9, #b1dce1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.app-shell {
+  max-width: 1440px;
+  min-height: calc(100vh - 48px);
+  margin: 24px auto;
+  background: #eaf5f8;
+  border: 1px solid #ffffffa6;
+  border-radius: 24px;
+  overflow: clip;
+  box-shadow: 0 18px 60px #20656e14;
+}
+.topbar {
+  height: 72px;
+  padding: 0 30px;
+  background: #f8fcfd;
+  border-color: var(--border);
+  color: var(--muted);
+}
+.topbar .brand { font-size: 25px; color: #294255; }
+.brand span { color: #00a9b5; }
+.topbar > .text-button { color: #526c7e; font-size: 12px; }
+.chat-toggle, .chat-heading button {
+  background: #fff;
+  color: #426071;
+  border-color: #d5e6ec;
+  border-radius: 9px;
+  font-size: 12px;
+}
+.chat-toggle:hover, .chat-heading button:hover { background: #e2f5f5; }
+.conversation { padding: 28px; max-width: 1160px; margin: 0 auto; }
+.simulation-card, .parameter-panel {
+  border: 1px solid #e0edf1;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 3px 12px #244d6504;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.card-heading { padding: 20px 22px 0; }
+.card-title h2 { font-size: 14px; font-weight: 600; }
+.card-icon.warm { background: #fff3dd; color: #a96713; }
+.preview-badge { color: #62798a; font-size: 10px; }
+.flame-stage {
+  height: 320px;
+  margin: 18px 22px;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 65%, #152338, #080e18 72%);
+}
+.flame-art { height: 280px; }
+.stage-label { color: #9caec4; }
+.card-footer { padding: 12px 22px; color: #62798a; border-color: #edf3f6; font-size: 11px; }
+.text-button { color: #387183; }
+.scenario-strip { color: #62798a; font-size: 11px; margin-top: 14px; }
+.status-dot { background: #8d9fa9; }
+.status-dot.ready { background: #00877f; }
+.parameter-panel { margin-top: 22px; padding: 26px; }
+.parameter-panel h2 { font-size: 18px; font-weight: 600; letter-spacing: -.4px; }
+.parameters-heading { margin-bottom: 26px; }
+.parameters-heading > svg { color: #7e98a6; }
+.field-section-title { color: #4c6678; font-size: 12px; font-weight: 600; margin-bottom: 20px; }
+.fields-grid { gap: 24px 30px; }
+.slider-field > div:first-child, .parameter-panel .field > span { font-size: 12px; color: #516c7e; }
+.editable-value { color: #62798a; font-size: 11px; }
+.parameter-panel .editable-value input {
+  width: 86px;
+  color: #2d5266;
+  background: #f5fafc;
+  border: 1px solid #dce9ef;
+  border-radius: 7px;
+  font-size: 14px;
+}
+.slider-field input[type="range"] { accent-color: #00a7b2; }
+.slider-limits { color: #62798a; font-size: 10px; }
+.slider-limits button { color: #547486; background: #f4fafb; border-color: #dbe9ee; border-radius: 6px; }
+.parameter-panel .field input, .parameter-panel .field select {
+  color: #2d5266;
+  background: #f5fafc;
+  border: 1px solid #dce9ef;
+  border-radius: 8px;
+  height: 44px;
+  font-size: 14px;
+}
+.field select option { background: #fff; color: #293e50; }
+.unit-toggle { color: #3a7180; background: #edf8fa; border-color: #d8ebee; font-size: 10px; }
+.parameter-panel .liquid-button {
+  color: #fff;
+  background: #008a98;
+  border: 1px solid #008a98;
+  border-radius: 9px;
+  box-shadow: none;
+  font-size: 12px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.parameter-panel .liquid-button:hover { background: #007783; }
+.reset-button { color: #62798a; }
+.form-error { color: #ac3434; }
+.parameter-panel .editable-value input:invalid { border-color: #ba4545; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline-color: #008a98;
+}
+.chat-panel {
+  background: #f7fcfd;
+  border-color: #dce9ef;
+  box-shadow: none;
+  height: calc(100dvh - 48px);
+}
+.chat-heading h2 { font-weight: 600; }
+.conversation-intro p { color: #62798a; }
+.assistant-mark { color: #00838d; background: #e0f4f5; border-color: #c5e9ec; }
+.user-message { background: #dff1f4; color: #293e50; }
+.composer { background: #fff; border-color: #d6e7ed; border-radius: 14px; box-shadow: none; }
+.composer textarea { color: #293e50; }
+.composer textarea::placeholder { color: #657d8d; }
+.composer-toolbar a { color: #547486; }
+.send-button { color: #fff; background: #008a98; border-color: #008a98; }
+.composer-disclaimer, .muted { color: #62798a; }
+@media (max-width: 1488px) and (min-width: 721px) {
+  .app-shell { margin: 20px; min-height: calc(100vh - 40px); }
+}
+@media (max-width: 720px) {
+  .app-shell { margin: 0; border: 0; border-radius: 0; min-height: 100vh; }
+  .topbar { padding: 0 18px; gap: 12px; height: 64px; }
+  .topbar > .text-button { font-size: 11px; }
+  .conversation { padding: 18px 14px 26px; }
+  .card-heading { padding: 18px 16px 0; }
+  .flame-stage { margin: 14px 16px; height: 280px; }
+  .flame-art { height: 250px; }
+  .parameter-panel { padding: 22px 18px; }
+  .parameter-panel .editable-value input, .parameter-panel .field input, .parameter-panel .field select { font-size: 16px; }
+  .chat-panel { height: 100dvh; }
+}
