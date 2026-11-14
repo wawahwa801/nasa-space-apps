@@ -140,7 +140,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .file-btn input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .file-btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .link-btn { background: none; color: var(--accent); padding: 0 4px; margin-left: 4px; }
-.icon-btn { background: none; color: var(--text-muted); padding: 0 6px; font-size: 1.1rem; line-height: 1; }
 
 .input-section { border-top: 1px solid var(--border); padding: 8px 4px; }
 .input-section summary { cursor: pointer; font-weight: 600; padding: 4px 0; }

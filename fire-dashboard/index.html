@@ -26,19 +26,6 @@
         </div>
         <div id="input-sections"></div>
       </form>
-
-      <details class="input-section add-param">
-        <summary>Add a parameter</summary>
-        <form id="add-param" class="fields">
-          <div class="field"><label for="param-label">Name</label><input id="param-label" required placeholder="e.g. Ventilation flow"></div>
-          <div class="field"><label for="param-section">Section</label><select id="param-section"></select></div>
-          <div class="field"><label for="param-type">Type</label>
-            <select id="param-type"><option value="number">Number</option><option value="text">Text</option></select></div>
-          <div class="field"><label for="param-unit">Unit (optional)</label><input id="param-unit" placeholder="e.g. m/s"></div>
-          <button type="submit">Add parameter</button>
-          <p class="hint">Saved in this browser. To add a parameter for everyone, add it to <code>js/parameters.js</code>.</p>
-        </form>
-      </details>
     </aside>
 
     <section class="dashboard" aria-label="Dashboard">
@@ -80,7 +67,7 @@
       </article>
 
       <article class="card">
-        <h2>Related NASA tests for your fuel</h2>
+        <h2>Related NASA tests for your fuel and material</h2>
         <ul id="related" class="related"></ul>
       </article>
 

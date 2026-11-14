@@ -128,9 +128,12 @@
     const yDom = niceDomain(ys, 5);
     const { svg, sx, sy, width } = frame(container, opts.height || 300, xDom, yDom, opts.xLabel, opts.yLabel);
     const dots = el("g", {}, svg);
-    for (const s of opts.series) {
+    // Optional vertical dodge (px) so series at identical positions don't hide each other.
+    const dodge = opts.dodge || 0;
+    opts.series.forEach((s, si) => {
+      const offset = (si - (opts.series.length - 1) / 2) * dodge;
       for (const p of opts.points.filter((q) => q.series === s.id)) {
-        const c = el("circle", { cx: sx(p.x), cy: sy(p.y), r: 4.5, class: `dot ${s.cls}`, tabindex: 0 }, dots);
+        const c = el("circle", { cx: sx(p.x), cy: sy(p.y) + offset, r: 4.5, class: `dot ${s.cls}`, tabindex: 0 }, dots);
         c.setAttribute("aria-label", p.tip.replace(/<[^>]+>/g, " "));
         const show = (e) => {
           const r = c.getBoundingClientRect();
@@ -141,7 +144,7 @@
         c.addEventListener("mouseleave", hideTip);
         c.addEventListener("blur", hideTip);
       }
-    }
+    });
     if (opts.marker) inputMarker(svg, sx(opts.marker.x), sy(opts.marker.y), opts.marker.label, width);
   }
 
