@@ -45,8 +45,6 @@ Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `
 - Add model training code and document its data, configuration, and outputs before connecting it to the API.
 - Keep secrets in environment variables; do not commit credentials or private data.
 
-## Small CNN experiment
+## Feature-to-image CNN experiment
 
-See [ml/README.md](ml/README.md) for sample acquisition, training and prediction commands, measured baseline results, and a plan for expanding to raw PSI experiment data. The current sample is public SAFFIRE-V media, not the requested raw PSI datasets; this is an image prediction pipeline demonstration.
-
-For the local interactive CNN test lab, follow [the BASS-II rerun instructions](ml/README.md#bass-ii-rerun-and-interactive-test-lab), then run `python ml/lab.py` and open `http://127.0.0.1:5050`. Change source frame, brightness, contrast, or prediction steps to run inference. Environmental condition controls require further training data and are not fitted in this prototype.
+See [ml/README.md](ml/README.md) to download five small BASS-II trials, train a CNN from documented numeric features, and run the local test lab at `http://127.0.0.1:5050`. Controls change film thickness, fan/air display readings, initial CO₂ and video time. The CNN generates an illustrative image directly from those values; a separate recorded image supplies source evidence. Oxygen and pressure effects are not fitted in this sample.

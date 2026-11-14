@@ -1,4 +1,4 @@
-"""Download two small unrestricted BASS-II trials and their public conditions table."""
+"""Download five small unrestricted BASS-II trials and their public conditions table."""
 import json
 from pathlib import Path
 from urllib.parse import urlencode
@@ -8,7 +8,10 @@ ROOT = Path(__file__).resolve().parent / 'data'
 BASE = 'https://psi.nasa.gov/geode-py/ws'
 FILES = ['PSI-25_Raw Data_BASS_GMT50_SAMPLE_147_TEST_B1.mp4',
          'PSI-25_Raw Data_BASS_GMT50_SAMPLE_148_TEST_B3.mp4',
-         'PSI-25_Experimental table_BASS-II.csv']
+         'PSI-25_Experimental table_BASS-II.csv',
+         'PSI-25_Raw Data_BASS_GMT50_SAMPLE_159_TEST_B4.mp4',
+         'PSI-25_Raw Data_BASS_GMT50_SAMPLE_156_TEST_B5.mp4',
+         'PSI-25_Raw Data_BASS_GMT50_SAMPLE_160_TEST_B12.mp4']
 
 
 def read(url, limit):
