@@ -1249,7 +1249,7 @@ h2 {
 @media (min-width:721px) and (max-width:1099px){.chat-open .content-grid{grid-template-columns:minmax(0,1fr) 310px}.parameter-panel .fields-grid{grid-template-columns:minmax(0,1fr)}.conversation{padding:24px 18px}.parameter-panel{padding:22px}.chat-panel{padding:18px}}
 
 /* Static stars keep the glass workspace calm and legible. */
-body {background-color:#030508;background-image:radial-gradient(1px 1px at 23px 31px,#ffffff8c 90%,transparent),radial-gradient(1px 1px at 139px 87px,#b8d5ff66 90%,transparent),radial-gradient(1.5px 1.5px at 219px 173px,#ffffff70 90%,transparent),radial-gradient(1px 1px at 71px 237px,#ffffff40 90%,transparent);background-size:307px 293px,419px 367px,577px 431px,263px 509px;background-attachment:fixed;}
+body {background-color:#030508;background-image:radial-gradient(1.5px 1.5px at 23px 31px,#ffffffcc 90%,transparent),radial-gradient(1px 1px at 139px 87px,#b8d5ffb3 90%,transparent),radial-gradient(2px 2px at 119px 73px,#ffffffb3 90%,transparent),radial-gradient(1px 1px at 71px 137px,#ffffff80 90%,transparent);background-size:157px 193px,239px 227px,277px 251px,193px 269px;background-attachment:fixed;}
 .editable-value {display:flex;align-items:center;gap:6px;flex-shrink:0;color:#edc3a7;font-size:13px;}
 .parameter-panel .editable-value input {width:90px;height:36px;padding:5px 8px;text-align:right;font-size:16px;border:1px solid #ffffff24;border-radius:8px;background:#101319e6;color:#f1d1ba;font-variant-numeric:tabular-nums;}
 .parameter-panel .editable-value input:invalid {border-color:#ed9c88;}
