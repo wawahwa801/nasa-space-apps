@@ -105,6 +105,7 @@ function Slider({ name, label, suffix, min, max, step, value, onChange }) {
 
 export default function Home() {
   const [chatOpen, setChatOpen] = useState(false);
+  const [parametersOpen, setParametersOpen] = useState(false);
   const [mobile, setMobile] = useState(false);
   const chatRef = useRef(null),
     chatTrigger = useRef(null);
@@ -112,9 +113,11 @@ export default function Home() {
     const media = matchMedia("(min-width: 721px)");
     const sync = () => {
       setMobile(!media.matches);
-
+      if (!media.matches) { setParametersOpen(false); setChatOpen(false); }
     };
     sync();
+    setParametersOpen(window.matchMedia("(min-width: 1200px)").matches);
+    setChatOpen(window.matchMedia("(min-width: 1200px)").matches);
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
   }, []);
@@ -212,6 +215,7 @@ export default function Home() {
           >
             + New scenario
           </button>
+          <button className="panel-toggle" aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
           <button
             ref={chatTrigger}
             className="chat-toggle"
@@ -239,10 +243,6 @@ export default function Home() {
             />
           )}
           <main className="conversation">
-            <div className="dashboard-intro">
-              <div><p className="dashboard-kicker">EMBER / WORKSPACE</p><h1>Flame simulation</h1><p>Explore a scenario by adjusting the environment below.</p></div>
-              <a className="dashboard-link" href="#parameters">Adjust parameters <span aria-hidden="true">↓</span></a>
-            </div>
             <div
               className={`simulation-grid ${view !== "workspace" ? "single-view" : ""}`}
             >
@@ -351,24 +351,16 @@ export default function Home() {
                 </section>
               )}
             </div>
-            <section className="prediction-panel" aria-labelledby="prediction-heading">
-              <div className="prediction-heading"><div className="prediction-title"><span className="prediction-icon" aria-hidden="true">✧</span><h2 id="prediction-heading">Prediction analysis</h2></div><span className="model-status">Awaiting model</span></div>
-              <div className="prediction-metrics"><div><span>Flame height</span><strong>— <small>mm</small></strong></div><div><span>Peak temperature</span><strong>— <small>K</small></strong></div><div><span>Model confidence</span><strong>— <small>%</small></strong></div></div>
-              <div className="prediction-note"><span className="prediction-info" aria-hidden="true">ⓘ</span><div><strong>AI interpretation</strong><p>Model predictions and interpretation will appear here when a prediction model is connected.</p></div></div>
-            </section>
-            <div className="readouts-heading"><h2>Environmental conditions</h2><span>Current inputs</span></div>
-            <div className="dashboard-readouts" aria-label="Current scenario inputs">
-              {[["Oxygen", values.oxygen, "%", "Reference: Earth 20.9%", 100, "oxygen"], ["Pressure", values.pressure, "kPa", "Reference: Earth 101.3 kPa", 500, "pressure"], ["Airflow", values.flow, "m/s", "Input range: 0–100 m/s", 100, "airflow"], ["Gravity", values.gravity, "g", "Reference: Earth 1 g", 5, "gravity"]].map(([label, value, unitLabel, context, max, kind]) => <div className={`instrument ${kind}`} key={kind}><span>{label}</span><strong>{value}<small> {unitLabel}</small></strong><div className="instrument-track" aria-hidden="true"><i style={{ width: `${Math.min(100, Math.max(0, Number(value) / max * 100))}%` }} /></div><p>{context}</p></div>)}
-            </div>
             <div className="scenario-strip" role="status">
               <span className={`status-dot ${snapshot ? "ready" : ""}`} />
               {snapshot
                 ? "Parameters applied"
-                : "Adjust parameters below"}
+                : "Adjust parameters to configure your scenario"}
             </div>
           <section
-            className="parameter-panel"
+            className={`parameter-panel ${parametersOpen ? "parameters-open" : ""}`}
             id="parameters"
+            onKeyDown={e => { if (e.key === "Escape") setParametersOpen(false); }}
             aria-labelledby="parameters-heading"
           >
             <div className="parameters-heading">
@@ -376,7 +368,7 @@ export default function Home() {
                 <h2 id="parameters-heading">Parameters</h2>
 
               </div>
-              <Symbol name="sliders" />
+              <button type="button" className="parameters-close" onClick={() => setParametersOpen(false)} aria-label="Close parameters">×</button>
             </div>
             <form id="scenario-form" onSubmit={preview}>
               <div className="field-section">
@@ -572,10 +564,7 @@ export default function Home() {
                   rows={2}
                 />
                 <div className="composer-toolbar">
-                  <a href="#parameters">
-                    <Symbol name="sliders" />
-                    Parameters
-                  </a>
+                  <button type="button" className="chat-parameters-link" onClick={() => { setParametersOpen(true); if (mobile) closeChat(); }}><Symbol name="sliders" /> Parameters</button>
                   <button
                     type="submit"
                     form="scenario-form"
