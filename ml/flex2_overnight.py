@@ -105,6 +105,7 @@ def load_verified(dataset_root=EXPANDED_ROOT):
     median=np.nanmedian(x[train],axis=0);median=np.nan_to_num(median,nan=0.)
     missing=~np.isfinite(x);x[missing]=np.take(median,np.where(missing)[1])
     low=x[train].min(0);scale=np.maximum(x[train].max(0)-low,1e-6)
+    data['feature_raw_values']=x.copy();data['feature_low']=low;data['feature_scale']=scale
     x=np.clip((x-low)/scale,-.25,1.25).astype('float32')
     data['feature_names']=names
     # Derive training-only nearest references. A training target cannot retrieve itself;

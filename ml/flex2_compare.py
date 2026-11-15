@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -19,10 +20,20 @@ from spice_model import encode
 PAGE='''<!doctype html><html lang="en"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FLEX-2 model comparison</title>
 <style>body{background:#101114;color:#eee;font:16px system-ui;max-width:1300px;margin:auto;padding:24px}p,small{color:#b8bfcb;line-height:1.5}select{padding:12px;max-width:100%;background:#222;color:white}main{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}img{width:100%;background:black}section{background:#191c22;padding:16px;border-radius:12px}#status{min-height:30px}@media(max-width:700px){main{grid-template-columns:1fr}}</style>
 <h1>FLEX-2 trained model comparison</h1><p>Choose a recorded condition to compare the trained retrieval-conditioned CNN, published feature-only CNN, and normal pressure/temperature retrieval. All references come from training runs, with the chosen run excluded.</p>
-<select id="run" aria-label="Recorded conditions"></select><p id="status" role="status">Loading…</p>
+<select id="run" aria-label="Recorded conditions"></select><div id="controls" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px"></div><p id="status" role="status">Loading…</p>
 <main><section><h2>Trained hybrid</h2><img id="hybrid" alt="Trained hybrid prediction"><p id="hybridNote"></p></section><section><h2>Normal CNN</h2><img id="cnn" alt="Published CNN prediction"><p>Published 100-run CNN, using fuel, pressure and temperature.</p></section><section><h2>Feature retrieval</h2><img id="retrieval" alt="Retrieved recorded flame"><p id="retrievalNote"></p></section></main>
-<p id="conditions"></p><p>The hybrid uses the chosen run’s verified apparatus, timing, campaign and camera covariates. These are recorded-condition comparisons. Predictions remain experimental; image appearance does not establish physical accuracy. Display alignment translates the luminous region without resizing.</p>
-<script>let version=0;const $=id=>document.getElementById(id);async function update(){const v=++version;$('status').textContent='Generating comparison…';try{const response=await fetch('/api/compare?run='+encodeURIComponent($('run').value));const r=await response.json();if(!response.ok)throw Error(r.error);if(v!==version)return;for(const k of ['hybrid','cnn','retrieval'])$(k).src=r[k];$('hybridNote').textContent='Trained seed '+r.seed+' · reference '+r.hybrid_reference;$('retrievalNote').textContent='Recorded training run '+r.retrieval_reference;$('conditions').textContent=r.conditions;$('status').textContent='Comparison ready';}catch(e){if(v===version)$('status').textContent=e.message;}}fetch('/api/runs').then(r=>r.json()).then(r=>{for(const x of r.runs)$('run').add(new Option(x.label,x.id));$('run').onchange=update;update();}).catch(e=>$('status').textContent=e.message);</script></html>'''
+<p id="conditions"></p><p>All numeric hybrid features have sliders; categorical features have selectors. Fuel comes from the recorded preset. Normal CNN and retrieval use only fuel, pressure and temperature. Flags indicate missing measurements; changing them does not supply a measured value. Camera codes and campaign are nuisance inputs. Slider combinations may be unsupported by training data; predictions are experimental. Display alignment translates the luminous region without resizing.</p>
+<script>
+let version=0,info,busy=false,pending=false;const $=id=>document.getElementById(id);
+function preset(){const r=info.runs.find(x=>x.id===$('run').value);for(const [key,value] of Object.entries(r.values)){const el=$(key);el.value=value;const out=$(key+'Out');if(out)out.textContent=value;}update();}
+function update(){version++;pending=true;$('status').textContent='Updating comparison…';pump();}
+async function pump(){if(busy||!pending)return;pending=false;busy=true;const v=version;const params=new URLSearchParams({run:$('run').value});for(const s of [...info.numeric,...info.categories])params.set(s.key,$(s.key).value);
+try{const response=await fetch('/api/compare?'+params);const r=await response.json();if(!response.ok)throw Error(r.error);if(v===version){for(const k of ['hybrid','cnn','retrieval'])$(k).src=r[k];$('hybridNote').textContent='Trained seed '+r.seed+' · reference '+r.hybrid_reference;$('retrievalNote').textContent='Recorded training run '+r.retrieval_reference;$('conditions').textContent=r.conditions;$('status').textContent='Comparison ready';}}catch(e){if(v===version)$('status').textContent=e.message;}finally{busy=false;pump();}}
+fetch('/api/runs').then(r=>r.json()).then(r=>{info=r;for(const x of r.runs)$('run').add(new Option(x.label,x.id));
+for(const s of r.numeric){const label=document.createElement('label');label.textContent=s.label+' ('+s.unit+')';const output=document.createElement('output');output.id=s.key+'Out';output.style.display='block';const input=document.createElement('input');input.type='range';input.id=s.key;input.min=s.min;input.max=s.max;input.step=s.step;input.style.width='100%';input.disabled=s.min===s.max;input.setAttribute('aria-label',s.label);input.oninput=()=>{output.textContent=Number(input.value).toFixed(3);update();};label.append(output,input);$('controls').append(label);}
+for(const s of r.categories){const label=document.createElement('label');label.textContent=s.label;const select=document.createElement('select');select.id=s.key;select.style.display='block';select.add(new Option('Unknown / unseen code','unknown'));for(const [j,value] of s.levels)select.add(new Option(value,value));select.onchange=update;label.append(select);$('controls').append(label);}
+$('run').onchange=preset;preset();}).catch(e=>$('status').textContent=e.message);
+</script></html>'''
 
 
 def create_app(run_dir):
@@ -47,6 +58,21 @@ def create_app(run_dir):
     base_manifest=json.loads((ROOT/'manifest.json').read_text())
     eligible=[i for i,f in enumerate(d['fuels']) if m['fuels'][int(f)] in base_manifest['fuels']]
     eligible.sort(key=lambda i:(str(d['splits'][i])!='test',str(d['groups'][i])))
+    numeric_labels=[('Pressure','kPa'),('Chamber temperature','°C'),('Support fiber','0 / 1'),('Igniter power','W'),('Power missing flag','0 / 1'),('Igniter on-time','s'),('On-time missing flag','0 / 1'),('Time since igniter-on','s')]
+    control_specs=[]
+    for j,(label,unit) in enumerate(numeric_labels):
+        raw=d['feature_raw_values'][:,j]
+        control_specs.append(dict(key=f'n{j}',label=label,unit=unit,min=float(raw.min()),max=float(raw.max()),step=1 if j in (2,4,6) else 'any'))
+    category_specs=[]
+    for prefix,label in [('campaign','Campaign'),('camera_shutter_code','Camera shutter code'),('camera_gain_code','Camera gain code')]:
+        levels=[(j,name.split('=',1)[1]) for j,name in enumerate(d['feature_names']) if name.startswith(prefix+'=')]
+        category_specs.append(dict(key=prefix,label=label,levels=levels))
+    def defaults(i):
+        out={f'n{j}':float(d['feature_raw_values'][i,j]) for j in range(8)}
+        for spec in category_specs:
+            selected=next((value for j,value in spec['levels'] if x[i,j]>.5),'unknown')
+            out[spec['key']]=selected
+        return out
     def shown(im):
         if isinstance(im,torch.Tensor):im=np.uint8(im.permute(1,2,0).numpy().clip(0,1)*255)
         aligned,_=centre_flame(im);return png(aligned.astype('float32')/255)
@@ -54,19 +80,34 @@ def create_app(run_dir):
     @app.get('/')
     def index():return render_template_string(PAGE)
     @app.get('/api/runs')
-    def runs():return jsonify(runs=[dict(id=str(d['groups'][i]),label=f"{d['groups'][i]} · {m['fuels'][int(d['fuels'][i])]} · {d['splits'][i]}") for i in eligible])
+    def runs():return jsonify(runs=[dict(id=str(d['groups'][i]),label=f"{d['groups'][i]} · {m['fuels'][int(d['fuels'][i])]} · {d['splits'][i]}",values=defaults(i)) for i in eligible],numeric=control_specs,categories=category_specs)
     @app.get('/api/compare')
     def compare():
         matches=[i for i in eligible if str(d['groups'][i])==request.args.get('run')]
         if len(matches)!=1:return jsonify(error='Choose a supported recorded run'),400
-        i=matches[0];ref=int(refs[i]);fuel=m['fuels'][int(d['fuels'][i])];f=base_manifest['fuels'].index(fuel)
+        i=matches[0];fuel=m['fuels'][int(d['fuels'][i])];f=base_manifest['fuels'].index(fuel)
+        unknown=set(request.args)-{'run'}-{s['key'] for s in control_specs+category_specs}
+        if unknown or any(len(request.args.getlist(k))!=1 for k in request.args):return jsonify(error='Unsupported or duplicate controls'),400
+        query=x[i].copy();raw=d['feature_raw_values'][i].copy()
+        try:
+            for j,spec in enumerate(control_specs):
+                value=float(request.args.get(spec['key'],raw[j]))
+                if not math.isfinite(value) or not spec['min']<=value<=spec['max'] or (j in (2,4,6) and value not in (0,1)):raise ValueError('Invalid '+spec['label'])
+                raw[j]=value;query[j]=np.clip((value-d['feature_low'][j])/d['feature_scale'][j],-.25,1.25)
+            for spec in category_specs:
+                value=request.args.get(spec['key'],defaults(i)[spec['key']])
+                if value not in [v for _,v in spec['levels']]+['unknown']:raise ValueError('Invalid '+spec['label'])
+                for j,level in spec['levels']:query[j]=float(value==level)
+        except ValueError as error:return jsonify(error=str(error)),400
+        hybrid_candidates=np.where((d['splits']=='train') & (d['fuels']==d['fuels'][i]) & (d['groups']!=d['groups'][i]))[0]
+        ref=int(hybrid_candidates[np.argmin(np.mean((x[hybrid_candidates]-query)**2,axis=1))])
         candidates=train[base['groups'][train]!=d['groups'][i]]
-        ranking,_=nearest(base['features'],base['fuels'],d['features'][i],f,cnn_saved['scale'].numpy(),candidates)
+        ranking,_=nearest(base['features'],base['fuels'],raw[:2],f,cnn_saved['scale'].numpy(),candidates)
         normal_ref=int(ranking[0])
         with torch.inference_mode():
-            prediction=hybrid(conditions[i:i+1],conditions[ref:ref+1],images[ref:ref+1])[0]
-            original,_=cnn(encode(torch.tensor(d['features'][i:i+1]),torch.tensor([f]),cnn_saved['low'],cnn_saved['scale'],len(base_manifest['fuels'])))
-        return jsonify(hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{d['groups'][i]} · {fuel} · {d['features'][i,0]:.2f} kPa · {d['features'][i,1]:.2f} °C · {d['splits'][i]}")
+            prediction=hybrid(torch.tensor(query[None]),conditions[ref:ref+1],images[ref:ref+1])[0]
+            original,_=cnn(encode(torch.tensor(raw[None,:2]),torch.tensor([f]),cnn_saved['low'],cnn_saved['scale'],len(base_manifest['fuels'])))
+        return jsonify(hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{fuel} · {raw[0]:.2f} kPa · {raw[1]:.2f} °C · experimental input combination")
     return app
 
 
