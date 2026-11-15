@@ -54,7 +54,23 @@
         <section id="mon-suspects" class="mon-suspects" aria-live="polite" hidden></section>
         <div id="mon-charts" class="minis"></div>
         <details class="table-view"><summary>Readings (<span id="mon-count">0</span>)</summary><div id="mon-table" class="table-wrap"></div></details>
-        <p class="source-note">Each reading is compared with earlier ones. The rise thresholds are placeholders in <code>js/parameters.js</code> (<code>THRESHOLDS.monitoring</code>), not validated detection limits; tune them with real sensor data. The demo sequence is synthetic. CSV columns: a time column (date/time or minutes from start) plus any of CO, CO₂, O₂, temperature, humidity, H₂, CH₄, pressure.</p>
+        <p class="source-note" id="mon-source">Each reading is compared with earlier ones. The rise thresholds are placeholders in <code>js/parameters.js</code> (<code>THRESHOLDS.monitoring</code>), not validated detection limits; tune them with real sensor data. The demo sequence is synthetic. CSV columns: a time column (date/time or minutes from start) plus any of CO, CO₂, O₂, temperature, humidity, H₂, CH₄, pressure.</p>
+      </article>
+
+      <article class="card" id="insight-card">
+        <div class="card-head">
+          <div>
+            <h2>Safety insight <span class="ai-tag">AI</span></h2>
+            <p class="card-sub">Dots3-Note Preview reads the safety report on this page and explains it in plain language: the main concerns, what to check and what data is missing.</p>
+          </div>
+          <div class="insight-actions">
+            <button type="button" id="insight-run">Generate insight</button>
+          </div>
+        </div>
+        <p id="insight-status" class="hint" role="status"></p>
+        <p id="insight-stale" class="insight-stale" hidden>The inputs or readings have changed since this insight was generated. Generate it again to update it.</p>
+        <div id="insight-body" class="insight-body" aria-live="polite"><p class="muted">Generate an insight to get a plain-language reading of the current report. It is only created when you ask, not on every change.</p></div>
+        <p class="source-note">Sends the current report (inputs, assessment, smoke status and live monitoring) through the project backend to OpenRouter's free Dots3-Note Preview model. Free models may log prompts, so don't enter anything confidential. AI text can be wrong: the rule-based assessment below is the dashboard's result, and any fire indication must be verified with crew procedures.</p>
       </article>
 
       <div class="grid-2">

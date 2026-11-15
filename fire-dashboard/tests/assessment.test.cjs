@@ -72,3 +72,16 @@ test('materials list: each listed material is assessed; old single material_type
   assert.equal(smokeStatus({ material_types: ['PMMA (acrylic)', 'Teflon'] }).overall, 'serious');
   assert.ok(bassFlag({ material_type: 'PMMA (acrylic)', o2_pct: 18 })); // legacy saves
 });
+
+test('safety insight HTML escapes the model text and tolerates bad levels', () => {
+  const { insightHtml } = load();
+  const html = insightHtml({
+    model: 'dots-studio/dots-3-note-preview:free', provider: 'openrouter',
+    insight: { headline: '<img src=x onerror=alert(1)>', risk_level: 'extreme', summary: 'ok',
+      concerns: [{ title: 'CO', level: 'boom', explanation: '<b>60</b> ppm', action: 'Check' }], checks: ['a'], data_gaps: [] },
+  });
+  assert.doesNotMatch(html, /<img|<b>/);
+  assert.match(html, /&lt;img/);
+  assert.match(html, /Incomplete/); // unknown risk level
+  assert.match(insightHtml({ text: 'Line one\n\nLine <two>' }), /Line &lt;two&gt;/);
+});

@@ -11,6 +11,7 @@ from .providers import (
     create_provider,
     register_provider,
 )
+from .safety_insights import SafetyInsightService, parse_insight
 from .service import AnalysisService
 
 __all__ = [
@@ -22,8 +23,10 @@ __all__ = [
     "LLMResponse",
     "LLMSettings",
     "ProcessedInput",
+    "SafetyInsightService",
     "available_providers",
     "create_provider",
+    "parse_insight",
     "process_input",
     "register_provider",
 ]

@@ -551,6 +551,110 @@
     $("#mon-demo").textContent = "Stop demo";
   }
 
+  // ------------------------------------------------------- safety insight
+
+  // The report sent to the insight service (backend/llm/safety_insights.py).
+  function buildReport(v, result) {
+    const strip = (s) => String(s || "").replace(/<[^>]+>/g, "");
+    const live = MON.detect(readings, monThresholds());
+    const sus = MON.suspectMaterials(live, readings, materialsOf(v), SMOKE.materials, CO_RATIOS);
+    const smoke = smokeStatus(v);
+    const round = (x) => (typeof x === "number" && isFinite(x) ? Number(x.toPrecision(4)) : x);
+    const units = Object.fromEntries(allFields().filter((f) => f.type === "number").map((f) => [f.id, f.units ? UNITS[f.units][0].unit : f.unit]));
+    const inputs = Object.fromEntries(Object.entries(v).filter(([, x]) => has(x)));
+    if (isVacuum(v)) inputs.pressure_kpa = "ignored (vacuum, near zero)";
+    return {
+      about: "Fire safety dashboard prototype. Thresholds are placeholder reference values, not certified spacecraft limits.",
+      inputs,
+      input_units: units,
+      assessment: result.flags.map((f) => ({ level: f.level, title: strip(f.title), detail: strip(f.detail) })),
+      smoke: { overall: smoke.overall, carbon_monoxide: smoke.co, carbon_dioxide: smoke.co2, detection: smoke.detection, missing_readings: smoke.missing },
+      acme_similar_tests: result.near
+        ? { compared: result.near.tests.length, ignited: result.near.ignited, same_fuel: result.near.fuelMatched, outside_tested_range: result.near.outOfRange }
+        : null,
+      live_monitoring: readings.length
+        ? {
+            interval_min: monInterval,
+            readings: readings.length,
+            status: live.level,
+            headline: live.headline,
+            pattern: live.pattern,
+            events: live.events.map((e) => ({ level: e.level, title: e.title, detail: e.detail })),
+            change_per_interval: Object.fromEntries(Object.entries(live.rates).filter(([, x]) => x !== null).map(([k, x]) => [k, round(x)])),
+            recent_readings: readings.slice(-6).map((r) => ({ time: new Date(r.t).toISOString(), ...Object.fromEntries(MON.FIELDS.filter((f) => typeof r[f.id] === "number").map((f) => [f.id, round(r[f.id])])) })),
+            possible_burning_materials: sus ? sus.items.map((i) => ({ material: i.material, likelihood: i.likelihood, reasons: i.reasons })) : null,
+          }
+        : null,
+    };
+  }
+
+  const reportKey = (report) => JSON.stringify(report);
+  let insight = load("fd.insight", null); // { res, key }
+  let insightRequest = null; // AbortController while waiting
+
+  // The insight as HTML. Every value from the service is escaped.
+  function insightHtml(res) {
+    const lv = (x, fallback) => (LEVELS[x] ? x : fallback);
+    const when = res.generated_at ? new Date(res.generated_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+    const meta = `<p class="insight-meta">${esc(res.model || res.provider || "")}${when ? ` · ${esc(when)}` : ""}${res.provider === "mock" ? " · offline mock: set the OpenRouter key in backend/.env" : ""}</p>`;
+    const i = res.insight;
+    if (!i) {
+      const paras = String(res.text || "").split(/\n{2,}/).filter((p) => p.trim());
+      return `${paras.map((p) => `<p class="insight-text">${esc(p)}</p>`).join("") || '<p class="muted">The model returned no text.</p>'}${meta}`;
+    }
+    const list = (items, tag) => `<${tag}>${items.map((x) => `<li>${esc(x)}</li>`).join("")}</${tag}>`;
+    return `<div class="insight-head">${badge(lv(i.risk_level, "unknown"))}<strong class="insight-headline">${esc(i.headline || "")}</strong></div>
+      ${i.summary ? `<p class="insight-text">${esc(i.summary)}</p>` : ""}
+      ${(i.concerns || []).length ? `<h3>Concerns</h3><ul class="flags">${i.concerns.map((c) => `<li class="flag">${badge(lv(c.level, "info"))}<div>
+        <div class="flag-title">${esc(c.title)}</div><div class="flag-detail">${esc(c.explanation || "")}${c.action ? `<br><strong>Check:</strong> ${esc(c.action)}` : ""}</div></div></li>`).join("")}</ul>` : ""}
+      <div class="insight-cols">
+        ${(i.checks || []).length ? `<div><h3>Next checks</h3>${list(i.checks, "ol")}</div>` : ""}
+        ${(i.data_gaps || []).length ? `<div><h3>Data gaps</h3>${list(i.data_gaps, "ul")}</div>` : ""}
+      </div>${meta}`;
+  }
+
+  function renderInsight(report) {
+    const body = $("#insight-body");
+    if (!body) return;
+    if (insight && insight.res) body.innerHTML = insightHtml(insight.res);
+    $("#insight-stale").hidden = !(insight && !insightRequest && insight.key !== reportKey(report));
+    $("#insight-run").textContent = insightRequest ? "Cancel" : insight ? "Generate again" : "Generate insight";
+  }
+
+  async function requestInsight() {
+    if (insightRequest) { insightRequest.abort(); return; }
+    const status = (msg) => { $("#insight-status").textContent = msg; };
+    const { v } = readValues();
+    const report = buildReport(v, assess(v));
+    const ctrl = new AbortController();
+    insightRequest = ctrl;
+    const timeout = setTimeout(() => ctrl.abort("timeout"), 175000);
+    status("Dots3-Note Preview is reading the report. Reasoning models can take a minute or more.");
+    $("#insight-card").setAttribute("aria-busy", "true");
+    update();
+    const unreachable = "The insight service isn't reachable. Start the backend (in backend/: python app.py) and check that the frontend dev server is running.";
+    try {
+      const resp = await fetch(OPTS.insightEndpoint || "/api/safety-insights", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ report }), signal: ctrl.signal,
+      });
+      let body = null;
+      try { body = await resp.json(); } catch { body = null; }
+      if (!resp.ok) throw new Error(body && body.error ? body.error : resp.status === 404 || resp.status >= 500 ? unreachable : `Request failed (HTTP ${resp.status}).`);
+      if (!body || (!body.insight && !body.text)) throw new Error("The insight service returned an empty answer.");
+      insight = { res: body, key: reportKey(report) };
+      save("fd.insight", insight);
+      status("");
+    } catch (err) {
+      if (ctrl.signal.aborted) status(ctrl.signal.reason === "timeout" ? "No answer after about 3 minutes; try again later." : "Stopped.");
+      else status(err instanceof TypeError ? unreachable : err.message);
+    } finally {
+      clearTimeout(timeout);
+      insightRequest = null;
+      $("#insight-card").removeAttribute("aria-busy");
+      update();
+    }
+  }
+
   function renderSuspects(result, v) {
     const box = $("#mon-suspects");
     if (!box) return;
@@ -1024,6 +1128,7 @@
     renderBass(v);
     renderSmoke(v);
     renderMonitoring(v);
+    renderInsight(buildReport(v, result));
     renderAcme(v, result);
     renderSaffire(v);
     renderRelated(v);
@@ -1181,6 +1286,7 @@
       };
       reader.readAsText(file);
     });
+    $("#insight-run").addEventListener("click", requestInsight);
     $("#mon-suspects").addEventListener("click", (e) => {
       const id = e.target.closest("[data-goto]")?.dataset.goto;
       if (id) (OPTS.onGotoField || gotoField)(id);
@@ -1204,6 +1310,7 @@
       window.Charts.removeTooltip();
       clearInterval(monTick);
       stopDemo();
+      if (insightRequest) insightRequest.abort();
     };
   }
 
@@ -1239,6 +1346,7 @@
    *                   options.inputs and FireDashboard.setInputs (base units)
    *   subtitle: string - replacement intro line
    *   onGotoField(id), onLoadExample() - host handlers for assessment links
+   *   insightEndpoint: string - URL of the safety insight service (default /api/safety-insights)
    */
   function mount(root = document, options = {}) {
     if (cleanup) cleanup();
@@ -1273,7 +1381,7 @@
   // addReading({ t, co_ppm, co2_ppm, o2_pct, internal_temp_c, ... }) lets a sensor feed push readings.
   window.FireDashboard = { mount, setInputs, exportJSON, addReading };
   // Pure functions exposed for the regression tests in tests/.
-  window.FireDashboard._test = { assess, smokeStatus, migrate };
+  window.FireDashboard._test = { assess, smokeStatus, migrate, insightHtml };
 
   // Standalone page: mount when the dashboard markup is in the document itself.
   const autoMount = () => { if (document.getElementById("input-sections")) mount(document); };

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .base import LLMProvider, LLMProviderError, LLMRequest, LLMResponse
 from .mock import MockProvider
+from .openrouter import OpenRouterProvider
 
 _REGISTRY: dict[str, type[LLMProvider]] = {}
 
@@ -32,6 +33,7 @@ def create_provider(name: str, **kwargs) -> LLMProvider:
 
 
 register_provider(MockProvider)
+register_provider(OpenRouterProvider)
 # Register real providers here, for example:
 # from .my_provider import MyProvider
 # register_provider(MyProvider)

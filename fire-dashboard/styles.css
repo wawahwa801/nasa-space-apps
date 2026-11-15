@@ -476,3 +476,19 @@ input[aria-invalid="true"] { border-color: var(--critical); }
 .suspect-tag.likely { border-color: var(--accent); color: var(--text-primary); background: var(--highlight); }
 .suspect-tag.unlikely { color: var(--text-muted); }
 @container fd-results (max-width: 480px) { .suspects li { grid-template-columns: 1fr; gap: 2px; } .suspect-tag { justify-self: start; } }
+
+/* Safety insight (AI explanation of the report). */
+.ai-tag { display: inline-block; margin-left: 6px; padding: 1px 6px; border: 1px solid var(--border); border-radius: 999px; font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); vertical-align: middle; }
+.insight-actions { display: flex; gap: 8px; align-items: center; }
+#insight-card[aria-busy="true"] .insight-body { opacity: 0.55; }
+.insight-stale { margin: 6px 0 0; padding: 6px 10px; border-left: 3px solid var(--warning); background: var(--track-warning); border-radius: 0 6px 6px 0; font-size: 0.85rem; }
+.insight-body { margin-top: 8px; }
+.insight-body h3 { margin: 14px 0 4px; font-size: 0.9rem; }
+.insight-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.insight-headline { font-size: 1rem; }
+.insight-text { margin: 8px 0 0; line-height: 1.5; white-space: pre-wrap; }
+.insight-body .flags { max-height: none; }
+.insight-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+.insight-cols ol, .insight-cols ul { margin: 4px 0 0; padding-left: 1.2em; line-height: 1.5; }
+.insight-meta { margin: 12px 0 0; font-size: 0.78rem; color: var(--text-muted); }
+@container fd-results (max-width: 560px) { .insight-cols { grid-template-columns: 1fr; } }

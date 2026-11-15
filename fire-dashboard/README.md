@@ -12,7 +12,8 @@ It can be opened on its own or viewed inside the Next.js app in `frontend/`.
 ## Open it
 
 Open `fire-dashboard/index.html` in a browser. No server is needed, and nothing
-is sent over the network. Click **Load example** to see a filled-in dashboard.
+is sent over the network unless you click **Generate insight** (below). Click
+**Load example** to see a filled-in dashboard.
 
 ## Using it
 
@@ -28,6 +29,25 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
 - **On a phone:** a bar at the bottom shows the issue count and jumps between inputs and results.
 
 ## What it shows
+
+- **Safety insight (AI):** on request, the current report (inputs, assessment, smoke status
+  and live monitoring, built by `buildReport` in `js/app.js`) is sent to the backend's
+  `POST /api/safety-insights`, which asks OpenRouter's Dots3-Note Preview model
+  (`dots-studio/dots-3-note-preview:free`) for a plain-language reading: headline, concerns,
+  next checks and data gaps. It needs the Next.js dev server (which proxies `/api` to Flask)
+  and the backend running with `backend/.env` set to:
+
+  ```
+  LLM_PROVIDER=openrouter
+  LLM_MODEL=dots-studio/dots-3-note-preview:free
+  LLM_API_KEY=<your OpenRouter key>
+  LLM_MAX_OUTPUT_TOKENS=6000
+  LLM_TIMEOUT_SECONDS=150
+  ```
+
+  Without a key the backend's offline mock answers instead. The prompt is in
+  `backend/llm/safety_insights.py`. The AI text explains the report; the rule-based
+  assessment remains the dashboard's result.
 
 - **Live monitoring:** readings taken over time (default every 5 minutes) are compared to detect a
   fire starting or smoke building up: CO rising for several intervals without heat (possible
