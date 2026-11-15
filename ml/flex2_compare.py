@@ -24,11 +24,11 @@ PAGE='''<!doctype html><html lang="en"><meta name="viewport" content="width=devi
 <main><section><h2>Trained hybrid</h2><img id="hybrid" alt="Trained hybrid prediction"><p id="hybridNote"></p></section><section><h2>Normal CNN</h2><img id="cnn" alt="Published CNN prediction"><p>Published 100-run CNN, using fuel, pressure and temperature.</p></section><section><h2>Feature retrieval</h2><img id="retrieval" alt="Retrieved recorded flame"><p id="retrievalNote"></p></section></main>
 <p id="conditions"></p><p>All numeric hybrid features have sliders; categorical features have selectors. Fuel comes from the recorded preset. Normal CNN and retrieval use only fuel, pressure and temperature. Flags indicate missing measurements; changing them does not supply a measured value. Camera codes and campaign are nuisance inputs. Slider combinations may be unsupported by training data; predictions are experimental. Display alignment translates the luminous region without resizing.</p>
 <script>
-let version=0,info,busy=false,pending=false;const $=id=>document.getElementById(id);
-function preset(){const r=info.runs.find(x=>x.id===$('run').value);for(const [key,value] of Object.entries(r.values)){const el=$(key);el.value=value;const out=$(key+'Out');if(out)out.textContent=value;}update();}
+let version=0,generation=0,renders=0,info,busy=false,pending=false;const $=id=>document.getElementById(id);
+function preset(){generation++;const r=info.runs.find(x=>x.id===$('run').value);for(const [key,value] of Object.entries(r.values)){const el=$(key);el.value=value;const out=$(key+'Out');if(out)out.textContent=value;}update();}
 function update(){version++;pending=true;$('status').textContent='Updating comparison…';pump();}
-async function pump(){if(busy||!pending)return;pending=false;busy=true;const v=version;const params=new URLSearchParams({run:$('run').value});for(const s of [...info.numeric,...info.categories])params.set(s.key,$(s.key).value);
-try{const response=await fetch('/api/compare?'+params);const r=await response.json();if(!response.ok)throw Error(r.error);if(v===version){for(const k of ['hybrid','cnn','retrieval'])$(k).src=r[k];$('hybridNote').textContent='Trained seed '+r.seed+' · reference '+r.hybrid_reference;$('retrievalNote').textContent='Recorded training run '+r.retrieval_reference;$('conditions').textContent=r.conditions;$('status').textContent='Comparison ready';}}catch(e){if(v===version)$('status').textContent=e.message;}finally{busy=false;pump();}}
+async function pump(){if(busy||!pending)return;pending=false;busy=true;const v=version,g=generation;const params=new URLSearchParams({run:$('run').value});for(const s of [...info.numeric,...info.categories])params.set(s.key,$(s.key).value);
+try{const response=await fetch('/api/compare?'+params);const r=await response.json();if(!response.ok)throw Error(r.error);if(g===generation){for(const k of ['hybrid','cnn','retrieval'])$(k).src=r[k];$('hybrid').dataset.renderCount=String(++renders);$('hybrid').dataset.inputVersion=String(v);$('hybridNote').textContent=r.model_note+' · reference '+r.hybrid_reference;$('retrievalNote').textContent='Recorded training run '+r.retrieval_reference;$('conditions').textContent=r.conditions;$('status').textContent=pending?'Live prediction · updating while you drag…':'Comparison ready';}}catch(e){if(v===version)$('status').textContent=e.message;}finally{busy=false;pump();}}
 fetch('/api/runs').then(r=>r.json()).then(r=>{info=r;for(const x of r.runs)$('run').add(new Option(x.label,x.id));
 for(const s of r.numeric){const label=document.createElement('label');label.textContent=s.label+' ('+s.unit+')';const output=document.createElement('output');output.id=s.key+'Out';output.style.display='block';const input=document.createElement('input');input.type='range';input.id=s.key;input.min=s.min;input.max=s.max;input.step=s.step;input.style.width='100%';input.disabled=s.min===s.max;input.setAttribute('aria-label',s.label);input.oninput=()=>{output.textContent=Number(input.value).toFixed(3);update();};label.append(output,input);$('controls').append(label);}
 for(const s of r.categories){const label=document.createElement('label');label.textContent=s.label;const select=document.createElement('select');select.id=s.key;select.style.display='block';select.add(new Option('Unknown / unseen code','unknown'));for(const [j,value] of s.levels)select.add(new Option(value,value));select.onchange=update;label.append(select);$('controls').append(label);}
@@ -42,10 +42,12 @@ def create_app(run_dir):
     for path in training.glob('seed-*-best.pt'):
         saved=torch.load(path,map_location='cpu',weights_only=True)
         checkpoints.append((saved['validation']['weighted_mae'],path,saved))
-    if not checkpoints:raise ValueError('No trained hybrid checkpoint found')
-    _,_,saved=min(checkpoints,key=lambda item:item[0])
+    final_fit=(training/'final.pt').exists()
+    if final_fit:saved=torch.load(training/'final.pt',map_location='cpu',weights_only=True)
+    elif checkpoints:_,_,saved=min(checkpoints,key=lambda item:item[0])
+    else:raise ValueError('No trained hybrid checkpoint found')
     dataset=run_dir/'expanded'
-    if hashlib.sha256((dataset/'manifest.json').read_bytes()).hexdigest()!=saved['metadata']['manifest_sha256']:
+    if not final_fit and hashlib.sha256((dataset/'manifest.json').read_bytes()).hexdigest()!=saved['metadata']['manifest_sha256']:
         raise ValueError('Hybrid dataset differs from training manifest')
     d,m,x,refs,evidence_hash=load_verified(dataset)
     if evidence_hash!=saved['metadata']['evidence_sha256'] or d['feature_names']!=saved['metadata']['features']:
@@ -107,7 +109,7 @@ def create_app(run_dir):
         with torch.inference_mode():
             prediction=hybrid(torch.tensor(query[None]),conditions[ref:ref+1],images[ref:ref+1])[0]
             original,_=cnn(encode(torch.tensor(raw[None,:2]),torch.tensor([f]),cnn_saved['low'],cnn_saved['scale'],len(base_manifest['fuels'])))
-        return jsonify(hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{fuel} · {raw[0]:.2f} kPa · {raw[1]:.2f} °C · experimental input combination")
+        return jsonify(hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],model_note=f"All {len(x)} runs fitted · no held-out score" if final_fit else f"Validation-selected seed {saved['seed']}",hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{fuel} · {raw[0]:.2f} kPa · {raw[1]:.2f} °C · experimental input combination")
     return app
 
 
