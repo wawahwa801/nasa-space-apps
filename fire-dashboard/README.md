@@ -23,6 +23,10 @@ is sent over the network unless you click **Generate insight** (below). Click
 - **Help and checks:** click a field to see what it is used for. Values outside a
   sensible range (for example O₂ above 100%) are marked and ignored until corrected.
 - **Progress:** each section heading shows how many of its fields are filled.
+- **Hide and collapse sections:** click a section title to collapse it, or use **Sections** above the
+  results to hide sections entirely (**Expand all**, **Collapse all**, **Show all** and **Reset view** are
+  there too). Results are grouped into *Current conditions* and *Compared with NASA experiments*; the
+  Saffire, related-tests and data-set sections start collapsed. The view is remembered in this browser.
 - **From result to input:** click an item in the assessment to jump to the input behind it.
 - **Saving:** inputs save automatically in the browser. **Export** downloads them as
   JSON (in kPa, °C, ppm and m) and **Import** loads such a file again.

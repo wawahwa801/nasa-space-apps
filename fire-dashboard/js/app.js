@@ -684,7 +684,7 @@
       ? `${badge(result.level)} <span class="mon-headline">${esc(result.headline)}</span>`
       : '<span class="muted">No readings yet</span>';
     $("#mon-interval-text").textContent = monInterval;
-    $("#mon-record-next").textContent = `Record as next reading (+${monInterval} min)`;
+    $("#mon-record-next").textContent = `Record next (+${monInterval} min)`;
     $("#mon-count").textContent = readings.length;
 
     const events = result.events;
@@ -1109,6 +1109,112 @@
     reader.readAsText(file);
   }
 
+  // ------------------------------------------------------------ view
+
+  // Which dashboard sections are hidden or collapsed (cards with data-panel).
+  // Reference sections start collapsed to keep the first view short.
+  const VIEW_DEFAULT = { hidden: [], collapsed: ["saffire", "related", "datasets"] };
+  const GROUP_NAMES = { now: "Current conditions", nasa: "Compared with NASA experiments" };
+  const cleanView = (x) => ({
+    hidden: Array.isArray(x && x.hidden) ? x.hidden.filter((id) => typeof id === "string") : [],
+    collapsed: Array.isArray(x && x.collapsed) ? x.collapsed.filter((id) => typeof id === "string") : [],
+  });
+  let view = cleanView(load("fd.view", VIEW_DEFAULT));
+
+  const panels = () => [...ROOT.querySelectorAll("[data-panel]")];
+  const panelTitle = (el) => el.dataset.title || el.dataset.panel;
+
+  // Turn each card title into a collapse button, and list the sections in the menu.
+  function setupView() {
+    for (const card of panels()) {
+      const h2 = card.querySelector("h2");
+      if (!h2 || h2.querySelector(".card-toggle")) continue;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "card-toggle";
+      btn.dataset.toggle = card.dataset.panel;
+      btn.innerHTML = '<span class="chev" aria-hidden="true"></span>';
+      while (h2.firstChild) btn.appendChild(h2.firstChild);
+      h2.appendChild(btn);
+    }
+    const groups = {};
+    for (const el of panels()) (groups[el.dataset.group] = groups[el.dataset.group] || []).push(el);
+    $("#view-menu-body").innerHTML = Object.entries(groups).map(([g, els]) => `<fieldset class="view-group">
+        <legend>${esc(GROUP_NAMES[g] || g)}</legend>
+        ${els.map((el) => `<label class="check"><input type="checkbox" data-show="${esc(el.dataset.panel)}"><span>${esc(panelTitle(el))}</span></label>`).join("")}
+      </fieldset>`).join("") +
+      '<div class="view-actions"><button type="button" class="secondary" data-view="show-all">Show all</button><button type="button" class="secondary" data-view="reset">Reset view</button></div>';
+  }
+
+  function applyView() {
+    for (const el of panels()) {
+      const id = el.dataset.panel;
+      el.hidden = view.hidden.includes(id);
+      const collapsed = view.collapsed.includes(id);
+      el.classList.toggle("collapsed", collapsed);
+      const btn = el.querySelector(".card-toggle");
+      if (btn) {
+        btn.setAttribute("aria-expanded", String(!collapsed));
+        btn.title = collapsed ? "Expand section" : "Collapse section";
+      }
+      const box = ROOT.querySelector(`[data-show="${CSS.escape(id)}"]`);
+      if (box) box.checked = !el.hidden;
+    }
+    for (const title of ROOT.querySelectorAll("[data-group-title]")) {
+      const g = title.dataset.groupTitle;
+      title.hidden = panels().filter((el) => el.dataset.group === g).every((el) => el.hidden);
+    }
+    // A two-column row with one card hidden uses the full width.
+    for (const grid of ROOT.querySelectorAll(".grid-2")) {
+      grid.classList.toggle("single", [...grid.children].filter((c) => !c.hidden).length < 2);
+    }
+    const n = panels().filter((el) => el.hidden).length;
+    $("#view-hidden-count").textContent = n ? `(${n} hidden)` : "";
+  }
+
+  function setView(next, redraw) {
+    view = cleanView(next);
+    save("fd.view", view);
+    applyView();
+    // Charts drawn while a section was hidden need its real width.
+    if (redraw) update();
+  }
+
+  function onViewClick(e) {
+    const toggle = e.target.closest(".card-toggle");
+    if (toggle) {
+      const id = toggle.dataset.toggle;
+      const open = view.collapsed.includes(id);
+      setView({ ...view, collapsed: open ? view.collapsed.filter((x) => x !== id) : [...view.collapsed, id] }, open);
+      return;
+    }
+    const action = e.target.closest("[data-view]")?.dataset.view;
+    if (action === "expand") setView({ ...view, collapsed: [] }, true);
+    else if (action === "collapse") setView({ ...view, collapsed: panels().map((el) => el.dataset.panel) }, false);
+    else if (action === "show-all") setView({ ...view, hidden: [] }, true);
+    else if (action === "reset") setView(VIEW_DEFAULT, true);
+  }
+
+  function onViewChange(e) {
+    const id = e.target.dataset.show;
+    if (id === undefined) return;
+    const hidden = e.target.checked ? view.hidden.filter((x) => x !== id) : [...new Set([...view.hidden, id])];
+    // Showing a section also expands it, so it is visible straight away.
+    const collapsed = e.target.checked ? view.collapsed.filter((x) => x !== id) : view.collapsed;
+    setView({ hidden, collapsed }, e.target.checked);
+  }
+
+  // Close open dropdown menus on an outside click or Escape.
+  function closeMenus(e) {
+    if (e.type === "keydown" && e.key !== "Escape") return;
+    for (const m of ROOT.querySelectorAll("details.menu[open]")) {
+      if (e.type === "keydown" || !m.contains(e.target)) {
+        m.open = false;
+        if (e.type === "keydown") m.querySelector("summary").focus();
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- wiring
 
   let timer;
@@ -1138,6 +1244,8 @@
 
   function init() {
     renderForm();
+    setupView();
+    applyView();
     writeValues(load(STORE.values, {}));
     renderDatasets();
     update();
@@ -1287,6 +1395,10 @@
       reader.readAsText(file);
     });
     $("#insight-run").addEventListener("click", requestInsight);
+    $("#results").addEventListener("click", onViewClick);
+    $("#view-menu-body").addEventListener("change", onViewChange);
+    ROOT.addEventListener("click", closeMenus);
+    ROOT.addEventListener("keydown", closeMenus);
     $("#mon-suspects").addEventListener("click", (e) => {
       const id = e.target.closest("[data-goto]")?.dataset.goto;
       if (id) (OPTS.onGotoField || gotoField)(id);
@@ -1304,6 +1416,8 @@
 
     return () => {
       window.removeEventListener("resize", onResize);
+      ROOT.removeEventListener("click", closeMenus);
+      ROOT.removeEventListener("keydown", closeMenus);
       if (observer) observer.disconnect();
       clearTimeout(resizeTimer);
       clearTimeout(timer);
