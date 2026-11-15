@@ -1,0 +1,6 @@
+# Checksum-verified model data and published artifacts must stay byte-identical.
+# Without this, Git for Windows (core.autocrlf=true) rewrites LF to CRLF on
+# checkout and the model loaders reject the files as checksum mismatches.
+ml/data/** -text
+ml/artifacts/** -text
+frontend/public/flames/** -text

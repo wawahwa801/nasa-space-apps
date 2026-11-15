@@ -1,0 +1,409 @@
+{
+  "accepted": 262,
+  "exclusions": [
+    {
+      "run": "E135F02",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E135F03",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E135F04",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E135F06",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E135F11",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E156F05",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E156F09",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E156F10",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E159F01",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E159F04",
+      "reason": "Known catalog/paper fuel conflict"
+    },
+    {
+      "run": "E183L11",
+      "reason": "Settings rejected"
+    },
+    {
+      "run": "E216M05",
+      "reason": "Settings rejected"
+    },
+    {
+      "run": "E293J09",
+      "reason": "Settings rejected"
+    }
+  ],
+  "image_screen_exclusions": [
+    {
+      "run": "A113D04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A113D09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D06",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A127D08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D07",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A134D04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A186D05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A186D08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A191D02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A191D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A191D04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A191D05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A221D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A221D06",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A298D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A301D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E053A01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E073C01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C06",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E103E04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E110E02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E114D11",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E121D02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E121D08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E121D09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E135F08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E156F07",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E156F08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L10",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L11",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E169M06",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E169M09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E175L03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E175L04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E175L12",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E175L16",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E178M01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E178M03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E183L04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E209L12",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E209L14",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E209L15",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E209L16",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E211M09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E211M10",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E216L01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E216M04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E233G09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E237H07",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E241G09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E258H11",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E267J04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E275J13",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E282K07",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E293J04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E304K06",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H323N03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H323N05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H329N02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H329N03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H329N05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H338N01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H338N02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H338N04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H338N05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    }
+  ],
+  "known_fuel_conflict_ids_excluded": [
+    "E135F02",
+    "E135F03",
+    "E135F04",
+    "E135F06",
+    "E135F11",
+    "E156F05",
+    "E156F09",
+    "E156F10",
+    "E159F01",
+    "E159F03",
+    "E159F04",
+    "E159F06"
+  ]
+}
