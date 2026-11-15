@@ -289,6 +289,26 @@
         (near.outOfRange ? " Your conditions are outside the range ACME tested." : ""), near.fuelMatched ? "fuel_type" : "o2_pct");
     }
 
+    // BASS-II: solid-material flames studied on the ISS at a range of O₂ levels.
+    const bassTests = v.material_type
+      ? REF.bass.tests.filter((t) => t.category === v.material_type && t.o2_initial_pct != null)
+      : [];
+    if (bassTests.length && has(v.o2_pct)) {
+      const o2s = bassTests.map((t) => t.o2_initial_pct);
+      const lo = Math.min(...o2s);
+      const hi = Math.max(...o2s);
+      const mat = esc(v.material_type);
+      if (v.o2_pct >= lo) {
+        add("warning", `BASS-II flames on ${mat} at ${fmt(lo)}% O₂ and above`,
+          `${bassTests.length} BASS-II tests studied flames on ${mat} in microgravity with starting chamber O₂ from ${fmt(lo)}% to ${fmt(hi)}%. ` +
+          `Your O₂ (${fmt(v.o2_pct)}%) is at or above the lowest tested level, so a flame on this material could be sustained once ignited.`, "material_type");
+      } else {
+        add("info", `Below the lowest O₂ BASS-II tested for ${mat}`,
+          `BASS-II tests on ${mat} started at ${fmt(lo)}% O₂ or more; your O₂ (${fmt(v.o2_pct)}%) is lower. ` +
+          "There is no test data at your level, which is not evidence that the material cannot burn.", "o2_pct");
+      }
+    }
+
     flags.sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank);
     return { flags, near };
   }
@@ -490,6 +510,56 @@
     caption.textContent = "Share of each gas in the cabin air. Water vapour and trace gases are drawn as one slice; each is listed.";
   }
 
+  function renderBass(v) {
+    const tests = REF.bass.tests;
+    const runs = REF.bass.bass1.runs;
+    const counts = new Map();
+    for (const t of tests) counts.set(t.category, (counts.get(t.category) || 0) + 1);
+    const rows = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat, n]) => ({ id: cat, label: `${cat} (${n})`, shortLabel: `${cat.split(" (")[0]} (${n})`, highlight: cat === v.material_type }));
+    const coText = (t) => `${fmt(t.co_initial_ppm)} → ${t.co_final_ppm != null ? fmt(t.co_final_ppm) : esc(t.co_final_raw || "–")} ppm`;
+    Charts.strip($("#bass-chart"), {
+      rows,
+      points: tests.map((t) => ({
+        row: t.category,
+        x: t.o2_initial_pct,
+        tip: `<strong>${esc(t.material)}</strong><br>${esc(t.pi)} · test ${esc(t.test)}${t.date ? " · " + esc(t.date) : ""}` +
+          `<br>O₂ ${fmt(t.o2_initial_pct)}% → ${fmt(t.o2_final_pct)}%<br>CO ${coText(t)}` +
+          (t.air_display ? `<br><span class="muted">Air display: ${esc(t.air_display)}</span>` : ""),
+      })),
+      xLabel: "Starting chamber O₂ (%)",
+      ref: has(v.o2_pct) ? { value: v.o2_pct, label: `Your O₂: ${fmt(v.o2_pct)}%` } : null,
+    });
+
+    $("#bass-caption").textContent =
+      `${tests.length} tests by six research teams. Each dot is one test at its starting chamber O₂; ` +
+      `hover for the sample, CO change and recorded air flow. The earlier BASS experiment (2012–13) logged ${runs.length} runs without atmosphere readings.`;
+
+    const selected = rows.some((r) => r.highlight) ? v.material_type : null;
+    const pool = selected ? tests.filter((t) => t.category === selected) : tests;
+    const o2s = pool.map((t) => t.o2_initial_pct).filter((x) => x != null);
+    const coMax = pool.filter((t) => t.co_rise_ppm != null).sort((a, b) => b.co_rise_ppm - a.co_rise_ppm)[0];
+    const co2Max = Math.max(...pool.map((t) => t.co2_rise_pct ?? -Infinity));
+    const runsFor = selected ? runs.filter((r) => r.category === selected) : runs;
+    const wake = runsFor.filter((r) => r.configuration === "wake ignition").length;
+    const opposed = runsFor.filter((r) => r.configuration === "opposed flow").length;
+    const what = selected ? esc(selected) : "all materials";
+    const items = [
+      `<li><strong>BASS-II, ${what}:</strong> ${pool.length} tests with starting O₂ ${range(o2s)}%.</li>`,
+      coMax ? `<li><strong>Combustion products:</strong> chamber CO rose by up to ${fmt(coMax.co_rise_ppm)} ppm during one test (${esc(coMax.pi)} ${esc(coMax.test)}), and CO₂ by up to ${fmt(co2Max)}%.</li>` : "",
+      `<li><strong>BASS (2012–13), ${what}:</strong> ${runsFor.length} runs${wake || opposed ? `, including ${wake} wake-ignition and ${opposed} opposed-flow tests` : ""}.</li>`,
+      `<li class="muted">Ignition and extinction aren't recorded as columns, so this shows the O₂ levels at which flames were studied, not whether a given fire would start.</li>`,
+    ];
+    if (v.material_type && !selected) items.unshift(`<li class="muted">No BASS-II tests for "${esc(v.material_type)}"; showing all materials.</li>`);
+    $("#bass-stats").innerHTML = items.join("");
+
+    $("#bass-table").innerHTML = `<table><thead><tr><th>Team</th><th>Test</th><th>Material</th><th>O₂ start → end %</th><th>CO₂ start → end %</th><th>CO start → end ppm</th></tr></thead><tbody>${[...tests]
+      .sort((a, b) => a.category.localeCompare(b.category) || a.o2_initial_pct - b.o2_initial_pct)
+      .map((t) => `<tr class="${t.category === v.material_type ? "highlight" : ""}"><td>${esc(t.pi)}</td><td>${esc(t.test)}</td><td>${esc(t.material)}</td><td>${fmt(t.o2_initial_pct)} → ${fmt(t.o2_final_pct)}</td><td>${fmt(t.co2_initial_pct)} → ${fmt(t.co2_final_pct)}</td><td>${coText(t)}</td></tr>`)
+      .join("")}</tbody></table>`;
+  }
+
   function range(values) {
     const xs = values.filter((x) => x != null);
     return xs.length ? `${fmt(Math.min(...xs))}–${fmt(Math.max(...xs))}` : "–";
@@ -499,7 +569,12 @@
     const out = [];
     if (v.material_type) {
       const same = REF.samer.tests.filter((t) => t.material === v.material_type);
-      out.push(`<li><strong>SAME-R smoke tests (${esc(v.material_type)}):</strong> ${same.length} tests, with heater ratio Rt/R0 ${range(same.map((t) => t.heater_ratio))} and flow ${range(same.map((t) => t.inlet_velocity_cm_s))} cm/s. Shows the conditions under which this material's smoke was measured.</li>`);
+      const bass2 = REF.bass.tests.filter((t) => t.category === v.material_type);
+      const bass1 = REF.bass.bass1.runs.filter((r) => r.category === v.material_type);
+      if (bass2.length || bass1.length) {
+        out.push(`<li><strong>BASS / BASS-II burns (${esc(v.material_type)}):</strong> ${bass2.length} BASS-II tests at starting O₂ ${range(bass2.map((t) => t.o2_initial_pct))}% and ${bass1.length} earlier BASS runs. See the BASS-II chart for details.</li>`);
+      }
+      if (same.length) out.push(`<li><strong>SAME-R smoke tests (${esc(v.material_type)}):</strong> ${same.length} tests, with heater ratio Rt/R0 ${range(same.map((t) => t.heater_ratio))} and flow ${range(same.map((t) => t.inlet_velocity_cm_s))} cm/s. Shows the conditions under which this material's smoke was measured.</li>`);
     }
     if (v.fuel_type) {
       const spice = REF.spice.runs.filter((r) => matches(r.fuel, v.fuel_type));
@@ -555,6 +630,8 @@
       { name: REF.saffire.name, file: REF.saffire.file, rows: REF.saffire.series.t_s.length, desc: REF.saffire.description },
       { name: REF.spice.name, file: REF.spice.file, rows: REF.spice.runs.length, desc: REF.spice.description },
       { name: REF.samer.name, file: REF.samer.file, rows: REF.samer.tests.length, desc: REF.samer.description },
+      { name: REF.bass.name, file: REF.bass.file, rows: REF.bass.tests.length, desc: REF.bass.description },
+      { name: REF.bass.bass1.name, file: REF.bass.bass1.file, rows: REF.bass.bass1.runs.length, desc: REF.bass.bass1.description },
     ];
   }
 
@@ -628,6 +705,7 @@
     renderFlags(result);
     renderMeters(v);
     renderComposition(v);
+    renderBass(v);
     renderAcme(v, result);
     renderSaffire(v);
     renderRelated(v);

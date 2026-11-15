@@ -31,3 +31,19 @@ for (const [name, values] of [
     assert.doesNotMatch(path.attrs.d, /NaN|Infinity/);
   });
 }
+
+test('strip plot places one dot per finite point and ignores unknown rows', () => {
+  const container = node();
+  const context = vm.createContext({ window: {}, document: { createElementNS: node }, container });
+  vm.runInContext(readFileSync(require.resolve('../js/charts.js'), 'utf8'), context);
+  vm.runInContext(`window.Charts.strip(container, {
+    rows: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B', highlight: true }],
+    points: [{ row: 'a', x: 18, tip: 'x' }, { row: 'b', x: 21, tip: 'y' }, { row: 'b', x: NaN, tip: 'z' }, { row: 'zz', x: 20, tip: 'w' }],
+    xLabel: 'O2', ref: { value: 21.5, label: 'You' },
+  })`, context, { timeout: 3000 });
+  const svg = container.children[0];
+  const dots = svg.children.filter((c) => c.attrs.class === 'dot s1');
+  assert.equal(dots.length, 2);
+  for (const d of dots) assert.ok(Number.isFinite(Number(d.attrs.cx)) && Number.isFinite(Number(d.attrs.cy)));
+  assert.ok(svg.children.some((c) => c.attrs.class === 'row-label highlight'));
+});

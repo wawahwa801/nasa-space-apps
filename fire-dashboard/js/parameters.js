@@ -21,7 +21,12 @@
     ...REF.acme.tests.map((t) => baseFuel(t.fuel)),
     ...REF.spice.runs.map((r) => baseFuel(r.fuel)),
   ].filter((f) => f && f !== "Unspecified"));
-  const materials = unique(REF.samer.tests.map((t) => t.material));
+  // Solid materials: SAME-R smoke tests plus BASS / BASS-II burn categories.
+  const materials = unique([
+    ...REF.samer.tests.map((t) => t.material),
+    ...REF.bass.tests.map((t) => t.category),
+    ...REF.bass.bass1.runs.map((r) => r.category),
+  ].filter((m) => m && m !== "Other"));
 
   const LEAK = ["None detected", "Suspected", "Confirmed", "Unknown"];
 
@@ -113,7 +118,7 @@
       title: "Combustible materials (solids)",
       fields: [
         { id: "material_type", label: "Material type", type: "choice", options: materials,
-          hint: "Finds SAME-R smoke tests for this material." },
+          hint: "Finds SAME-R smoke tests and BASS / BASS-II burn tests for this material." },
         { id: "material_distance_m", label: "Material distance from ignition sources", type: "number", units: "length", min: 0, max: 1000,
           hint: "Flagged when closer than the minimum separation in parameters.js." },
       ],

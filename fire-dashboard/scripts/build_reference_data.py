@@ -28,6 +28,8 @@ ACME_FILE = "PSI-159_Raw Data_Final ACME Chamber Calculator - 2021-03-09 to 2021
 SAFFIRE_FILE = "Saffire-I Sample 2 Sensor Data Complete TM graphs.xlsx"
 SPICE_FILE = "PSI-107_Experimental table_Spice.csv"
 SAMER_FILE = "PSI-101_Experimental table_SAME-R.csv"
+BASS2_FILE = "BASS-II Test Matrix by PI Final.xlsx"
+BASS1_FILE = "PSI-26_Experimental table_BASS.csv"
 
 PSI_TO_KPA = 6.894757
 M = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
@@ -278,8 +280,116 @@ def build_samer() -> dict:
     }
 
 
+# --- BASS-II (2014-2016) and BASS (2012-2013) solid-fuel burns ---------------
+
+
+def sheet_names(path: Path) -> list[str]:
+    with zipfile.ZipFile(path) as z:
+        return [sh.get("name") for sh in ET.fromstring(z.read("xl/workbook.xml")).iter(M + "sheet")]
+
+
+def material_category(text: str) -> str:
+    """Group the free-text sample descriptions. PMMA rods, films, slabs and
+    spheres are all acrylic; "clear"/"black" rods in BASS-II are PMMA rods."""
+    t = (text or "").lower()
+    if "sibal" in t:
+        return "SIBAL fabric (cotton-fiberglass)"
+    if "nomex" in t:
+        return "Nomex"
+    if "ultem" in t:
+        return "Ultem"
+    if "wax" in t or "candle" in t or "paraf" in t or "parraf" in t:
+        return "Wax (candle or slab)"
+    if any(k in t for k in ("pmma", "rod", "film", "micron", "sphere", "spherical", "slab")):
+        return "PMMA (acrylic)"
+    return "Other"
+
+
+def excel_date(value) -> str | None:
+    x = num(value)
+    if x is None:
+        return None
+    return (datetime(1899, 12, 30) + timedelta(days=x)).strftime("%Y-%m-%d")
+
+
+def clean(value) -> str:
+    return " ".join(str(value or "").split())
+
+
+# BASS-II columns (0-based), identical on every PI sheet.
+BASS2_COLS = {
+    "date": 0, "gmt_day": 1, "test": 2, "sample": 3, "material": 4, "flow_restrictor": 5,
+    "fan_display": 6, "air_display": 7, "o2_initial": 10, "o2_final": 11,
+    "co2_initial": 12, "co2_final": 13, "co_initial": 14, "co_final": 15,
+}
+
+
+def build_bass() -> dict:
+    tests = []
+    path = DATA / BASS2_FILE
+    for pi in sheet_names(path):
+        for row, v in iter_rows(path, pi):
+            if row < 2 or not v.get(BASS2_COLS["test"]):
+                continue
+            get = lambda k: v.get(BASS2_COLS[k])
+            co_i, co_f = num(get("co_initial")), num(get("co_final"))
+            co2_i, co2_f = num(get("co2_initial")), num(get("co2_final"))
+            tests.append({
+                "pi": pi,
+                "test": clean(get("test")),
+                "date": excel_date(get("date")),
+                "material": clean(get("material")),
+                "category": material_category(get("material")),
+                "o2_initial_pct": rnd(num(get("o2_initial")), 2),
+                "o2_final_pct": rnd(num(get("o2_final")), 2),
+                "co2_initial_pct": rnd(co2_i, 3),
+                "co2_final_pct": rnd(co2_f, 3),
+                "co_initial_ppm": co_i,
+                "co_final_ppm": co_f,
+                # Raw text kept where the sheet holds notes instead of numbers (e.g. ">500", "OR").
+                "co_final_raw": clean(get("co_final")),
+                "co_rise_ppm": rnd(co_f - co_i, 1) if co_i is not None and co_f is not None else None,
+                "co2_rise_pct": rnd(co2_f - co2_i, 3) if co2_i is not None and co2_f is not None else None,
+                "air_display": clean(get("air_display")),
+            })
+
+    runs = []
+    for r in read_csv(BASS1_FILE):
+        test = r.get("Test #", "")
+        material = r.get("Fuel Sample Material", "")
+        if not test or not material:
+            continue  # e.g. "SOOT Cleaning" maintenance rows
+        text = material.lower()
+        runs.append({
+            "date": r.get("Date"),
+            "test": test,
+            "sample": r.get("Sample #"),
+            "material": clean(material),
+            "category": material_category(material),
+            "configuration": "opposed flow" if ("opposed" in text or "oppsed" in text)
+            else "wake ignition" if "wake" in text else "",
+        })
+
+    return {
+        "name": "BASS-II solid-fuel burns (ISS, 2014-2016)",
+        "file": BASS2_FILE,
+        "description": (
+            "Test matrix from the six BASS-II investigator sheets: sample material, calibrated chamber O₂ "
+            "at the start and end of each test, CO₂ (%) and CO (ppm) before and after, and the air-flow "
+            "display as recorded. Outcomes (ignition, extinction) are not recorded as columns."
+        ),
+        "tests": tests,
+        "bass1": {
+            "name": "BASS run log (ISS, 2012-2013, PSI-26)",
+            "file": BASS1_FILE,
+            "description": "As-run test list with sample material only; no atmosphere or flow conditions.",
+            "runs": runs,
+        },
+    }
+
+
 def main() -> int:
-    missing = [f for f in (ACME_FILE, SAFFIRE_FILE, SPICE_FILE, SAMER_FILE) if not (DATA / f).exists()]
+    missing = [f for f in (ACME_FILE, SAFFIRE_FILE, SPICE_FILE, SAMER_FILE, BASS2_FILE, BASS1_FILE) if not (DATA / f).exists()]
     if missing:
         print("Missing data files: " + ", ".join(missing), file=sys.stderr)
         return 1
@@ -289,6 +399,7 @@ def main() -> int:
         "saffire": build_saffire(),
         "spice": build_spice(),
         "samer": build_samer(),
+        "bass": build_bass(),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     body = json.dumps(ref, ensure_ascii=False, separators=(",", ":"))
@@ -301,6 +412,8 @@ def main() -> int:
     print(f"ACME: {len(acme)} test points ({sum(t['ignited'] for t in acme)} ignited)")
     print(f"Saffire: {len(ref['saffire']['series']['t_s'])} bins")
     print(f"SPICE: {len(ref['spice']['runs'])} runs; SAME-R: {len(ref['samer']['tests'])} tests")
+    bass = ref["bass"]
+    print(f"BASS-II: {len(bass['tests'])} tests; BASS: {len(bass['bass1']['runs'])} runs")
     print(f"Wrote {OUT.relative_to(REPO)} ({OUT.stat().st_size / 1024:.0f} KB)")
     return 0
 
