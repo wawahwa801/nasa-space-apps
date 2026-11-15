@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // A finite sensitivity sweep, never a calibrated confidence interval. Keep all
 // other conditions (including fuel and apparatus flags) at their selected values.
@@ -23,14 +23,11 @@ export function variationQueries(controls, numeric, percent) {
 }
 
 export function DemoVariationPreview({ preview, controls, info, disabled, onPointerDown }) {
-  const id = useId();
-  const [percent, setPercent] = useState(5);
   const [frames, setFrames] = useState([]);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
-  const [stopped, setStopped] = useState(false);
   const [reduced, setReduced] = useState(false);
   const active = useRef(true);
   const request = useRef(null);
@@ -59,11 +56,10 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
 
   const generate = useCallback(async () => {
     reset();
-    setStopped(false);
     if (!info || info.numeric.some(s => controls[s.key] === "" || !Number.isFinite(Number(controls[s.key])))) {
       setStatus("Enter valid model conditions first."); return;
     }
-    const queries = variationQueries(controls, info.numeric, Number(percent));
+    const queries = variationQueries(controls, info.numeric, 5);
     if (queries.length < 2) { setStatus("Choose a range from 1% to 20%."); return; }
     const current = version.current;
     const abort = new AbortController(); request.current = abort;
@@ -92,7 +88,7 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
       clearTimeout(timeout);
       if (active.current && current === version.current) setLoading(false);
     }
-  }, [controls, info, percent, reset]);
+  }, [controls, info, reset]);
 
   // Debounce edits, then prepare each frame once; playback never queries the model.
   useEffect(() => {
@@ -106,31 +102,25 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
   }, [disabled, generate]);
 
   const shown = frames[index] || preview;
+  const action = frames.length
+    ? reduced ? "Next flame variation" : playing ? "Pause flame animation" : "Resume flame animation"
+    : loading ? "Loading flame animation" : "Retry flame animation";
+  function interact() {
+    if (!frames.length) { generate(); return; }
+    if (reduced) setIndex(i => (i + 1) % frames.length);
+    else setPlaying(p => !p);
+  }
   return (
     <div className="demo-variation-preview">
-      <img className={`demo-flame-image ${frames.length ? "showing-variation" : ""}`} draggable={false}
-        style={{ touchAction: "none" }} onPointerDown={frames.length ? undefined : onPointerDown}
-        title={frames.length ? "Generated alternative; restore selected prediction to drag into a room" : "Drag onto a room to set its ignition point"}
-        src={shown.hybrid} alt={frames.length ? "Exploratory CNN variation" : "Hybrid CNN flame estimate"} width="256" height="256" />
+      <button className="demo-image-button" type="button" aria-label={action} disabled={disabled || loading}
+        title="Exploratory variation, not calibrated uncertainty. Click to pause or resume; reduced motion advances one image."
+        onClick={interact}>
+        <img className="demo-flame-image" draggable={false}
+          style={{ touchAction: "none" }} onPointerDown={frames.length ? undefined : onPointerDown}
+          src={shown.hybrid} alt={frames.length ? "Exploratory CNN variation" : "Hybrid CNN flame estimate"} width="256" height="256" />
+      </button>
       <p className="demo-frame-conditions">{shown.conditions}</p>
-      <div className="demo-variation-controls" aria-label="Demo variation animation">
-        <label htmlFor={`${id}-range`}>Pressure / temperature range
-          <span><input id={`${id}-range`} type="number" min="1" max="20" step="1" value={percent}
-            onChange={e => { reset(); setStopped(false); setPercent(e.target.value); }} />% of each control’s full range</span>
-        </label>
-        <p className="hybrid-muted">Exploratory variation, not calibrated uncertainty or flame motion. Settings are clipped to slider limits; combinations may lack training support. Room simulation uses the selected inputs.</p>
-        <div className="demo-variation-actions">
-          {(frames.length > 0 || loading) && <button type="button" onClick={() => { reset(); setStopped(true); }}>{loading ? "Cancel animation" : "Selected prediction"}</button>}
-          {!loading && !frames.length && (stopped || status) && <button type="button" disabled={disabled} onClick={generate}>{stopped ? "Resume animation" : "Retry animation"}</button>}
-          {frames.length > 0 && !reduced && <button type="button" onClick={() => setPlaying(p => !p)}>{playing ? "Pause variations" : "Play variations"}</button>}
-        </div>
-        {frames.length > 0 && <label htmlFor={`${id}-frame`}>Alternative {index + 1} of {frames.length}
-          <input id={`${id}-frame`} type="range" min="0" max={frames.length - 1} value={index}
-            onChange={e => { setPlaying(false); setIndex(Number(e.target.value)); }} />
-        </label>}
-        {reduced && frames.length > 0 && <p className="hybrid-muted">Reduced motion is enabled. Use the alternative slider to inspect images.</p>}
-        <p role="status" className="hybrid-muted">{status}</p>
-      </div>
+      <p role="status" className="sr-only">{status}</p>
     </div>
   );
 }
