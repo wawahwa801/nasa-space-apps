@@ -38,7 +38,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `http://localhost:5000/api/health`.
+Open `http://localhost:3000`. The retrieval and NASA-comparison views work with the frontend alone. The separate Flask API provides `http://localhost:5000/api/health` and the analysis endpoints below.
 
 The page has the Ember flame simulation and, below it, the NASA data comparison from
 `fire-dashboard/` (rendered in an isolated shadow root). Both read the same Parameters
@@ -47,6 +47,12 @@ appear there as extra sections.
 `npm run dev` and `npm run build` first copy `fire-dashboard/` into
 `frontend/public/fire-dashboard/` (generated, git-ignored), so edit `fire-dashboard/`,
 not the copy.
+
+The **Feature retrieval** tab searches a bundled set of 100 verified FLEX-2 colour targets across five fuels by fuel, chamber pressure and temperature. Sliders update locally while dragging; numeric inputs validate the recorded ranges, and the result shows the actual matched conditions and source. This tab works with the frontend alone, without Flask, Torch or an inference service. Its controls apply to the droplet dataset separately from the simulation's broader scenario inputs. Switching tabs preserves both sets of inputs.
+
+The images and provenance are in `frontend/public/flames/flex2/`. After acquiring and preparing FLEX-2 data as described in [ml/FLEX2.md](ml/FLEX2.md), regenerate them with `python ml/export_flex2_retrieval.py --data /path/to/flex2-study`. Verify the bundled image hashes and joins using `node frontend/scripts/check-feature-retrieval.mjs`.
+
+The bundled 100-run source subset was prepared by the expansion in [PR #30](https://github.com/wawahwa801/nasa-space-apps/pull/30). Until that acquisition workflow merges, use its verified prepared dataset to reproduce this expanded bundle; the older lab instructions prepare a smaller subset. The frontend itself already includes the complete exported bundle and needs no source-data download.
 
 ## LLM analysis API
 
@@ -111,4 +117,4 @@ python -m pytest
 
 ## Flame-model experiments
 
-See [ml/README.md](ml/README.md) for separate BASS-II PMMA and NASA FLEX methanol experiments. The simplified local page at `http://127.0.0.1:5050` has one experiment selector, relevant physical controls and two 256×256 comparison images. Models use independent whole-run splits and explicit baselines; neither has demonstrated a meaningful accuracy win. The page also includes 274 FLEX and 8 FLEX-2 conditions rows and original CSV downloads. The previous four-source prototype is preserved in `ml/LEGACY.md`.
+The dashboard's Feature retrieval tab displays real recorded FLEX-2 images. The separate [FLEX-2 lab](ml/FLEX2.md) at `http://127.0.0.1:5051/flex2/` also provides an experimental CNN comparison; its CNN currently performs worse than mean/retrieval baselines. See [ml/README.md](ml/README.md) for the older BASS-II PMMA and FLEX methanol experiments at port 5050, and [ml/SPICE.md](ml/SPICE.md) for the separate SPICE prototype. These are bounded image experiments, not validated physical fire forecasts. The previous four-source prototype is preserved in `ml/LEGACY.md`.
