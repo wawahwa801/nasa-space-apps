@@ -29,5 +29,17 @@ Smoke Aerosol Measurement Experiment – Reflight: smoke from heated materials.
 Columns: Sample Type (Kapton, Silicone, Lampwick, Pyrell, Teflon), test # ("a" suffix = aged-smoke reading of the same test), description, date, inlet velocity (cm/s), Rt/R0 (heater resistance ratio, higher = hotter), durations and aging times (s).
 Test conditions only; no particle-size results.
 
+## BASS-II Test Matrix by PI Final (.xlsx)
+Burning and Suppression of Solids II, ISS, 2014–2016. Six sheets, one per PI (Bhattacharjee, Ferkul, Miller, Olson, Fernandez-Pello, T'ien), identical 16 columns, header in row 1, ~129 tests.
+- Col 0 date (Excel serial), 1 GMT day, 2 test no. (e.g. B1, O3a), 3 sample no., 4 material (free text: PMMA films/rods/slabs/spheres, "clear"/"black" rod = PMMA, SIBAL fabric, Nomex, candle).
+- 5 flow restrictor, 6 fan display and 7 air display: free-text sequences ("10, 5, 3", "5 down to ext"), not clean numbers.
+- 10/11 calibrated O₂ % start/end, 12/13 CO₂ % start/end, 14/15 CO ppm start/end (some cells "none", ">500", "OR", "over").
+- No outcome column: ignition/extinction only appears in free-text notes. Starting O₂ 13.6–22.2%; CO rose up to ~575 ppm in one burn.
+
+## PSI-26_Experimental table_BASS (.csv)
+BASS (first experiment), ISS, 2012–2013. Columns: Date (a few typos, e.g. 6/29/`12, 5/15/2103), GMT, As Run Test #, Test #, Sample #, Fuel Sample Material (free text; may include "wake ign" or "opposed flow"). "SOOT Cleaning" rows have no test number. No atmosphere or flow conditions.
+
+The build script groups both files' materials into categories (PMMA, SIBAL fabric, Nomex, Ultem, wax).
+
 ## Gaps
-No solid-material ignition data, no liquid fuels, no CO/H2/CH4 fire products, no gravity other than microgravity. Source links, download dates and licenses are not yet recorded (see README.md).
+No liquid fuels, no gravity other than microgravity, and no recorded ignition/extinction outcomes for solids (BASS-II gives the O₂ levels flames were studied at). CO/CO₂ during fires come only from BASS-II chamber readings. Source records and licenses for the BASS files still need checking (see README.md).

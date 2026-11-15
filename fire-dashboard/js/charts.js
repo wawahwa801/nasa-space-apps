@@ -279,5 +279,74 @@
     }
   }
 
-  window.Charts = { scatter, line, donut, fmt, setTooltipHost, removeTooltip };
+  /**
+   * Strip plot: one row per category, one dot per observation along a numeric x axis.
+   * opts: { rows: [{ id, label, shortLabel, highlight }], points: [{ row, x, tip }], xLabel,
+   *         ref: { value, label } | null }
+   * Dots sharing a row are offset vertically in a small repeating pattern so
+   * repeated values stay visible.
+   */
+  function strip(container, opts) {
+    container.innerHTML = "";
+    const rowH = 34;
+    const width = Math.max(container.clientWidth, 280);
+    // Narrow containers get a smaller label column and the rows' short labels.
+    const narrow = width < 480;
+    const left = narrow ? 112 : 190;
+    const right = 20;
+    const top = 26;
+    const bottom = 40;
+    const height = top + bottom + rowH * Math.max(opts.rows.length, 1);
+    const xs = opts.points.map((p) => p.x);
+    if (opts.ref && opts.ref.value != null) xs.push(opts.ref.value);
+    const xDom = niceDomain(xs, 6);
+    const iw = width - left - right;
+    const sx = (v) => left + ((v - xDom.lo) / (xDom.hi - xDom.lo)) * iw;
+    const rowY = new Map(opts.rows.map((r, i) => [r.id, top + rowH * i + rowH / 2]));
+    const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, width: "100%", height, class: "chart-svg strip" }, container);
+
+    const grid = el("g", { class: "grid" }, svg);
+    for (const t of xDom.ticks) {
+      el("line", { x1: sx(t), x2: sx(t), y1: top, y2: height - bottom }, grid);
+      const lbl = el("text", { x: sx(t), y: height - bottom + 18, class: "tick", "text-anchor": "middle" }, svg);
+      lbl.textContent = tickFmt(t, xDom.ticks);
+    }
+    const xl = el("text", { x: left + iw / 2, y: height - 4, class: "axis-label", "text-anchor": "middle" }, svg);
+    xl.textContent = opts.xLabel || "";
+
+    opts.rows.forEach((r) => {
+      const y = rowY.get(r.id);
+      el("line", { x1: left, x2: left + iw, y1: y, y2: y, class: "baseline" }, svg);
+      const lbl = el("text", { x: left - 10, y, class: `row-label${r.highlight ? " highlight" : ""}`, "text-anchor": "end", "dominant-baseline": "middle" }, svg);
+      lbl.textContent = narrow ? (r.shortLabel || r.label) : r.label;
+    });
+
+    if (opts.ref && opts.ref.value != null) {
+      const x = sx(opts.ref.value);
+      el("line", { x1: x, x2: x, y1: top - 6, y2: height - bottom, class: "ref-line" }, svg);
+      const t = el("text", { x: Math.min(x, left + iw - 4), y: top - 10, class: "marker-label", "text-anchor": x > left + iw - 80 ? "end" : "middle" }, svg);
+      t.textContent = opts.ref.label;
+    }
+
+    const seen = new Map();
+    for (const p of opts.points) {
+      const y0 = rowY.get(p.row);
+      if (y0 === undefined || p.x == null || !isFinite(p.x)) continue;
+      const n = seen.get(p.row) || 0;
+      seen.set(p.row, n + 1);
+      const offset = [0, -6, 6, -3, 3][n % 5];
+      const c = el("circle", { cx: sx(p.x), cy: y0 + offset, r: 4.5, class: "dot s1", tabindex: 0 }, svg);
+      c.setAttribute("aria-label", p.tip.replace(/<[^>]+>/g, " "));
+      const show = (e) => {
+        const b = c.getBoundingClientRect();
+        showTip(p.tip, e.clientX ?? b.x + b.width / 2, e.clientY ?? b.y);
+      };
+      c.addEventListener("mousemove", show);
+      c.addEventListener("focus", show);
+      c.addEventListener("mouseleave", hideTip);
+      c.addEventListener("blur", hideTip);
+    }
+  }
+
+  window.Charts = { scatter, line, donut, strip, fmt, setTooltipHost, removeTooltip };
 })();

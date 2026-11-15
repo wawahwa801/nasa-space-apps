@@ -40,7 +40,9 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
   coloured by whether they ignited, with the closest tests highlighted in the table view.
 - **Saffire-I sample 2:** O₂, CO₂, pressure and plume temperature during a large-scale burn,
   with your values as reference lines.
-- **Related NASA tests:** SAME-R tests for your material; SPICE and ACME tests for your fuel.
+- **BASS-II solid materials:** 129 ISS burn tests plotted by starting O₂, one row per material, with
+  your O₂ as a reference line; CO/CO₂ rises during burns and the earlier BASS run counts.
+- **Related NASA tests:** SAME-R and BASS tests for your material; SPICE and ACME tests for your fuel.
 - **Data sets:** the four built-in data sets, plus any CSV you add.
 
 ## Inputs
