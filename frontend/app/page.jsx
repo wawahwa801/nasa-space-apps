@@ -272,13 +272,10 @@ export default function Home() {
     [nasaDefs, nasaRaw, nasaUnits, values],
   );
   const [sliderUnits, setSliderUnits] = useState({});
-  const [snapshot, setSnapshot] = useState(null);
+  const [, setSnapshot] = useState(null);
   const [error, setError] = useState("");
   const [view, setView] = useState("flame");
   const [retrievalSession, setRetrievalSession] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [speed, setSpeed] = useState(1);
-  const [animationKey, setAnimationKey] = useState(0);
   const update = (key, value) => {
     setValues((v) => ({ ...v, [key]: value }));
     setSnapshot(null);
@@ -326,9 +323,10 @@ export default function Home() {
     setSnapshot(null);
     setError("");
   }
-  // An assessment item was clicked: open Parameters and focus the input behind it.
+  // Open the NASA comparison inputs and focus the requested field.
   function gotoNasaField(id) {
-    setParametersOpen(true);
+    const inputs = document.getElementById("nasa-inputs");
+    if (inputs) inputs.open = true;
     const target = SHARED_FIELDS[id] || `nasa-${id}`;
     setTimeout(() => {
       const el = document.getElementById(target);
@@ -342,7 +340,7 @@ export default function Home() {
     if (Number(values.oxygen) + Number(values.co2) > 100) {
       setError("Oxygen and CO₂ concentrations must total 100% or less.");
       document
-        .getElementById("parameters")
+        .getElementById("nasa-inputs")
         .scrollIntoView({ block: "nearest" });
       return;
     }

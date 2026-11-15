@@ -1908,3 +1908,89 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .rooms-tab-panel .insights-content { max-width: none; margin: 20px 0 0; }
 @media (max-width: 860px) { .hybrid-layout { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 720px) { .rooms-tab-panel .hybrid-active { padding: 84px 12px 32px; } .hybrid-results svg { min-height: 240px; } }
+
+/* The flame workspace uses the same model controls in its side panel. */
+.hybrid-with-panel .hybrid-layout { grid-template-columns: minmax(0, 1fr); }
+#model-parameters .hybrid-controls { border: 0; padding: 0; background: transparent; }
+#model-parameters .hybrid-controls button { padding: 10px 16px; border: 1px solid #ae5f37; border-radius: 8px; color: white; background: #68351f; cursor: pointer; }
+#model-parameters .hybrid-controls button:disabled { opacity: .5; cursor: wait; }
+.nasa-comparison-inputs { margin: 16px 0; padding: 16px; border: 1px solid #263140; border-radius: 14px; }
+.nasa-comparison-inputs summary { cursor: pointer; margin-bottom: 12px; }
+.nasa-comparison-inputs .fields-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.nasa-comparison-inputs .slider-field > div:first-child { flex-wrap: wrap; gap: 8px; }
+.nasa-comparison-inputs .editable-value { min-width: 0; max-width: 100%; }
+.nasa-comparison-inputs .editable-value input { width: 76px; }
+.comparison-actions { flex-wrap: wrap; min-width: 0; max-width: 100%; }
+.comparison-actions .example-select { min-width: 0; max-width: 100%; }
+
+/* Reserve layout space for Parameters instead of floating over the workspace. */
+#flame-panel .conversation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px 32px;
+  padding: 80px 16px 24px;
+  align-items: start;
+}
+#flame-panel .hybrid-with-panel { grid-column: 1; min-width: 0; }
+#flame-panel .comparison-section { grid-column: 1; min-width: 0; margin: 0; }
+#flame-panel .parameter-panel {
+  grid-column: 1;
+  display: none;
+  position: sticky;
+  inset: 80px auto auto;
+  width: 100%;
+  max-height: calc(100dvh - 96px);
+  margin: 0;
+  transform: none;
+  transition: none;
+}
+#flame-panel .parameter-panel.parameters-open { display: block; }
+@media (min-width: 721px) {
+  .app-shell { --pp-width: 280px; }
+  .controls-open #flame-panel .conversation { grid-template-columns: var(--pp-width) minmax(0, 1fr); }
+  .controls-open #flame-panel .hybrid-with-panel,
+  .controls-open #flame-panel .comparison-section { grid-column: 2; }
+  #flame-panel .parameter-panel { grid-column: 1; grid-row: 1 / span 2; }
+}
+@media (min-width: 1200px) { .app-shell { --pp-width: 320px; } }
+@media (max-width: 720px) {
+  #flame-panel .conversation { padding: 140px 12px 24px; }
+  #flame-panel .parameter-panel { position: static; max-height: none; grid-row: 1; }
+  #flame-panel .parameters-tab { display: none; }
+}
+
+/* Let the flame be the focal point of the main workspace. */
+#flame-panel .hybrid-results {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+#flame-panel .hybrid-flame {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: calc(100svh - 220px);
+  gap: 24px;
+  text-align: center;
+}
+#flame-panel .hybrid-flame > img,
+#flame-panel .demo-flame-image {
+  width: min(100%, 72svh, 760px);
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 0;
+  object-fit: contain;
+  mix-blend-mode: screen;
+}
+#flame-panel .hybrid-flame > div { max-width: 640px; }
+@media (max-width: 720px) {
+  #flame-panel .hybrid-flame { min-height: 0; padding: 24px 0; }
+}
+
+#flame-panel .hybrid-flame > .demo-variation-preview { display: grid; justify-items: center; gap: 16px; width: 100%; max-width: none; }
+.demo-frame-conditions { max-width: 640px; }
+.hybrid-active .demo-image-button { display: block; width: min(100%, 72svh, 760px); padding: 0; border: 0; border-radius: 0; background: transparent; line-height: 0; }
+.hybrid-active .demo-image-button:disabled { opacity: 1; cursor: default; }
+.hybrid-active .demo-image-button:focus-visible { outline: 2px solid #e7b18e; outline-offset: 6px; }
+.demo-image-button img { display: block; }
