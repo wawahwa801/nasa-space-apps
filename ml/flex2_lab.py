@@ -14,6 +14,7 @@ from flask import Blueprint,Flask,jsonify,render_template_string,request
 from flex2_data import ROOT,FIELDS
 from flex2_model import load,nearest
 from spice_model import encode
+from flame_display import centre_flame
 
 
 def png(array):
@@ -30,7 +31,8 @@ def build_blueprint():
         raise ValueError('FLEX-2 data changed; retrain before serving')
     if len(records)!=len(data['images']) or manifest['fuels']!=report['fuels']:raise ValueError('FLEX-2 manifest/checkpoint mismatch')
     train=np.where(data['splits']=='train')[0];fuels=manifest['fuels'];specs=[]
-    images=[png(im.astype('float32')/255) for im in data['images']]
+    aligned=[centre_flame(im) for im in data['images']]
+    images=[png(im.astype('float32')/255) for im,alignment in aligned]
     for f,name in enumerate(fuels):
         idx=np.where(data['fuels']==f)[0];training=train[data['fuels'][train]==f]
         fields=[]
@@ -39,7 +41,7 @@ def build_blueprint():
                 training_min=float(data['features'][training,j].min()),training_max=float(data['features'][training,j].max()),
                 default=float(data['features'][training[0],j])))
         specs.append(dict(name=name,fields=fields))
-    library=[dict(id=r['run'],fuel=r['fuel'],split=r['split'],features=dict(zip(FIELDS,r['features'])),image=images[i]) for i,r in enumerate(records)]
+    library=[dict(id=r['run'],fuel=r['fuel'],split=r['split'],features=dict(zip(FIELDS,r['features'])),image=images[i],display_alignment=aligned[i][1]) for i,r in enumerate(records)]
 
     @bp.get('/')
     def index():return render_template_string(template)
@@ -47,7 +49,8 @@ def build_blueprint():
     @bp.get('/api/info')
     def info():
         return jsonify(source='PSI-68',fuels=specs,fields=FIELDS,scale=saved['scale'].tolist(),library=library,
-            report=report,features_note=manifest['features_note'],stage=manifest['stage'],preprocessing=manifest['preprocessing'],source_url=manifest['source_url'])
+            report=report,features_note=manifest['features_note'],stage=manifest['stage'],preprocessing=manifest['preprocessing'],source_url=manifest['source_url'],
+            display_note='Preview centres the detected luminous region using integer translation only. Original training targets, scale, colour and benchmark values are unchanged.')
 
     @bp.get('/api/predict')
     def predict():
@@ -69,12 +72,13 @@ def build_blueprint():
         match=int(idx[0]);reference=library[match]
         if mode=='cnn':
             with torch.inference_mode():prediction,_=net(encode(torch.tensor([values],dtype=torch.float32),torch.tensor([f]),saved['low'],saved['scale'],len(fuels)))
-            shown=png(prediction[0].permute(1,2,0).numpy())
-        else:shown=reference['image']
+            display,alignment=centre_flame(np.uint8(prediction[0].permute(1,2,0).numpy().clip(0,1)*255))
+            shown=png(display.astype('float32')/255)
+        else:shown=reference['image'];alignment=reference['display_alignment']
         return jsonify(source='PSI-68',mode=mode,image=shown,features=dict(zip(FIELDS,values)),fuel=fuel,
             reference=reference,distance=float(distances[0]),
             outside_training_range=any(v<s['training_min']-1e-5 or v>s['training_max']+1e-5 for v,s in zip(values,specs[f]['fields'])),
-            qualified_for_promotion=False)
+            qualified_for_promotion=False,display_alignment=alignment)
 
     return bp
 

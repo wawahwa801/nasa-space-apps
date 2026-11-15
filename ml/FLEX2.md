@@ -45,6 +45,10 @@ Retrieval matches fuel exactly and ranks normalized pressure/temperature distanc
 
 The page starts in **Retrieval** to show recorded colour flames immediately; the **CNN** button selects generated estimates. The final CPU run took **29.8 seconds**, completed 70 epochs and selected epoch 20. On five test runs, CNN RGB MAE was **0.0759** versus **0.0383** for the same-fuel training mean and **0.0374** for training-only retrieval; foreground MAE was **0.2632 / 0.2016 / 0.2259**, respectively. The CNN is worse than those baselines on these errors. It produces blurred or distorted colours/shapes and severe artifacts outside training ranges. Slider sensitivity demonstrates that inputs reach the model; it does not demonstrate predictive accuracy. Missing physical labels and camera variation remain substantive blockers to that accuracy.
 
+Preview alignment uses an integer translation to put the detected luminous-region bounding-box centre in the middle of the display. Smoothed intensity and component filtering reduce camera noise/reflection influence. This is approximate display alignment, not calibrated segmentation; empty/weak detections retain their position. No scaling or recolouring is applied. Background at an image edge can be clipped as it moves off-canvas. Training targets, checkpoints and reported unaligned benchmark scores remain unchanged, so the display does not imply a new accuracy result.
+
+In the saved model's within-training-range sweeps at fixed median remaining inputs, higher decane pressure produces a brighter, larger diffuse prediction. Temperature produces smaller changes in colour/shape. Heptane pressure varies over only about 1.2 kPa in training and barely changes the prediction. These are empirical model responses, not isolated causal effects or a reliable monotonic law. Chamber temperature is not flame temperature; arbitrary red/blue colour rules have not been programmed into the interface.
+
 ## Verify
 
 ```bash

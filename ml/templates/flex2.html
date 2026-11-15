@@ -12,7 +12,8 @@
 <div class="modes" role="group" aria-label="Flame display mode"><button id="cnn" aria-pressed="false" disabled>CNN</button><button id="retrieval" aria-pressed="true" disabled>Retrieval</button></div>
 <div id="status" role="status" aria-live="polite">Loading…</div>
 <figure class="figure"><img id="flame" alt="FLEX-2 flame preview" hidden><figcaption id="caption"></figcaption></figure>
-<small id="modeNote">Recorded colour image. Retrieval changes when a different recorded condition becomes closest.</small>
+<small id="modeNote">Recorded colour image. Retrieval changes when a different recorded condition becomes closest.</small><small>Preview aligned to the detected luminous region; flame size is preserved.</small>
+<details><summary>What changes when I move the sliders?</summary><p>Retrieval selects a recorded run nearest your pressure and temperature. Differences in ring size, brightness and colour can also reflect droplet size, oxygen, burn stage and camera settings.</p><p>The CNN changes its predicted pixels continuously. In a sweep across the decane training range, increasing pressure made its diffuse prediction brighter and larger; temperature caused smaller colour and shape changes. These are model responses, not validated physical effects. The heptane pressure range is narrow and its response is much smaller.</p><p>Temperature here is the chamber temperature, not the flame temperature. There is no supported rule here that hotter means redder, bluer or bigger.</p></details>
 <details><summary>Results and source</summary><div id="comparison"></div><p id="limitation"></p><p id="processing"></p><a id="source" target="_blank" rel="noopener">NASA FLEX-2 / PSI-68</a></details>
 </section></main>
 <script>

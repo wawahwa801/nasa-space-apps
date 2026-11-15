@@ -10,6 +10,29 @@ from PIL import Image
 
 from flex2_data import ROOT, ART, OFFSETS, stamp, rows, FIELDS
 from flex2_model import nearest
+from flame_display import centre_flame
+
+
+class DisplayTests(unittest.TestCase):
+    def test_translation_centres_signal_without_resizing_or_recolouring(self):
+        import cv2
+        image=np.zeros((256,256,3),dtype='uint8')
+        cv2.circle(image,(70,85),35,(25,80,170),-1)
+        # Smaller peripheral reflection should not determine the centre.
+        cv2.circle(image,(210,235),7,(250,250,250),-1)
+        result,alignment=centre_flame(image)
+        self.assertTrue(alignment['found'])
+        x,y,w,h=alignment['source_bounds'];dx,dy=alignment['shift_pixels']
+        self.assertLessEqual(abs(x+(w-1)/2+dx-127.5),.5)
+        self.assertLessEqual(abs(y+(h-1)/2+dy-127.5),.5)
+        before=np.all(image==[25,80,170],axis=2);after=np.all(result==[25,80,170],axis=2)
+        self.assertEqual(before.sum(),after.sum())
+        # Translation can clip peripheral background, but cannot invent colours.
+        self.assertTrue(set(map(tuple,np.unique(result.reshape(-1,3),axis=0)))<=set(map(tuple,np.unique(image.reshape(-1,3),axis=0))))
+
+    def test_empty_signal_is_retained(self):
+        image=np.zeros((256,256,3),dtype='uint8');result,alignment=centre_flame(image)
+        self.assertFalse(alignment['found']);np.testing.assert_array_equal(result,image)
 
 
 class RetrievalTests(unittest.TestCase):
@@ -62,6 +85,7 @@ class ApiTests(unittest.TestCase):
             r=self.c.get('/flex2/api/predict',query_string=dict(fuel=sample['fuel'],mode=mode,**sample['features']))
             self.assertEqual(r.status_code,200);result=r.get_json();outputs.append(result['image'])
             self.assertEqual(result['source'],'PSI-68');self.assertEqual(result['mode'],mode)
+            self.assertIn('display_alignment',result)
             image=Image.open(BytesIO(base64.b64decode(result['image'].split(',')[1])))
             self.assertEqual(image.size,(256,256));self.assertEqual(image.mode,'RGB')
             if mode=='retrieval':self.assertEqual(result['reference']['id'],sample['id'])
