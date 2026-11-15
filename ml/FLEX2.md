@@ -105,6 +105,18 @@ The page starts in **Retrieval** to show recorded colour flames immediately; the
 
 The **Hybrid prototype** mode is a simple 50/50 pixel average between the CNN output and the nearest retrieved image. It is useful for a visual side-by-side comparison, but it is not a learned hybrid: it cannot decide which reference details to retain, correct for feature differences, or learn when the retrieval is misleading. A trained retrieval-conditioned CNN would receive the selected reference image and condition data (including feature differences) during training, with all references restricted to other training runs for validation/test. It could learn a feature-aware residual or attention over the reference. That is the better research direction if it beats retrieval, the training mean, and the existing CNN on leakage-free held-out runs; until that comparison exists, neither method is established as better. The demo blend is explicitly an untrained prototype and has no benchmark claim.
 
+## Monitored overnight retrieval-conditioned experiment
+
+With the published runtime snapshot and exact-run input audit present, run one command from the repository root:
+
+```bash
+python ml/flex2_overnight.py --hours 8 --seeds 3 --patience 25
+```
+
+The runner verifies target IDs and whole-run split agreement against `ml/reports/flex2-inputs.csv`, then excludes `E183L11` because its settings ID was rejected. Its feature vector uses pressure, temperature, exact-run fiber usage, commanded igniter wattage, and a missing-power indicator. Missing wattage is imputed from training rows only. Oxygen, event timing, on-time, camera settings, diameter and flow are not silently fabricated or assumed joined. Output goes to ignored `ml/artifacts/flex2-study/overnight/`: run manifest, per-epoch JSONL metrics, best checkpoint per seed, and held-out test metrics. The runner stops starting epochs at the deadline and finishes its current epoch (about 5–8 seconds per epoch on the tested CPU), early-stops on validation score, checks finite losses/gradients/metrics and GPU memory, and prints progress continuously. Test metrics compare the trained hybrid with training-only extended-feature retrieval, same-fuel training mean, and the published feature-only CNN. It does not alter the published checkpoint.
+
+The task uses one fixed whole-run split and only three seeds by default; results remain exploratory. A small dataset cannot establish robust physical accuracy. Keep the overnight machine powered and the checkout/environment available. Additional surveyed features require exact target joins and their own ablations before being added.
+
 Preview alignment uses an integer translation to put the detected luminous-region bounding-box centre in the middle of the display. Smoothed intensity and component filtering reduce camera noise/reflection influence. This is approximate display alignment, not calibrated segmentation; empty/weak detections retain their position. No scaling or recolouring is applied. Background at an image edge can be clipped as it moves off-canvas. Training targets, checkpoints and reported unaligned benchmark scores remain unchanged, so the display does not imply a new accuracy result.
 
 In the saved model's within-training-range sweeps at fixed median remaining inputs, higher decane pressure produces a brighter, larger diffuse prediction. Temperature produces smaller changes in colour/shape. Heptane pressure varies over only about 1.2 kPa in training and barely changes the prediction. These are empirical model responses, not isolated causal effects or a reliable monotonic law. Chamber temperature is not flame temperature; arbitrary red/blue colour rules have not been programmed into the interface.
