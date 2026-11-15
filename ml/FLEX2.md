@@ -1,5 +1,7 @@
 # FLEX-2 live flame lab
 
+The exact-run missing-input investigation is documented in [FLEX2_INPUTS.md](FLEX2_INPUTS.md), with a 100-row provenance table, partial published gas-condition matches, backlit-camera pilot and unresolved source conflicts. These audit labels have not been added to the inference schema.
+
 ## 100-run retrieval expansion
 
 Issue [#17](https://github.com/wawahwa801/nasa-space-apps/issues/17) expands the bounded testing library to **100 independent test points**, each represented by four timestamp-selected RGB frames. This is source verification and basic image screening, not certification of 100 steady physical states. Independent runs can share measured conditions; exact pressure/temperature-pair coverage is reported separately. The 24-target results below describe the earlier prototype and do not measure the expanded library.

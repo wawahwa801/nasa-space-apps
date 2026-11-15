@@ -1,0 +1,44 @@
+{
+  "downloads": [
+    {
+      "path": "references/microgravity-fire-safety.pdf",
+      "url": "https://www.nist.gov/system/files/documents/el/fire_research/R0200471.pdf",
+      "retrieved_utc": "2026-11-14T21:42:22.884605+00:00",
+      "bytes": 229624,
+      "sha256": "ea7cceabe1ab821056177be36b30debc30d34d42b56355c3acc3db1c7f9a17c9",
+      "role": "Spacecraft fire-safety research; qualitative assumptions",
+      "reuse_terms": "Publicly accessible; redistribution permission not independently verified. Preserve attribution and review source terms before reuse."
+    },
+    {
+      "path": "references/candle-model.pdf",
+      "url": "https://ntrs.nasa.gov/api/citations/20010074076/downloads/20010074076.pdf",
+      "retrieved_utc": "2026-11-14T21:42:22.885487+00:00",
+      "bytes": 254074,
+      "sha256": "686c71b5759e2907ac2730073aa3253c876066471b6b06f9a9272133f2c9b376",
+      "role": "NASA 20010074076; candle geometry, not cabin-spread calibration",
+      "reuse_terms": "Publicly accessible; redistribution permission not independently verified. Preserve attribution and review source terms before reuse."
+    },
+    {
+      "path": "references/saffire-results.pdf",
+      "url": "https://ntrs.nasa.gov/api/citations/20180004258/downloads/20180004258.pdf",
+      "retrieved_utc": "2026-11-14T21:42:22.886099+00:00",
+      "bytes": 2430800,
+      "sha256": "71d4112904dab8a2e9c7ba1b33311da80960c322a7292ba561ff98c911c57fd6",
+      "role": "NASA 20180004258; SAFFIRE published results",
+      "reuse_terms": "Publicly accessible; redistribution permission not independently verified. Preserve attribution and review source terms before reuse."
+    },
+    {
+      "path": "data/saffire-sensors.xlsx",
+      "url": "https://raw.githubusercontent.com/wawahwa801/nasa-space-apps/ca7f2394ea86ba0b42356b1eccfcf8f9e111d200/data/Saffire-I%20Sample%202%20Sensor%20Data%20Complete%20TM%20graphs.xlsx",
+      "retrieved_utc": "2026-11-14T21:42:22.890815+00:00",
+      "bytes": 23043207,
+      "sha256": "83ec7af7b36592198d0b3d2a54959c4829cc343f0eb7f39ff67af44360a57a4b",
+      "role": "PSI-98 team mirror; upstream origin/reuse terms unverified; audit only",
+      "reuse_terms": "Publicly accessible; redistribution permission not independently verified. Preserve attribution and review source terms before reuse."
+    }
+  ],
+  "access_gaps": [
+    "PSI-98 portal returned no readable raw listing; no raw BASS-II trial downloaded.",
+    "No matched calibration set, material-property validation, or independent experimental error estimate is available."
+  ]
+}
