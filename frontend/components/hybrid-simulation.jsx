@@ -5,6 +5,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { DemoVariationPreview } from "./demo-variation-preview";
 import { LlmInsights } from "./llm-insights";
 
 const MODULES = ["Forward dock", "Cargo", "Habitat node", "Station core", "Science node", "Laboratory", "Observatory", "Cupola",
@@ -274,6 +275,11 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
           {preview && (
             <>
               <div className="hybrid-flame">
+                {controlsContainerId ? (
+                  <DemoVariationPreview key={JSON.stringify([controls, scale, k, source, busy])}
+                    preview={preview} controls={controls} info={info} disabled={busy || previewStatus !== "Live hybrid preview"}
+                    onPointerDown={(e) => { e.preventDefault(); dragging.current = true; }} />
+                ) : (
                 <img
                   draggable={false}
                   style={{ touchAction: "none" }}
@@ -284,12 +290,13 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                   width="256"
                   height="256"
                 />
+                )}
                 <div>
                   <p className="hybrid-muted" aria-live="polite">{previewStatus}</p>
-                  <p>{preview.conditions} · {preview.model_note}</p>
-                  {result && <p>Mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm</p>}
+                  <p>{!controlsContainerId && `${preview.conditions} · `}{preview.model_note}</p>
+                  {result && <p>Selected prediction mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm</p>}
                   {result && <p className="hybrid-muted">Drag the flame onto a room, or select a room, to restart the fire there.</p>}
-                  <button type="button" aria-expanded={comparison} onClick={() => setComparison((v) => !v)}>Compare source images</button>
+                  <button type="button" aria-expanded={comparison} onClick={() => setComparison((v) => !v)}>{controlsContainerId ? "Compare selected prediction sources" : "Compare source images"}</button>
                 </div>
               </div>
               {comparison && (
