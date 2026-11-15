@@ -1855,7 +1855,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .parameters-tab:hover { background: #172130; color: #f2c4a5; }
 .parameters-tab:focus-visible { outline: 2px solid #e7b18e; outline-offset: 2px; }
 .parameters-tab-arrow { font-size: 12px; line-height: 1; }
-.parameter-panel.parameters-open { animation: parameters-slide-in 0.18s ease-out; }
-@keyframes parameters-slide-in { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .parameter-panel.parameters-open { animation: none; } }
+/* Slide in and out the same way: the panel stays rendered while closed
+   (hidden with visibility, so it leaves the tab order) and slides off to the left. */
+.parameter-panel,
+.parameter-panel.parameters-open { display: block; }
+.parameter-panel {
+  transform: translateX(calc(-100% - var(--pp-left) - 4px));
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.24s ease, opacity 0.24s ease, visibility 0s linear 0.24s;
+}
+.parameter-panel.parameters-open {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.24s ease, opacity 0.24s ease, visibility 0s;
+}
+.parameters-tab { transition: left 0.24s ease, background-color 0.15s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .parameter-panel, .parameter-panel.parameters-open, .parameters-tab { transition: none; }
+}
 .comparison-actions .example-select { width: auto; cursor: pointer; }
