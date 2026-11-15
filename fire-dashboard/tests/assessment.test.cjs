@@ -45,7 +45,8 @@ test('#40: missing CO/CO2 readings with nominal monitoring are incomplete, not O
 
 test('#40: known hazards still show when readings are missing', () => {
   assert.equal(smokeStatus({ monitoring: 'Offline' }).overall, 'serious');
-  assert.equal(smokeStatus({ material_type: 'Teflon' }).overall, 'serious');
+  // A material is only a hazard when it may be burning (no readings here).
+  assert.equal(smokeStatus({ material_type: 'Teflon', co_ppm: 1, co2_ppm: 400 }).overall, 'good');
   assert.equal(smokeStatus({ co_ppm: 250 }).overall, 'serious');
 });
 
@@ -66,10 +67,8 @@ test('vacuum: the pressure value is ignored, with a near-zero pressure note', ()
 test('materials list: each listed material is assessed; old single material_type still works', () => {
   const titles = assess({ material_types: ['PMMA (acrylic)', 'Teflon', 'Kapton', 'Lampwick'], o2_pct: 18 }).flags.map((f) => f.title);
   assert.ok(titles.some((t) => /BASS-II tested for PMMA/.test(t)));
-  assert.ok(titles.includes('Toxic smoke if Teflon overheats or burns'));
-  assert.ok(titles.includes('Toxic smoke if Kapton overheats or burns'));
-  assert.ok(titles.includes('Smoke from PMMA (acrylic), Lampwick'));
-  assert.equal(smokeStatus({ material_types: ['PMMA (acrylic)', 'Teflon'] }).overall, 'serious');
+  // No smoke warnings for materials that are merely present.
+  assert.ok(!titles.some((t) => /smoke/i.test(t)));
   assert.ok(bassFlag({ material_type: 'PMMA (acrylic)', o2_pct: 18 })); // legacy saves
 });
 

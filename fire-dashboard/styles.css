@@ -492,3 +492,51 @@ input[aria-invalid="true"] { border-color: var(--critical); }
 .insight-cols ol, .insight-cols ul { margin: 4px 0 0; padding-left: 1.2em; line-height: 1.5; }
 .insight-meta { margin: 12px 0 0; font-size: 0.78rem; color: var(--text-muted); }
 @container fd-results (max-width: 560px) { .insight-cols { grid-template-columns: 1fr; } }
+
+/* ---- View: hide and collapse sections, dropdown menus, groups ---- */
+[hidden] { display: none !important; }
+
+.view-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.view-bar .link-btn { margin: 0; padding: 6px 4px; font-size: 0.85rem; }
+.group-title { margin: 8px 0 -4px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+
+/* Dropdown built on <details>. */
+.menu { position: relative; }
+.menu > summary { list-style: none; }
+.menu > summary::-webkit-details-marker { display: none; }
+.menu-btn { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.88rem; color: var(--text-primary); background: transparent; user-select: none; }
+.menu-btn::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.menu[open] > .menu-btn::after { transform: translateY(1px) rotate(-135deg); }
+.menu-body { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 220px; display: grid; gap: 6px; padding: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); }
+.menu-body > button, .menu-body > .file-btn { width: 100%; justify-content: flex-start; text-align: left; }
+.view-menu .menu-body { min-width: 260px; }
+.view-group { margin: 0; padding: 0; border: 0; display: grid; gap: 0; }
+.view-group legend { padding: 0; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+.view-group + .view-group { margin-top: 6px; }
+.view-actions { display: flex; gap: 6px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--border); }
+.view-actions button { flex: 1; padding: 5px 8px; font-size: 0.82rem; }
+
+/* Collapsible cards: the title is the toggle. */
+.card-toggle { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: inherit; color: inherit; border-radius: 6px; }
+.card-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-toggle:hover .chev { border-color: var(--text-primary); }
+.chev { flex: none; width: 7px; height: 7px; border-right: 2px solid var(--text-muted); border-bottom: 2px solid var(--text-muted); transform: rotate(45deg); margin: 0 3px 3px 1px; transition: transform 0.15s; }
+.card-toggle[aria-expanded="false"] .chev { transform: rotate(-45deg); margin: 0 3px 0 0; }
+.card.collapsed { padding-top: 12px; padding-bottom: 12px; }
+.card.collapsed > :not(.card-head):not(h2) { display: none; }
+.card.collapsed h2 { margin: 0; }
+.card.collapsed .card-head { align-items: center; }
+.card.collapsed .card-head > :not(div:first-child):not(.card-status) { display: none; }
+.card.collapsed .card-head .card-sub { display: none; }
+.grid-2.single { grid-template-columns: minmax(0, 1fr); }
+@media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
+
+/* Notes behind an "About" toggle. */
+.about { margin-top: 10px; font-size: 0.82rem; }
+.about > summary { cursor: pointer; color: var(--text-secondary); width: fit-content; }
+.about .source-note { margin-top: 6px; }
+
+.smoke-ref { display: block; }
+.smoke-ref > details > summary { cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); padding: 4px 0; }
+.smoke-ref .smoke-list { margin-top: 6px; }
+.tile-top { display: block; margin-top: 4px; font-size: 0.82rem; color: var(--text-primary); line-height: 1.3; }

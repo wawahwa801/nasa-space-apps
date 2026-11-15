@@ -387,23 +387,16 @@
       }
     }
 
-    // Smoke: what the listed materials can release when they overheat or burn
-    // (general chemistry from their composition; see SMOKE_PRODUCTS in parameters.js).
-    // Toxic-smoke materials get their own item; the rest are grouped.
-    const general = "General combustion chemistry, not measured in the loaded data; see Smoke and soot hazards.";
-    const plain = [];
-    for (const material of mats) {
+    // Smoke: only when live monitoring suggests something may be burning, for
+    // the listed materials that fit best (see SMOKE_PRODUCTS in parameters.js).
+    for (const material of suspectedMaterials(v)) {
       const smoke = SMOKE.materials[material];
       if (!smoke) continue;
-      if (smoke.level === "info") { plain.push(material); continue; }
       const mat = esc(material);
       const names = smoke.products.map(([name]) => name).join(", ");
-      add(smoke.level, `Toxic smoke if ${mat} overheats or burns`,
-        `${mat} (${esc(smoke.makeup)}) can release ${esc(names)}. Overheating alone can produce this smoke, before any flame. ` + general, "material_types");
-    }
-    if (plain.length) {
-      add("info", `Smoke from ${esc(plain.join(", "))}`,
-        `${plain.length > 1 ? "These materials" : esc(plain[0])} can release carbon monoxide, CO₂ and smoke particles when overheated or burning. ` + general, "material_types");
+      add(smoke.level === "serious" ? "serious" : "warning", `Smoke hazard: ${mat} may be burning`,
+        `Readings suggest a fire, and ${mat} (${esc(smoke.makeup)}) is one of the listed materials that fits best. Its smoke can contain ${esc(names)}. ` +
+        "General combustion chemistry, not measured in the loaded data; see Smoke and soot hazards.", "material_types");
     }
 
     // Live monitoring: changes between timed readings (see renderMonitoring).
@@ -437,7 +430,7 @@
       <div class="tile hero">
         <div class="tile-label">Issues found</div>
         <div class="hero-value">${top ? issues.length : "–"}</div>
-        <div class="tile-sub">${top ? badge(top) + (issues.length ? " highest severity" : " nothing flagged") : "Enter conditions to assess"}</div>
+        <div class="tile-sub">${top ? badge(top) + (issues.length ? ` <span class="tile-top">${esc(issues[0].title.replace(/<[^>]+>/g, ""))}</span>` : " nothing flagged") : "Enter conditions to assess"}</div>
       </div>
       ${tile("Oxygen", has(v.o2_pct) ? fmt(v.o2_pct) : "–", "%", has(v.o2_pct) ? `Enrichment threshold ${T.o2_enriched_pct}%` : "")}
       ${tile("O₂ partial pressure", pp != null ? fmt(pu.fromBase(pp)) : "–", pu.unit, `Sea-level air ${fmt(pu.fromBase(T.sea_level_ppo2_kpa))} ${pu.unit}`)}
@@ -655,6 +648,13 @@
     }
   }
 
+  // Listed materials that fit a detected fire pattern ("More likely" or "Possible").
+  function suspectedMaterials(v) {
+    const live = MON.detect(readings, monThresholds());
+    const sus = MON.suspectMaterials(live, readings, materialsOf(migrate(v)), SMOKE.materials, CO_RATIOS);
+    return sus ? sus.items.filter((i) => i.likelihood !== "Less likely").map((i) => i.material) : [];
+  }
+
   function renderSuspects(result, v) {
     const box = $("#mon-suspects");
     if (!box) return;
@@ -684,7 +684,7 @@
       ? `${badge(result.level)} <span class="mon-headline">${esc(result.headline)}</span>`
       : '<span class="muted">No readings yet</span>';
     $("#mon-interval-text").textContent = monInterval;
-    $("#mon-record-next").textContent = `Record as next reading (+${monInterval} min)`;
+    $("#mon-record-next").textContent = `Record next (+${monInterval} min)`;
     $("#mon-count").textContent = readings.length;
 
     const events = result.events;
@@ -915,8 +915,9 @@
     const co = gasLevel(v.co_ppm, T.co_ppm);
     const co2 = gasLevel(v.co2_ppm, T.co2_ppm);
     const detection = v.monitoring === "Offline" ? "serious" : ["Degraded", "Unknown"].includes(v.monitoring) ? "warning" : v.monitoring ? "good" : null;
+    const suspected = suspectedMaterials(v).filter((m) => SMOKE.materials[m]);
     const materials = materialsOf(migrate(v)).filter((m) => SMOKE.materials[m]);
-    const material = materials.map((m) => SMOKE.materials[m]).sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank)[0] || null;
+    const material = suspected.map((m) => SMOKE.materials[m]).sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank)[0] || null;
     const missing = [["CO", co], ["CO₂", co2]].filter(([, lv]) => !lv).map(([name]) => name);
     const known = [co, co2, material && material.level, detection === "good" ? null : detection].filter(Boolean);
     const worst = known.sort((a, b) => LEVELS[b].rank - LEVELS[a].rank)[0] || null;
@@ -924,11 +925,11 @@
     if (worst && LEVELS[worst].rank >= LEVELS.warning.rank) overall = worst;
     else if (missing.length) overall = "unknown";
     else overall = worst || "good";
-    return { overall, co, co2, detection, material, materials, missing };
+    return { overall, co, co2, detection, material, materials, suspected, missing };
   }
 
   function renderSmoke(v) {
-    const { overall, co, co2, detection, materials, missing } = smokeStatus(v);
+    const { overall, co, co2, detection, materials, suspected, missing } = smokeStatus(v);
     const mats = new Set(materialsOf(v));
     $("#smoke-level").innerHTML = `${badge(overall)} <span class="muted">smoke hazard${missing.length ? ` · ${missing.join(" and ")} reading${missing.length > 1 ? "s" : ""} needed` : ""}</span>`;
 
@@ -942,10 +943,13 @@
 
     const productList = (title, entry) => `<li class="smoke-group">${title} <span class="muted">(${esc(entry.makeup)})</span></li>` +
       entry.products.map(([name, why]) => `<li><span>${esc(name)}</span><small>${esc(why)}</small></li>`).join("");
-    const groups = [];
-    for (const m of materials) groups.push(productList(`If <strong>${esc(m)}</strong> overheats or burns`, SMOKE.materials[m]));
-    if (v.fuel_type) groups.push(productList(`If <strong>${esc(v.fuel_type)}</strong> burns`, SMOKE.fuel));
-    $("#smoke-products").innerHTML = groups.length ? groups.join("") : '<li class="muted">Select a material or fuel in the Parameters panel to see what its smoke can contain.</li>';
+    const now = suspected.map((m) => productList(`<strong>${esc(m)}</strong> may be burning`, SMOKE.materials[m]));
+    const reference = materials.filter((m) => !suspected.includes(m)).map((m) => productList(`If <strong>${esc(m)}</strong> overheats or burns`, SMOKE.materials[m]));
+    if (v.fuel_type) reference.push(productList(`If <strong>${esc(v.fuel_type)}</strong> burns`, SMOKE.fuel));
+    $("#smoke-products-title").textContent = now.length ? "Smoke from what may be burning" : "What the smoke can contain";
+    $("#smoke-products").innerHTML =
+      (now.length ? now.join("") : '<li class="muted">Nothing is suspected to be burning. Live monitoring checks the listed materials when readings show a fire pattern.</li>') +
+      (reference.length ? `<li class="smoke-ref"><details><summary>Reference: what the other listed materials and fuel could release (${reference.length})</summary><ul class="smoke-list">${reference.join("")}</ul></details></li>` : "");
 
     // Measured: chamber CO rise during BASS-II burns, by material.
     const byCat = new Map();
@@ -1109,6 +1113,112 @@
     reader.readAsText(file);
   }
 
+  // ------------------------------------------------------------ view
+
+  // Which dashboard sections are hidden or collapsed (cards with data-panel).
+  // Reference sections start collapsed to keep the first view short.
+  const VIEW_DEFAULT = { hidden: [], collapsed: ["saffire", "related", "datasets"] };
+  const GROUP_NAMES = { now: "Current conditions", nasa: "Compared with NASA experiments" };
+  const cleanView = (x) => ({
+    hidden: Array.isArray(x && x.hidden) ? x.hidden.filter((id) => typeof id === "string") : [],
+    collapsed: Array.isArray(x && x.collapsed) ? x.collapsed.filter((id) => typeof id === "string") : [],
+  });
+  let view = cleanView(load("fd.view", VIEW_DEFAULT));
+
+  const panels = () => [...ROOT.querySelectorAll("[data-panel]")];
+  const panelTitle = (el) => el.dataset.title || el.dataset.panel;
+
+  // Turn each card title into a collapse button, and list the sections in the menu.
+  function setupView() {
+    for (const card of panels()) {
+      const h2 = card.querySelector("h2");
+      if (!h2 || h2.querySelector(".card-toggle")) continue;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "card-toggle";
+      btn.dataset.toggle = card.dataset.panel;
+      btn.innerHTML = '<span class="chev" aria-hidden="true"></span>';
+      while (h2.firstChild) btn.appendChild(h2.firstChild);
+      h2.appendChild(btn);
+    }
+    const groups = {};
+    for (const el of panels()) (groups[el.dataset.group] = groups[el.dataset.group] || []).push(el);
+    $("#view-menu-body").innerHTML = Object.entries(groups).map(([g, els]) => `<fieldset class="view-group">
+        <legend>${esc(GROUP_NAMES[g] || g)}</legend>
+        ${els.map((el) => `<label class="check"><input type="checkbox" data-show="${esc(el.dataset.panel)}"><span>${esc(panelTitle(el))}</span></label>`).join("")}
+      </fieldset>`).join("") +
+      '<div class="view-actions"><button type="button" class="secondary" data-view="show-all">Show all</button><button type="button" class="secondary" data-view="reset">Reset view</button></div>';
+  }
+
+  function applyView() {
+    for (const el of panels()) {
+      const id = el.dataset.panel;
+      el.hidden = view.hidden.includes(id);
+      const collapsed = view.collapsed.includes(id);
+      el.classList.toggle("collapsed", collapsed);
+      const btn = el.querySelector(".card-toggle");
+      if (btn) {
+        btn.setAttribute("aria-expanded", String(!collapsed));
+        btn.title = collapsed ? "Expand section" : "Collapse section";
+      }
+      const box = ROOT.querySelector(`[data-show="${CSS.escape(id)}"]`);
+      if (box) box.checked = !el.hidden;
+    }
+    for (const title of ROOT.querySelectorAll("[data-group-title]")) {
+      const g = title.dataset.groupTitle;
+      title.hidden = panels().filter((el) => el.dataset.group === g).every((el) => el.hidden);
+    }
+    // A two-column row with one card hidden uses the full width.
+    for (const grid of ROOT.querySelectorAll(".grid-2")) {
+      grid.classList.toggle("single", [...grid.children].filter((c) => !c.hidden).length < 2);
+    }
+    const n = panels().filter((el) => el.hidden).length;
+    $("#view-hidden-count").textContent = n ? `(${n} hidden)` : "";
+  }
+
+  function setView(next, redraw) {
+    view = cleanView(next);
+    save("fd.view", view);
+    applyView();
+    // Charts drawn while a section was hidden need its real width.
+    if (redraw) update();
+  }
+
+  function onViewClick(e) {
+    const toggle = e.target.closest(".card-toggle");
+    if (toggle) {
+      const id = toggle.dataset.toggle;
+      const open = view.collapsed.includes(id);
+      setView({ ...view, collapsed: open ? view.collapsed.filter((x) => x !== id) : [...view.collapsed, id] }, open);
+      return;
+    }
+    const action = e.target.closest("[data-view]")?.dataset.view;
+    if (action === "expand") setView({ ...view, collapsed: [] }, true);
+    else if (action === "collapse") setView({ ...view, collapsed: panels().map((el) => el.dataset.panel) }, false);
+    else if (action === "show-all") setView({ ...view, hidden: [] }, true);
+    else if (action === "reset") setView(VIEW_DEFAULT, true);
+  }
+
+  function onViewChange(e) {
+    const id = e.target.dataset.show;
+    if (id === undefined) return;
+    const hidden = e.target.checked ? view.hidden.filter((x) => x !== id) : [...new Set([...view.hidden, id])];
+    // Showing a section also expands it, so it is visible straight away.
+    const collapsed = e.target.checked ? view.collapsed.filter((x) => x !== id) : view.collapsed;
+    setView({ hidden, collapsed }, e.target.checked);
+  }
+
+  // Close open dropdown menus on an outside click or Escape.
+  function closeMenus(e) {
+    if (e.type === "keydown" && e.key !== "Escape") return;
+    for (const m of ROOT.querySelectorAll("details.menu[open]")) {
+      if (e.type === "keydown" || !m.contains(e.target)) {
+        m.open = false;
+        if (e.type === "keydown") m.querySelector("summary").focus();
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- wiring
 
   let timer;
@@ -1138,6 +1248,8 @@
 
   function init() {
     renderForm();
+    setupView();
+    applyView();
     writeValues(load(STORE.values, {}));
     renderDatasets();
     update();
@@ -1287,6 +1399,10 @@
       reader.readAsText(file);
     });
     $("#insight-run").addEventListener("click", requestInsight);
+    $("#results").addEventListener("click", onViewClick);
+    $("#view-menu-body").addEventListener("change", onViewChange);
+    ROOT.addEventListener("click", closeMenus);
+    ROOT.addEventListener("keydown", closeMenus);
     $("#mon-suspects").addEventListener("click", (e) => {
       const id = e.target.closest("[data-goto]")?.dataset.goto;
       if (id) (OPTS.onGotoField || gotoField)(id);
@@ -1304,6 +1420,8 @@
 
     return () => {
       window.removeEventListener("resize", onResize);
+      ROOT.removeEventListener("click", closeMenus);
+      ROOT.removeEventListener("keydown", closeMenus);
       if (observer) observer.disconnect();
       clearTimeout(resizeTimer);
       clearTimeout(timer);
