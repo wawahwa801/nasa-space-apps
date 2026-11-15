@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
+import { HybridSimulation } from "../components/hybrid-simulation";
 import { FeatureRetrieval } from "../components/feature-retrieval";
 import {
   NASA_DEFAULTS,
@@ -394,6 +395,7 @@ export default function Home() {
                     </div>
                     <span className="preview-badge">Preview</span>
                   </div>
+                  <HybridSimulation />
                   <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
                     <svg className="ember-particles" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                       <defs><radialGradient id="particle-glow"><stop stopColor="#f35b25" stopOpacity=".28" /><stop offset="1" stopColor="#f35b25" stopOpacity="0" /></radialGradient></defs>
@@ -503,6 +505,7 @@ export default function Home() {
               </div>
               <button type="button" className="parameters-close" onClick={() => setParametersOpen(false)} aria-label="Close parameters">×</button>
             </div>
+            <div id="hybrid-controls" />
             <form id="scenario-form" onSubmit={preview}>
               <div className="field-section">
                 <span className="field-section-title">

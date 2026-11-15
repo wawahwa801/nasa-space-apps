@@ -121,3 +121,28 @@ python -m pytest
 ## Flame-model experiments
 
 The dashboard's Feature retrieval tab displays real recorded FLEX-2 images. The separate [FLEX-2 lab](ml/FLEX2.md) at `http://127.0.0.1:5051/flex2/` also provides an experimental CNN comparison; its CNN currently performs worse than mean/retrieval baselines. See [ml/README.md](ml/README.md) for the older BASS-II PMMA and FLEX methanol experiments at port 5050, and [ml/SPICE.md](ml/SPICE.md) for the separate SPICE prototype. These are bounded image experiments, not validated physical fire forecasts. The previous four-source prototype is preserved in `ml/LEGACY.md`.
+
+## Hybrid image → illustrative room simulation
+
+On the dashboard integration branch, install `ml/requirements.txt` in a Python
+environment and run `python ml/dashboard_simulation.py` from the repository root.
+Start the Next.js frontend normally (`cd frontend && npm ci && npm run dev`).
+Next.js proxies `/hybrid/*` to the local model service on port 5055.
+Open the Parameters panel, choose a recorded state and edit the hybrid controls,
+then press **Simulate**. The service uses the published geometry model with its
+retrieved-texture compositor and sends the mask's equivalent-area diameter to
+the room solver with the explicitly assumed mm/pixel scale and burn coefficient.
+The result includes the actual applied controls, model note and size conversion.
+The central view shows the predicted image and starts room playback; changing
+hybrid inputs invalidates the previous result. Play/pause and time scrubbing are
+available below the room graph. Original atmosphere controls serve the NASA
+comparison and are not inputs to this illustrative room solver.
+
+This uses a flame-size proxy, not a measured liquid-droplet diameter. Room
+transfer, scale and burn coefficient are illustrative assumptions. The solver
+does not calculate ventilation or oxygen effects. The model fitted all runs and
+has no held-out accuracy claim. This integration needs independent review before
+merging into main.
+
+Check the actual model-to-physics boundary with:
+`python -m unittest discover -s ml -p test_dashboard_simulation.py`.
