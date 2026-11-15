@@ -85,6 +85,17 @@
         </article>
       </div>
 
+      <article class="card" data-panel="notes" data-title="Notes and uncertainty" data-group="now" id="notes-card">
+        <div class="card-head">
+          <div>
+            <h2>Notes and uncertainty</h2>
+            <p class="card-sub">Context for the assessment, and what the dashboard does not know. Missing data is not evidence of safety.</p>
+          </div>
+          <div id="notes-count" class="card-status"></div>
+        </div>
+        <ul id="notes" class="flags"></ul>
+      </article>
+
       <article class="card" data-panel="insight" data-title="Safety insight (AI)" data-group="now" id="insight-card">
         <div class="card-head">
           <div>
@@ -114,7 +125,7 @@
             <h3>Your readings</h3>
             <ul id="smoke-readings" class="smoke-list"></ul>
           </section>
-          <section>
+          <section id="smoke-products-section" hidden>
             <h3 id="smoke-products-title">What the smoke can contain</h3>
             <ul id="smoke-products" class="smoke-list"></ul>
             <p class="source-note">General combustion chemistry from what each material is made of, not measured in the loaded data. Amounts depend on temperature, oxygen and airflow.</p>

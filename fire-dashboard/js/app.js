@@ -24,6 +24,8 @@
     good: { label: "OK", icon: "✓", rank: 0 },
     // Not a severity: readings needed to judge are missing.
     unknown: { label: "Incomplete", icon: "?", rank: 0.5 },
+    // Information the dashboard does not have; not a severity either.
+    uncertain: { label: "Uncertain", icon: "?", rank: 0.5 },
   };
 
   // All lookups go through ROOT so the dashboard also works inside a shadow root.
@@ -280,6 +282,41 @@
     return { tests: ranked, ignited: ranked.filter((t) => t.ignited).length, fuelMatched: pool === fuelMatched, outOfRange };
   }
 
+  // What the dashboard does not know for these inputs. Each item says what is
+  // missing and what can't be concluded because of it.
+  function uncertainties(v, result) {
+    const out = [];
+    const add = (title, detail, field) => out.push({ level: "uncertain", title, detail, field });
+    const short = { o2_pct: "O₂", n2_pct: "N₂", pressure_kpa: "pressure", internal_temp_c: "temperature", humidity_pct: "humidity",
+      co_ppm: "CO", co2_ppm: "CO₂", h2_ppm: "H₂", ch4_ppm: "CH₄" };
+    const missing = Object.keys(short).filter((k) => !has(v[k]) && !(k === "pressure_kpa" && isVacuum(v)));
+    if (missing.length) {
+      add(`Not measured: ${missing.map((k) => short[k]).join(", ")}`,
+        "Without these readings the dashboard can't tell whether they are safe; a missing value is not treated as normal.", missing[0]);
+    }
+    const context = [["environment", "environment"], ["gravity", "gravity"], ["monitoring", "monitoring status"], ["fuel_type", "fuel"], ["material_types", "materials present"]]
+      .filter(([k]) => !has(v[k]));
+    if (context.length) {
+      add(`Not specified: ${context.map(([, n]) => n).join(", ")}`, "Checks that depend on these are skipped, so related hazards may be missed.", context[0][0]);
+    }
+    if (readings.length < 2) {
+      add("No trend over time yet",
+        "Fire and smoke detection compares readings over time. With fewer than two readings, a fire starting or smoke building up can't be detected; a single snapshot can look normal.", null);
+    }
+    const noBurnData = materialsOf(v).filter((m) => !REF.bass.tests.some((t) => t.category === m));
+    if (noBurnData.length) {
+      add(`No NASA burn data for ${esc(noBurnData.join(", "))}`,
+        "BASS-II didn't burn these materials, so how they behave here and whether they could be the source of a fire rely on general fire knowledge only.", "material_types");
+    }
+    if (result.near && result.near.outOfRange) {
+      add("Outside the conditions ACME tested", "The ACME comparison is an extrapolation at your O₂ and pressure.", "o2_pct");
+    }
+    add("Smoke particles and toxic gases are not measured",
+      "Soot, HCN and HF aren't in the inputs or the loaded data, so a smoke hazard can't be ruled out from CO and CO₂ alone.", null);
+    add("Limits are reference values", "Exposure limits (NIOSH, OSHA) and the monitoring rise thresholds are placeholders, not certified spacecraft limits.", null);
+    return out;
+  }
+
   function leakLevel(status) {
     return status === "Confirmed" ? "critical" : status === "Suspected" ? "serious" : status === "Unknown" ? "warning" : null;
   }
@@ -410,7 +447,9 @@
     }
 
     flags.sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank);
-    return { flags, near };
+    const result = { flags, near };
+    result.uncertain = uncertainties(v, result);
+    return result;
   }
 
   // ------------------------------------------------------------ rendering
@@ -430,7 +469,7 @@
       <div class="tile hero">
         <div class="tile-label">Issues found</div>
         <div class="hero-value">${top ? issues.length : "–"}</div>
-        <div class="tile-sub">${top ? badge(top) + (issues.length ? ` <span class="tile-top">${esc(issues[0].title.replace(/<[^>]+>/g, ""))}</span>` : " nothing flagged") : "Enter conditions to assess"}</div>
+        <div class="tile-sub">${top ? badge(top) + (issues.length ? ` <span class="tile-top">${esc(issues[0].title.replace(/<[^>]+>/g, ""))}</span>` : ` nothing flagged in the readings given${result.uncertain.length ? ` · ${result.uncertain.length} uncertain` : ""}`) : "Enter conditions to assess"}</div>
       </div>
       ${tile("Oxygen", has(v.o2_pct) ? fmt(v.o2_pct) : "–", "%", has(v.o2_pct) ? `Enrichment threshold ${T.o2_enriched_pct}%` : "")}
       ${tile("O₂ partial pressure", pp != null ? fmt(pu.fromBase(pp)) : "–", pu.unit, `Sea-level air ${fmt(pu.fromBase(T.sea_level_ppo2_kpa))} ${pu.unit}`)}
@@ -440,19 +479,32 @@
       : "No inputs yet";
   }
 
+  const flagItem = (f) => `<li class="flag">${badge(f.level)}<div>${f.field
+    ? `<button type="button" class="flag-title flag-link" data-goto="${f.field}" title="Go to ${esc(FIELDS[f.field]?.label || "input")}">${f.title}</button>`
+    : `<div class="flag-title">${f.title}</div>`}<div class="flag-detail">${f.detail}</div></div></li>`;
+
+  function renderNotes(result) {
+    const notes = [...result.uncertain, ...result.flags.filter((f) => f.level === "info")];
+    $("#notes").innerHTML = notes.map(flagItem).join("");
+    const n = result.uncertain.length;
+    $("#notes-count").innerHTML = n ? `${badge("uncertain")} <span class="muted">${n} unknown${n > 1 ? "s" : ""}</span>` : "";
+  }
+
   function renderFlags(result) {
     const list = $("#flags");
+    const findings = result.flags.filter((f) => f.level !== "info");
+    renderNotes(result);
+    if (result.flags.length && !findings.length) {
+      list.innerHTML = '<li class="empty">No findings from the readings given. See Notes and uncertainty for what was not checked.</li>';
+      return;
+    }
     if (!result.flags.length) {
       list.innerHTML = external()
         ? '<li class="empty">No inputs yet. Set values in the Parameters panel, or <button type="button" class="link-btn" data-action="example">load the example</button> to see how it works.</li>'
         : '<li class="empty">No inputs yet. Fill in the form, or <button type="button" class="link-btn" data-action="example">load the example</button> to see how it works.</li>';
       return;
     }
-    list.innerHTML = result.flags
-      .map((f) => `<li class="flag">${badge(f.level)}<div>${f.field
-        ? `<button type="button" class="flag-title flag-link" data-goto="${f.field}" title="Go to ${esc(FIELDS[f.field]?.label || "input")}">${f.title}</button>`
-        : `<div class="flag-title">${f.title}</div>`}<div class="flag-detail">${f.detail}</div></div></li>`)
-      .join("");
+    list.innerHTML = findings.map(flagItem).join("");
   }
 
   function meter(label, value, limit, unitText, levels) {
@@ -561,6 +613,7 @@
       inputs,
       input_units: units,
       assessment: result.flags.map((f) => ({ level: f.level, title: strip(f.title), detail: strip(f.detail) })),
+      uncertain: (result.uncertain || []).map((f) => ({ title: strip(f.title), detail: strip(f.detail) })),
       smoke: { overall: smoke.overall, carbon_monoxide: smoke.co, carbon_dioxide: smoke.co2, detection: smoke.detection, missing_readings: smoke.missing },
       acme_similar_tests: result.near
         ? { compared: result.near.tests.length, ignited: result.near.ignited, same_fuel: result.near.fuelMatched, outside_tested_range: result.near.outOfRange }
@@ -931,7 +984,7 @@
   function renderSmoke(v) {
     const { overall, co, co2, detection, materials, suspected, missing } = smokeStatus(v);
     const mats = new Set(materialsOf(v));
-    $("#smoke-level").innerHTML = `${badge(overall)} <span class="muted">smoke hazard${missing.length ? ` · ${missing.join(" and ")} reading${missing.length > 1 ? "s" : ""} needed` : ""}</span>`;
+    $("#smoke-level").innerHTML = `${badge(overall)} <span class="muted">smoke hazard${overall === "good" ? " · from CO and CO₂ only; particles and other toxic gases not measured" : ""}${missing.length ? ` · ${missing.join(" and ")} reading${missing.length > 1 ? "s" : ""} needed` : ""}</span>`;
 
     const reading = (label, value, unit, lv, note) =>
       `<li><span>${label}</span><span class="value">${value === null ? '<span class="muted">no reading</span>' : `${fmt(value)} ${unit}`}</span>${lv ? badge(lv) : "<span></span>"}<small>${note}</small></li>`;
@@ -946,9 +999,11 @@
     const now = suspected.map((m) => productList(`<strong>${esc(m)}</strong> may be burning`, SMOKE.materials[m]));
     const reference = materials.filter((m) => !suspected.includes(m)).map((m) => productList(`If <strong>${esc(m)}</strong> overheats or burns`, SMOKE.materials[m]));
     if (v.fuel_type) reference.push(productList(`If <strong>${esc(v.fuel_type)}</strong> burns`, SMOKE.fuel));
-    $("#smoke-products-title").textContent = now.length ? "Smoke from what may be burning" : "What the smoke can contain";
-    $("#smoke-products").innerHTML =
-      (now.length ? now.join("") : '<li class="muted">Nothing is suspected to be burning. Live monitoring checks the listed materials when readings show a fire pattern.</li>') +
+    // Only shown once live monitoring suggests something may be burning.
+    $("#smoke-products-section").hidden = !now.length;
+    ROOT.querySelector(".smoke-grid").classList.toggle("single", !now.length);
+    $("#smoke-products-title").textContent = "Smoke from what may be burning";
+    $("#smoke-products").innerHTML = now.join("") +
       (reference.length ? `<li class="smoke-ref"><details><summary>Reference: what the other listed materials and fuel could release (${reference.length})</summary><ul class="smoke-list">${reference.join("")}</ul></details></li>` : "");
 
     // Measured: chamber CO rise during BASS-II burns, by material.

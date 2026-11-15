@@ -84,3 +84,18 @@ test('safety insight HTML escapes the model text and tolerates bad levels', () =
   assert.match(html, /Incomplete/); // unknown risk level
   assert.match(insightHtml({ text: 'Line one\n\nLine <two>' }), /Line &lt;two&gt;/);
 });
+
+test('uncertainty: missing readings and context are named, never treated as safe', () => {
+  const r = assess({ o2_pct: 21, co_ppm: 1 });
+  const titles = r.uncertain.map((u) => u.title);
+  assert.ok(titles.some((t) => /^Not measured: .*CO₂/.test(t)));
+  assert.ok(!titles.some((t) => /^Not measured: .*\bCO\b(?!₂)/.test(t))); // CO was given
+  assert.ok(titles.some((t) => /^Not specified: .*materials present/.test(t)));
+  assert.ok(titles.includes('No trend over time yet'));
+  assert.ok(titles.includes('Limits are reference values'));
+  for (const u of r.uncertain) assert.equal(u.level, 'uncertain');
+  // A vacuum doesn't count pressure as missing; unknown burn data is named.
+  const vac = assess({ environment: 'Vacuum', material_types: ['Teflon'] }).uncertain.map((u) => u.title);
+  assert.ok(!vac.some((t) => /pressure/.test(t)));
+  assert.ok(vac.includes('No NASA burn data for Teflon'));
+});

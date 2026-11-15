@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
 import { FeatureRetrieval } from "../components/feature-retrieval";
@@ -166,21 +166,15 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
 }
 
 export default function Home() {
-  const [chatOpen, setChatOpen] = useState(false);
   const [parametersOpen, setParametersOpen] = useState(false);
-  const [mobile, setMobile] = useState(false);
-  const chatRef = useRef(null),
-    chatTrigger = useRef(null);
   useEffect(() => {
     const media = matchMedia("(min-width: 721px)");
     const wideMedia = matchMedia("(min-width: 1200px)");
     const sync = () => {
-      setMobile(!media.matches);
-      if (!media.matches) { setParametersOpen(false); setChatOpen(false); }
+      if (!media.matches) setParametersOpen(false);
     };
     const syncPanels = () => {
       setParametersOpen(wideMedia.matches);
-      setChatOpen(wideMedia.matches);
     };
     sync();
     syncPanels();
@@ -191,34 +185,6 @@ export default function Home() {
       wideMedia.removeEventListener("change", syncPanels);
     };
   }, []);
-  useEffect(() => {
-    if (chatOpen && mobile) chatRef.current?.focus();
-  }, [chatOpen, mobile]);
-  function closeChat() {
-    setChatOpen(false);
-    chatTrigger.current?.focus();
-  }
-  function handleChatKey(e) {
-    if (e.key === "Escape") closeChat();
-    if (e.key === "Tab" && mobile) {
-      const nodes = chatRef.current.querySelectorAll(
-        "button:not(:disabled),textarea,a[href]",
-      );
-      const first = nodes[0],
-        last = nodes[nodes.length - 1];
-      if (
-        e.shiftKey &&
-        (document.activeElement === first ||
-          document.activeElement === chatRef.current)
-      ) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }
   const [values, setValues] = useState(defaults);
   // NASA comparison inputs that the flame simulation doesn't have (raw text in
   // the chosen unit), their units, and the field definitions from fire-dashboard.
@@ -241,8 +207,6 @@ export default function Home() {
   const [error, setError] = useState("");
   const [view, setView] = useState("flame");
   const [retrievalSession, setRetrievalSession] = useState(0);
-  const [prompt, setPrompt] = useState("");
-  const [messages, setMessages] = useState([]);
   const [paused, setPaused] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [animationKey, setAnimationKey] = useState(0);
@@ -304,10 +268,6 @@ export default function Home() {
     const next = { ...values };
     setSnapshot(next);
     setError("");
-    if (event.nativeEvent.submitter?.value === "send" && prompt.trim()) {
-      setMessages((old) => [...old, { text: prompt.trim(), parameters: next }]);
-      setPrompt("");
-    }
   }
   const nav = [
     ["flame", "Flame simulation", "flame"],
@@ -328,7 +288,7 @@ export default function Home() {
     document.getElementById(`${nav[next][0]}-tab`)?.focus();
   }
   return (
-    <div className={`app-shell ${chatOpen ? "chat-open" : ""} ${parametersOpen ? "controls-open" : ""}`}>
+    <div className={`app-shell ${parametersOpen ? "controls-open" : ""}`}>
       <div className="workspace-shell" id="workspace">
         <header className="topbar">
           <a className="brand" href="#workspace">
@@ -345,8 +305,6 @@ export default function Home() {
             aria-label="New scenario"
             onClick={() => {
               reset();
-              setMessages([]);
-              setPrompt("");
               setPaused(false);
               setRetrievalSession(n => n + 1);
             }}
@@ -360,16 +318,6 @@ export default function Home() {
             NASA data
           </a>
           <button className="panel-toggle" hidden={view === "retrieval"} aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
-          <button
-            ref={chatTrigger}
-            className="chat-toggle"
-            hidden={view === "retrieval"}
-            aria-expanded={chatOpen}
-            aria-controls="chat-panel"
-            onClick={() => (chatOpen ? closeChat() : setChatOpen(true))}
-          >
-            Scenario chat
-          </button>
           <span>
             Ember <span className="header-divider">/</span>{" "}
             <b>{nav.find(([key]) => key === view)[1]}</b>
@@ -380,13 +328,6 @@ export default function Home() {
           </a>
         </header>
         <div className="content-grid dashboard-tab-panel" id="flame-panel" role="tabpanel" aria-labelledby="flame-tab" hidden={view !== "flame"}>
-          {chatOpen && mobile && (
-            <button
-              className="chat-backdrop"
-              aria-label="Dismiss chat"
-              onClick={closeChat}
-            />
-          )}
           <main className="conversation">
             <div
               className={`simulation-grid ${view !== "workspace" ? "single-view" : ""}`}
@@ -686,91 +627,6 @@ export default function Home() {
             />
           </section>
           </main>
-          <aside
-            className="chat-panel"
-            id="chat-panel"
-            hidden={!chatOpen}
-            ref={chatRef}
-            tabIndex={-1}
-            role={mobile ? "dialog" : undefined}
-            aria-modal={mobile || undefined}
-            aria-label="Scenario chat"
-            onKeyDown={handleChatKey}
-          >
-            <div className="chat-heading">
-              <h2>Experiment assistant</h2>
-              <button onClick={closeChat} aria-label="Close chat">
-                ×
-              </button>
-            </div>{" "}
-            <div className="chat-summary"><span>CURRENT INPUTS</span><p>{values.oxygen}% O₂ · {values.pressure} kPa · {values.gravity} g</p><small>Notes are saved locally for this session. AI explanations are not connected.</small></div>
-            <section
-              className="conversation-log"
-              aria-label="Scenario conversation"
-              aria-live="polite"
-            >
-              {messages.length === 0 ? (
-                <div className="conversation-intro">
-                  <span className="assistant-mark">e.</span>
-                  <div>
-                    <h2>Scenario notes</h2>
-                    <p>
-                      Save experiment observations with the current parameter values.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                messages.map((message, index) => (
-                  <article className="conversation-turn" key={index}>
-                    <div className="user-message">{message.text}</div>
-                    <div className="assistant-message">
-                      <span className="assistant-mark">e.</span>
-                      <div>
-                        <p>
-                          Saved · {message.parameters.oxygen}%
-                          oxygen, {message.parameters.pressure} kPa pressure,{" "}
-                          {message.parameters.flow} m/s airflow and{" "}
-                          {message.parameters.gravity} g gravity.
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                ))
-              )}
-            </section>
-            <div className="composer-area">
-              <div className="composer">
-                <label className="sr-only" htmlFor="scenario-prompt">
-                  Describe your scenario
-                </label>
-                <textarea
-                  id="scenario-prompt"
-                  form="scenario-form"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Add a scenario note…"
-                  maxLength={2000}
-                  rows={2}
-                />
-                <div className="composer-toolbar">
-                  <button type="button" className="chat-parameters-link" onClick={() => { setParametersOpen(true); if (mobile) closeChat(); }}><Symbol name="sliders" /> Parameters</button>
-                  <button
-                    type="submit"
-                    form="scenario-form"
-                    value="send"
-                    className="send-button"
-                    aria-label="Save scenario note"
-                    disabled={!prompt.trim()}
-                  >
-                    <Symbol name="arrow" />
-                  </button>
-                </div>
-              </div>
-              <p className="composer-disclaimer">
-                Model not connected · Notes only.
-              </p>
-            </div>
-          </aside>{" "}
 
         </div>
         <main className="dashboard-tab-panel retrieval-tab-panel" id="retrieval-panel" role="tabpanel" aria-labelledby="retrieval-tab" hidden={view !== "retrieval"}>
