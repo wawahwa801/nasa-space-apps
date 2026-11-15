@@ -1,6 +1,16 @@
 "use client";
+
+// Room simulation tab: the hybrid CNN flame image (ml/dashboard_simulation.py,
+// proxied at /hybrid/*) drives the illustrative room-spread physics from
+// physics-flex2/rooms.py. Controls live in this tab so the flame simulation
+// and its Parameters panel are unchanged.
+
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { LlmInsights } from "./llm-insights";
+
+const MODULES = ["Forward dock", "Cargo", "Habitat node", "Station core", "Science node", "Laboratory", "Observatory", "Cupola",
+  "Command", "Crew quarters", "Medical", "EVA airlock", "Life support", "Engineering", "Power systems", "Greenhouse"];
+const ROOM_FILL = { burning: "#e65326", burned: "#444", warming: "#8a6134", unignited: "#243a49", inert: "#222" };
 
 export function HybridSimulation({ onStarted, onResult }) {
   const [info, setInfo] = useState(null), [controls, setControls] = useState({});
@@ -42,33 +52,87 @@ export function HybridSimulation({ onStarted, onResult }) {
   }, [info, controls]);
   const generation = useRef(0);
   const dragging = useRef(false);
+
+  // Dropping the flame image on a room restarts the fire there.
   useEffect(() => {
-    function drop(e) {if(!dragging.current)return;dragging.current=false;const room=document.elementFromPoint(e.clientX,e.clientY)?.closest("[data-room]");if(room){const index=Number(room.getAttribute("data-room"));setSource(index);run(index);}}
-    window.addEventListener("pointerup",drop);
-    return ()=>window.removeEventListener("pointerup",drop);
+    function drop(e) {
+      if (!dragging.current) return;
+      dragging.current = false;
+      const room = document.elementFromPoint(e.clientX, e.clientY)?.closest("[data-room]");
+      if (room) {
+        const index = Number(room.getAttribute("data-room"));
+        setSource(index);
+        run(index);
+      }
+    }
+    window.addEventListener("pointerup", drop);
+    return () => window.removeEventListener("pointerup", drop);
   });
-  const [comparison, setComparison] = useState(false);
-  const [attempt, setAttempt] = useState(0);
+
+  // Load the recorded runs and control ranges; retry while the service starts.
   useEffect(() => {
-    setTarget(document.getElementById("hybrid-controls"));
     const abort = new AbortController();
-    let retry, active = true;
+    let retry;
+    let active = true;
     const timeout = setTimeout(() => abort.abort(), 10000);
-    fetch('/hybrid/runs', {signal: abort.signal}).then(async r => {if (!r.ok) throw Error('Hybrid service unavailable. Start python ml/dashboard_simulation.py.'); return r.json();}).then(data => {
-      if (!active) return;
-      setInfo(data); setControls({run: data.runs[0].id, ...data.runs[0].values}); setStatus('Choose model conditions, then Simulate.');
-    }).catch(() => {if (!active) return; setStatus('Connecting to model… retrying automatically.'); retry=setTimeout(()=>setAttempt(n=>n+1),3000);}).finally(()=>clearTimeout(timeout));
-    return () => {active=false;abort.abort();clearTimeout(retry); clearTimeout(timeout); generation.current++;};
+    fetch("/hybrid/runs", { signal: abort.signal })
+      .then(async (r) => {
+        if (!r.ok) throw Error("unavailable");
+        return r.json();
+      })
+      .then((data) => {
+        if (!active) return;
+        setInfo(data);
+        setControls({ run: data.runs[0].id, ...data.runs[0].values });
+        setStatus("Choose model conditions, then Simulate.");
+      })
+      .catch(() => {
+        if (!active) return;
+        setStatus("Connecting to the hybrid model service (python ml/dashboard_simulation.py)… retrying automatically.");
+        retry = setTimeout(() => setAttempt((n) => n + 1), 3000);
+      })
+      .finally(() => clearTimeout(timeout));
+    return () => {
+      active = false;
+      abort.abort();
+      clearTimeout(retry);
+      clearTimeout(timeout);
+      generation.current++;
+    };
   }, [attempt]);
+
   useEffect(() => {
     if (!playing || !result) return;
-    const timer = setInterval(() => setFrame(i => {if(i >= result.simulation.frames.length - 1) {setPlaying(false); return i;} return i + 1;}), 500);
+    const timer = setInterval(() => setFrame((i) => {
+      if (i >= result.simulation.frames.length - 1) {
+        setPlaying(false);
+        return i;
+      }
+      return i + 1;
+    }), 500);
     return () => clearInterval(timer);
   }, [playing, result]);
-  function invalidate() {onResult?.(null);generation.current++; setResult(null); setPlaying(false); setBusy(false); setFrame(0); setStatus('Inputs changed. Press Simulate to run.');}
-  function change(key, value) {invalidate(); setControls(c => ({...c, [key]: value}));}
+
+  function invalidate() {
+    setApplied(null);
+    generation.current++;
+    setResult(null);
+    setPlaying(false);
+    setBusy(false);
+    setFrame(0);
+    setStatus("Inputs changed. Press Simulate to run.");
+  }
+  function change(key, value) {
+    invalidate();
+    setControls((c) => ({ ...c, [key]: value }));
+  }
+
   async function run(start = source) {
-    const id = ++generation.current; setBusy(true); setResult(null); setPlaying(false); setStatus('Generating hybrid image and running room simulation…');
+    const id = ++generation.current;
+    setBusy(true);
+    setResult(null);
+    setPlaying(false);
+    setStatus("Generating hybrid image and running room simulation…");
     try {
       const response = await fetch('/hybrid/simulate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({controls, mm_per_pixel:scale, k_mm2_s:k, source:start})});
       const data = await response.json(); if (!response.ok) throw Error(data.error || 'Simulation failed');
@@ -77,6 +141,7 @@ export function HybridSimulation({ onStarted, onResult }) {
     } catch(e) {if(id === generation.current) setStatus(e.message);}
     finally {if(id === generation.current) setBusy(false);}
   }
+
   const current = result?.simulation.frames[frame];
   return <section className="hybrid-active" aria-label="Hybrid CNN room simulation">
     {target && createPortal(<div className="field-section"><span className="field-section-title">Model conditions</span>
