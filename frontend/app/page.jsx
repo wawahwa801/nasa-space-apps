@@ -391,31 +391,13 @@ export default function Home() {
       <div className="workspace-shell" id="workspace">
         <header className="topbar">
           <a className="brand" href="#workspace">
-            ember<span>.</span>
+            pyroclast<span>.</span>
           </a>
-          <h1 className="sr-only">
-            Ember dashboard · {nav.find(([key]) => key === view)[1]}
-          </h1>
-          <div
-            className="dashboard-tabs"
-            role="tablist"
-            aria-label="Dashboard views"
-          >
-            {nav.map(([key, label]) => (
-              <button
-                key={key}
-                id={`${key}-tab`}
-                type="button"
-                role="tab"
-                aria-selected={view === key}
-                aria-controls={`${key}-panel`}
-                tabIndex={view === key ? 0 : -1}
-                onClick={() => changeView(key)}
-                onKeyDown={(event) => handleViewKey(event, key)}
-              >
-                {label}
-              </button>
-            ))}
+          <h1 className="sr-only">Pyroclast dashboard · {nav.find(([key]) => key === view)[1]}</h1>
+          <div className="dashboard-tabs" role="tablist" aria-label="Dashboard views">
+            {nav.map(([key, label]) => <button key={key} id={`${key}-tab`} type="button" role="tab"
+              aria-selected={view === key} aria-controls={`${key}-panel`} tabIndex={view === key ? 0 : -1}
+              onClick={() => changeView(key)} onKeyDown={event => handleViewKey(event, key)}>{label}</button>)}
           </div>
           <button
             className="text-button new-scenario-button"
@@ -452,7 +434,7 @@ export default function Home() {
             Parameters
           </button>
           <span>
-            Ember <span className="header-divider">/</span>{" "}
+            Pyroclast <span className="header-divider">/</span>{" "}
             <b>{nav.find(([key]) => key === view)[1]}</b>
           </span>
           <a href="#parameters" className="parameter-link">

@@ -5,7 +5,7 @@ A starter project for an interactive dashboard with a Next.js frontend and Flask
 ## Project structure
 
 ```text
-frontend/        Next.js dashboard (Ember workspace + NASA data comparison)
+frontend/        Next.js dashboard (Pyroclast workspace + NASA data comparison)
 fire-dashboard/  NASA data comparison dashboard (standalone page, also embedded in frontend/)
 data/            NASA fire experiment data sets
 backend/         Flask API
@@ -42,7 +42,7 @@ npm run dev
 
 Open `http://localhost:3000`. The retrieval and NASA-comparison views work with the frontend alone. The separate Flask API provides `http://localhost:5000/api/health` and the analysis endpoints below.
 
-The page has the Ember flame simulation and, below it, the NASA data comparison from
+The page has the Pyroclast flame simulation and, below it, the NASA data comparison from
 `fire-dashboard/` (rendered in an isolated shadow root). Both read the same Parameters
 panel: O₂, pressure, temperature, CO₂ and gravity are shared, and the NASA-only inputs
 appear there as extra sections. Unit pickers on the panel's sliders switch O₂/CO₂ between
