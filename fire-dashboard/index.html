@@ -51,6 +51,7 @@
         </div>
         <p id="mon-note" class="hint" role="status">A reading saves the current CO, CO₂, O₂, temperature, humidity, H₂, CH₄ and pressure values.</p>
         <ul id="mon-events" class="flags"></ul>
+        <section id="mon-suspects" class="mon-suspects" aria-live="polite" hidden></section>
         <div id="mon-charts" class="minis"></div>
         <details class="table-view"><summary>Readings (<span id="mon-count">0</span>)</summary><div id="mon-table" class="table-wrap"></div></details>
         <p class="source-note">Each reading is compared with earlier ones. The rise thresholds are placeholders in <code>js/parameters.js</code> (<code>THRESHOLDS.monitoring</code>), not validated detection limits; tune them with real sensor data. The demo sequence is synthetic. CSV columns: a time column (date/time or minutes from start) plus any of CO, CO₂, O₂, temperature, humidity, H₂, CH₄, pressure.</p>

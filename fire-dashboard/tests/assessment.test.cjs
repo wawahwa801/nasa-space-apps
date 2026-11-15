@@ -53,3 +53,22 @@ test('#40: OK only when both readings are present and within limits', () => {
   assert.equal(smokeStatus({ co_ppm: 2, co2_ppm: 400, monitoring: 'Nominal' }).overall, 'good');
   assert.equal(smokeStatus({ co_ppm: 2, monitoring: 'Nominal' }).overall, 'unknown');
 });
+
+test('vacuum: the pressure value is ignored, with a near-zero pressure note', () => {
+  const { flags, near } = assess({ environment: 'Vacuum', pressure_kpa: 101.3, o2_pct: 21 });
+  assert.equal(near, null); // no ACME comparison without a pressure
+  assert.ok(!flags.some((f) => /partial pressure/.test(f.title)));
+  const note = flags.find((f) => f.title === 'Vacuum: pressure ignored');
+  assert.match(note.detail, /near-zero pressure/);
+  assert.ok(!flags.some((f) => /disagree/.test(f.title)));
+});
+
+test('materials list: each listed material is assessed; old single material_type still works', () => {
+  const titles = assess({ material_types: ['PMMA (acrylic)', 'Teflon', 'Kapton', 'Lampwick'], o2_pct: 18 }).flags.map((f) => f.title);
+  assert.ok(titles.some((t) => /BASS-II tested for PMMA/.test(t)));
+  assert.ok(titles.includes('Toxic smoke if Teflon overheats or burns'));
+  assert.ok(titles.includes('Toxic smoke if Kapton overheats or burns'));
+  assert.ok(titles.includes('Smoke from PMMA (acrylic), Lampwick'));
+  assert.equal(smokeStatus({ material_types: ['PMMA (acrylic)', 'Teflon'] }).overall, 'serious');
+  assert.ok(bassFlag({ material_type: 'PMMA (acrylic)', o2_pct: 18 })); // legacy saves
+});

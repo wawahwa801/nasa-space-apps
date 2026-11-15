@@ -8,7 +8,9 @@ import {
   NASA_DEFAULTS,
   NasaParameterFields,
   SHARED_FIELDS,
+  VACUUM_NOTE,
   convertRaw,
+  isVacuum,
   nasaInputsFromRaw,
   rawFromBase,
 } from "../components/nasa-parameter-fields";
@@ -107,7 +109,7 @@ function Symbol({ name, ...props }) {
   );
 }
 
-function Slider({ name, label, suffix, min, max, step, value, onChange, units, onUnitChange }) {
+function Slider({ name, label, suffix, min, max, step, value, onChange, units, onUnitChange, disabled = false, note = "" }) {
   const [draft, setDraft] = useState(String(value));
   useEffect(() => setDraft(String(value)), [value]);
   // Keep at least as many decimals as the step needs (e.g. atm or psia steps).
@@ -115,10 +117,10 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
   const change = (v) =>
     onChange(Number(Math.min(max, Math.max(min, v)).toFixed(decimals)));
   return (
-    <div className="slider-field">
+    <div className={`slider-field${disabled ? " is-disabled" : ""}`}>
       <div>
         <label htmlFor={name}>{label}</label>
-        <span className="editable-value"><input aria-label={`${label} value`} type="number" required min={min} max={max} step={units ? "any" : step} value={draft} onChange={e => {setDraft(e.target.value); const n=e.target.valueAsNumber; if(Number.isFinite(n) && n>=min && n<=max) onChange(n);}} onBlur={() => {const n=Number(draft); if(draft.trim() && Number.isFinite(n)) {const bounded=Number(Math.min(max,Math.max(min,n)).toFixed(decimals));onChange(bounded);setDraft(String(bounded));} else setDraft(String(value));}}/>{units ? (<select className="slider-unit" aria-label={`${label} unit`} value={suffix} onChange={(e) => onUnitChange(e.target.value)}>{units.map((u) => <option key={u.unit}>{u.unit}</option>)}</select>) : <span>{suffix}</span>}</span>
+        <span className="editable-value"><input aria-label={`${label} value`} disabled={disabled} aria-describedby={note ? `${name}-note` : undefined} type="number" required min={min} max={max} step={units ? "any" : step} value={draft} onChange={e => {setDraft(e.target.value); const n=e.target.valueAsNumber; if(Number.isFinite(n) && n>=min && n<=max) onChange(n);}} onBlur={() => {const n=Number(draft); if(draft.trim() && Number.isFinite(n)) {const bounded=Number(Math.min(max,Math.max(min,n)).toFixed(decimals));onChange(bounded);setDraft(String(bounded));} else setDraft(String(value));}}/>{units ? (<select className="slider-unit" disabled={disabled} aria-label={`${label} unit`} value={suffix} onChange={(e) => onUnitChange(e.target.value)}>{units.map((u) => <option key={u.unit}>{u.unit}</option>)}</select>) : <span>{suffix}</span>}</span>
       </div>
       <input
         id={name}
@@ -127,6 +129,8 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
         max={max}
         step={step}
         value={value}
+        disabled={disabled}
+        aria-describedby={note ? `${name}-note` : undefined}
         aria-valuetext={`${value} ${suffix}`}
         onChange={(e) => change(Number(e.target.value))}
       />
@@ -135,7 +139,7 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
         <button
           type="button"
           aria-label={`Decrease ${label}`}
-          disabled={value <= min}
+          disabled={disabled || value <= min}
           onClick={() => change(Number(value) - step)}
         >
           −
@@ -143,7 +147,7 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
         <button
           type="button"
           aria-label={`Increase ${label}`}
-          disabled={value >= max}
+          disabled={disabled || value >= max}
           onClick={() => change(Number(value) + step)}
         >
           +
@@ -152,6 +156,11 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
           {Number(Number(max).toPrecision(5))} {suffix}
         </span>
       </div>
+      {note && (
+        <small className="slider-note" id={`${name}-note`}>
+          {note}
+        </small>
+      )}
     </div>
   );
 }
@@ -222,6 +231,8 @@ export default function Home() {
     () => ({
       ...nasaInputsFromRaw(nasaDefs, nasaRaw, nasaUnits),
       ...sharedNasaInputs(values),
+      // A vacuum has near-zero pressure: the slider value is ignored.
+      ...(isVacuum(nasaRaw) ? { pressure_kpa: null } : {}),
     }),
     [nasaDefs, nasaRaw, nasaUnits, values],
   );
@@ -526,6 +537,8 @@ export default function Home() {
                         step={u ? tidyNumber(Math.abs(u.fromBase(min + step) - u.fromBase(min))) : step}
                         value={values[key] === "" ? "" : show(Number(values[key]))}
                         units={SLIDER_UNITS[key]}
+                        disabled={key === "pressure" && isVacuum(nasaRaw)}
+                        note={key === "pressure" && isVacuum(nasaRaw) ? VACUUM_NOTE : ""}
                         onUnitChange={(next) => setSliderUnits((s) => ({ ...s, [key]: next }))}
                         onChange={(v) => update(key, u ? tidyNumber(u.toBase(v)) : v)}
                       />

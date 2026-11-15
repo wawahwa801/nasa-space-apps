@@ -61,7 +61,8 @@
    * Detect fire / smoke indicators.
    * T: the full THRESHOLDS object (uses T.monitoring, T.co_ppm, T.co2_ppm, T.lfl_pct).
    * now: current time in ms (for the monitoring-gap check).
-   * Returns { level, headline, events: [{ level, title, detail, field }], rates, count, latest }.
+   * Returns { level, headline, pattern, events: [{ level, title, detail, field }], rates, count, latest }.
+   * pattern: "flaming", "combustion", "smouldering", "co_rising" or null (no fire pattern).
    */
   function detect(readings, T, now = Date.now()) {
     const M = T.monitoring;
@@ -71,9 +72,10 @@
     const rates = Object.fromEntries(FIELDS.map((f) => [f.id, ratePerInterval(rs, f.id, M.interval_min)]));
     const latest = Object.fromEntries(FIELDS.map((f) => [f.id, latestValue(rs, f.id)]));
     const per = `per ${M.interval_min} min`;
+    let pattern = null;
 
     if (rs.length === 0) {
-      return { level: null, headline: "No readings yet", events, rates, count: 0, latest };
+      return { level: null, headline: "No readings yet", pattern, events, rates, count: 0, latest };
     }
 
     // Monitoring gap.
@@ -105,15 +107,19 @@
 
       // Fire signatures, most specific first.
       if (tempFast && (co2Up || coUp)) {
+        pattern = "flaming";
         add("critical", "Possible flaming fire",
           `Temperature ${show(tRate, "°C")} and ${co2Up ? `CO₂ ${show(co2Rate, "ppm")}` : `CO ${show(coRate, "ppm")}`} ${per}: rapid heating with combustion gases.`, "internal_temp_c");
       } else if (coUp && co2Up && (o2Down || tempUp)) {
+        pattern = "combustion";
         add("serious", "Combustion signature: CO and CO₂ rising together",
           `CO ${show(coRate, "ppm")}, CO₂ ${show(co2Rate, "ppm")}${o2Down ? `, O₂ ${show(o2Rate, "%")}` : ""}${tempUp ? `, temperature ${show(tRate, "°C")}` : ""} ${per}. Something may be burning.`, "co_ppm");
       } else if (coUp && coStreak >= 2 && !tempUp) {
+        pattern = "smouldering";
         add("serious", "Possible smouldering or overheating",
           `CO has risen for ${coStreak} intervals in a row (now ${show(coRate, "ppm")} ${per}) without much heat. Smouldering materials produce CO and smoke before flames.`, "co_ppm");
       } else if (coUp) {
+        pattern = "co_rising";
         add(coRate >= M.co_rise_ppm.serious ? "serious" : "warning", "Carbon monoxide rising",
           `CO ${show(coRate, "ppm")} ${per}.`, "co_ppm");
       } else if (tempUp) {
@@ -149,7 +155,77 @@
     const top = events.find((e) => e.level !== "info");
     const level = top ? top.level : rs.length >= 2 ? "good" : "info";
     const headline = top ? top.title : rs.length >= 2 ? "No fire or smoke indicators in recent readings" : "Need at least two readings";
-    return { level, headline, events, rates, count: rs.length, latest };
+    return { level, headline, pattern, events, rates, count: rs.length, latest };
+  }
+
+  // Measured CO rise per unit of CO₂ rise (both ppm) in BASS-II burns, by
+  // material category: { category: { median, min, max, n } }.
+  function bassCoRatios(tests) {
+    const by = {};
+    for (const t of tests || []) {
+      if (!(t.co_rise_ppm > 0) || !(t.co2_rise_pct > 0)) continue;
+      (by[t.category] = by[t.category] || []).push(t.co_rise_ppm / (t.co2_rise_pct * 10000));
+    }
+    const out = {};
+    for (const [cat, xs] of Object.entries(by)) {
+      xs.sort((a, b) => a - b);
+      const m = xs.length % 2 ? xs[(xs.length - 1) / 2] : (xs[xs.length / 2 - 1] + xs[xs.length / 2]) / 2;
+      out[cat] = { median: m, min: xs[0], max: xs[xs.length - 1], n: xs.length };
+    }
+    return out;
+  }
+
+  // CO rise / CO₂ rise (ppm/ppm) between the first and latest readings that
+  // have both, or null when CO₂ hasn't risen enough to divide by.
+  function observedCoRatio(readings, minCo2RisePpm = 50) {
+    const rs = normalise(readings).filter((r) => num(r.co_ppm) !== null && num(r.co2_ppm) !== null);
+    if (rs.length < 2) return null;
+    const a = rs[0], b = rs[rs.length - 1];
+    const dCo = b.co_ppm - a.co_ppm, dCo2 = b.co2_ppm - a.co2_ppm;
+    if (dCo2 < minCo2RisePpm || dCo <= 0) return null;
+    return dCo / dCo2;
+  }
+
+  /**
+   * Rank the materials listed as present by how well each fits the detected
+   * fire pattern. Indicative only: it uses each material's typical behaviour
+   * (profiles[m].behaviour, general knowledge) and, where BASS-II measured it,
+   * the CO/CO₂ ratio of its burns.
+   * Returns { pattern, ratio, items: [{ material, score, likelihood, reasons }] },
+   * or null when there is no fire pattern or no materials.
+   */
+  function suspectMaterials(result, readings, materials, profiles, ratios) {
+    if (!result || !result.pattern || !materials || !materials.length) return null;
+    const smoulderLike = result.pattern === "smouldering" || result.pattern === "co_rising";
+    const ratio = observedCoRatio(readings);
+    const fit = smoulderLike
+      ? { smoulders: [3, "can smoulder without a flame, giving off CO and smoke first"],
+          chars: [1, "chars and smokes when overheated, but is hard to ignite"],
+          flames: [0, "usually melts and burns with a flame rather than smouldering"],
+          resists: [-1, "rarely burns in normal air; overheating gives fumes rather than much CO"] }
+      : { flames: [3, "melts or vaporises and burns with a flame"],
+          smoulders: [1, "can turn from smouldering into flames"],
+          chars: [1, "can burn once well heated, though it is hard to ignite"],
+          resists: [-1, "rarely burns in normal air"] };
+    const items = materials.map((material) => {
+      const reasons = [];
+      let score = 0;
+      const b = profiles[material] && profiles[material].behaviour;
+      if (b && fit[b]) { score += fit[b][0]; reasons.push(`Typically ${fit[b][1]}.`); }
+      const r = ratios[material];
+      if (ratio !== null && r) {
+        const sig = (x) => String(Number(x.toPrecision(2)));
+        const shown = `${sig(ratio)} vs ${sig(r.min)}–${sig(r.max)} in ${r.n} BASS-II burn${r.n > 1 ? "s" : ""}`;
+        if (ratio >= r.min && ratio <= r.max) { score += 2; reasons.push(`CO/CO₂ rise matches its burns (${shown}).`); }
+        else if (ratio >= r.median / 2 && ratio <= r.median * 2) { score += 1; reasons.push(`CO/CO₂ rise is close to its burns (${shown}).`); }
+        else reasons.push(`CO/CO₂ rise differs from its burns (${shown}).`);
+      } else if (ratio !== null) {
+        reasons.push("No BASS-II CO/CO₂ data to compare.");
+      }
+      const likelihood = score >= 4 ? "More likely" : score >= 2 ? "Possible" : "Less likely";
+      return { material, score, likelihood, reasons };
+    }).sort((a, b) => b.score - a.score || a.material.localeCompare(b.material));
+    return { pattern: result.pattern, ratio, items };
   }
 
   // Illustrative scenario: steady cabin air, then smouldering, then flames.
@@ -202,5 +278,5 @@
     return normalise(out);
   }
 
-  window.Monitoring = { FIELDS, detect, demoSequence, parseReadingsCsv, normalise, ratePerInterval };
+  window.Monitoring = { FIELDS, detect, demoSequence, parseReadingsCsv, normalise, ratePerInterval, bassCoRatios, observedCoRatio, suspectMaterials };
 })();

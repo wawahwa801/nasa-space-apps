@@ -7,7 +7,8 @@
 // Field types:
 //   number - numeric input. Either a fixed `unit`, or `units` naming one of
 //            UNIT_SYSTEMS so the user can pick the unit.
-//   choice - pick one of `options`
+//   choice - pick one of `options` (`optionHints` explains each option)
+//   multi  - tick any number of `options` (stored as an array)
 
 (function () {
   const REF = window.REFERENCE_DATA;
@@ -66,13 +67,20 @@
       title: "Environment",
       fields: [
         { id: "environment", label: "Environmental condition", type: "choice", options: ["Pressurised", "Partially pressurised", "Vacuum"],
-          hint: "Checked against the pressure reading." },
+          hint: "Sets how the pressure reading is used. Vacuum ignores it.",
+          optionHints: {
+            "Pressurised": "Held at about sea-level pressure (~101 kPa, 14.7 psia) with Earth-like air (~21% O₂), as on the ISS.",
+            "Partially pressurised": "Held below sea-level pressure on purpose, e.g. ~56.5 kPa (8.2 psia) with ~34% O₂ in exploration habitats " +
+              "to shorten spacewalk prep. Less total oxygen, but the higher O₂ share helps materials burn.",
+            "Vacuum": "Open to space: pressure is near zero, so the pressure value is ignored. With no oxygen, nothing can burn, " +
+              "but materials can still overheat and outgas.",
+          } },
         { id: "gravity", label: "Gravity condition", type: "choice", options: ["Microgravity (~0 g)", "Lunar (0.17 g)", "Martian (0.38 g)", "Earth (1 g)"],
           hint: "Microgravity changes how a flame gets oxygen. All loaded NASA tests are in microgravity." },
         { id: "internal_temp_c", label: "Internal temperature", type: "number", units: "temperature", min: -273.15, max: 2000,
           hint: "Shown against plume temperatures from the Saffire-I burn." },
         { id: "pressure_kpa", label: "Internal pressure", type: "number", units: "pressure", min: 0, max: 1000,
-          hint: "Used with O₂ for partial pressure and to find similar ACME tests." },
+          hint: "Used with O₂ for partial pressure and to find similar ACME tests. Ignored in a vacuum." },
       ],
     },
     {
@@ -117,9 +125,9 @@
       id: "materials",
       title: "Combustible materials (solids)",
       fields: [
-        { id: "material_type", label: "Material type", type: "choice", options: materials,
-          hint: "Finds SAME-R smoke tests and BASS / BASS-II burn tests for this material." },
-        { id: "material_distance_m", label: "Material distance from ignition sources", type: "number", units: "length", min: 0, max: 1000,
+        { id: "material_types", label: "Materials present", type: "multi", options: materials,
+          hint: "Tick every material nearby. Finds SAME-R smoke tests and BASS / BASS-II burns, and is compared with live readings to suggest what could be burning." },
+        { id: "material_distance_m", label: "Closest material's distance from ignition sources", type: "number", units: "length", min: 0, max: 1000,
           hint: "Flagged when closer than the minimum separation in parameters.js." },
       ],
     },
@@ -163,6 +171,15 @@
     },
   };
 
+  // How each material typically behaves when heated (general fire-science
+  // knowledge, NOT from the loaded NASA data), used to suggest which listed
+  // material could be burning:
+  //   smoulders - can burn slowly without flame (cellulose, foams), giving CO and smoke first
+  //   flames    - melts or vaporises and burns with a flame (thermoplastics, wax)
+  //   chars     - high-temperature polymer: hard to ignite, chars and smokes when overheated
+  //   resists   - barely burns in normal air; overheating gives fumes rather than CO
+  // The BASS-II CO/CO₂ ratios used alongside this are measured (data/reference-data.js).
+
   // What each material or fuel can release when it overheats or burns.
   // This is general combustion chemistry inferred from what each material is
   // made of (elements present), NOT measured in the loaded NASA data. Actual
@@ -174,27 +191,27 @@
   const HCN = ["Hydrogen cyanide (HCN)", "Highly toxic; can form when nitrogen-containing materials burn or decompose."];
   window.SMOKE_PRODUCTS = {
     materials: {
-      "Kapton": { makeup: "polyimide film (carbon, hydrogen, nitrogen, oxygen)", level: "warning",
+      "Kapton": { makeup: "polyimide film (carbon, hydrogen, nitrogen, oxygen)", level: "warning", behaviour: "chars",
         products: [ORGANIC, HCN, ["Nitrogen oxides (NOx)", "Respiratory irritants."], ["Dense smoke particles", "Obscure vision and carry adsorbed toxins."]] },
-      "Nomex": { makeup: "aramid fabric (carbon, hydrogen, nitrogen, oxygen)", level: "warning",
+      "Nomex": { makeup: "aramid fabric (carbon, hydrogen, nitrogen, oxygen)", level: "warning", behaviour: "chars",
         products: [ORGANIC, HCN, ["Smoke particles", "Irritant; carry adsorbed toxins."]] },
-      "Ultem": { makeup: "polyetherimide (carbon, hydrogen, nitrogen, oxygen)", level: "warning",
+      "Ultem": { makeup: "polyetherimide (carbon, hydrogen, nitrogen, oxygen)", level: "warning", behaviour: "chars",
         products: [ORGANIC, HCN, ["Smoke particles", "Irritant; carry adsorbed toxins."]] },
-      "Pyrell": { makeup: "flame-retardant polyurethane foam (carbon, hydrogen, nitrogen, oxygen)", level: "warning",
+      "Pyrell": { makeup: "flame-retardant polyurethane foam (carbon, hydrogen, nitrogen, oxygen)", level: "warning", behaviour: "smoulders",
         products: [ORGANIC, HCN, ["Isocyanate vapours", "Strong respiratory irritants from decomposing polyurethane."], ["Dense smoke particles", "Foams smoulder and smoke heavily."]] },
-      "Teflon": { makeup: "PTFE fluoropolymer (carbon, fluorine)", level: "serious",
+      "Teflon": { makeup: "PTFE fluoropolymer (carbon, fluorine)", level: "serious", behaviour: "resists",
         products: [["Hydrogen fluoride (HF)", "Highly toxic and corrosive; forms from fluorinated decomposition products and moisture."],
           ["Carbonyl fluoride (COF₂)", "Toxic gas from overheated PTFE."],
           ["Fluorinated fume particles", "Overheated PTFE fume causes 'polymer fume fever'."]] },
-      "PMMA (acrylic)": { makeup: "acrylic plastic (carbon, hydrogen, oxygen)", level: "info",
+      "PMMA (acrylic)": { makeup: "acrylic plastic (carbon, hydrogen, oxygen)", level: "info", behaviour: "flames",
         products: [ORGANIC, CO2, ["Methyl methacrylate vapour", "Irritant monomer released as PMMA decomposes."]] },
-      "SIBAL fabric (cotton-fiberglass)": { makeup: "cotton (cellulose) with fiberglass", level: "info",
+      "SIBAL fabric (cotton-fiberglass)": { makeup: "cotton (cellulose) with fiberglass", level: "info", behaviour: "smoulders",
         products: [ORGANIC, CO2, ["Smoke particles", "Cotton smoulders and smokes; fiberglass doesn't burn."]] },
-      "Lampwick": { makeup: "cotton (cellulose)", level: "info",
+      "Lampwick": { makeup: "cotton (cellulose)", level: "info", behaviour: "smoulders",
         products: [ORGANIC, CO2, ["Smoke particles", "Cotton smoulders and smokes."]] },
-      "Silicone": { makeup: "silicone polymer (silicon, oxygen, carbon, hydrogen)", level: "info",
+      "Silicone": { makeup: "silicone polymer (silicon, oxygen, carbon, hydrogen)", level: "info", behaviour: "resists",
         products: [ORGANIC, CO2, ["Silica (SiO₂) particles", "Fine white smoke; irritant if inhaled."]] },
-      "Wax (candle or slab)": { makeup: "paraffin or plant wax (carbon, hydrogen, oxygen)", level: "info",
+      "Wax (candle or slab)": { makeup: "paraffin or plant wax (carbon, hydrogen, oxygen)", level: "info", behaviour: "flames",
         products: [ORGANIC, CO2, ["Soot", "Wax flames are sooty; soot coats surfaces and sensors."]] },
     },
     // Hydrocarbon gas fuels (all in the fuel list): same products whatever the gas.
@@ -208,6 +225,6 @@
     o2_pct: 21.5, n2_pct: 76.3, humidity_pct: 45, co2_ppm: 3000, h2_ppm: 20, ch4_ppm: 5, co_ppm: 2,
     monitoring: "Nominal", oxidizer_leak: "None detected",
     fuel_type: "Propane", fuel_storage: "Sealed cylinder", fuel_leak: "None detected", fuel_distance_m: 2.0,
-    material_type: "Kapton", material_distance_m: 0.4,
+    material_types: ["Kapton", "PMMA (acrylic)", "SIBAL fabric (cotton-fiberglass)"], material_distance_m: 0.4,
   };
 })();

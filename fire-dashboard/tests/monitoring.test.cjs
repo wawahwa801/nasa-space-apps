@@ -83,3 +83,26 @@ test('CSV import maps columns by name and times in minutes', () => {
   assert.deepEqual({ ...out[1] }, { t: 5 * MIN, co_ppm: 9, co2_ppm: 700, o2_pct: 20.7, internal_temp_c: 23 });
   assert.throws(() => parseReadingsCsv([['1']], ['co'], 0), /No time column/);
 });
+
+test('which listed material could be burning: smouldering favours cotton, flaming favours PMMA', () => {
+  const { suspectMaterials, bassCoRatios } = context.Monitoring;
+  const ratios = bassCoRatios(context.REFERENCE_DATA.bass.tests);
+  const profiles = context.SMOKE_PRODUCTS.materials;
+  const listed = ['Teflon', 'PMMA (acrylic)', 'SIBAL fabric (cotton-fiberglass)'];
+  const seq = demoSequence(0, 5);
+  const rank = (n) => {
+    const rs = seq.slice(0, n);
+    return suspectMaterials(detect(rs, T, rs[n - 1].t + MIN), rs, listed, profiles, ratios);
+  };
+  const smoulder = rank(7);
+  assert.equal(smoulder.pattern, 'smouldering');
+  assert.equal(smoulder.items[0].material, 'SIBAL fabric (cotton-fiberglass)');
+  const flaming = rank(12);
+  assert.equal(flaming.pattern, 'flaming');
+  assert.equal(flaming.items[0].material, 'PMMA (acrylic)');
+  assert.ok(flaming.items[0].reasons.some((r) => /BASS-II/.test(r)));
+  assert.equal(flaming.items.at(-1).material, 'Teflon');
+  // No fire pattern, or nothing listed: no ranking.
+  assert.equal(rank(3), null);
+  assert.equal(suspectMaterials(detect(seq, T, seq[11].t + MIN), seq, [], profiles, ratios), null);
+});

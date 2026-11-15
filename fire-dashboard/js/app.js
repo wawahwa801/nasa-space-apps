@@ -9,6 +9,8 @@
   const T = window.THRESHOLDS;
   const SMOKE = window.SMOKE_PRODUCTS;
   const MON = window.Monitoring;
+  // Measured CO/CO₂ rise ratios from BASS-II burns, by material.
+  const CO_RATIOS = MON.bassCoRatios(REF.bass.tests);
   const SECTIONS = window.PARAMETER_SECTIONS;
   const UNITS = window.UNIT_SYSTEMS;
   const { fmt } = window.Charts;
@@ -65,6 +67,20 @@
   // Up to 6 significant figures, without trailing zeros.
   const tidy = (x) => String(Number(x.toPrecision(6)));
 
+  const VACUUM_NOTE = "Vacuum environments have near-zero pressure, so this value is ignored.";
+  const isVacuum = (v) => v && v.environment === "Vacuum";
+
+  // Older saves and exports used a single material_type.
+  function migrate(v) {
+    if (!v || typeof v !== "object") return {};
+    if (v.material_types === undefined && typeof v.material_type === "string" && v.material_type) {
+      const { material_type, ...rest } = v;
+      return { ...rest, material_types: [material_type] };
+    }
+    return v;
+  }
+  const materialsOf = (v) => (Array.isArray(v.material_types) ? v.material_types.filter((m) => typeof m === "string" && m) : []);
+
   function fieldHtml(f) {
     const id = `f-${f.id}`;
     const described = `${id}-hint ${id}-err`;
@@ -76,12 +92,41 @@
             .map((u) => `<option ${u.unit === cur ? "selected" : ""}>${esc(u.unit)}</option>`).join("")}</select>`
         : `<span class="unit">${esc(f.unit || "")}</span>`;
       control = `<div class="with-unit"><input id="${id}" type="number" inputmode="decimal" step="any" aria-describedby="${described}">${unit}</div>`;
+    } else if (f.type === "multi") {
+      control = `<div id="${id}" class="check-list" role="group" tabindex="-1" aria-labelledby="${id}-label" aria-describedby="${described}">${f.options
+        .map((o) => `<label class="check"><input type="checkbox" value="${esc(o)}" data-multi="${f.id}"><span>${esc(o)}</span></label>`).join("")}</div>`;
+      return `<div class="field" data-field="${f.id}"><span class="field-label" id="${id}-label">${esc(f.label)}</span>${control}
+      <p class="field-error" id="${id}-err" hidden></p>
+      ${f.hint ? `<p class="field-hint" id="${id}-hint">${esc(f.hint)}</p>` : ""}</div>`;
     } else {
       control = `<select id="${id}" aria-describedby="${described}"><option value="">Not specified</option>${f.options.map((o) => `<option>${esc(o)}</option>`).join("")}</select>`;
     }
+    const optionHint = f.optionHints ? `<p class="option-hint" id="${id}-opt" aria-live="polite" hidden></p>` : "";
+    const vacuumNote = f.id === "pressure_kpa" ? `<p class="field-note" id="${id}-vac" hidden>${esc(VACUUM_NOTE)}</p>` : "";
     return `<div class="field" data-field="${f.id}"><label for="${id}">${esc(f.label)}</label>${control}
+      ${optionHint}${vacuumNote}
       <p class="field-error" id="${id}-err" hidden></p>
       ${f.hint ? `<p class="field-hint" id="${id}-hint">${esc(f.hint)}</p>` : ""}</div>`;
+  }
+
+  // Show the selected option's explanation, and grey out pressure in a vacuum.
+  function syncFormState(v) {
+    for (const f of allFields()) {
+      if (!f.optionHints) continue;
+      const box = $(`#f-${CSS.escape(f.id)}-opt`);
+      if (!box) continue;
+      const text = f.optionHints[v[f.id]] || "";
+      box.textContent = text;
+      box.hidden = !text;
+    }
+    const vac = isVacuum(v);
+    const p = $("#f-pressure_kpa");
+    if (!p) return;
+    p.disabled = vac;
+    const unit = $("#f-pressure_kpa-unit");
+    if (unit) unit.disabled = vac;
+    p.closest(".field").classList.toggle("is-disabled", vac);
+    $("#f-pressure_kpa-vac").hidden = !vac;
   }
 
   function renderForm() {
@@ -102,9 +147,14 @@
   // numbers and unknown choices are left out, just like form input.
   function readExternal() {
     const v = {};
+    const ext = migrate(externalValues);
     for (const f of allFields()) {
-      const x = externalValues[f.id];
-      if (f.type === "number") {
+      const x = ext[f.id];
+      if (f.type === "multi") {
+        v[f.id] = Array.isArray(x) ? f.options.filter((o) => x.includes(o)) : [];
+      } else if (f.id === "pressure_kpa" && isVacuum(v)) {
+        v[f.id] = null; // near zero in a vacuum; the entered value is ignored
+      } else if (f.type === "number") {
         const n = x === "" || x == null ? NaN : Number(x);
         const inRange = isFinite(n) && !(f.min != null && n < f.min - 1e-9) && !(f.max != null && n > f.max + 1e-9);
         v[f.id] = inRange ? n : null;
@@ -127,8 +177,13 @@
     for (const f of allFields()) {
       const node = $(`#f-${CSS.escape(f.id)}`);
       if (!node) continue;
+      if (f.type === "multi") {
+        v[f.id] = [...node.querySelectorAll("input[type=checkbox]:checked")].map((c) => c.value);
+        continue;
+      }
       if (f.type !== "number") { v[f.id] = node.value; continue; }
       v[f.id] = null;
+      if (f.id === "pressure_kpa" && isVacuum(v)) continue; // ignored in a vacuum
       if (node.value === "") {
         if (node.validity && node.validity.badInput) errors[f.id] = "Enter a number.";
         continue;
@@ -141,12 +196,16 @@
     return { v, errors };
   }
 
-  function writeValues(v) {
+  function writeValues(values) {
+    const v = migrate(values);
     for (const f of allFields()) {
       const node = $(`#f-${CSS.escape(f.id)}`);
       if (!node) continue;
       const x = v[f.id];
-      if (f.type === "number") node.value = typeof x === "number" && isFinite(x) ? tidy(unitOf(f).fromBase(x)) : "";
+      if (f.type === "multi") {
+        const list = Array.isArray(x) ? x : [];
+        node.querySelectorAll("input[type=checkbox]").forEach((c) => { c.checked = list.includes(c.value); });
+      } else if (f.type === "number") node.value = typeof x === "number" && isFinite(x) ? tidy(unitOf(f).fromBase(x)) : "";
       // Ignore saved values that are no longer valid options.
       else node.value = f.options.includes(x) ? x : "";
     }
@@ -167,7 +226,7 @@
 
   function updateCounts(v) {
     for (const s of SECTIONS) {
-      const filled = s.fields.filter((f) => has(v[f.id])).length;
+      const filled = s.fields.filter((f) => has(v[f.id]) || (f.id === "pressure_kpa" && isVacuum(v))).length;
       const node = $(`[data-count="${s.id}"]`);
       node.textContent = `${filled}/${s.fields.length}`;
       node.classList.toggle("complete", filled === s.fields.length);
@@ -191,7 +250,7 @@
 
   // ---------------------------------------------------------- assessment
 
-  const has = (x) => x != null && x !== "" && !(typeof x === "number" && isNaN(x));
+  const has = (x) => (Array.isArray(x) ? x.length > 0 : x != null && x !== "" && !(typeof x === "number" && isNaN(x)));
 
   function fuelKey(text) {
     return (text || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter((w) => w.length > 2);
@@ -225,7 +284,10 @@
     return status === "Confirmed" ? "critical" : status === "Suspected" ? "serious" : status === "Unknown" ? "warning" : null;
   }
 
-  function assess(v) {
+  function assess(input) {
+    let v = migrate(input);
+    if (isVacuum(v)) v = { ...v, pressure_kpa: null };
+    const mats = materialsOf(v);
     const flags = [];
     const add = (level, title, detail, field) => flags.push({ level, title, detail, field });
 
@@ -265,18 +327,24 @@
     if (["Suspected", "Confirmed"].includes(v.fuel_leak) && ["Suspected", "Confirmed"].includes(v.oxidizer_leak)) {
       add("critical", "Fuel and oxidizer both leaking", "Fuel and oxidizer leaks together greatly increase the chance of ignition.", "fuel_leak");
     }
-    for (const [key, what, type] of [["fuel_distance_m", "Fuel", v.fuel_type], ["material_distance_m", "Material", v.material_type]]) {
-      if (has(v[key]) && v[key] < T.min_ignition_distance_m) {
-        add("warning", `${what} close to an ignition source`, `${type ? esc(type) + " is " : ""}${fmt(v[key])} m away, under the ${T.min_ignition_distance_m} m separation set in parameters.js.`, key);
-      }
+    const near1 = (key) => has(v[key]) && v[key] < T.min_ignition_distance_m;
+    const sep = `under the ${T.min_ignition_distance_m} m separation set in parameters.js.`;
+    if (near1("fuel_distance_m")) {
+      add("warning", "Fuel close to an ignition source", `${v.fuel_type ? esc(v.fuel_type) + " is " : ""}${fmt(v.fuel_distance_m)} m away, ${sep}`, "fuel_distance_m");
+    }
+    if (near1("material_distance_m")) {
+      add("warning", "Material close to an ignition source",
+        `${mats.length ? `The closest of ${esc(mats.join(", "))} is ` : ""}${fmt(v.material_distance_m)} m away, ${sep}`, "material_distance_m");
     }
     if (v.fuel_storage === "Open / vented") add("warning", "Fuel open or vented", `${v.fuel_type ? esc(v.fuel_type) : "The fuel"} is not contained, so it can mix with the cabin air.`, "fuel_storage");
 
     if (v.monitoring === "Offline") add("serious", "Atmospheric monitoring offline", "Gas readings may be stale or missing.", "monitoring");
     else if (v.monitoring === "Degraded" || v.monitoring === "Unknown") add("warning", `Atmospheric monitoring ${v.monitoring.toLowerCase()}`, "Treat gas readings with caution.", "monitoring");
 
-    if (v.environment === "Vacuum" && has(v.pressure_kpa) && v.pressure_kpa > 1) {
-      add("warning", "Condition and pressure disagree", `Marked as vacuum, but pressure is ${fmt(v.pressure_kpa)} kPa.`, "environment");
+    if (isVacuum(v)) {
+      add("info", "Vacuum: pressure ignored",
+        "Vacuum environments have near-zero pressure, so the pressure value is ignored and the oxygen partial pressure and ACME comparison are skipped. " +
+        "With no oxygen nothing can burn, but materials can still overheat and outgas.", "environment");
     }
     if ((v.gravity || "").startsWith("Microgravity")) {
       add("info", "Microgravity", "With no buoyant flow, a flame's oxygen supply depends on ventilation. Flames can spread upstream into the airflow and may persist at lower O₂ than on Earth.", "gravity");
@@ -294,14 +362,13 @@
     }
 
     // BASS-II: solid-material flames studied on the ISS at a range of O₂ levels.
-    const bassTests = v.material_type
-      ? REF.bass.tests.filter((t) => t.category === v.material_type && t.o2_initial_pct != null)
-      : [];
-    if (bassTests.length && has(v.o2_pct)) {
+    for (const material of mats) {
+      const bassTests = REF.bass.tests.filter((t) => t.category === material && t.o2_initial_pct != null);
+      if (!bassTests.length || !has(v.o2_pct)) continue;
       const o2s = bassTests.map((t) => t.o2_initial_pct);
       const lo = Math.min(...o2s);
       const hi = Math.max(...o2s);
-      const mat = esc(v.material_type);
+      const mat = esc(material);
       // The BASS-II matrix records starting O₂ but not ignition or extinction,
       // so this only places the user's O₂ relative to the tested range (issue #39).
       const caveat = " The test sheets don't record whether flames ignited or went out, and sample shapes and airflow varied, " +
@@ -309,7 +376,7 @@
       if (v.o2_pct >= lo && v.o2_pct <= hi) {
         add("info", `Your O₂ is within the range BASS-II tested for ${mat}`,
           `${bassTests.length} BASS-II tests studied flames on ${mat} in microgravity at starting chamber O₂ from ${fmt(lo)}% to ${fmt(hi)}%; ` +
-          `your O₂ (${fmt(v.o2_pct)}%) is inside that range.` + caveat, "material_type");
+          `your O₂ (${fmt(v.o2_pct)}%) is inside that range.` + caveat, "material_types");
       } else if (v.o2_pct > hi) {
         add("info", `Your O₂ is above the range BASS-II tested for ${mat}`,
           `BASS-II tests on ${mat} started at ${fmt(lo)}–${fmt(hi)}% O₂; your O₂ (${fmt(v.o2_pct)}%) is higher, so there is no test data at your level.` + caveat, "o2_pct");
@@ -320,21 +387,34 @@
       }
     }
 
-    // Smoke: what the selected material can release when it overheats or burns
-    // (general chemistry from its composition; see SMOKE_PRODUCTS in parameters.js).
-    const smoke = v.material_type ? SMOKE.materials[v.material_type] : null;
-    if (smoke) {
-      const mat = esc(v.material_type);
+    // Smoke: what the listed materials can release when they overheat or burn
+    // (general chemistry from their composition; see SMOKE_PRODUCTS in parameters.js).
+    // Toxic-smoke materials get their own item; the rest are grouped.
+    const general = "General combustion chemistry, not measured in the loaded data; see Smoke and soot hazards.";
+    const plain = [];
+    for (const material of mats) {
+      const smoke = SMOKE.materials[material];
+      if (!smoke) continue;
+      if (smoke.level === "info") { plain.push(material); continue; }
+      const mat = esc(material);
       const names = smoke.products.map(([name]) => name).join(", ");
-      add(smoke.level, smoke.level === "info" ? `Smoke from ${mat}` : `Toxic smoke if ${mat} overheats or burns`,
-        `${mat} (${esc(smoke.makeup)}) can release ${esc(names)}. Overheating alone can produce this smoke, before any flame. ` +
-        "General combustion chemistry, not measured in the loaded data; see Smoke and soot hazards.", "material_type");
+      add(smoke.level, `Toxic smoke if ${mat} overheats or burns`,
+        `${mat} (${esc(smoke.makeup)}) can release ${esc(names)}. Overheating alone can produce this smoke, before any flame. ` + general, "material_types");
+    }
+    if (plain.length) {
+      add("info", `Smoke from ${esc(plain.join(", "))}`,
+        `${plain.length > 1 ? "These materials" : esc(plain[0])} can release carbon monoxide, CO₂ and smoke particles when overheated or burning. ` + general, "material_types");
     }
 
     // Live monitoring: changes between timed readings (see renderMonitoring).
     const live = MON.detect(readings, monThresholds());
     const liveTop = live.events.find((e) => LEVELS[e.level] && LEVELS[e.level].rank >= LEVELS.warning.rank);
-    if (liveTop) add(liveTop.level, `Live monitoring: ${liveTop.title}`, esc(liveTop.detail), liveTop.field || undefined);
+    if (liveTop) {
+      const sus = MON.suspectMaterials(live, readings, mats, SMOKE.materials, CO_RATIOS);
+      const best = sus && sus.items.filter((i) => i.likelihood !== "Less likely");
+      const also = best && best.length ? ` Of the listed materials, ${esc(best.map((i) => i.material).join(" or "))} fit${best.length > 1 ? "" : "s"} best (indicative only; see Live monitoring).` : "";
+      add(liveTop.level, `Live monitoring: ${liveTop.title}`, esc(liveTop.detail) + also, liveTop.field || undefined);
+    }
 
     flags.sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank);
     return { flags, near };
@@ -361,7 +441,7 @@
       </div>
       ${tile("Oxygen", has(v.o2_pct) ? fmt(v.o2_pct) : "–", "%", has(v.o2_pct) ? `Enrichment threshold ${T.o2_enriched_pct}%` : "")}
       ${tile("O₂ partial pressure", pp != null ? fmt(pu.fromBase(pp)) : "–", pu.unit, `Sea-level air ${fmt(pu.fromBase(T.sea_level_ppo2_kpa))} ${pu.unit}`)}
-      ${tile("Internal pressure", has(v.pressure_kpa) ? fmt(pu.fromBase(v.pressure_kpa)) : "–", pu.unit, v.environment ? esc(v.environment) : "")}`;
+      ${tile("Internal pressure", isVacuum(v) ? "≈ 0" : has(v.pressure_kpa) ? fmt(pu.fromBase(v.pressure_kpa)) : "–", pu.unit, isVacuum(v) ? "Vacuum: value ignored" : v.environment ? esc(v.environment) : "")}`;
     $("#results-bar-summary").innerHTML = top
       ? `${badge(top)} ${issues.length} issue${issues.length === 1 ? "" : "s"}`
       : "No inputs yet";
@@ -471,10 +551,31 @@
     $("#mon-demo").textContent = "Stop demo";
   }
 
-  function renderMonitoring() {
+  function renderSuspects(result, v) {
+    const box = $("#mon-suspects");
+    if (!box) return;
+    const mats = materialsOf(v);
+    if (!result.pattern) { box.hidden = true; box.innerHTML = ""; return; }
+    box.hidden = false;
+    const what = { flaming: "a possible flaming fire", combustion: "a combustion signature", smouldering: "possible smouldering", co_rising: "rising CO" }[result.pattern];
+    if (!mats.length) {
+      box.innerHTML = `<h3>What could be burning?</h3><p class="muted">Readings show ${what}. Tick the materials present under <button type="button" class="flag-link" data-goto="material_types">Materials present</button> to compare them.</p>`;
+      return;
+    }
+    const sus = MON.suspectMaterials(result, readings, mats, SMOKE.materials, CO_RATIOS);
+    const cls = { "More likely": "likely", "Possible": "possible", "Less likely": "unlikely" };
+    box.innerHTML = `<h3>What could be burning?</h3>
+      <p class="hint">Readings show ${what}${sus.ratio !== null ? `; CO rose ${Number(sus.ratio.toPrecision(2))} ppm for every ppm of CO₂` : ""}. The materials you listed, ranked by how well each fits:</p>
+      <ol class="suspects">${sus.items.map((i) => `<li><span class="suspect-tag ${cls[i.likelihood]}">${i.likelihood}</span><div><strong>${esc(i.material)}</strong>
+        <div class="flag-detail">${i.reasons.map(esc).join(" ") || "No behaviour or test data to compare."}</div></div></li>`).join("")}</ol>
+      <p class="source-note">Indicative only, not a diagnosis. It combines each material's typical behaviour (general fire science, in <code>SMOKE_PRODUCTS</code>) with CO/CO₂ ratios measured in BASS-II burns (PMMA, SIBAL fabric and wax only). Sensor location, ventilation and mixed fuels change the ratio; check the area.</p>`;
+  }
+
+  function renderMonitoring(v) {
     const card = $("#monitor-card");
     if (!card) return;
     const result = MON.detect(readings, monThresholds());
+    renderSuspects(result, v);
     $("#mon-status").innerHTML = result.level
       ? `${badge(result.level)} <span class="mon-headline">${esc(result.headline)}</span>`
       : '<span class="muted">No readings yet</span>';
@@ -599,6 +700,13 @@
     return `${pct >= 1 ? pct.toLocaleString(undefined, { maximumFractionDigits: 2 }) : pct.toLocaleString(undefined, { maximumSignificantDigits: 3 })}%`;
   }
 
+  // The donut always shows %; only the legend values follow the % / ppm toggle.
+  function pctText(ppm) {
+    const pct = ppm / 10000;
+    if (pct === 0) return "0%";
+    return `${pct >= 1 ? pct.toLocaleString(undefined, { maximumFractionDigits: 2 }) : pct.toLocaleString(undefined, { maximumSignificantDigits: 3 })}%`;
+  }
+
   function renderComposition(v) {
     ROOT.querySelectorAll("[data-comp-unit]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.compUnit === compUnit)));
     const n2 = has(v.n2_pct) ? v.n2_pct * 10000 : null;
@@ -623,11 +731,11 @@
       { name: "Minor gases", value: traceSum, cls: "s3" },
       { name: "Unaccounted", value: other, cls: "other" },
     ];
-    for (const sl of slices) sl.tip = `<strong>${sl.name}</strong><br>${compText(sl.value)} · ${fmt((sl.value / Math.max(known, 1e6)) * 100)}% of total`;
+    for (const sl of slices) sl.tip = `<strong>${sl.name}</strong><br>${pctText(sl.value)}${compUnit === "ppm" ? ` · ${compText(sl.value)}` : ""}`;
     Charts.donut($("#composition-chart"), {
       slices, size: 180,
-      center: { value: compText(Math.min(known, 1e6)).replace(" ppm", ""), label: compUnit === "ppm" ? "ppm measured" : "measured" },
-      label: `Air composition: ${slices.filter((x) => x.value > 0).map((x) => `${x.name} ${compText(x.value)}`).join(", ")}`,
+      center: { value: pctText(Math.min(known, 1e6)), label: "measured" },
+      label: `Air composition: ${slices.filter((x) => x.value > 0).map((x) => `${x.name} ${pctText(x.value)}`).join(", ")}`,
     });
     const row = (sl) => `<li><span class="swatch ${sl.cls}" aria-hidden="true"></span><span>${sl.name}</span><span class="value">${compText(sl.value)}</span></li>`;
     legend.innerHTML = [
@@ -643,13 +751,14 @@
   }
 
   function renderBass(v) {
+    const mats = new Set(materialsOf(v));
     const tests = REF.bass.tests;
     const runs = REF.bass.bass1.runs;
     const counts = new Map();
     for (const t of tests) counts.set(t.category, (counts.get(t.category) || 0) + 1);
     const rows = [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
-      .map(([cat, n]) => ({ id: cat, label: `${cat} (${n})`, shortLabel: `${cat.split(" (")[0]} (${n})`, highlight: cat === v.material_type }));
+      .map(([cat, n]) => ({ id: cat, label: `${cat} (${n})`, shortLabel: `${cat.split(" (")[0]} (${n})`, highlight: mats.has(cat) }));
     const coText = (t) => `${fmt(t.co_initial_ppm)} → ${t.co_final_ppm != null ? fmt(t.co_final_ppm) : esc(t.co_final_raw || "–")} ppm`;
     Charts.strip($("#bass-chart"), {
       rows,
@@ -668,12 +777,13 @@
       `${tests.length} tests by six research teams. Each dot is one test at its starting chamber O₂; ` +
       `hover for the sample, CO change and recorded air flow. The earlier BASS experiment (2012–13) logged ${runs.length} runs without atmosphere readings.`;
 
-    const selected = rows.some((r) => r.highlight) ? v.material_type : null;
-    const pool = selected ? tests.filter((t) => t.category === selected) : tests;
+    const chosen = rows.filter((r) => r.highlight).map((r) => r.id);
+    const selected = chosen.length ? chosen.join(", ") : null;
+    const pool = chosen.length ? tests.filter((t) => chosen.includes(t.category)) : tests;
     const o2s = pool.map((t) => t.o2_initial_pct).filter((x) => x != null);
     const coMax = pool.filter((t) => t.co_rise_ppm != null).sort((a, b) => b.co_rise_ppm - a.co_rise_ppm)[0];
     const co2Max = Math.max(...pool.map((t) => t.co2_rise_pct ?? -Infinity));
-    const runsFor = selected ? runs.filter((r) => r.category === selected) : runs;
+    const runsFor = chosen.length ? runs.filter((r) => chosen.includes(r.category)) : runs;
     const wake = runsFor.filter((r) => r.configuration === "wake ignition").length;
     const opposed = runsFor.filter((r) => r.configuration === "opposed flow").length;
     const what = selected ? esc(selected) : "all materials";
@@ -683,12 +793,12 @@
       `<li><strong>BASS (2012–13), ${what}:</strong> ${runsFor.length} runs${wake || opposed ? `, including ${wake} wake-ignition and ${opposed} opposed-flow tests` : ""}.</li>`,
       `<li class="muted">Ignition and extinction aren't recorded as columns, so this shows the O₂ levels at which flames were studied, not whether a given fire would start.</li>`,
     ];
-    if (v.material_type && !selected) items.unshift(`<li class="muted">No BASS-II tests for "${esc(v.material_type)}"; showing all materials.</li>`);
+    if (mats.size && !chosen.length) items.unshift(`<li class="muted">No BASS-II tests for the listed materials; showing all materials.</li>`);
     $("#bass-stats").innerHTML = items.join("");
 
     $("#bass-table").innerHTML = `<table><thead><tr><th>Team</th><th>Test</th><th>Material</th><th>O₂ start → end %</th><th>CO₂ start → end %</th><th>CO start → end ppm</th></tr></thead><tbody>${[...tests]
       .sort((a, b) => a.category.localeCompare(b.category) || a.o2_initial_pct - b.o2_initial_pct)
-      .map((t) => `<tr class="${t.category === v.material_type ? "highlight" : ""}"><td>${esc(t.pi)}</td><td>${esc(t.test)}</td><td>${esc(t.material)}</td><td>${fmt(t.o2_initial_pct)} → ${fmt(t.o2_final_pct)}</td><td>${fmt(t.co2_initial_pct)} → ${fmt(t.co2_final_pct)}</td><td>${coText(t)}</td></tr>`)
+      .map((t) => `<tr class="${mats.has(t.category) ? "highlight" : ""}"><td>${esc(t.pi)}</td><td>${esc(t.test)}</td><td>${esc(t.material)}</td><td>${fmt(t.o2_initial_pct)} → ${fmt(t.o2_final_pct)}</td><td>${fmt(t.co2_initial_pct)} → ${fmt(t.co2_final_pct)}</td><td>${coText(t)}</td></tr>`)
       .join("")}</tbody></table>`;
   }
 
@@ -701,7 +811,8 @@
     const co = gasLevel(v.co_ppm, T.co_ppm);
     const co2 = gasLevel(v.co2_ppm, T.co2_ppm);
     const detection = v.monitoring === "Offline" ? "serious" : ["Degraded", "Unknown"].includes(v.monitoring) ? "warning" : v.monitoring ? "good" : null;
-    const material = v.material_type ? SMOKE.materials[v.material_type] : null;
+    const materials = materialsOf(migrate(v)).filter((m) => SMOKE.materials[m]);
+    const material = materials.map((m) => SMOKE.materials[m]).sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank)[0] || null;
     const missing = [["CO", co], ["CO₂", co2]].filter(([, lv]) => !lv).map(([name]) => name);
     const known = [co, co2, material && material.level, detection === "good" ? null : detection].filter(Boolean);
     const worst = known.sort((a, b) => LEVELS[b].rank - LEVELS[a].rank)[0] || null;
@@ -709,11 +820,12 @@
     if (worst && LEVELS[worst].rank >= LEVELS.warning.rank) overall = worst;
     else if (missing.length) overall = "unknown";
     else overall = worst || "good";
-    return { overall, co, co2, detection, material, missing };
+    return { overall, co, co2, detection, material, materials, missing };
   }
 
   function renderSmoke(v) {
-    const { overall, co, co2, detection, material, missing } = smokeStatus(v);
+    const { overall, co, co2, detection, materials, missing } = smokeStatus(v);
+    const mats = new Set(materialsOf(v));
     $("#smoke-level").innerHTML = `${badge(overall)} <span class="muted">smoke hazard${missing.length ? ` · ${missing.join(" and ")} reading${missing.length > 1 ? "s" : ""} needed` : ""}</span>`;
 
     const reading = (label, value, unit, lv, note) =>
@@ -727,7 +839,7 @@
     const productList = (title, entry) => `<li class="smoke-group">${title} <span class="muted">(${esc(entry.makeup)})</span></li>` +
       entry.products.map(([name, why]) => `<li><span>${esc(name)}</span><small>${esc(why)}</small></li>`).join("");
     const groups = [];
-    if (material) groups.push(productList(`If <strong>${esc(v.material_type)}</strong> overheats or burns`, material));
+    for (const m of materials) groups.push(productList(`If <strong>${esc(m)}</strong> overheats or burns`, SMOKE.materials[m]));
     if (v.fuel_type) groups.push(productList(`If <strong>${esc(v.fuel_type)}</strong> burns`, SMOKE.fuel));
     $("#smoke-products").innerHTML = groups.length ? groups.join("") : '<li class="muted">Select a material or fuel in the Parameters panel to see what its smoke can contain.</li>';
 
@@ -742,7 +854,7 @@
       const rises = tests.map((t) => t.co_rise_ppm).filter((x) => x != null);
       const co2r = tests.map((t) => t.co2_rise_pct).filter((x) => x != null);
       return {
-        label: cat, shortLabel: cat.split(" (")[0], value: rises.length ? Math.max(...rises) : NaN, highlight: cat === v.material_type,
+        label: cat, shortLabel: cat.split(" (")[0], value: rises.length ? Math.max(...rises) : NaN, highlight: mats.has(cat),
         tip: `<strong>${esc(cat)}</strong><br>${rises.length} tests with CO readings<br>Typical CO rise ${fmt(median(rises))} ppm, largest ${fmt(Math.max(...rises))} ppm` +
           (co2r.length ? `<br>CO₂ rise up to ${fmt(Math.max(...co2r))}%` : ""),
       };
@@ -755,9 +867,10 @@
     if ((v.gravity || "").startsWith("Microgravity")) {
       notes.push("<li><strong>Microgravity:</strong> smoke doesn't rise. It lingers around the source and moves only with ventilation airflow, so where it goes depends on the cabin fans.</li>");
     }
-    const same = v.material_type ? REF.samer.tests.filter((t) => t.material === v.material_type) : [];
+    const same = REF.samer.tests.filter((t) => mats.has(t.material));
+    const sameMats = [...new Set(same.map((t) => t.material))];
     notes.push(same.length
-      ? `<li><strong>SAME-R</strong> heated ${esc(v.material_type)} in ${same.length} tests to study the smoke spacecraft detectors must sense. Its measured particle sizes aren't in the loaded data.</li>`
+      ? `<li><strong>SAME-R</strong> heated ${esc(sameMats.join(", "))} in ${same.length} tests to study the smoke spacecraft detectors must sense. Its measured particle sizes aren't in the loaded data.</li>`
       : "<li><strong>Data gap:</strong> the loaded data doesn't measure smoke particles or toxic gases such as HCN or HF; SAME-R's particle-size results and SPICE's smoke points would fill it.</li>");
     $("#smoke-notes").innerHTML = notes.join("");
   }
@@ -769,14 +882,14 @@
 
   function renderRelated(v) {
     const out = [];
-    if (v.material_type) {
-      const same = REF.samer.tests.filter((t) => t.material === v.material_type);
-      const bass2 = REF.bass.tests.filter((t) => t.category === v.material_type);
-      const bass1 = REF.bass.bass1.runs.filter((r) => r.category === v.material_type);
+    for (const material of materialsOf(v)) {
+      const same = REF.samer.tests.filter((t) => t.material === material);
+      const bass2 = REF.bass.tests.filter((t) => t.category === material);
+      const bass1 = REF.bass.bass1.runs.filter((r) => r.category === material);
       if (bass2.length || bass1.length) {
-        out.push(`<li><strong>BASS / BASS-II burns (${esc(v.material_type)}):</strong> ${bass2.length} BASS-II tests at starting O₂ ${range(bass2.map((t) => t.o2_initial_pct))}% and ${bass1.length} earlier BASS runs. See the BASS-II chart for details.</li>`);
+        out.push(`<li><strong>BASS / BASS-II burns (${esc(material)}):</strong> ${bass2.length} BASS-II tests at starting O₂ ${range(bass2.map((t) => t.o2_initial_pct))}% and ${bass1.length} earlier BASS runs. See the BASS-II chart for details.</li>`);
       }
-      if (same.length) out.push(`<li><strong>SAME-R smoke tests (${esc(v.material_type)}):</strong> ${same.length} tests, with heater ratio Rt/R0 ${range(same.map((t) => t.heater_ratio))} and flow ${range(same.map((t) => t.inlet_velocity_cm_s))} cm/s. Shows the conditions under which this material's smoke was measured.</li>`);
+      if (same.length) out.push(`<li><strong>SAME-R smoke tests (${esc(material)}):</strong> ${same.length} tests, with heater ratio Rt/R0 ${range(same.map((t) => t.heater_ratio))} and flow ${range(same.map((t) => t.inlet_velocity_cm_s))} cm/s. Shows the conditions under which this material's smoke was measured.</li>`);
     }
     if (v.fuel_type) {
       const spice = REF.spice.runs.filter((r) => matches(r.fuel, v.fuel_type));
@@ -898,6 +1011,7 @@
   function update() {
     const { v, errors } = readValues();
     if (!external()) {
+      syncFormState(v);
       showErrors(errors);
       updateCounts(v);
       save(STORE.values, v);
@@ -909,7 +1023,7 @@
     renderComposition(v);
     renderBass(v);
     renderSmoke(v);
-    renderMonitoring();
+    renderMonitoring(v);
     renderAcme(v, result);
     renderSaffire(v);
     renderRelated(v);
@@ -973,9 +1087,10 @@
         try {
           const data = JSON.parse(String(reader.result));
           const inputs = data && typeof data.inputs === "object" ? data.inputs : data;
-          const known = Object.keys(inputs || {}).filter((k) => FIELDS[k]);
+          const migrated = migrate(inputs);
+          const known = Object.keys(migrated).filter((k) => FIELDS[k]);
           if (!known.length) throw new Error("no recognised inputs");
-          writeValues(Object.fromEntries(known.map((k) => [k, inputs[k]])));
+          writeValues(Object.fromEntries(known.map((k) => [k, migrated[k]])));
           update();
           status(`Imported ${known.length} inputs from ${file.name}.`);
         } catch {
@@ -1066,6 +1181,10 @@
       };
       reader.readAsText(file);
     });
+    $("#mon-suspects").addEventListener("click", (e) => {
+      const id = e.target.closest("[data-goto]")?.dataset.goto;
+      if (id) (OPTS.onGotoField || gotoField)(id);
+    });
     $("#mon-events").addEventListener("click", (e) => {
       const id = e.target.closest("[data-goto]")?.dataset.goto;
       if (id) (OPTS.onGotoField || gotoField)(id);
@@ -1154,7 +1273,7 @@
   // addReading({ t, co_ppm, co2_ppm, o2_pct, internal_temp_c, ... }) lets a sensor feed push readings.
   window.FireDashboard = { mount, setInputs, exportJSON, addReading };
   // Pure functions exposed for the regression tests in tests/.
-  window.FireDashboard._test = { assess, smokeStatus };
+  window.FireDashboard._test = { assess, smokeStatus, migrate };
 
   // Standalone page: mount when the dashboard markup is in the document itself.
   const autoMount = () => { if (document.getElementById("input-sections")) mount(document); };
