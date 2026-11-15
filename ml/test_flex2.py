@@ -119,7 +119,7 @@ class ApiTests(unittest.TestCase):
 
     def test_modes_and_reference_provenance(self):
         sample=self.info['library'][0];outputs=[]
-        for mode in ['cnn','retrieval']:
+        for mode in ['cnn','retrieval','hybrid']:
             r=self.c.get('/flex2/api/predict',query_string=dict(fuel=sample['fuel'],mode=mode,**sample['features']))
             self.assertEqual(r.status_code,200);result=r.get_json();outputs.append(result['image'])
             self.assertEqual(result['source'],'PSI-68');self.assertEqual(result['mode'],mode)
@@ -133,6 +133,8 @@ class ApiTests(unittest.TestCase):
         sample=self.info['library'][0]
         result=self.c.get('/flex2/api/predict',query_string=dict(fuel=sample['fuel'],mode='retrieval',library='train',**sample['features'])).get_json()
         self.assertEqual(result['reference']['split'],'train')
+        hybrid=self.c.get('/flex2/api/predict',query_string=dict(fuel=sample['fuel'],mode='hybrid',library='train',**sample['features'])).get_json()
+        self.assertEqual(hybrid['reference']['split'],'train')
         for query in ['fuel=missing','mode=bad','library=test','pressure_kpa=nan','temperature_c=inf','oxygen=21','video_time=1','pressure_kpa=1&pressure_kpa=2']:
             self.assertEqual(self.c.get('/flex2/api/predict?'+query).status_code,400,query)
 

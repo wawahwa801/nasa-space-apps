@@ -1,0 +1,32 @@
+{
+  "architecture": "aligned-soft-shape-v1",
+  "epoch": 20,
+  "targets": 262,
+  "independent_evaluation": false,
+  "files": {
+    "expanded/manifest.json": {
+      "bytes": 1266329,
+      "sha256": "89c940371596e539454589624b5ebf4fce1c85e40201a38cdae98afea672c402"
+    },
+    "expanded/prepared.npz": {
+      "bytes": 22788244,
+      "sha256": "64e7e4d6fa6e3202fca3513200919425de50a0f0536338df17b71a1e48e58e60"
+    },
+    "expanded/features.csv": {
+      "bytes": 54161,
+      "sha256": "f1ef4e67f5a158b30dbc9909bbda6656663ca9e7b1c567f8651ac49651c28aff"
+    },
+    "training/final.pt": {
+      "bytes": 2518993,
+      "sha256": "c2dfaf9cffa8d5e4bdadeb4aa1406404b4c39683b2fa808cb5b8c6147b988c26"
+    },
+    "training/run.json": {
+      "bytes": 6689,
+      "sha256": "477ca0729e5e3c56fd7365d680960888d2a93085226d777859ca1ee94a680b9c"
+    },
+    "training/metrics.jsonl": {
+      "bytes": 3781,
+      "sha256": "ec6b4ded93342ad957759fffc2960d78008bc9c48281426041d69187f5f4586a"
+    }
+  }
+}

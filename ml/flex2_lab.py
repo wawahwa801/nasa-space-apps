@@ -58,7 +58,7 @@ def build_blueprint():
         unknown=set(request.args)-set(FIELDS)-{'fuel','mode','library'}
         if unknown:return jsonify(error='Unsupported input: '+', '.join(sorted(unknown))),400
         fuel=request.args.get('fuel',fuels[0]);mode=request.args.get('mode','cnn');lib=request.args.get('library','catalog')
-        if fuel not in fuels or mode not in ['cnn','retrieval'] or lib not in ['catalog','train']:
+        if fuel not in fuels or mode not in ['cnn','retrieval','hybrid'] or lib not in ['catalog','train']:
             return jsonify(error='Unknown fuel, mode or library'),400
         f=fuels.index(fuel);values=[]
         try:
@@ -70,9 +70,13 @@ def build_blueprint():
         except (ValueError,OverflowError) as error:return jsonify(error=str(error)),400
         idx,distances=nearest(data['features'],data['fuels'],np.array(values),f,saved['scale'].numpy(),train if lib=='train' else np.arange(len(records)))
         match=int(idx[0]);reference=library[match]
-        if mode=='cnn':
+        if mode in ['cnn','hybrid']:
             with torch.inference_mode():prediction,_=net(encode(torch.tensor([values],dtype=torch.float32),torch.tensor([f]),saved['low'],saved['scale'],len(fuels)))
             display,alignment=centre_flame(np.uint8(prediction[0].permute(1,2,0).numpy().clip(0,1)*255))
+            if mode=='hybrid':
+                # Prototype: simple 50/50 pixel blend of generated CNN output and closest recorded image.
+                retrieved=np.asarray(Image.open(BytesIO(base64.b64decode(reference['image'].split(',',1)[1]))).convert('RGB'),dtype=np.float32)
+                display=np.uint8(np.clip(.5*display.astype(np.float32)+.5*retrieved,0,255))
             shown=png(display.astype('float32')/255)
         else:shown=reference['image'];alignment=reference['display_alignment']
         return jsonify(source='PSI-68',mode=mode,image=shown,features=dict(zip(FIELDS,values)),fuel=fuel,

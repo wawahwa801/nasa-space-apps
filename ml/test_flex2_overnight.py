@@ -1,0 +1,26 @@
+"""Leakage and feature-join checks for the monitored overnight runner."""
+import unittest
+import numpy as np
+
+from flex2_data import ROOT
+from flex2_overnight import load_verified
+
+
+@unittest.skipUnless((ROOT/'prepared.npz').exists(), 'published FLEX-2 library unavailable')
+class OvernightInputTests(unittest.TestCase):
+    def test_verified_features_and_references_are_run_disjoint(self):
+        data,manifest,features,references,_=load_verified()
+        self.assertEqual(features.shape[0],139)
+        self.assertEqual(data['excluded_unverified_settings_ids'],['E183L11'])
+        train=np.where(data['splits']=='train')[0]
+        for i,ref in enumerate(references):
+            self.assertIn(ref,train)
+            self.assertNotEqual(data['groups'][i],data['groups'][ref])
+        self.assertTrue(np.isfinite(features).all())
+        names=data['feature_names']
+        self.assertIn('seconds_since_igniter_on',names)
+        self.assertIn('igniter_on_time_s',names)
+        self.assertTrue(any(n.startswith('camera_shutter_code=') for n in names))
+        self.assertTrue(any(n.startswith('campaign=') for n in names))
+
+if __name__=='__main__':unittest.main()

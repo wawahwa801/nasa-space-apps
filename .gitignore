@@ -12,6 +12,14 @@ ml/data/*
 ml/data/flex2-study/*
 !ml/data/flex2-study/prepared.npz
 !ml/data/flex2-study/manifest.json
+!ml/data/flex2-expanded/
+!ml/data/flex2-expanded/*
+!ml/data/flex2-continuous-model/
+!ml/data/flex2-continuous-model/**
+!ml/data/flex2-shape-demo/
+!ml/data/flex2-shape-demo/**
+!ml/data/flex2-geometry-model/
+!ml/data/flex2-geometry-model/**
 ml/artifacts/*
 !ml/artifacts/flex2-study/
 ml/artifacts/flex2-study/*
