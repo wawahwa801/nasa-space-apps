@@ -1,0 +1,235 @@
+{
+  "version": "flex2-rgb-v2",
+  "source": "PSI-68",
+  "fields": [
+    "pressure_kpa",
+    "temperature_c"
+  ],
+  "fuels": [
+    "Decane",
+    "Heptane"
+  ],
+  "resolution": 256,
+  "parameters": 1076404,
+  "seed": 42,
+  "counts": {
+    "pairs": 24,
+    "groups": 24,
+    "splits": {
+      "train": 14,
+      "validation": 5,
+      "test": 5
+    }
+  },
+  "groups": {
+    "train": [
+      "A109D04",
+      "A123D08",
+      "A127D04",
+      "A298D04",
+      "A301D01",
+      "A301D05",
+      "E066C01",
+      "E073C01",
+      "E073C02",
+      "E073C04",
+      "E087C01",
+      "E087C02",
+      "E087C03",
+      "E087C04"
+    ],
+    "validation": [
+      "A109D08",
+      "A123D01",
+      "E066C02",
+      "E073C03",
+      "E087C07"
+    ],
+    "test": [
+      "A139D07",
+      "A307D05",
+      "E066C03",
+      "E073C09",
+      "E087C06"
+    ]
+  },
+  "selected_epoch": 20,
+  "epochs_completed": 70,
+  "max_epochs": 250,
+  "selection": "Minimum validation global MAE plus 0.5 foreground MAE; test evaluated after selection",
+  "dataset_sha256": "3726f76783a2e99cd67648f4c839d016dd03182d26ff3b329128848fb67478a5",
+  "architecture": "Feature-conditioned convolutional decoder, native full 256x256 RGB; no SPICE checkpoint or mean-image residual",
+  "features_note": "Mean of four chamber pressure and temperature channels in the five seconds before ignition; PSIA converted to kPa. Fuel is the NASA file subcategory. No per-run oxygen, droplet diameter or airflow labels inferred.",
+  "stage": "Median of four RGB frames at 4.0/4.1/4.2/4.3 seconds after recorded igniter retraction; stage proxy, not steady-state measurement",
+  "preprocessing": "Fixed 320px square crop x160:480/y100:420; clip((RGB-3)*2), Gaussian 3px sigma .6, resize to 256; no synthetic colour",
+  "history": [
+    {
+      "epoch": 1,
+      "validation_weighted_mae": 0.1541859665279457
+    },
+    {
+      "epoch": 5,
+      "validation_weighted_mae": 0.15388930464534836
+    },
+    {
+      "epoch": 10,
+      "validation_weighted_mae": 0.1533070221015489
+    },
+    {
+      "epoch": 15,
+      "validation_weighted_mae": 0.1430925010725579
+    },
+    {
+      "epoch": 20,
+      "validation_weighted_mae": 0.112657450168671
+    },
+    {
+      "epoch": 25,
+      "validation_weighted_mae": 0.11468354971758206
+    },
+    {
+      "epoch": 30,
+      "validation_weighted_mae": 0.11585823147983496
+    },
+    {
+      "epoch": 35,
+      "validation_weighted_mae": 0.11764768746693247
+    },
+    {
+      "epoch": 40,
+      "validation_weighted_mae": 0.11944076636721934
+    },
+    {
+      "epoch": 45,
+      "validation_weighted_mae": 0.12160555881374481
+    },
+    {
+      "epoch": 50,
+      "validation_weighted_mae": 0.12349270054855024
+    },
+    {
+      "epoch": 55,
+      "validation_weighted_mae": 0.12257914778092316
+    },
+    {
+      "epoch": 60,
+      "validation_weighted_mae": 0.12210153558770984
+    },
+    {
+      "epoch": 65,
+      "validation_weighted_mae": 0.12031444030804764
+    },
+    {
+      "epoch": 70,
+      "validation_weighted_mae": 0.1200705037012674
+    }
+  ],
+  "evaluation": {
+    "train": {
+      "cnn": {
+        "rgb_mae": 0.048846419900655746,
+        "rgb_mse": 0.010639646090567112,
+        "foreground_mae": 0.1534849211511439,
+        "weak_mask_iou": 0.1295543909072876,
+        "weighted_mae": 0.12558888047622768
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.03171456605195999,
+        "rgb_mse": 0.006307608913630247,
+        "foreground_mae": 0.17255985020638476,
+        "weak_mask_iou": 0.04993322119116783,
+        "weighted_mae": 0.11799449115515237
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.0,
+        "rgb_mse": 0.0,
+        "foreground_mae": 0.0,
+        "weak_mask_iou": 0.3487396538257599,
+        "weighted_mae": 0.0
+      }
+    },
+    "validation": {
+      "cnn": {
+        "rgb_mae": 0.04434514790773392,
+        "rgb_mse": 0.008763748221099377,
+        "foreground_mae": 0.13662460452187417,
+        "weak_mask_iou": 0.14735835790634155,
+        "weighted_mae": 0.112657450168671
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.031163351610302925,
+        "rgb_mse": 0.006249485537409782,
+        "foreground_mae": 0.1609165902557494,
+        "weak_mask_iou": 0.0774679034948349,
+        "weighted_mae": 0.11162164673817762
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.0425112321972847,
+        "rgb_mse": 0.01253290381282568,
+        "foreground_mae": 0.22429583209423737,
+        "weak_mask_iou": 0.0630030408501625,
+        "weighted_mae": 0.15465914824440338
+      }
+    },
+    "test": {
+      "cnn": {
+        "rgb_mae": 0.07589428871870041,
+        "rgb_mse": 0.029813338071107864,
+        "foreground_mae": 0.2632066666974306,
+        "weak_mask_iou": 0.17502276599407196,
+        "weighted_mae": 0.2074976220674157
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.03830284997820854,
+        "rgb_mse": 0.013933167792856693,
+        "foreground_mae": 0.2015599091002781,
+        "weak_mask_iou": 0.1883431375026703,
+        "weighted_mae": 0.1390828045283476
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.037395428866147995,
+        "rgb_mse": 0.015852583572268486,
+        "foreground_mae": 0.22585492961212839,
+        "weak_mask_iou": 0.13237424194812775,
+        "weighted_mae": 0.1503228936722122
+      }
+    }
+  },
+  "qualified_for_promotion": false,
+  "limitation": "Experimental feature-conditioned imagery only. Missing per-run oxygen/droplet-size labels, camera differences, weak masks and small trial splits prevent physical-accuracy or causal claims. Temperature variation may be a nuisance correlate.",
+  "feature_sensitivity": [
+    {
+      "fuel": "Decane",
+      "feature": "pressure_kpa",
+      "low": 101.92864227294922,
+      "high": 128.3079833984375,
+      "mean_absolute_pixel_change": 0.010305394418537617,
+      "maximum_pixel_change": 0.0896826982498169
+    },
+    {
+      "fuel": "Decane",
+      "feature": "temperature_c",
+      "low": 25.235000610351562,
+      "high": 27.058500289916992,
+      "mean_absolute_pixel_change": 0.003474550088867545,
+      "maximum_pixel_change": 0.07663607597351074
+    },
+    {
+      "fuel": "Heptane",
+      "feature": "pressure_kpa",
+      "low": 102.17340850830078,
+      "high": 103.32827758789062,
+      "mean_absolute_pixel_change": 0.00036202245973981917,
+      "maximum_pixel_change": 0.016059130430221558
+    },
+    {
+      "fuel": "Heptane",
+      "feature": "temperature_c",
+      "low": 23.404499053955078,
+      "high": 25.88949966430664,
+      "mean_absolute_pixel_change": 0.003552226349711418,
+      "maximum_pixel_change": 0.08848337829113007
+    }
+  ],
+  "training_seconds": 29.77562804199988
+}

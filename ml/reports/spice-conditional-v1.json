@@ -1,0 +1,496 @@
+{
+  "version": "spice-conditional-v1",
+  "resolution": 256,
+  "parameters": 1150116,
+  "fields": [
+    "nozzle_mm",
+    "fuel_sccm",
+    "air_cm_s"
+  ],
+  "fuels": [
+    "50 % Propylene",
+    "75 % Propylene",
+    "Ethylene",
+    "Propane"
+  ],
+  "counts": {
+    "pairs": 92,
+    "groups": 44,
+    "splits": {
+      "train": 64,
+      "validation": 12,
+      "test": 16
+    },
+    "fuels": {
+      "Ethylene": 20,
+      "Propane": 16,
+      "75 % Propylene": 22,
+      "50 % Propylene": 34
+    }
+  },
+  "seed": 42,
+  "selected_epoch": 75,
+  "epochs_completed": 125,
+  "max_epochs": 250,
+  "selection": "minimum validation foreground-weighted RGB MAE; test evaluated after checkpoint selection",
+  "split": "seed42 hash order within fuel; whole ignitions and duplicate physical conditions grouped",
+  "groups": {
+    "train": [
+      "045-ignition-52628",
+      "045-ignition-56542",
+      "045-ignition-56919",
+      "045-ignition-62105",
+      "045-ignition-62446",
+      "045-ignition-62868",
+      "045-ignition-62988",
+      "048-ignition-52497",
+      "048-ignition-53299",
+      "048-ignition-61296",
+      "052-ignition-42170",
+      "052-ignition-42575",
+      "052-ignition-43307",
+      "052-ignition-44479",
+      "052-ignition-44932",
+      "052-ignition-45767",
+      "052-ignition-47065",
+      "052-ignition-58445",
+      "052-ignition-62749",
+      "052-ignition-63018",
+      "052-ignition-64249",
+      "052-ignition-64690",
+      "055-ignition-32176",
+      "055-ignition-32426",
+      "055-ignition-34754",
+      "055-ignition-35616",
+      "055-ignition-36060",
+      "055-ignition-37540",
+      "055-ignition-38047",
+      "055-ignition-39140"
+    ],
+    "validation": [
+      "045-ignition-53407",
+      "045-ignition-57059",
+      "048-ignition-61881",
+      "052-ignition-41931",
+      "052-ignition-64032",
+      "055-ignition-34574",
+      "055-ignition-36939"
+    ],
+    "test": [
+      "045-ignition-56144",
+      "045-ignition-61906",
+      "048-ignition-63878",
+      "052-ignition-44804",
+      "052-ignition-58937",
+      "055-ignition-35396",
+      "055-ignition-40361"
+    ]
+  },
+  "ids": {
+    "train": [
+      "ISS018E030336",
+      "ISS018E030351",
+      "ISS018E030354",
+      "ISS018E030363",
+      "ISS018E030366",
+      "ISS018E030372",
+      "ISS018E030375",
+      "ISS018E033332",
+      "ISS018E033341",
+      "ISS018E033344",
+      "ISS018E033347",
+      "ISS018E033350",
+      "ISS018E033353",
+      "ISS018E033356",
+      "ISS018E033359",
+      "ISS018E033368",
+      "ISS018E033882",
+      "ISS018E033891",
+      "ISS018E033894",
+      "ISS018E033900",
+      "ISS018E033912",
+      "ISS018E033915",
+      "ISS018E033918",
+      "ISS018E033921",
+      "ISS018E033930",
+      "ISS018E033933",
+      "ISS018E033947",
+      "ISS018E033950",
+      "ISS018E033979",
+      "ISS018E033982",
+      "ISS018E033985",
+      "ISS018E033988",
+      "ISS018E033991",
+      "ISS018E033994",
+      "ISS018E034006",
+      "ISS018E034009",
+      "ISS018E034012",
+      "ISS018E034015",
+      "ISS018E034018",
+      "ISS018E034024",
+      "ISS018E034030",
+      "ISS018E034033",
+      "ISS018E035873",
+      "ISS018E035876",
+      "ISS018E035879",
+      "ISS018E035882",
+      "ISS018E035888",
+      "ISS018E035891",
+      "ISS018E035894",
+      "ISS018E035909",
+      "ISS018E035912",
+      "ISS018E035915",
+      "ISS018E035930",
+      "ISS018E035933",
+      "ISS018E035936",
+      "ISS018E035939",
+      "ISS018E035952",
+      "ISS018E035955",
+      "ISS018E035958",
+      "ISS018E035961",
+      "ISS018E035964",
+      "ISS018E035967",
+      "ISS018E035970",
+      "ISS018E035979"
+    ],
+    "validation": [
+      "ISS018E030339",
+      "ISS018E030357",
+      "ISS018E033374",
+      "ISS018E033876",
+      "ISS018E033997",
+      "ISS018E034000",
+      "ISS018E034003",
+      "ISS018E035897",
+      "ISS018E035900",
+      "ISS018E035903",
+      "ISS018E035946",
+      "ISS018E035949"
+    ],
+    "test": [
+      "ISS018E030342",
+      "ISS018E030345",
+      "ISS018E030360",
+      "ISS018E033380",
+      "ISS018E033906",
+      "ISS018E033909",
+      "ISS018E033953",
+      "ISS018E033956",
+      "ISS018E033959",
+      "ISS018E035918",
+      "ISS018E035921",
+      "ISS018E035924",
+      "ISS018E035927",
+      "ISS018E035982",
+      "ISS018E035985",
+      "ISS018E035988"
+    ]
+  },
+  "dataset_sha256": "2f1f0a0d53179bfde16f3a81b53ddf36d51622fbd6f8c7017b1cac098603f583",
+  "mask_note": "HSV image-derived proxy; not manually annotated or physically calibrated",
+  "architecture": "feature MLP plus condition-injected convolutional decoder; native 64x256 camera band, fixed black padding to 256x256; no mean-image residual",
+  "qualified_for_promotion": false,
+  "evaluation": {
+    "train": {
+      "cnn": {
+        "rgb_mae": 0.0037002284079790115,
+        "rgb_mse": 0.0011726353550329804,
+        "foreground_mae": 0.12175992090528677,
+        "weak_mask_iou": 0.3407714068889618,
+        "weighted_mae": 0.06458018886062239
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.006326321512460709,
+        "rgb_mse": 0.0024074881803244352,
+        "foreground_mae": 0.3384373053363787,
+        "weak_mask_iou": 0.25744593143463135,
+        "weighted_mae": 0.17554497418065007
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.0001045230237650685,
+        "rgb_mse": 6.122100603533909e-05,
+        "foreground_mae": 0.0037500723651873315,
+        "weak_mask_iou": 0.7418414354324341,
+        "weighted_mae": 0.0019795592063587344
+      }
+    },
+    "validation": {
+      "cnn": {
+        "rgb_mae": 0.004971591755747795,
+        "rgb_mse": 0.002042569685727358,
+        "foreground_mae": 0.16677348822218113,
+        "weak_mask_iou": 0.3320913314819336,
+        "weighted_mae": 0.08835833586683836
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.00684669055044651,
+        "rgb_mse": 0.0029830969870090485,
+        "foreground_mae": 0.3823589698646039,
+        "weak_mask_iou": 0.2659432590007782,
+        "weighted_mae": 0.19802617548274845
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.004938058089464903,
+        "rgb_mse": 0.0029152610804885626,
+        "foreground_mae": 0.2688092347328375,
+        "weak_mask_iou": 0.3350916802883148,
+        "weighted_mae": 0.13934267545588366
+      }
+    },
+    "test": {
+      "cnn": {
+        "rgb_mae": 0.004938582424074411,
+        "rgb_mse": 0.0018691053846850991,
+        "foreground_mae": 0.16064518328890265,
+        "weak_mask_iou": 0.3164975047111511,
+        "weighted_mae": 0.08526117406852574
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.0068524740636348724,
+        "rgb_mse": 0.0029321585316210985,
+        "foreground_mae": 0.3870327259092337,
+        "weak_mask_iou": 0.243508979678154,
+        "weighted_mae": 0.20036883701825173
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.004934394732117653,
+        "rgb_mse": 0.0030547950882464647,
+        "foreground_mae": 0.3677708063312517,
+        "weak_mask_iou": 0.29743897914886475,
+        "weighted_mae": 0.1888197978977435
+      }
+    }
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.2549417782574892,
+      "validation_weighted_mae": 0.24776969696332848
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.21598766930401325,
+      "validation_weighted_mae": 0.19271233400692026
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.1834104936569929,
+      "validation_weighted_mae": 0.1908973088349601
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.14014277886599302,
+      "validation_weighted_mae": 0.12224492006642292
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.10758240055292845,
+      "validation_weighted_mae": 0.12676282666657065
+    },
+    {
+      "epoch": 25,
+      "train_loss": 0.10984833538532257,
+      "validation_weighted_mae": 0.11016641950400911
+    },
+    {
+      "epoch": 30,
+      "train_loss": 0.10033121332526207,
+      "validation_weighted_mae": 0.10059416438643735
+    },
+    {
+      "epoch": 35,
+      "train_loss": 0.0851033590734005,
+      "validation_weighted_mae": 0.10368444235824373
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.0843724999576807,
+      "validation_weighted_mae": 0.10941527331057702
+    },
+    {
+      "epoch": 45,
+      "train_loss": 0.08163965586572886,
+      "validation_weighted_mae": 0.10877841947885582
+    },
+    {
+      "epoch": 50,
+      "train_loss": 0.07126584090292454,
+      "validation_weighted_mae": 0.10098732539123802
+    },
+    {
+      "epoch": 55,
+      "train_loss": 0.0799353439360857,
+      "validation_weighted_mae": 0.10387000468207078
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.07608445174992085,
+      "validation_weighted_mae": 0.09379542885630271
+    },
+    {
+      "epoch": 65,
+      "train_loss": 0.07591927470639348,
+      "validation_weighted_mae": 0.09181088304233664
+    },
+    {
+      "epoch": 70,
+      "train_loss": 0.07124384585767984,
+      "validation_weighted_mae": 0.1039923209660882
+    },
+    {
+      "epoch": 75,
+      "train_loss": 0.07382962433621287,
+      "validation_weighted_mae": 0.08835833586683836
+    },
+    {
+      "epoch": 80,
+      "train_loss": 0.06275770487263799,
+      "validation_weighted_mae": 0.09629155229797508
+    },
+    {
+      "epoch": 85,
+      "train_loss": 0.06729338550940156,
+      "validation_weighted_mae": 0.09446719659967118
+    },
+    {
+      "epoch": 90,
+      "train_loss": 0.07268909551203251,
+      "validation_weighted_mae": 0.09855208628533975
+    },
+    {
+      "epoch": 95,
+      "train_loss": 0.061833870597183704,
+      "validation_weighted_mae": 0.0907642799921484
+    },
+    {
+      "epoch": 100,
+      "train_loss": 0.07283441349864006,
+      "validation_weighted_mae": 0.10973660638276263
+    },
+    {
+      "epoch": 105,
+      "train_loss": 0.06266132416203618,
+      "validation_weighted_mae": 0.09620127949595073
+    },
+    {
+      "epoch": 110,
+      "train_loss": 0.0615045540034771,
+      "validation_weighted_mae": 0.09700450473596672
+    },
+    {
+      "epoch": 115,
+      "train_loss": 0.07074176426976919,
+      "validation_weighted_mae": 0.08997598117414993
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.06559033086523414,
+      "validation_weighted_mae": 0.0990783793799891
+    },
+    {
+      "epoch": 125,
+      "train_loss": 0.05659424979239702,
+      "validation_weighted_mae": 0.09228084046281784
+    }
+  ],
+  "feature_sensitivity": [
+    {
+      "fuel": "50 % Propylene",
+      "feature": "nozzle_mm",
+      "low": 0.40639999508857727,
+      "high": 1.6002000570297241,
+      "mean_absolute_pixel_change": 0.003436089726164937,
+      "maximum_pixel_change": 0.9118437767028809
+    },
+    {
+      "fuel": "50 % Propylene",
+      "feature": "fuel_sccm",
+      "low": 11.631205558776855,
+      "high": 117.47517395019531,
+      "mean_absolute_pixel_change": 0.006727593019604683,
+      "maximum_pixel_change": 0.844594419002533
+    },
+    {
+      "fuel": "50 % Propylene",
+      "feature": "air_cm_s",
+      "low": 10.065292358398438,
+      "high": 57.0760612487793,
+      "mean_absolute_pixel_change": 0.0009096062276512384,
+      "maximum_pixel_change": 0.47846928238868713
+    },
+    {
+      "fuel": "75 % Propylene",
+      "feature": "nozzle_mm",
+      "low": 0.40639999508857727,
+      "high": 1.6002000570297241,
+      "mean_absolute_pixel_change": 0.0026282963808625937,
+      "maximum_pixel_change": 0.7455229163169861
+    },
+    {
+      "fuel": "75 % Propylene",
+      "feature": "fuel_sccm",
+      "low": 9.618768692016602,
+      "high": 71.17888641357422,
+      "mean_absolute_pixel_change": 0.005476146936416626,
+      "maximum_pixel_change": 0.9919530153274536
+    },
+    {
+      "fuel": "75 % Propylene",
+      "feature": "air_cm_s",
+      "low": 37.331539154052734,
+      "high": 85.28252410888672,
+      "mean_absolute_pixel_change": 0.0016917595639824867,
+      "maximum_pixel_change": 0.6837712526321411
+    },
+    {
+      "fuel": "Ethylene",
+      "feature": "nozzle_mm",
+      "low": 0.40639999508857727,
+      "high": 1.6002000570297241,
+      "mean_absolute_pixel_change": 0.010672186501324177,
+      "maximum_pixel_change": 0.9946843385696411
+    },
+    {
+      "fuel": "Ethylene",
+      "feature": "fuel_sccm",
+      "low": 31.200000762939453,
+      "high": 231.60000610351562,
+      "mean_absolute_pixel_change": 0.021438637748360634,
+      "maximum_pixel_change": 0.9999439716339111
+    },
+    {
+      "fuel": "Ethylene",
+      "feature": "air_cm_s",
+      "low": 15.706583976745605,
+      "high": 58.01627731323242,
+      "mean_absolute_pixel_change": 0.0017473227344453335,
+      "maximum_pixel_change": 0.477059930562973
+    },
+    {
+      "fuel": "Propane",
+      "feature": "nozzle_mm",
+      "low": 0.40639999508857727,
+      "high": 1.6002000570297241,
+      "mean_absolute_pixel_change": 0.010251949541270733,
+      "maximum_pixel_change": 0.9711476564407349
+    },
+    {
+      "fuel": "Propane",
+      "feature": "fuel_sccm",
+      "low": 32.400001525878906,
+      "high": 111.5999984741211,
+      "mean_absolute_pixel_change": 0.019097737967967987,
+      "maximum_pixel_change": 0.9995530247688293
+    },
+    {
+      "fuel": "Propane",
+      "feature": "air_cm_s",
+      "low": 14.766368865966797,
+      "high": 66.47821807861328,
+      "mean_absolute_pixel_change": 0.002302231965586543,
+      "maximum_pixel_change": 0.4963337481021881
+    }
+  ],
+  "training_seconds": 110.70030195900472,
+  "limitation": "Small selected still-image subset; camera settings/stage may confound features. Unknown settings/saturation flags remain. Predictions are experimental images, not heat flux, temperature or validated fire forecasts."
+}

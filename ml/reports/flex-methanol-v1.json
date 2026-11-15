@@ -1,0 +1,108 @@
+{
+  "version": "flex-methanol-v1",
+  "resolution": 256,
+  "fields": [
+    "initial_oxygen_percent",
+    "pressure_kpa",
+    "initial_co2_percent",
+    "droplet_diameter_mm"
+  ],
+  "seed": 42,
+  "trials": {
+    "train": [
+      "C06M101",
+      "C07M101",
+      "C07M201",
+      "C05M301"
+    ],
+    "validation": [
+      "C05M101",
+      "C06M201"
+    ],
+    "test": [
+      "C05M201",
+      "C06M401"
+    ]
+  },
+  "targets_per_trial": 1,
+  "mask_ground_truth": "weak threshold on smoothed background-subtracted 16-bit camera-B signal; not manually calibrated flame ground truth",
+  "stage": "25\u201365% of reported burn duration after Test GMT; timestamp-selected post-reported-burn camera baseline, not certified dark frames. Burn-start alignment needs verification.",
+  "selection": "lowest validation RGB MSE across predeclared objectives/checkpoints; test used only after selection",
+  "candidates": [
+    {
+      "name": "rgb-focused",
+      "selected_epoch": 1,
+      "validation": {
+        "rgb_mse": 0.004258282016962767,
+        "flame_rgb_mse": 0.028112461790442467,
+        "mask_iou": 0.7114354968070984,
+        "area_absolute_fraction": 0.02991485595703125,
+        "height_absolute_fraction": 0.091796875
+      }
+    },
+    {
+      "name": "shape-assisted",
+      "selected_epoch": 40,
+      "validation": {
+        "rgb_mse": 0.004249703139066696,
+        "flame_rgb_mse": 0.02804771065711975,
+        "mask_iou": 0.6890662312507629,
+        "area_absolute_fraction": 0.00885772705078125,
+        "height_absolute_fraction": 0.091796875
+      }
+    }
+  ],
+  "selected": "shape-assisted",
+  "selected_epoch": 40,
+  "evaluation": {
+    "validation": {
+      "cnn": {
+        "rgb_mse": 0.004249703139066696,
+        "flame_rgb_mse": 0.02804771065711975,
+        "mask_iou": 0.6890662312507629,
+        "area_absolute_fraction": 0.00885772705078125,
+        "height_absolute_fraction": 0.091796875
+      },
+      "mean_image": {
+        "rgb_mse": 0.00426757475361228,
+        "flame_rgb_mse": 0.02817985601723194,
+        "mask_iou": 0.7114354968070984,
+        "area_absolute_fraction": 0.02991485595703125,
+        "height_absolute_fraction": 0.091796875
+      },
+      "nearest_condition": {
+        "rgb_mse": 0.005706442520022392,
+        "flame_rgb_mse": 0.036251798272132874,
+        "mask_iou": 0.5876250267028809,
+        "area_absolute_fraction": 0.01172637939453125,
+        "height_absolute_fraction": 0.095703125
+      }
+    },
+    "test": {
+      "cnn": {
+        "rgb_mse": 0.0015737593639642,
+        "flame_rgb_mse": 0.011745749972760677,
+        "mask_iou": 0.6621816158294678,
+        "area_absolute_fraction": 0.02004241943359375,
+        "height_absolute_fraction": 0.08984375
+      },
+      "mean_image": {
+        "rgb_mse": 0.001585623249411583,
+        "flame_rgb_mse": 0.011862337589263916,
+        "mask_iou": 0.728066086769104,
+        "area_absolute_fraction": 0.01490020751953125,
+        "height_absolute_fraction": 0.08984375
+      },
+      "nearest_condition": {
+        "rgb_mse": 0.0022329194471240044,
+        "flame_rgb_mse": 0.01690564677119255,
+        "mask_iou": 0.6840362548828125,
+        "area_absolute_fraction": 0.01950836181640625,
+        "height_absolute_fraction": 0.0234375
+      }
+    }
+  },
+  "baseline_check_passed": false,
+  "qualified_for_promotion": false,
+  "promotion_note": "Experimental only: two test trials and image-derived weak targets are insufficient to establish reliable physical accuracy; inspect every reported metric."
+}

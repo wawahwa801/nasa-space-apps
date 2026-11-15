@@ -1,0 +1,3135 @@
+{
+  "source": "PSI-68",
+  "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-68",
+  "fields": [
+    "pressure_kpa",
+    "temperature_c"
+  ],
+  "fuels": [
+    "Decane",
+    "Heptane"
+  ],
+  "records": [
+    {
+      "run": "A109D04",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        101.9286444410655,
+        25.235000000000003
+      ],
+      "archive": "PSI-68_Raw Data_A109D04D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da345ee20136af5401d4b",
+      "archive_bytes": 221865763.0,
+      "ignition": "2016-04-18T15:49:10.557000",
+      "retraction": "2016-04-18T15:49:13.831000",
+      "members": [
+        {
+          "file": "A109D04D_00310.bmp",
+          "sha256": "8e1dc46716c47c10731dd9358efde5d37723cc9653ffac51310229714373773a",
+          "timestamp": "2016-04-18T15:49:17.841845",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A109D04D_00313.bmp",
+          "sha256": "82ac356c619fccb0d76ccf88d0c9f3844e56d4c70f91381c345f0167a443158d",
+          "timestamp": "2016-04-18T15:49:17.941845",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A109D04D_00316.bmp",
+          "sha256": "18207d69f942fcfae3035954a3cad402f4e0a6d7e0ef2f5aa5bc477dc9d1422d",
+          "timestamp": "2016-04-18T15:49:18.041845",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A109D04D_00319.bmp",
+          "sha256": "9adc681ee2d62a10065b9565f0ce3f01a94f78c5cdb8cc94b70f54d23446bbac",
+          "timestamp": "2016-04-18T15:49:18.141846",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A109D04.txt",
+          "sha256": "d565c81bbc7645c0c20a308a9c5e2b1eefa84c3c16270d61982f0ecbe9c4c264",
+          "resource_id": "66eb94a8c6ad4bdc12faffbf",
+          "version": 1
+        },
+        {
+          "file": "A109D04_Chamber_Readings.txt",
+          "sha256": "62a9f1ca7181b78d2a876e285b2afa41f83d4dff7c7649387729259457037014",
+          "resource_id": "66eb94a8c6ad4bdc12faffc0",
+          "version": 1
+        },
+        {
+          "file": "A109D04_Color_Camera_Settings.txt",
+          "sha256": "21b52c1a8367dcbadc61c5d22256ee590ef0f012905c8b423425dc9e1550f79a",
+          "resource_id": "66eb94a8c6ad4bdc12faffc1",
+          "version": 1
+        },
+        {
+          "file": "A109D04_MDCA_Color_Camera_Settings.txt",
+          "sha256": "cc16bab3617080b7b103e31df865346adebba0062294821f4df085c3790f0cbd",
+          "resource_id": "66eb94a8c6ad4bdc12faffbc",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "fb2d762332cb0d01e6356d4e0ae4e138a6e8ee95c3a6c4a3e8eb03a5adea8b71",
+          "source_member": "A109D04D.txt"
+        }
+      ],
+      "bytes_retrieved": 843504,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-04-18 15:49:10.108744",
+          "ZOOM_POSITION(N/A)": "-11619",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "81",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-2",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "114",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "A109D08",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        102.1837504609065,
+        25.959999999999997
+      ],
+      "archive": "PSI-68_Raw Data_A109D08D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da347ee20136af5401d5b",
+      "archive_bytes": 365182928.0,
+      "ignition": "2016-04-18T16:40:46.985000",
+      "retraction": "2016-04-18T16:40:50.248000",
+      "members": [
+        {
+          "file": "A109D08D_00313.bmp",
+          "sha256": "e8834adfa6b3d8844a71b9712571bad39fb3cb1d2292d376cd276ee39d295675",
+          "timestamp": "2016-04-18T16:40:54.258512",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A109D08D_00316.bmp",
+          "sha256": "4516d59ea0bed3dc00aa695ac3654c5ca9352528ac2c40a6017d2f7e9f161c84",
+          "timestamp": "2016-04-18T16:40:54.358512",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A109D08D_00319.bmp",
+          "sha256": "64b86ad169a7523cb0359ebd7dcdc18b0ca3a7b26e9246d1082a7cd61643c023",
+          "timestamp": "2016-04-18T16:40:54.458512",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A109D08D_00322.bmp",
+          "sha256": "54cd4b009a9b0e716df6777dd4d4508101e57e42ea1f62eefd89b7c8305ca1de",
+          "timestamp": "2016-04-18T16:40:54.558512",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A109D08.txt",
+          "sha256": "469a37a5e6ebac2dd5f35935dc50a899a7f97ad94e59e315888728acae6395ab",
+          "resource_id": "66eb94a8c6ad4bdc12faffdf",
+          "version": 1
+        },
+        {
+          "file": "A109D08_Chamber_Readings.txt",
+          "sha256": "9ddd031966cb283a06014fc7635aa947417c32806e21f3ce3d9322ffb6fe5dc4",
+          "resource_id": "66eb94a8c6ad4bdc12faffe0",
+          "version": 1
+        },
+        {
+          "file": "A109D08_Color_Camera_Settings.txt",
+          "sha256": "e135f586dfa06d30b68a2ae56cadd16e99c78baa060ba17d1e69fad170aa9341",
+          "resource_id": "66eb94a8c6ad4bdc12faffe1",
+          "version": 1
+        },
+        {
+          "file": "A109D08_MDCA_Color_Camera_Settings.txt",
+          "sha256": "317cc19c2e876380fd61e9a3a8a38fa4c1a1bc1859ce1e820958ea10b4fdc9fd",
+          "resource_id": "66eb94a8c6ad4bdc12faffdc",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "e02848e49972b9b5759a31a4011b2d8be8ff2e49c51b49a3822c40cb95ee8593",
+          "source_member": "A109D08D.txt"
+        }
+      ],
+      "bytes_retrieved": 925610,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-04-18 16:40:46.095000",
+          "ZOOM_POSITION(N/A)": "-11619",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "81",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-2",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "115",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "validation"
+    },
+    {
+      "run": "A123D01",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        127.9977217658985,
+        25.2585
+      ],
+      "archive": "PSI-68_Raw Data_A123D01D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da355ee20136af5401de0",
+      "archive_bytes": 231579419.0,
+      "ignition": "2016-05-02T14:45:40.464000",
+      "retraction": "2016-05-02T14:45:44.409000",
+      "members": [
+        {
+          "file": "A123D01D_00330.bmp",
+          "sha256": "b3a9b8ea19eae750c317a12fb77031b4e0ea7a594db1ea52e815e6a7de3896f1",
+          "timestamp": "2016-05-02T14:45:48.408512",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A123D01D_00333.bmp",
+          "sha256": "307982bdf79517cb749a4fcd66a5d42e75dabc10b69565d977b84bc404a6562b",
+          "timestamp": "2016-05-02T14:45:48.508512",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A123D01D_00336.bmp",
+          "sha256": "2b9c9be572dac38cc7f2a989d678b4101ca09e26f1136d32c7529396bfbd4fc7",
+          "timestamp": "2016-05-02T14:45:48.608512",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A123D01D_00339.bmp",
+          "sha256": "7ec8a8a3e5f13827d6cc5914ac3a811c2e61d060aab4d579a942ade22acc8740",
+          "timestamp": "2016-05-02T14:45:48.708512",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A123D01.txt",
+          "sha256": "10c8f5552fcb188e41e3d347555c1c491cb258da0ca28834ac45d87838f52386",
+          "resource_id": "66eb94a8c6ad4bdc12fb008f",
+          "version": 1
+        },
+        {
+          "file": "A123D01_Chamber_Readings.txt",
+          "sha256": "7595ede04bdfa9ec4b6d2bc1a4cca481c714d89886796e512470ac86c4183197",
+          "resource_id": "66eb94a8c6ad4bdc12fb0090",
+          "version": 1
+        },
+        {
+          "file": "A123D01_Color_Camera_Settings.txt",
+          "sha256": "6a6b4ced434be2c07e6b3590fed04a0806385fdd458f32d1f4c948b0e4aeedff",
+          "resource_id": "66eb94a8c6ad4bdc12fb0091",
+          "version": 1
+        },
+        {
+          "file": "A123D01_MDCA_Color_Camera_Settings.txt",
+          "sha256": "e51eff10bc218c32d8cd524cff70df693890ac94223ecc0fbc33d5742d4d6282",
+          "resource_id": "66eb94a8c6ad4bdc12fb008c",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "7566a1076b356802701e8ef99634fc1f3e1aa08ab7c4ba3b24b42b8f416d5853",
+          "source_member": "A123D01D.txt"
+        }
+      ],
+      "bytes_retrieved": 841207,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-05-02 14:45:40.295000",
+          "ZOOM_POSITION(N/A)": "-11620",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "81",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-2",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "114",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "validation"
+    },
+    {
+      "run": "A123D08",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        127.52198351268147,
+        26.667
+      ],
+      "archive": "PSI-68_Raw Data_A123D08D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da363ee20136af5401e5a",
+      "archive_bytes": 341142188.0,
+      "ignition": "2016-05-02T17:08:04.072000",
+      "retraction": "2016-05-02T17:08:08.518000",
+      "members": [
+        {
+          "file": "A123D08D_00345.bmp",
+          "sha256": "7d7e6ee512561d2d3cf6ef1f4b7582557f28f89ae4a2c1b414ad114ce5dcadc4",
+          "timestamp": "2016-05-02T17:08:12.525179",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A123D08D_00348.bmp",
+          "sha256": "345b3a11b16ff79413beb049881e58b1f136f882539c28f61fd33de05669182d",
+          "timestamp": "2016-05-02T17:08:12.625179",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A123D08D_00351.bmp",
+          "sha256": "7f64b5fb40df536e5f8d7d98e7e46a05ce3dde4767321cc0dee8b587eab2d65a",
+          "timestamp": "2016-05-02T17:08:12.725179",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A123D08D_00354.bmp",
+          "sha256": "329228300fa1f4129be1601c174ea6abe0cd9235ecdc83e8aeaaabdb4bc6ad42",
+          "timestamp": "2016-05-02T17:08:12.825179",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A123D08.txt",
+          "sha256": "182cc58e471f550157b9355f8f6a6968fe10c5617dce859e4bb533b5fb4c5118",
+          "resource_id": "66eb94a8c6ad4bdc12fb00bb",
+          "version": 1
+        },
+        {
+          "file": "A123D08_Chamber_Readings.txt",
+          "sha256": "d4297d11d01e07e1a7d7c89f041839b01762ac1a979e408e939fdfec13960468",
+          "resource_id": "66eb94a8c6ad4bdc12fb00bc",
+          "version": 1
+        },
+        {
+          "file": "A123D08_Color_Camera_Settings.txt",
+          "sha256": "cb11dd1a2dd4325da623ec55aaae0470f6c5de4a76c5b027614a60b0d55c4802",
+          "resource_id": "66eb94a8c6ad4bdc12fb00bd",
+          "version": 1
+        },
+        {
+          "file": "A123D08_MDCA_Color_Camera_Settings.txt",
+          "sha256": "28504730a1b5b5cd7a09a95533d8667efc968f5a97dddcae680f836e09ea5470",
+          "resource_id": "66eb94a8c6ad4bdc12fb00b8",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "9a528787c393179488bc7494b8687284540ced07c2fcb60ce30a91011b30e08d",
+          "source_member": "A123D08D.txt"
+        }
+      ],
+      "bytes_retrieved": 966949,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-05-02 17:08:04.306000",
+          "ZOOM_POSITION(N/A)": "3000",
+          "FOCUS_NEAR_LIMIT(N/A)": "192",
+          "FOCUS_POSITION(N/A)": "29257",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "0",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "High",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Stopped",
+          "FOCUS_COMMAND(N/A)": "Stopped",
+          "ZOOM_COMMAND(N/A)": "Stopped",
+          "RGAIN(N/A)": "210",
+          "BGAIN(N/A)": "156",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "5",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/60",
+          "IRIS_POSITION(N/A)": "F1.4",
+          "GAIN_POSITION(N/A)": "0dB",
+          "BRIGHT_POSITION(N/A)": "F1.4 18dB",
+          "EXPOSURE_COMP_POSITION(N/A)": "0",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "On",
+          "IR_LIGHT(N/A)": "On",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "Off",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "Off",
+          "WIDE_CINEMA(N/A)": "Off",
+          "TITLE_DISPLAY(N/A)": "Off",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "Off",
+          "DATE_DISPLAY(N/A)": "Off",
+          "PICTURE_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "0",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "Yes",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "5"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "A127D04",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        128.30798584408353,
+        26.737000000000002
+      ],
+      "archive": "PSI-68_Raw Data_A127D04D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da36aee20136af5401e99",
+      "archive_bytes": 348763773.0,
+      "ignition": "2016-05-06T16:59:31.833000",
+      "retraction": "2016-05-06T16:59:36.480000",
+      "members": [
+        {
+          "file": "A127D04D_00350.bmp",
+          "sha256": "cdd46de782ae47ad6b9fe3a1bd5074d6d5ebbd04d1b937d7531e5712a73079db",
+          "timestamp": "2016-05-06T16:59:40.475178",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A127D04D_00353.bmp",
+          "sha256": "ed47b30e2a060618ea6d3c656db0955affc91fc9353a5dee12fd44029f8936ab",
+          "timestamp": "2016-05-06T16:59:40.575178",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A127D04D_00356.bmp",
+          "sha256": "f3c15fbb2399ac0f1dbbbe0482463f3afde9f13f1074490660f0bc0f2f29255c",
+          "timestamp": "2016-05-06T16:59:40.675178",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A127D04D_00359.bmp",
+          "sha256": "98a1eedf830813c522b8b1fe4bcce0e46f966c257d2145abc27d81ae113b2673",
+          "timestamp": "2016-05-06T16:59:40.775179",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A127D04.txt",
+          "sha256": "e468e52651314a995ca7e879e71d54acc6f072d2703143501405704bb8202855",
+          "resource_id": "66eb94a8c6ad4bdc12fb0231",
+          "version": 1
+        },
+        {
+          "file": "A127D04_Chamber_Readings.txt",
+          "sha256": "61fbf76ff688ff3799d47e5326b5dcc550c74ba6dae22c17d588d92bab591138",
+          "resource_id": "66eb94a8c6ad4bdc12fb0232",
+          "version": 1
+        },
+        {
+          "file": "A127D04_Color_Camera_Settings.txt",
+          "sha256": "9035811f448f0e3d5300852d004039d17fd0c98c13d522a47382f27f431981c8",
+          "resource_id": "66eb94a8c6ad4bdc12fb0233",
+          "version": 1
+        },
+        {
+          "file": "A127D04_MDCA_Color_Camera_Settings.txt",
+          "sha256": "7bf195e1eb0a4a0721410eab61467fe81449b78fc4b049b0a0033af761e5f6ad",
+          "resource_id": "66eb94a8c6ad4bdc12fb022e",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "0d0e5f2eb6058124fc03bb4ef306ec48e1ace247fc55947660df102cbb77a9d6",
+          "source_member": "A127D04D.txt"
+        }
+      ],
+      "bytes_retrieved": 886687,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-05-06 16:59:31.468000",
+          "ZOOM_POSITION(N/A)": "-11365",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "81",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-2",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "115",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "A139D07",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        205.477556845986,
+        26.787
+      ],
+      "archive": "PSI-68_Raw Data_A139D07D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da390ee20136af5401ff4",
+      "archive_bytes": 382539803.0,
+      "ignition": "2016-05-18T17:50:13.470000",
+      "retraction": "2016-05-18T17:50:20.436000",
+      "members": [
+        {
+          "file": "A139D07D_00434.bmp",
+          "sha256": "956fd0b5b4754a3dc8e09dc6fb4526385b914b1a9f47e4c8a99fa945210534a4",
+          "timestamp": "2016-05-18T17:50:24.441846",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A139D07D_00437.bmp",
+          "sha256": "db905f7474bad8519ded8dc07e43552d2b6790ab4b05b0e93756e9dc39796467",
+          "timestamp": "2016-05-18T17:50:24.541846",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A139D07D_00440.bmp",
+          "sha256": "a7aaaab39c4948f9c824735e30183eb0e7e2aa8cbdeb92788ef6effad8df7f51",
+          "timestamp": "2016-05-18T17:50:24.641846",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A139D07D_00443.bmp",
+          "sha256": "abb0619d075eb611cc8d408b5b8c4ae1d01a105676968182b8221c0c1b241a4c",
+          "timestamp": "2016-05-18T17:50:24.741846",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A139D07.txt",
+          "sha256": "6ef45f6e8f9357cf08f9259206a2a10c3075bb38a587a72142a37759b040e51a",
+          "resource_id": "66eb94a8c6ad4bdc12fb02f5",
+          "version": 1
+        },
+        {
+          "file": "A139D07_Chamber_Readings.txt",
+          "sha256": "fc0d5f96c0b02cfa4d2e8b931bfe60a663219e6be7b7d525a06f597dad4725e1",
+          "resource_id": "66eb94a8c6ad4bdc12fb02f6",
+          "version": 1
+        },
+        {
+          "file": "A139D07_Color_Camera_Settings.txt",
+          "sha256": "44d45e9f8c891dad1edbfa4b4770b0001b9500ae647cc2173578b039d164be54",
+          "resource_id": "66eb94a8c6ad4bdc12fb02f7",
+          "version": 1
+        },
+        {
+          "file": "A139D07_MDCA_Color_Camera_Settings.txt",
+          "sha256": "b74fb519ae310bf4bd78e56b0b02568baec738a14784adf6533ffe9d73a46e49",
+          "resource_id": "66eb94a8c6ad4bdc12fb02f2",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "9c828291f55c1136f1329db110a9d813aae0d977ae0256385ce9e058cddff6e3",
+          "source_member": "A139D07D.txt"
+        }
+      ],
+      "bytes_retrieved": 898227,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-05-18 17:50:13.276000",
+          "ZOOM_POSITION(N/A)": "-11619",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "81",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-2",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "115",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "test"
+    },
+    {
+      "run": "A298D04",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        104.0867034737745,
+        26.898999999999994
+      ],
+      "archive": "PSI-68_Raw Data_A298D04D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da39fee20136af5402076",
+      "archive_bytes": 451811071.0,
+      "ignition": "2016-10-24T17:01:57.754000",
+      "retraction": "2016-10-24T17:02:01.721000",
+      "members": [
+        {
+          "file": "A298D04D_00330.bmp",
+          "sha256": "e0b81cadaf251efb2291161d2ef083b8dc468b0cfd124425722eda2653d8c656",
+          "timestamp": "2016-10-24T17:02:05.708512",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A298D04D_00333.bmp",
+          "sha256": "5ac7a8d1392ba5f20d1ecf66fa0f305ecf566d7b3a6a7c893be2f24c68c29d03",
+          "timestamp": "2016-10-24T17:02:05.808512",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A298D04D_00336.bmp",
+          "sha256": "b8fc1c7f442368c98b7f3904d5c20a4fd5aaf1ba5245a9811b1502e81d39401a",
+          "timestamp": "2016-10-24T17:02:05.908512",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A298D04D_00339.bmp",
+          "sha256": "b53e878af4c4c59ff622784956ba79f55d58af1a7da0ada519169286cb7b4fea",
+          "timestamp": "2016-10-24T17:02:06.008512",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A298D04.txt",
+          "sha256": "544dc69b6adabdcb5a5d1a163037b9e73fcab22fab97379dd4711704f4ad6c98",
+          "resource_id": "66eb94a8c6ad4bdc12fb0328",
+          "version": 1
+        },
+        {
+          "file": "A298D04_Chamber_Readings.txt",
+          "sha256": "bee73194e0f770eecf2416db6b51ae5431c35ab5fb22b0774f5408a3fad0758b",
+          "resource_id": "66eb94a8c6ad4bdc12fb0329",
+          "version": 1
+        },
+        {
+          "file": "A298D04_Color_Camera_Settings.txt",
+          "sha256": "63110e49fceb90eba1a27307d02c8e43c6df194ffa8e5a7b4edcedc7c252913b",
+          "resource_id": "66eb94a8c6ad4bdc12fb032a",
+          "version": 1
+        },
+        {
+          "file": "A298D04_MDCA_Color_Camera_Settings.txt",
+          "sha256": "98df221bf3d1146432275386601567c34086997f6f676f65ea38295aa2626554",
+          "resource_id": "66eb94a8c6ad4bdc12fb0325",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "5366ba39480594726e549d27d3cb239808fab21a877e2d2b044cd6d3bcfce4f2",
+          "source_member": "A298D04D.txt"
+        }
+      ],
+      "bytes_retrieved": 998165,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-10-24 17:01:56.640744",
+          "ZOOM_POSITION(N/A)": "3000",
+          "FOCUS_NEAR_LIMIT(N/A)": "192",
+          "FOCUS_POSITION(N/A)": "26624",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "0",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "High",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Stopped",
+          "FOCUS_COMMAND(N/A)": "Stopped",
+          "ZOOM_COMMAND(N/A)": "Stopped",
+          "RGAIN(N/A)": "209",
+          "BGAIN(N/A)": "158",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "5",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/60",
+          "IRIS_POSITION(N/A)": "F1.6",
+          "GAIN_POSITION(N/A)": "0dB",
+          "BRIGHT_POSITION(N/A)": "F1.4 18dB",
+          "EXPOSURE_COMP_POSITION(N/A)": "0",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "On",
+          "IR_LIGHT(N/A)": "On",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "Off",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "Off",
+          "WIDE_CINEMA(N/A)": "Off",
+          "TITLE_DISPLAY(N/A)": "Off",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "Off",
+          "DATE_DISPLAY(N/A)": "Off",
+          "PICTURE_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "0",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "Yes",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "5"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "A301D01",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        102.4733302672125,
+        26.362000000000002
+      ],
+      "archive": "PSI-68_Raw Data_A301D01D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3a7ee20136af54020c6",
+      "archive_bytes": 602798550.0,
+      "ignition": "2016-10-27T13:45:57.397000",
+      "retraction": "2016-10-27T13:46:01.355000",
+      "members": [
+        {
+          "file": "A301D01D_00330.bmp",
+          "sha256": "37f0c28d4e9eca8ffc356142050b3fcc2ef5283237c1ddab16ed97e72f68e57d",
+          "timestamp": "2016-10-27T13:46:05.341846",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A301D01D_00333.bmp",
+          "sha256": "0421c7eb5e4810a9c06340514d17780f854cfdd67d07e9af9d1956bea9d902b2",
+          "timestamp": "2016-10-27T13:46:05.441846",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A301D01D_00336.bmp",
+          "sha256": "6063a686c202b841effdf4f87e6b35e027dcfe3731452eb6155979cd0b8cc55a",
+          "timestamp": "2016-10-27T13:46:05.541846",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A301D01D_00339.bmp",
+          "sha256": "e01e6f82ab4b6d2463cff52070b64f87b6014a3ec021b1f3634f7f2a603ad139",
+          "timestamp": "2016-10-27T13:46:05.641846",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A301D01.txt",
+          "sha256": "5c7db45bffe05c37c10b54c151fd9a26d1d8f141cfaabfa4dc7dd178da008334",
+          "resource_id": "66eb94a9c6ad4bdc12fb0367",
+          "version": 1
+        },
+        {
+          "file": "A301D01_Chamber_Readings.txt",
+          "sha256": "05e6cfcaf457e7c7cb3dd0e15730f20c4fb72c2315dbd50869882fa4d9d4f024",
+          "resource_id": "66eb94a9c6ad4bdc12fb0368",
+          "version": 1
+        },
+        {
+          "file": "A301D01_Color_Camera_Settings.txt",
+          "sha256": "a5186bdf52ef1eb8eec907287d858933248938178873bd7b802e1478d9d4b715",
+          "resource_id": "66eb94a9c6ad4bdc12fb0369",
+          "version": 1
+        },
+        {
+          "file": "A301D01_MDCA_Color_Camera_Settings.txt",
+          "sha256": "1d125a14531aecb899ebe5ea2d8b091f6006c92677afc9967e7ab5284de32ccb",
+          "resource_id": "66eb94a9c6ad4bdc12fb0364",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "6f616ccbadea4602513e41f9b939615a9ee2acea7fb7cb8e6f15688f87257541",
+          "source_member": "A301D01D.txt"
+        }
+      ],
+      "bytes_retrieved": 975997,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-10-27 13:45:57.128000",
+          "ZOOM_POSITION(N/A)": "-11365",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-2",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "112",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "A301D05",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        102.8732261902065,
+        27.0585
+      ],
+      "archive": "PSI-68_Raw Data_A301D05D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3b3ee20136af5402134",
+      "archive_bytes": 745375012.0,
+      "ignition": "2016-10-27T15:38:45.462000",
+      "retraction": "2016-10-27T15:38:50.423000",
+      "members": [
+        {
+          "file": "A301D05D_00367.bmp",
+          "sha256": "4fb3b17a98ac7516812e83b91ce498bfa0d8d895aa8ebb74f1b5eca7d2235ff9",
+          "timestamp": "2016-10-27T15:38:54.408512",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A301D05D_00370.bmp",
+          "sha256": "60341c66b85988585f40d459f4d618fd25b9471b34b146cc19d9498f4d7e98fe",
+          "timestamp": "2016-10-27T15:38:54.508512",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A301D05D_00373.bmp",
+          "sha256": "2f507a6810a5c56d23949db319f5f912f0e3c92a746e6034c5b367ecd51a73c3",
+          "timestamp": "2016-10-27T15:38:54.608512",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A301D05D_00376.bmp",
+          "sha256": "8bb614698b77a9d6f562f8ba8e33116f4ac247384c1fa999b2aacf0a8bb8efc5",
+          "timestamp": "2016-10-27T15:38:54.708512",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A301D05.txt",
+          "sha256": "e0ba6fd5e030798723a605a45160b78420f7b6694a318d5e0fd1ac2874c41cbf",
+          "resource_id": "66eb94a9c6ad4bdc12fb038c",
+          "version": 1
+        },
+        {
+          "file": "A301D05_Chamber_Readings.txt",
+          "sha256": "4ab4b73e61d7dbf9a5035987dfe48a58155931dccbb5a413a5be78b9d7c66165",
+          "resource_id": "66eb94a9c6ad4bdc12fb038d",
+          "version": 1
+        },
+        {
+          "file": "A301D05_Color_Camera_Settings.txt",
+          "sha256": "fe2a554fff265f4a332cc9b0f0c5144e24869e6a71db86a64d3af933ce4bc796",
+          "resource_id": "66eb94a9c6ad4bdc12fb038e",
+          "version": 1
+        },
+        {
+          "file": "A301D05_MDCA_Color_Camera_Settings.txt",
+          "sha256": "ce7c93da9bbf99f3d352639c108e71994aadeda7051e81ea1f210babcef171d0",
+          "resource_id": "66eb94a9c6ad4bdc12fb0389",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "8778381f576e8142318a425d3e857859dcbff6489d1f33336c067aaf614d27bb",
+          "source_member": "A301D05D.txt"
+        }
+      ],
+      "bytes_retrieved": 1100794,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-10-27 15:38:45.128000",
+          "ZOOM_POSITION(N/A)": "-11365",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-2",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "112",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "A307D05",
+      "fuel": "Decane",
+      "category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "features": [
+        300.170153508048,
+        27.226999999999997
+      ],
+      "archive": "PSI-68_Raw Data_A307D05D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3beee20136af5402197",
+      "archive_bytes": 405462174.0,
+      "ignition": "2016-11-02T17:10:46.774000",
+      "retraction": "2016-11-02T17:10:53.197000",
+      "members": [
+        {
+          "file": "A307D05D_00431.bmp",
+          "sha256": "e4f2a6a67a162f4a12f7a4c922bc4864d9649b69e0841a5c55fe5b97ddc27e22",
+          "timestamp": "2016-11-02T17:10:57.191846",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "A307D05D_00434.bmp",
+          "sha256": "49be87e5cd4b6e5da8457b93bb1d96a6f29de21c7b08d3beb887514f154b75f1",
+          "timestamp": "2016-11-02T17:10:57.291846",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "A307D05D_00437.bmp",
+          "sha256": "4a58622f073cded326fc691db28af84b983b7e1f3d44d909dedc1c8cca6964f6",
+          "timestamp": "2016-11-02T17:10:57.391846",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "A307D05D_00440.bmp",
+          "sha256": "ca6f626ef27292f6a2a19e6a69c696ad8c7a91679e459c19ef4d5869f754a56b",
+          "timestamp": "2016-11-02T17:10:57.491846",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "A307D05.txt",
+          "sha256": "867aa968771920048987531520fce90d066c6e6e11ffcc1a906a6ce8ff44821a",
+          "resource_id": "66eb94a9c6ad4bdc12fb03cc",
+          "version": 1
+        },
+        {
+          "file": "A307D05_Chamber_Readings.txt",
+          "sha256": "19f21fabcba0d7b98a14e63d06656adcc1bdcbc12d11e0d50cb6bbe7bfc3445c",
+          "resource_id": "66eb94a9c6ad4bdc12fb03cd",
+          "version": 1
+        },
+        {
+          "file": "A307D05_Color_Camera_Settings.txt",
+          "sha256": "fe6c4e8916a8901ab0f2317daefb4b552d8df14e14576dd77cea04ddfc4702aa",
+          "resource_id": "66eb94a9c6ad4bdc12fb03c4",
+          "version": 1
+        },
+        {
+          "file": "A307D05_MDCA_Color_Camera_Settings.txt",
+          "sha256": "1084008cec25ed9f5eca5d7a5b96c57c0ae9f4f8f24e4bdd089b6c4378c4d74e",
+          "resource_id": "66eb94a9c6ad4bdc12fb03c9",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "8e84196bb9fc49c1d48d80ca4cfdc026a1907cb7a89803fb278de4b60a69ffcb",
+          "source_member": "A307D05D.txt"
+        }
+      ],
+      "bytes_retrieved": 1016734,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2016-11-02 17:10:46.148000",
+          "ZOOM_POSITION(N/A)": "-11366",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-2",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "117",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "test"
+    },
+    {
+      "run": "E066C01",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        103.3282801715445,
+        25.889500000000005
+      ],
+      "archive": "PSI-68_Raw Data_E066C01D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3a6ee20136af54020bf",
+      "archive_bytes": 380217641.0,
+      "ignition": "2013-03-08T02:24:56.042000",
+      "retraction": "2013-03-08T02:24:57.748000",
+      "members": [
+        {
+          "file": "E066C01D_00269.bmp",
+          "sha256": "5dc032f55ab57a714cb80f9ccb126bdaf452a2b80bf55871878e25137f095851",
+          "timestamp": "2013-03-08T02:25:01.741846",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E066C01D_00272.bmp",
+          "sha256": "9ca91e2bd1fff85aba65a0828c0df0f693b812c9f6803d6db773f021a3f35abe",
+          "timestamp": "2013-03-08T02:25:01.841845",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E066C01D_00275.bmp",
+          "sha256": "999d318bedded7ba86d1be02ae1193c9954ad8777f02755a160cdcfac8958ac1",
+          "timestamp": "2013-03-08T02:25:01.941845",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E066C01D_00278.bmp",
+          "sha256": "14fad2288661b36b447732a1686fec76427b4fc2e59325b17dd7dc302245b131",
+          "timestamp": "2013-03-08T02:25:02.041845",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E066C01.txt",
+          "sha256": "da1322460c35679d795aa2555257f1db48adaed41fe096aad70a69dc03160b9e",
+          "resource_id": "66eb94a5c6ad4bdc12faf358",
+          "version": 1
+        },
+        {
+          "file": "E066C01_Chamber_Readings.txt",
+          "sha256": "229d5304f2033f650eb632e2f8c13491163ee3592fb136d832cef579f1e916f1",
+          "resource_id": "66eb94a5c6ad4bdc12faf359",
+          "version": 1
+        },
+        {
+          "file": "E066C01_Color_Camera_Settings.txt",
+          "sha256": "7c982605ded8bdcb50aca05a70b178f3c331f01fc33deb08f529907055c8c8e1",
+          "resource_id": "66eb94a5c6ad4bdc12faf35a",
+          "version": 1
+        },
+        {
+          "file": "E066C01_MDCA_Color_Camera_Settings.txt",
+          "sha256": "261515b44d928d749d473d459b02aceb7414de65a9f8d93f71ec64bd38d52771",
+          "resource_id": "66eb94a5c6ad4bdc12faf354",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "09af4152c5c7f7c86d4674bd3fff7a3c48838a82e5220659a96d474931abc572",
+          "source_member": "E066C01D.txt"
+        }
+      ],
+      "bytes_retrieved": 1133317,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-08 02:24:56.236744",
+          "ZOOM_POSITION(N/A)": "-11366",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "112",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "E066C02",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        103.41791201635348,
+        26.062
+      ],
+      "archive": "PSI-68_Raw Data_E066C02D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3a7ee20136af54020c9",
+      "archive_bytes": 457123413.0,
+      "ignition": "2013-03-08T02:42:25.636000",
+      "retraction": "2013-03-08T02:42:27.342000",
+      "members": [
+        {
+          "file": "E066C02D_00276.bmp",
+          "sha256": "608495a8f9141e5ee1e37bf7c4a7f2918c9062bcd50d47d956ff2d84e1803172",
+          "timestamp": "2013-03-08T02:42:31.341846",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E066C02D_00279.bmp",
+          "sha256": "cadff5aa396b597b7e297d2a03217b337de3cfd25e94a1421b8a7d573250d835",
+          "timestamp": "2013-03-08T02:42:31.441846",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E066C02D_00282.bmp",
+          "sha256": "9028dc58dc45f2ed171d28c5c957b45220e19322a5785097f1a822bbd9199748",
+          "timestamp": "2013-03-08T02:42:31.541846",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E066C02D_00285.bmp",
+          "sha256": "1989613fd979c2b1ec1cc72c32060043bb32d027391078dda86528500de529fc",
+          "timestamp": "2013-03-08T02:42:31.641846",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E066C02.txt",
+          "sha256": "7b7b4e4b8100b2493c61c8255939cb44f80cecec632eec141f8885c1d2ad1f82",
+          "resource_id": "66eb94a5c6ad4bdc12faf362",
+          "version": 1
+        },
+        {
+          "file": "E066C02_Chamber_Readings.txt",
+          "sha256": "8344e0e70809a6c37b6da7391137d47df1b420d9ddeadf93cd5e4a575f56b944",
+          "resource_id": "66eb94a5c6ad4bdc12faf363",
+          "version": 1
+        },
+        {
+          "file": "E066C02_Color_Camera_Settings.txt",
+          "sha256": "df2fb89d09fc7b73726708417841602502982484ce5f59ae0b5cc0c37039e2cf",
+          "resource_id": "66eb94a5c6ad4bdc12faf364",
+          "version": 1
+        },
+        {
+          "file": "E066C02_MDCA_Color_Camera_Settings.txt",
+          "sha256": "31dfe6bc904087d528f065e9e4f2b5277ccb95566c4aa27da8b55b4b07ff9c8d",
+          "resource_id": "66eb94a5c6ad4bdc12faf35e",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "e94ecca4b35e7443c59c19be28e065fdbc83baafa7b034765cc9d07fd90073a9",
+          "source_member": "E066C02D.txt"
+        }
+      ],
+      "bytes_retrieved": 1166766,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-08 02:42:25.235744",
+          "ZOOM_POSITION(N/A)": "-11366",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "96",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "validation"
+    },
+    {
+      "run": "E066C03",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        103.531675511688,
+        26.371
+      ],
+      "archive": "PSI-68_Raw Data_E066C03D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3a9ee20136af54020d3",
+      "archive_bytes": 311902935.0,
+      "ignition": "2013-03-08T03:24:23.444000",
+      "retraction": "2013-03-08T03:24:25.150000",
+      "members": [
+        {
+          "file": "E066C03D_00269.bmp",
+          "sha256": "076f4e74ea85772297f109dd38dec238c31f4f0e8d3ed269a38cc0e19900760d",
+          "timestamp": "2013-03-08T03:24:29.141845",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E066C03D_00272.bmp",
+          "sha256": "74bc008ffa2ef731014d1151d255e7b496eb7a5b26a1d12b7dd24dddb7a3376d",
+          "timestamp": "2013-03-08T03:24:29.241845",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E066C03D_00275.bmp",
+          "sha256": "88dbe1a4c3edb85c8eb5fd5c7e4e776b093d8b6eb8cf463f552e38ab16adb95d",
+          "timestamp": "2013-03-08T03:24:29.341845",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E066C03D_00278.bmp",
+          "sha256": "dab45b9b0d2a9b17b790bceab28dd5d3fb2027e18ebfe180f5a4639e2d4ece49",
+          "timestamp": "2013-03-08T03:24:29.441845",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E066C03.txt",
+          "sha256": "e7340e024bd21623856aa95eb5a5a3a99e1cd4cdbe9095dacfe4990bc926b7ce",
+          "resource_id": "66eb94a5c6ad4bdc12faf36b",
+          "version": 1
+        },
+        {
+          "file": "E066C03_Chamber_Readings.txt",
+          "sha256": "2c599c97e701fe6e1e1392428aadf05227862d10791f24e55ad13b7f5579cc01",
+          "resource_id": "66eb94a5c6ad4bdc12faf36c",
+          "version": 1
+        },
+        {
+          "file": "E066C03_Color_Camera_Settings.txt",
+          "sha256": "102954da77bddeb0d91665b05d4c12b84a79c7f2eb0536650629ee327ad93c09",
+          "resource_id": "66eb94a5c6ad4bdc12faf36d",
+          "version": 1
+        },
+        {
+          "file": "E066C03_MDCA_Color_Camera_Settings.txt",
+          "sha256": "ebeea31648d09b44f838befa9c9c0f9040a98ed6d7884c993e7f4a194a588165",
+          "resource_id": "66eb94a5c6ad4bdc12faf367",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "8ec9151736fe634807832d18813485c95116b5d2e7522902690fcee2ec265144",
+          "source_member": "E066C03D.txt"
+        }
+      ],
+      "bytes_retrieved": 1086884,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-08 03:24:23.234000",
+          "ZOOM_POSITION(N/A)": "-11366",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "96",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "test"
+    },
+    {
+      "run": "E073C01",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        102.17340832496699,
+        23.4045
+      ],
+      "archive": "PSI-68_Raw Data_E073C01D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3aaee20136af54020e5",
+      "archive_bytes": 312105176.0,
+      "ignition": "2013-03-14T05:13:21.973000",
+      "retraction": "2013-03-14T05:13:23.880000",
+      "members": [
+        {
+          "file": "E073C01D_00275.bmp",
+          "sha256": "af7c9a77aab656505b0f759e4bdb1ac72f88a6e99a72020a3dd1bf56d1f9c04e",
+          "timestamp": "2013-03-14T05:13:27.875179",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E073C01D_00278.bmp",
+          "sha256": "701979497eaf2fbfbdd5deb5d03190c5c80416c416da96bc8454015b3129fe05",
+          "timestamp": "2013-03-14T05:13:27.975179",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E073C01D_00281.bmp",
+          "sha256": "5ad07e0da80c3440cbca8e4fa3cd77b19d2e9b47592b29897599c0e4a4643b12",
+          "timestamp": "2013-03-14T05:13:28.075179",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E073C01D_00284.bmp",
+          "sha256": "feb9eaee55607e488509cff8b5f7f64abba3f14196d03222b2553704a3f5975a",
+          "timestamp": "2013-03-14T05:13:28.175179",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E073C01.txt",
+          "sha256": "cbe55f472fa5f285ad789a691ec24922943ef1a7b72b993b1d73ea6443bb5b60",
+          "resource_id": "66eb94a5c6ad4bdc12faf37f",
+          "version": 1
+        },
+        {
+          "file": "E073C01_Chamber_Readings.txt",
+          "sha256": "414e68665c60f45fefd648974d655335a637e9099c6498329ac5903f6aced156",
+          "resource_id": "66eb94a5c6ad4bdc12faf380",
+          "version": 1
+        },
+        {
+          "file": "E073C01_Color_Camera_Settings.txt",
+          "sha256": "50e79b0167414ea1315556fdadf5733b3193b2d0e63ab87931ccaace029e24c2",
+          "resource_id": "66eb94a5c6ad4bdc12faf381",
+          "version": 1
+        },
+        {
+          "file": "E073C01_MDCA_Color_Camera_Settings.txt",
+          "sha256": "2a0f1896748b9e71f2fd3126c7e54f2bff5919ee9a7673302a282a07d69a3d0b",
+          "resource_id": "66eb94a5c6ad4bdc12faf37c",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "051f88cbc926e538c9d04eed4432cf138c48ae94e5a750cbf470dcfbab72b811",
+          "source_member": "E073C01D.txt"
+        }
+      ],
+      "bytes_retrieved": 932892,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-14 05:13:21.369000",
+          "ZOOM_POSITION(N/A)": "-11366",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "117",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "E073C02",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        102.33888249999899,
+        23.8915
+      ],
+      "archive": "PSI-68_Raw Data_E073C02D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3acee20136af54020f2",
+      "archive_bytes": 372528898.0,
+      "ignition": "2013-03-14T05:31:27.591000",
+      "retraction": "2013-03-14T05:31:29.498000",
+      "members": [
+        {
+          "file": "E073C02D_00275.bmp",
+          "sha256": "3111e0089b58bbfaf22a5983b152f2610809ff518a9c2ea18efd0a3e89fa9aa1",
+          "timestamp": "2013-03-14T05:31:33.508512",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E073C02D_00278.bmp",
+          "sha256": "2bda2422212f04c7fc56e07af98bc9d9d6cd1090df6562c375ca82f8cda6f34d",
+          "timestamp": "2013-03-14T05:31:33.608512",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E073C02D_00281.bmp",
+          "sha256": "3590c49844ce80722ec194ba3a5f01b9a2bf40ca5beabb586058cf452d83af85",
+          "timestamp": "2013-03-14T05:31:33.708512",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E073C02D_00284.bmp",
+          "sha256": "20ee11dd3468431a91c434c6e9db070334ab19ba96aae388c180e0a9437dd5eb",
+          "timestamp": "2013-03-14T05:31:33.808512",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E073C02.txt",
+          "sha256": "bcf0fef589c5faa270870bd476320c16aac80d1c7a78a8f824871022c2a40116",
+          "resource_id": "66eb94a5c6ad4bdc12faf388",
+          "version": 1
+        },
+        {
+          "file": "E073C02_Chamber_Readings.txt",
+          "sha256": "da60c59f505718d764a265349551f784fe71a17fe17a07b9a5e5d8b0fb167a92",
+          "resource_id": "66eb94a5c6ad4bdc12faf389",
+          "version": 1
+        },
+        {
+          "file": "E073C02_Color_Camera_Settings.txt",
+          "sha256": "201783f3ccb51f40e40c8d5e2e04cfecf42cce4d17998cb9d3c2a75517aeeb53",
+          "resource_id": "66eb94a5c6ad4bdc12faf38a",
+          "version": 1
+        },
+        {
+          "file": "E073C02_MDCA_Color_Camera_Settings.txt",
+          "sha256": "e4b6acc2d4158243a01224fbbdbecfcb4557eba1e81de9c7c11aa80e96f3cec4",
+          "resource_id": "66eb94a5c6ad4bdc12faf385",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "93df06d0c3793c74994354138f83435f35827b1a6b50ea3c0d3239e10c4a9f99",
+          "source_member": "E073C02D.txt"
+        }
+      ],
+      "bytes_retrieved": 1101940,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-14 05:31:27.375744",
+          "ZOOM_POSITION(N/A)": "12288",
+          "FOCUS_NEAR_LIMIT(N/A)": "0",
+          "FOCUS_POSITION(N/A)": "0",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "4",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "High",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Stopped",
+          "RGAIN(N/A)": "11",
+          "BGAIN(N/A)": "184",
+          "WBMODE(N/A)": "0.0",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "0.0",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "Off",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/60",
+          "IRIS_POSITION(N/A)": "F5.6",
+          "GAIN_POSITION(N/A)": "-3dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-7",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "On",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "Off",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "Off",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_LEVEL(N/A)": "5",
+          "CAMERA_ID(N/A)": "0",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "PAL",
+          "EXTERNAL_LOCK_MODE(N/A)": "V-Lock",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "7"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "E073C03",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        102.3699089078175,
+        24.102500000000003
+      ],
+      "archive": "PSI-68_Raw Data_E073C03D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3aeee20136af5402104",
+      "archive_bytes": 612844324.0,
+      "ignition": "2013-03-14T05:40:25.950000",
+      "retraction": "2013-03-14T05:40:27.857000",
+      "members": [
+        {
+          "file": "E073C03D_00274.bmp",
+          "sha256": "dfda918c1badcc4af6c90345e4a0dc3bccd520389575d179bffde57ef7fe6b0a",
+          "timestamp": "2013-03-14T05:40:31.841845",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E073C03D_00277.bmp",
+          "sha256": "8649fc11faa5798963ed80c996f0823bb9bb95c0dfce917c2a1f3d64252562ac",
+          "timestamp": "2013-03-14T05:40:31.941845",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E073C03D_00280.bmp",
+          "sha256": "f31fdd964d106897fd10cd843e6867f132a3a38fa2b0af11a92d57c45ca2320f",
+          "timestamp": "2013-03-14T05:40:32.041845",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E073C03D_00283.bmp",
+          "sha256": "55461413d05ba020442dfaec35d3662f017876db9977a1d3428840b472e81c8b",
+          "timestamp": "2013-03-14T05:40:32.141845",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E073C03.txt",
+          "sha256": "3217dc50d14a69cecc47a467b15d9fcb751b393f686aadee8849fdc0233b7f52",
+          "resource_id": "66eb94a5c6ad4bdc12faf392",
+          "version": 1
+        },
+        {
+          "file": "E073C03_Chamber_Readings.txt",
+          "sha256": "323365fc8bb264d4a79a55d3d34df73f45b81c1e911144165724530e65113e9e",
+          "resource_id": "66eb94a5c6ad4bdc12faf393",
+          "version": 1
+        },
+        {
+          "file": "E073C03_Color_Camera_Settings.txt",
+          "sha256": "36e2b411648c6a8d7d94e9b017d46f6761484260927f2a4a7e893275ae2faf08",
+          "resource_id": "66eb94a5c6ad4bdc12faf394",
+          "version": 1
+        },
+        {
+          "file": "E073C03_MDCA_Color_Camera_Settings.txt",
+          "sha256": "39b56855823736d0ee3dfc9fcbb39f987ab99106ee77cd751c64c7375c884d51",
+          "resource_id": "66eb94a5c6ad4bdc12faf38f",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "8fd2b1b1ee5c04c8d33d730f1d86568829336adaec0fff2d3deeb4d41623d777",
+          "source_member": "E073C03D.txt"
+        }
+      ],
+      "bytes_retrieved": 1183459,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-14 05:40:25.366744",
+          "ZOOM_POSITION(N/A)": "12288",
+          "FOCUS_NEAR_LIMIT(N/A)": "0",
+          "FOCUS_POSITION(N/A)": "0",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "4",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "High",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Stopped",
+          "RGAIN(N/A)": "11",
+          "BGAIN(N/A)": "184",
+          "WBMODE(N/A)": "0.0",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "0.0",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/725",
+          "IRIS_POSITION(N/A)": "F16",
+          "GAIN_POSITION(N/A)": "-3dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-7",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "On",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "Off",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "Off",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_LEVEL(N/A)": "5",
+          "CAMERA_ID(N/A)": "0",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "PAL",
+          "EXTERNAL_LOCK_MODE(N/A)": "V-Lock",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "7"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "validation"
+    },
+    {
+      "run": "E073C04",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        102.462988131273,
+        24.387
+      ],
+      "archive": "PSI-68_Raw Data_E073C04D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3aeee20136af5402109",
+      "archive_bytes": 470321981.0,
+      "ignition": "2013-03-14T05:52:05.641000",
+      "retraction": "2013-03-14T05:52:07.549000",
+      "members": [
+        {
+          "file": "E073C04D_00282.bmp",
+          "sha256": "3b5916556fc139547ad69e8b15387d6c9da689d4d87b9b7c658cd142dce67121",
+          "timestamp": "2013-03-14T05:52:11.558512",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E073C04D_00285.bmp",
+          "sha256": "24a50802ed4f9227963de650e7d6c73752fa83d1f0b171c0c417a7397ed8122e",
+          "timestamp": "2013-03-14T05:52:11.658512",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E073C04D_00288.bmp",
+          "sha256": "42f074a3134e524f25f0a0a907c4bdb980561cd7e84930424484f673951eac26",
+          "timestamp": "2013-03-14T05:52:11.758513",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E073C04D_00291.bmp",
+          "sha256": "a588fdf09b523c853577d0eb6ea2ddd2b588e3fa8f3155e142fde4e45dec9abe",
+          "timestamp": "2013-03-14T05:52:11.858512",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E073C04.txt",
+          "sha256": "64df47289d2a40ed0e549608b580fbafe94fb2d6a018ab48a4e201d85e156531",
+          "resource_id": "66eb94a5c6ad4bdc12faf39c",
+          "version": 1
+        },
+        {
+          "file": "E073C04_Chamber_Readings.txt",
+          "sha256": "be2d85dd32059a86f1de1bd39c19da6a2c34a78f3127b13974e33b0394e514d6",
+          "resource_id": "66eb94a5c6ad4bdc12faf39d",
+          "version": 1
+        },
+        {
+          "file": "E073C04_Color_Camera_Settings.txt",
+          "sha256": "8cb36866fca883a36483674619ee411cc3ef72781925c66874d4de4f54962f24",
+          "resource_id": "66eb94a5c6ad4bdc12faf39e",
+          "version": 1
+        },
+        {
+          "file": "E073C04_MDCA_Color_Camera_Settings.txt",
+          "sha256": "9b0dac988239645c57c99fbfc08c606c2278350a09fbfff6caf38305d9d0f7f3",
+          "resource_id": "66eb94a5c6ad4bdc12faf399",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "b5320874ae2a5594602bf1712b15e33c4732936e64c033f1e50388bebc77c2c3",
+          "source_member": "E073C04D.txt"
+        }
+      ],
+      "bytes_retrieved": 1160721,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-14 05:52:05.359000",
+          "ZOOM_POSITION(N/A)": "12288",
+          "FOCUS_NEAR_LIMIT(N/A)": "0",
+          "FOCUS_POSITION(N/A)": "0",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "4",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "High",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Stopped",
+          "RGAIN(N/A)": "11",
+          "BGAIN(N/A)": "184",
+          "WBMODE(N/A)": "0.0",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "0.0",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "Off",
+          "SLOW_SHUTTER(N/A)": "Auto",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "F3.4",
+          "GAIN_POSITION(N/A)": "-3dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-7",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "On",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "Off",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "Off",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_LEVEL(N/A)": "5",
+          "CAMERA_ID(N/A)": "0",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "PAL",
+          "EXTERNAL_LOCK_MODE(N/A)": "V-Lock",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "7"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "E073C09",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        103.1765955110985,
+        26.333000000000006
+      ],
+      "archive": "PSI-68_Raw Data_E073C09D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3b0ee20136af5402119",
+      "archive_bytes": 321367662.0,
+      "ignition": "2013-03-14T08:49:13.115000",
+      "retraction": "2013-03-14T08:49:15.023000",
+      "members": [
+        {
+          "file": "E073C09D_00275.bmp",
+          "sha256": "0e3d6b15a4d03599f42c92430c6d6e5d1269b97979c9da343ddb73d5b1ffb806",
+          "timestamp": "2013-03-14T08:49:19.025179",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E073C09D_00278.bmp",
+          "sha256": "158766d0907ea7f22e739da9d305382a5069e051f316c48e65c4b6e747dd4048",
+          "timestamp": "2013-03-14T08:49:19.125179",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E073C09D_00281.bmp",
+          "sha256": "e5508a37cedd17e3f1728d2fa8c9657fc4523765dfb52898f7c613578c9b7df9",
+          "timestamp": "2013-03-14T08:49:19.225179",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E073C09D_00284.bmp",
+          "sha256": "785b8ab1d0dded2e91405428b84a7d200f7970c73290b58e8e999084608078e1",
+          "timestamp": "2013-03-14T08:49:19.325179",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E073C09.txt",
+          "sha256": "325cfe4f0661ec7549a327655605b70e47d53207ea29e9c464b366e4f843f08b",
+          "resource_id": "66eb94a5c6ad4bdc12faf3b0",
+          "version": 1
+        },
+        {
+          "file": "E073C09_Chamber_Readings.txt",
+          "sha256": "2993b830b7c439b6d292cc1592f49f653c372331c815a68fe44985fada863822",
+          "resource_id": "66eb94a5c6ad4bdc12faf3b1",
+          "version": 1
+        },
+        {
+          "file": "E073C09_Color_Camera_Settings.txt",
+          "sha256": "81605755ac1a92fffc82d238aa7e0b8a778568736756c1f5003e689d34626058",
+          "resource_id": "66eb94a5c6ad4bdc12faf3b2",
+          "version": 1
+        },
+        {
+          "file": "E073C09_MDCA_Color_Camera_Settings.txt",
+          "sha256": "0cdcb8a432ae0e4d47035510d11fc68472031dc50504968f66e6cea6248698b2",
+          "resource_id": "66eb94a5c6ad4bdc12faf3ad",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "cba6cd9cda71d230866a2bb0e6ef3bdce44a3dc951343eb7cee3bbe6624d79de",
+          "source_member": "E073C09D.txt"
+        }
+      ],
+      "bytes_retrieved": 1243943,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-14 08:49:13.371000",
+          "ZOOM_POSITION(N/A)": "3000",
+          "FOCUS_NEAR_LIMIT(N/A)": "192",
+          "FOCUS_POSITION(N/A)": "28672",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "0",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "High",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Stopped",
+          "FOCUS_COMMAND(N/A)": "Stopped",
+          "ZOOM_COMMAND(N/A)": "Stopped",
+          "RGAIN(N/A)": "211",
+          "BGAIN(N/A)": "154",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "5",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/60",
+          "IRIS_POSITION(N/A)": "F1.6",
+          "GAIN_POSITION(N/A)": "0dB",
+          "BRIGHT_POSITION(N/A)": "F1.4 18dB",
+          "EXPOSURE_COMP_POSITION(N/A)": "0",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "On",
+          "IR_LIGHT(N/A)": "On",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "Off",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "Off",
+          "WIDE_CINEMA(N/A)": "Off",
+          "TITLE_DISPLAY(N/A)": "Off",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "Off",
+          "DATE_DISPLAY(N/A)": "Off",
+          "PICTURE_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "0",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "Yes",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "6"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "test"
+    },
+    {
+      "run": "E087C01",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        102.74912055893249,
+        24.4535
+      ],
+      "archive": "PSI-68_Raw Data_E087C01D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3b1ee20136af5402121",
+      "archive_bytes": 384270277.0,
+      "ignition": "2013-03-28T00:09:01.273000",
+      "retraction": "2013-03-28T00:09:03.180000",
+      "members": [
+        {
+          "file": "E087C01D_00283.bmp",
+          "sha256": "78feeb604a5c46b831d3a2bb49d87504fc2074fed357d269fcf7733c32115a12",
+          "timestamp": "2013-03-28T00:09:07.191845",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E087C01D_00286.bmp",
+          "sha256": "80c27fc99b7b2933bcf679131f2f44e8292fbb8587a93c97573b21b9fff5417c",
+          "timestamp": "2013-03-28T00:09:07.291845",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E087C01D_00289.bmp",
+          "sha256": "dc26b60959a2be21ca99ac5ee1c27b09d80e0e590d76716cf00601d080169b3c",
+          "timestamp": "2013-03-28T00:09:07.391845",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E087C01D_00292.bmp",
+          "sha256": "c82c3469cc782cf94621468a2d72a7fd1fc261c1bb3ad648c5418886017265af",
+          "timestamp": "2013-03-28T00:09:07.491845",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E087C01.txt",
+          "sha256": "f3559c32c714540b88e9bf6aaab262f4f4f2f8cf9e42f53a634292b63acfcc3f",
+          "resource_id": "66eb94a5c6ad4bdc12faf3bc",
+          "version": 1
+        },
+        {
+          "file": "E087C01_Chamber_Readings.txt",
+          "sha256": "7773370b8d4797706a6eeb3ffaffa67f02fbc480f217ebf93d0e5fb729af52cd",
+          "resource_id": "66eb94a5c6ad4bdc12faf3bd",
+          "version": 1
+        },
+        {
+          "file": "E087C01_Color_Camera_Settings.txt",
+          "sha256": "72024fc30524da78b234b12e99c2deaf18af612a345b3b20d51fc12a6a345c11",
+          "resource_id": "66eb94a5c6ad4bdc12faf3be",
+          "version": 1
+        },
+        {
+          "file": "E087C01_MDCA_Color_Camera_Settings.txt",
+          "sha256": "6e49fa1a7fa6147d3f85b8974ab687e2d820fbe04324c044ea353579bc83d957",
+          "resource_id": "66eb94a5c6ad4bdc12faf3b9",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "37e779c5b276a1a4bd229b7fed8a563d4ad8a5f5dfb1d1b90c79cbe770d7331a",
+          "source_member": "E087C01D.txt"
+        }
+      ],
+      "bytes_retrieved": 1127711,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-28 00:09:00.664744",
+          "ZOOM_POSITION(N/A)": "-11365",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "112",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "E087C02",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        102.8387524037415,
+        24.677
+      ],
+      "archive": "PSI-68_Raw Data_E087C02D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3b4ee20136af540213c",
+      "archive_bytes": 380982064.0,
+      "ignition": "2013-03-28T00:20:37.649000",
+      "retraction": "2013-03-28T00:20:39.556000",
+      "members": [
+        {
+          "file": "E087C02D_00275.bmp",
+          "sha256": "af6ce07fd79131e913aff58b29746ef2c2e343e49eea7f07c13e7a6c6dea45da",
+          "timestamp": "2013-03-28T00:20:43.558512",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E087C02D_00278.bmp",
+          "sha256": "b404a15f647997f14eef23db7b2dc31042a767996bdc67f4fa101cacf1a6e543",
+          "timestamp": "2013-03-28T00:20:43.658512",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E087C02D_00281.bmp",
+          "sha256": "c004644ebe5b2990219c1a7c26fd3c9e278673d1d1f2e01b350373fbfd4f7663",
+          "timestamp": "2013-03-28T00:20:43.758512",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E087C02D_00284.bmp",
+          "sha256": "b79af93e0415a68a7ce224b64afa2af2f2d5325232f7d130df1eb5c19cc90aaa",
+          "timestamp": "2013-03-28T00:20:43.858512",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E087C02.txt",
+          "sha256": "53dd0af9db5e40e16db64e58fc598a8696f1430a76e5a5d9cb43f358bdc39843",
+          "resource_id": "66eb94a5c6ad4bdc12faf3c5",
+          "version": 1
+        },
+        {
+          "file": "E087C02_Chamber_Readings.txt",
+          "sha256": "19842f7005a07688451db35e9ac2fefbc8555d11c3057b6a87d2514463a302ec",
+          "resource_id": "66eb94a5c6ad4bdc12faf3c6",
+          "version": 1
+        },
+        {
+          "file": "E087C02_Color_Camera_Settings.txt",
+          "sha256": "f66fc18d7a6fc42ca21f2340f77c5e137321b299290aa8e99e574c8902a05b18",
+          "resource_id": "66eb94a5c6ad4bdc12faf3c7",
+          "version": 1
+        },
+        {
+          "file": "E087C02_MDCA_Color_Camera_Settings.txt",
+          "sha256": "b086da830b1fedbc3e43426de5c911a142a9ac256400dc7695fb8025372f852b",
+          "resource_id": "66eb94a5c6ad4bdc12faf3c2",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "10f824215ace401135239a36bb5c74f0c1a62f311e9c672b2b8da4aa419c3985",
+          "source_member": "E087C02D.txt"
+        }
+      ],
+      "bytes_retrieved": 1015418,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-28 00:20:36.670000",
+          "ZOOM_POSITION(N/A)": "-11365",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "64",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "E087C03",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        102.8594366756205,
+        24.8125
+      ],
+      "archive": "PSI-68_Raw Data_E087C03D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3b5ee20136af5402148",
+      "archive_bytes": 383292413.0,
+      "ignition": "2013-03-28T00:28:22.834000",
+      "retraction": "2013-03-28T00:28:24.741000",
+      "members": [
+        {
+          "file": "E087C03D_00281.bmp",
+          "sha256": "ed3a781622877f924bf12f773c95bb97c76085b5e56aeb9320081a62dd2b9759",
+          "timestamp": "2013-03-28T00:28:28.741845",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E087C03D_00284.bmp",
+          "sha256": "1858b170ed758aad75b913cb3307c55b4431b3977f4e017eb7410431bc5e0a45",
+          "timestamp": "2013-03-28T00:28:28.841845",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E087C03D_00287.bmp",
+          "sha256": "1c71d7632d7fe77d38092cbd49e27256002af02d6e9a899369f51113da6169d0",
+          "timestamp": "2013-03-28T00:28:28.941845",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E087C03D_00290.bmp",
+          "sha256": "b3e3208dd1c95e7342d659d619b176081492d01e85c4a8698c2b147d89e89c40",
+          "timestamp": "2013-03-28T00:28:29.041845",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E087C03.txt",
+          "sha256": "2b36989b6c88dcf02f9c7ef2d6178cf5084c50f3fa716f94c6565301c303e247",
+          "resource_id": "66eb94a5c6ad4bdc12faf3cf",
+          "version": 1
+        },
+        {
+          "file": "E087C03_Chamber_Readings.txt",
+          "sha256": "c2934b97a1ecc0428ec4e1eed997507f53c083d161f3ac6b4a8265b1570d053f",
+          "resource_id": "66eb94a5c6ad4bdc12faf3d0",
+          "version": 1
+        },
+        {
+          "file": "E087C03_Color_Camera_Settings.txt",
+          "sha256": "43268cde34976820b92b8e9711fcaf7c6b201dd65986493c39e388e8647b0d3a",
+          "resource_id": "66eb94a5c6ad4bdc12faf3d1",
+          "version": 1
+        },
+        {
+          "file": "E087C03_MDCA_Color_Camera_Settings.txt",
+          "sha256": "cce33234b4b1b9f9c08993ef36b222daf462f1a07897120941ae219e61c289f6",
+          "resource_id": "66eb94a5c6ad4bdc12faf3cc",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "306a53066e641de38235ba71e366204084ded12dd7a89f22ef0538a84eb03d29",
+          "source_member": "E087C03D.txt"
+        }
+      ],
+      "bytes_retrieved": 1016645,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-28 00:28:21.664744",
+          "ZOOM_POSITION(N/A)": "-11365",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "90",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "E087C04",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        102.90080521937848,
+        24.928
+      ],
+      "archive": "PSI-68_Raw Data_E087C04D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3b6ee20136af540214e",
+      "archive_bytes": 379820675.0,
+      "ignition": "2013-03-28T00:35:13.260000",
+      "retraction": "2013-03-28T00:35:15.167000",
+      "members": [
+        {
+          "file": "E087C04D_00282.bmp",
+          "sha256": "e9b69d2b53e6b3a6897943e7a362fc32dbfbbcf6778c12c723a476f1a3d0d465",
+          "timestamp": "2013-03-28T00:35:19.175179",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E087C04D_00285.bmp",
+          "sha256": "9a7ea4990e7d042f0de4660c224368a674cd037317c830fd5fa1e512b124978e",
+          "timestamp": "2013-03-28T00:35:19.275179",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E087C04D_00288.bmp",
+          "sha256": "9c1b597bdc1c64e4d81c257166c6cd9b324e94f0bc65911fe446ff9dbd527ff7",
+          "timestamp": "2013-03-28T00:35:19.375179",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E087C04D_00291.bmp",
+          "sha256": "953bc403e539948d01fbb804e57940840dda2660d04cc160de8d1feae87f3181",
+          "timestamp": "2013-03-28T00:35:19.475179",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E087C04.txt",
+          "sha256": "d709f86973fb2fc6d968da9f4598cf03bbea36d52eaf7a0f0c4f116619ef27f9",
+          "resource_id": "66eb94a5c6ad4bdc12faf3d9",
+          "version": 1
+        },
+        {
+          "file": "E087C04_Chamber_Readings.txt",
+          "sha256": "4ced21213e8439e8dac3f3273490abd44ad538f0c49ff0003bb08bf0e5a10ac9",
+          "resource_id": "66eb94a5c6ad4bdc12faf3da",
+          "version": 1
+        },
+        {
+          "file": "E087C04_Color_Camera_Settings.txt",
+          "sha256": "5c4fb7d0117ca1187a3c9060ad46f35fdab7faee6f170a83ddb003fe30e53939",
+          "resource_id": "66eb94a5c6ad4bdc12faf3db",
+          "version": 1
+        },
+        {
+          "file": "E087C04_MDCA_Color_Camera_Settings.txt",
+          "sha256": "44a57da0cb28adf0b287a140f47f449ac947469c02e98f62a43573a0561e1c2d",
+          "resource_id": "66eb94a5c6ad4bdc12faf3d6",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "e4cef0f531a4aab16ae2101ccbc611325824ad08e29685cdb076d7476c31e0d9",
+          "source_member": "E087C04D.txt"
+        }
+      ],
+      "bytes_retrieved": 1008449,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-28 00:35:12.665744",
+          "ZOOM_POSITION(N/A)": "-11365",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "90",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "train"
+    },
+    {
+      "run": "E087C06",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        103.090411044936,
+        25.365500000000004
+      ],
+      "archive": "PSI-68_Raw Data_E087C06D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3b6ee20136af5402152",
+      "archive_bytes": 266169001.0,
+      "ignition": "2013-03-28T01:06:56.824000",
+      "retraction": "2013-03-28T01:06:58.732000",
+      "members": [
+        {
+          "file": "E087C06D_00281.bmp",
+          "sha256": "bedf9393566aead176af9935b9eca869f80781e5fadb274e62d77339839c2aad",
+          "timestamp": "2013-03-28T01:07:02.725179",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E087C06D_00284.bmp",
+          "sha256": "3f0d603ed85c0244567c1aff05e27796b5759b9c179a306028297b08eebed5a9",
+          "timestamp": "2013-03-28T01:07:02.825179",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E087C06D_00287.bmp",
+          "sha256": "77df364d27c973b838fdefaf8d7dab777f039a8f36f4a803b2961a2a04c80c49",
+          "timestamp": "2013-03-28T01:07:02.925179",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E087C06D_00290.bmp",
+          "sha256": "03be4fe9812019949cd4ac9aca2f3a91cd66501eedb6ec2e9b4a61863b63d2ba",
+          "timestamp": "2013-03-28T01:07:03.025179",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E087C06.txt",
+          "sha256": "c576fcbeea5948a459b79ea330cc277e9a7bd39462bc81fb98890d602a583fbb",
+          "resource_id": "66eb94a5c6ad4bdc12faf3e3",
+          "version": 1
+        },
+        {
+          "file": "E087C06_Chamber_Readings.txt",
+          "sha256": "410127832772a7bfd922e765ac366bd242778f35a254ae95445dbe899b646bda",
+          "resource_id": "66eb94a5c6ad4bdc12faf3e4",
+          "version": 1
+        },
+        {
+          "file": "E087C06_Color_Camera_Settings.txt",
+          "sha256": "42db13088820bfe15f7adeec660611f4549998578d429e2cb04b3be5b5e45e07",
+          "resource_id": "66eb94a5c6ad4bdc12faf3e5",
+          "version": 1
+        },
+        {
+          "file": "E087C06_MDCA_Color_Camera_Settings.txt",
+          "sha256": "0806d8857f46ed23839a29e23508bddc028817a00ddc4a6f0fef854786231ec5",
+          "resource_id": "66eb94a5c6ad4bdc12faf3e0",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "c15cfc2ea32431f4b798555cc9d340ea3d9ef86eaa15ccbe2195b7e82e778ad0",
+          "source_member": "E087C06D.txt"
+        }
+      ],
+      "bytes_retrieved": 951399,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-28 01:06:55.658000",
+          "ZOOM_POSITION(N/A)": "-11365",
+          "FOCUS_NEAR_LIMIT(N/A)": "5",
+          "FOCUS_POSITION(N/A)": "80",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "1",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "0.0",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Executing",
+          "RGAIN(N/A)": "48",
+          "BGAIN(N/A)": "0",
+          "WBMODE(N/A)": "Auto",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "Full Auto",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "On",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/4",
+          "IRIS_POSITION(N/A)": "Close",
+          "GAIN_POSITION(N/A)": "9dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-1",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "Off",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "On",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "On",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "Stretch",
+          "DIGITAL_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_LEVEL(N/A)": "0",
+          "CAMERA_ID(N/A)": "85",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "NTSC",
+          "EXTERNAL_LOCK_MODE(N/A)": "Internal",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "0"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "test"
+    },
+    {
+      "run": "E087C07",
+      "fuel": "Heptane",
+      "category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "features": [
+        103.26622735590752,
+        25.756
+      ],
+      "archive": "PSI-68_Raw Data_E087C07D.zip",
+      "archive_version": 1,
+      "archive_resource_id": "685da3b9ee20136af5402168",
+      "archive_bytes": 606143613.0,
+      "ignition": "2013-03-28T01:46:37.690000",
+      "retraction": "2013-03-28T01:46:39.598000",
+      "members": [
+        {
+          "file": "E087C07D_00274.bmp",
+          "sha256": "eacc76e9c2024a81629b84c20aedd53d22d694158b543d2785da0e89ebdc33d7",
+          "timestamp": "2013-03-28T01:46:43.591845",
+          "offset_after_retraction": 4.0
+        },
+        {
+          "file": "E087C07D_00277.bmp",
+          "sha256": "88eda146ad7e3f90d000faa0a9267e236f7c134037fa41dbeb29b4cf8047164b",
+          "timestamp": "2013-03-28T01:46:43.691846",
+          "offset_after_retraction": 4.1
+        },
+        {
+          "file": "E087C07D_00280.bmp",
+          "sha256": "689a27b667bfa68fb884e2cd1b139f8f07a38899b08a552a302ee65bd0c44b20",
+          "timestamp": "2013-03-28T01:46:43.791845",
+          "offset_after_retraction": 4.2
+        },
+        {
+          "file": "E087C07D_00283.bmp",
+          "sha256": "531830956920eb7db99d5b690ff430a9e350544908c5314fdaf888304ed7b9c2",
+          "timestamp": "2013-03-28T01:46:43.891845",
+          "offset_after_retraction": 4.3
+        }
+      ],
+      "metadata": [
+        {
+          "file": "E087C07.txt",
+          "sha256": "219035447735fe4366e43fb234b79d0101220da2c1fa09d794664fbafd04ad48",
+          "resource_id": "66eb94a5c6ad4bdc12faf3ec",
+          "version": 1
+        },
+        {
+          "file": "E087C07_Chamber_Readings.txt",
+          "sha256": "4998923b149ada44eba5bd6b0aa39b9499fc325040415e525dd297789c21475b",
+          "resource_id": "66eb94a5c6ad4bdc12faf3ed",
+          "version": 1
+        },
+        {
+          "file": "E087C07_Color_Camera_Settings.txt",
+          "sha256": "7f5859d89b8b07e91f375d2048a3c5364443e3f5d0ea144f986d8b353f5d9e53",
+          "resource_id": "66eb94a5c6ad4bdc12faf3ee",
+          "version": 1
+        },
+        {
+          "file": "E087C07_MDCA_Color_Camera_Settings.txt",
+          "sha256": "9aee8412830c7a35505e3ddc84af9cce1212c43118988a058090e8ba7874e22e",
+          "resource_id": "66eb94a5c6ad4bdc12faf3e9",
+          "version": 1
+        },
+        {
+          "file": "timestamps.txt",
+          "sha256": "6498687fe0db480a2bf870bebefab22b7a4e32a53cb87ceeed191ffe84db187f",
+          "source_member": "E087C07D.txt"
+        }
+      ],
+      "bytes_retrieved": 1195357,
+      "camera_settings": [
+        {
+          "PIP TimeStamp": "2013-03-28 01:46:36.659000",
+          "ZOOM_POSITION(N/A)": "12288",
+          "FOCUS_NEAR_LIMIT(N/A)": "0",
+          "FOCUS_POSITION(N/A)": "0",
+          "MEMORY_LAST_ACCESS_POSITION(N/A)": "4",
+          "AUTO_FOCUS_SENSITIVITY(N/A)": "High",
+          "DIGITAL_ZOOM(N/A)": "Off",
+          "FOCUS_MODE(N/A)": "Auto",
+          "CAMERA_MEMORY_RECALL(N/A)": "Executing",
+          "FOCUS_COMMAND(N/A)": "Executing",
+          "ZOOM_COMMAND(N/A)": "Stopped",
+          "RGAIN(N/A)": "11",
+          "BGAIN(N/A)": "184",
+          "WBMODE(N/A)": "0.0",
+          "APERTURE_GAIN(N/A)": "0",
+          "EXPOSURE_MODE(N/A)": "0.0",
+          "GAIN_COMMAND(N/A)": "Invalid",
+          "IRIS_COMMAND(N/A)": "Invalid",
+          "SHUTTER_COMMAND(N/A)": "Invalid",
+          "BRIGHT_COMMAND(N/A)": "Invalid",
+          "BACKLIGHT(N/A)": "Off",
+          "EXPOSURE_COMP(N/A)": "Off",
+          "SLOW_SHUTTER(N/A)": "Manual",
+          "SHUTTER_POSITION(N/A)": "1/60",
+          "IRIS_POSITION(N/A)": "F5.6",
+          "GAIN_POSITION(N/A)": "-3dB",
+          "BRIGHT_POSITION(N/A)": "F8",
+          "EXPOSURE_COMP_POSITION(N/A)": "-7",
+          "KEY_LOCK(N/A)": "Off",
+          "POWER(N/A)": "On",
+          "IR_LIGHT(N/A)": "Off",
+          "ZERO_LUX_SHOT(N/A)": "Off",
+          "FREEZE(N/A)": "Off",
+          "LR_REVERSE(N/A)": "Off",
+          "WIDE_16_9(N/A)": "On",
+          "WIDE_CINEMA(N/A)": "On",
+          "TITLE_DISPLAY(N/A)": "On",
+          "DISPLAY(N/A)": "Off",
+          "TIME_DISPLAY(N/A)": "Off",
+          "DATE_DISPLAY(N/A)": "On",
+          "PICTURE_F_X_MODE(N/A)": "0.0",
+          "DIGITAL_F_X_MODE(N/A)": "Off",
+          "DIGITAL_F_X_LEVEL(N/A)": "5",
+          "CAMERA_ID(N/A)": "0",
+          "ZERO_LUX_SHOT_PROVIDED(N/A)": "No",
+          "VIDEO_SYSTEM(N/A)": "PAL",
+          "EXTERNAL_LOCK_MODE(N/A)": "V-Lock",
+          "VPHASEH(N/A)": "7",
+          "VPHASEL(N/A)": "7"
+        }
+      ],
+      "integrity": "Selected ZIP member CRC and SHA256; full ranged archive SHA256 not computed",
+      "split": "validation"
+    }
+  ],
+  "excluded": [
+    {
+      "archive": "PSI-68_Raw Data_E066C04D.zip",
+      "excluded": true,
+      "reason": "Colour RGB24 camera not verified"
+    },
+    {
+      "run": "A113D04",
+      "reason": "No visible colour signal in fixed ROI"
+    },
+    {
+      "run": "A113D09",
+      "reason": "No visible colour signal in fixed ROI"
+    },
+    {
+      "run": "A118D03",
+      "reason": "No visible colour signal in fixed ROI"
+    },
+    {
+      "run": "A132D01",
+      "reason": "No visible colour signal in fixed ROI"
+    },
+    {
+      "run": "A132D07",
+      "reason": "No visible colour signal in fixed ROI"
+    },
+    {
+      "run": "A134D04",
+      "reason": "No visible colour signal in fixed ROI"
+    },
+    {
+      "run": "E087C09",
+      "reason": "No visible colour signal in fixed ROI"
+    }
+  ],
+  "resolution": 256,
+  "features_note": "Mean of four chamber pressure and temperature channels in the five seconds before ignition; PSIA converted to kPa. Fuel is the NASA file subcategory. No per-run oxygen, droplet diameter or airflow labels inferred.",
+  "stage": "Median of four RGB frames at 4.0/4.1/4.2/4.3 seconds after recorded igniter retraction; stage proxy, not steady-state measurement",
+  "preprocessing": "Fixed 320px square crop x160:480/y100:420; clip((RGB-3)*2), Gaussian 3px sigma .6, resize to 256; no synthetic colour",
+  "split": "Whole test-point hash split within fuel; no frames cross splits. Different unmeasured droplet sizes/oxygen and camera settings may confound predictions.",
+  "counts": {
+    "pairs": 24,
+    "groups": 24,
+    "splits": {
+      "train": 14,
+      "validation": 5,
+      "test": 5
+    }
+  }
+}
