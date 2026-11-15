@@ -26,3 +26,4 @@ ml/artifacts/flex2-study/*
 !ml/artifacts/flex2-study/selected.pt
 !ml/artifacts/flex2-study/report.json
 .DS_Store
+.vercel

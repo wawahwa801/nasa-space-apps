@@ -15,6 +15,17 @@ import {
   nasaInputsFromRaw,
   rawFromBase,
 } from "../components/nasa-parameter-fields";
+import { useState } from 'react';
+
+export default function MyComponent() {
+  // Add these state declarations
+  const [paused, setPaused] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [animationKey, setAnimationKey] = useState('default');
+  const [snapshot, setSnapshot] = useState(null);
+
+  // Rest of your component code...
+}
 
 // Shared values: the flame simulation's inputs mapped to the NASA comparison's
 // base units (CO₂ % -> ppm; gravity in g -> microgravity below 0.05 g).
