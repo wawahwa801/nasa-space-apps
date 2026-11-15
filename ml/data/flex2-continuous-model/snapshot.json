@@ -1,0 +1,38 @@
+{
+  "architecture": "soft-reference-generator-v1",
+  "epoch": 200,
+  "targets": 262,
+  "parameters": 1286955,
+  "independent_evaluation": false,
+  "checkpoint_has_optimizer": false,
+  "files": {
+    "expanded/prepared.npz": {
+      "bytes": 22788244,
+      "sha256": "64e7e4d6fa6e3202fca3513200919425de50a0f0536338df17b71a1e48e58e60"
+    },
+    "expanded/manifest.json": {
+      "bytes": 1266329,
+      "sha256": "89c940371596e539454589624b5ebf4fce1c85e40201a38cdae98afea672c402"
+    },
+    "expanded/features.csv": {
+      "bytes": 54161,
+      "sha256": "f1ef4e67f5a158b30dbc9909bbda6656663ca9e7b1c567f8651ac49651c28aff"
+    },
+    "expanded/verification.json": {
+      "bytes": 10400,
+      "sha256": "0652e2a2af2dbd05409d820980f448cde754148cc01a5277d556806048cc54c4"
+    },
+    "training/final.pt": {
+      "bytes": 5162549,
+      "sha256": "b2871ac0a63fc265ff9d8931f1bc2b36c9a619216a8f806a4e8c41c87e58565a"
+    },
+    "training/run.json": {
+      "bytes": 5715,
+      "sha256": "8afe578fda98520df7f903fe49606ad46c29f05fa29cdd4a9449e7e353477690"
+    },
+    "training/metrics.jsonl": {
+      "bytes": 17040,
+      "sha256": "51092e98afd36e53422be2d833296dac43aa2ad039fd174e208b24320fb32284"
+    }
+  }
+}

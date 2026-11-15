@@ -1,0 +1,386 @@
+{
+  "version": "flex2-rgb-v2",
+  "source": "PSI-68",
+  "fields": [
+    "pressure_kpa",
+    "temperature_c"
+  ],
+  "fuels": [
+    "Decane",
+    "Heptane",
+    "IsoOctane",
+    "N_Octane",
+    "Toluene"
+  ],
+  "resolution": 256,
+  "parameters": 1078132,
+  "seed": 42,
+  "counts": {
+    "pairs": 100,
+    "groups": 100,
+    "splits": {
+      "train": 60,
+      "validation": 20,
+      "test": 20
+    }
+  },
+  "groups": {
+    "train": [
+      "A184D07",
+      "A184D03",
+      "A109D04",
+      "A113D03",
+      "A109D10",
+      "A301D01",
+      "A113D07",
+      "A221D04",
+      "A301D04",
+      "A123D07",
+      "A123D10",
+      "A123D02",
+      "A127D04",
+      "A307D03",
+      "A307D01",
+      "E073C02",
+      "E073C04",
+      "E087C01",
+      "E073C07",
+      "E087C07",
+      "E066C01",
+      "E209L01",
+      "E209L04",
+      "E209L13",
+      "E163L02",
+      "E175L01",
+      "E183L02",
+      "E216L03",
+      "E175L11",
+      "E183L10",
+      "E183L11",
+      "H323N01",
+      "E135F02",
+      "E135F06",
+      "E135F11",
+      "E017A02",
+      "E017A04",
+      "E156F04",
+      "E159F01",
+      "E156F05",
+      "E065A03",
+      "E143F08",
+      "E143F09",
+      "E053A03",
+      "E065A04",
+      "H350N05",
+      "E260G03",
+      "E233G03",
+      "E241G05",
+      "E233G04",
+      "E233G05",
+      "E233G06",
+      "E260G06",
+      "E241G10",
+      "E241G11",
+      "E260G08",
+      "E260G09",
+      "E225G02",
+      "E225G03",
+      "E225G06"
+    ],
+    "validation": [
+      "A186D09",
+      "A186D03",
+      "A184D02",
+      "A298D05",
+      "A134D01",
+      "E073C03",
+      "E066C02",
+      "E216L02",
+      "E175L10",
+      "E175L17",
+      "E061A01",
+      "E159F04",
+      "E143F10",
+      "H350N01",
+      "H350N02",
+      "E241G03",
+      "E241G01",
+      "E241G04",
+      "E260G07",
+      "E225G08"
+    ],
+    "test": [
+      "A184D09",
+      "A109D07",
+      "A298D02",
+      "A127D02",
+      "A139D07",
+      "E073C09",
+      "E066C03",
+      "E209L03",
+      "E183L01",
+      "E183L09",
+      "E017A03",
+      "E059A01",
+      "E156F10",
+      "E053A02",
+      "H338N06",
+      "E241G02",
+      "E225G01",
+      "E241G06",
+      "E233G15",
+      "E225G05"
+    ]
+  },
+  "selected_epoch": 60,
+  "epochs_completed": 100,
+  "max_epochs": 100,
+  "selection": "Minimum validation global MAE plus 0.5 foreground MAE; test evaluated after selection",
+  "dataset_sha256": "97a64166836b3e1daf490092f7b17190cfd95e819cef075506e11b4f62490b90",
+  "architecture": "Feature-conditioned convolutional decoder, native full 256x256 RGB; no SPICE checkpoint or mean-image residual",
+  "features_note": "Mean of four chamber pressure and temperature channels in the five seconds before ignition; PSIA converted to kPa. Fuel is the NASA file subcategory. No per-run oxygen, droplet diameter or airflow labels inferred.",
+  "stage": "Median of four RGB frames at 4.0/4.1/4.2/4.3 seconds after recorded igniter retraction; stage proxy, not steady-state measurement",
+  "preprocessing": "Fixed 320px square crop x160:480/y100:420; clip((RGB-3)*2), Gaussian 3px sigma .6, resize to 256; no synthetic colour",
+  "history": [
+    {
+      "epoch": 1,
+      "validation_weighted_mae": 0.25216320582901947
+    },
+    {
+      "epoch": 5,
+      "validation_weighted_mae": 0.2127636815853616
+    },
+    {
+      "epoch": 10,
+      "validation_weighted_mae": 0.20058857119535584
+    },
+    {
+      "epoch": 15,
+      "validation_weighted_mae": 0.1976066203094023
+    },
+    {
+      "epoch": 20,
+      "validation_weighted_mae": 0.1889761964639765
+    },
+    {
+      "epoch": 25,
+      "validation_weighted_mae": 0.1948855441292951
+    },
+    {
+      "epoch": 30,
+      "validation_weighted_mae": 0.18567149209251277
+    },
+    {
+      "epoch": 35,
+      "validation_weighted_mae": 0.18381898914090744
+    },
+    {
+      "epoch": 40,
+      "validation_weighted_mae": 0.18368474521391953
+    },
+    {
+      "epoch": 45,
+      "validation_weighted_mae": 0.18368652260468277
+    },
+    {
+      "epoch": 50,
+      "validation_weighted_mae": 0.1842175334488892
+    },
+    {
+      "epoch": 55,
+      "validation_weighted_mae": 0.18429422457597333
+    },
+    {
+      "epoch": 60,
+      "validation_weighted_mae": 0.1834244529987511
+    },
+    {
+      "epoch": 65,
+      "validation_weighted_mae": 0.19030714173471144
+    },
+    {
+      "epoch": 70,
+      "validation_weighted_mae": 0.18939909247318237
+    },
+    {
+      "epoch": 75,
+      "validation_weighted_mae": 0.189267330773357
+    },
+    {
+      "epoch": 80,
+      "validation_weighted_mae": 0.19134785557558182
+    },
+    {
+      "epoch": 85,
+      "validation_weighted_mae": 0.19761862021618543
+    },
+    {
+      "epoch": 90,
+      "validation_weighted_mae": 0.19188926488125801
+    },
+    {
+      "epoch": 95,
+      "validation_weighted_mae": 0.19052449151800155
+    },
+    {
+      "epoch": 100,
+      "validation_weighted_mae": 0.1922456772153892
+    }
+  ],
+  "evaluation": {
+    "train": {
+      "cnn": {
+        "rgb_mae": 0.0735132247209549,
+        "rgb_mse": 0.030806392431259155,
+        "foreground_mae": 0.12468263806762613,
+        "weak_mask_iou": 0.22052009403705597,
+        "weighted_mae": 0.13585454375476796
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.07821085304021835,
+        "rgb_mse": 0.028251389041543007,
+        "foreground_mae": 0.1613059343878688,
+        "weak_mask_iou": 0.1655743271112442,
+        "weighted_mae": 0.15886382023415274
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.0,
+        "rgb_mse": 0.0,
+        "foreground_mae": 0.0,
+        "weak_mask_iou": 0.35219258069992065,
+        "weighted_mae": 0.0
+      }
+    },
+    "validation": {
+      "cnn": {
+        "rgb_mae": 0.09489832073450089,
+        "rgb_mse": 0.04305236414074898,
+        "foreground_mae": 0.17705226452850045,
+        "weak_mask_iou": 0.27636218070983887,
+        "weighted_mae": 0.1834244529987511
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.0930275246500969,
+        "rgb_mse": 0.037353090941905975,
+        "foreground_mae": 0.1846370847373587,
+        "weak_mask_iou": 0.22056326270103455,
+        "weighted_mae": 0.18534606701877626
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.1047603189945221,
+        "rgb_mse": 0.05771041661500931,
+        "foreground_mae": 0.2817550854811127,
+        "weak_mask_iou": 0.19181105494499207,
+        "weighted_mae": 0.24563786173507846
+      }
+    },
+    "test": {
+      "cnn": {
+        "rgb_mae": 0.08619415760040283,
+        "rgb_mse": 0.03907207399606705,
+        "foreground_mae": 0.16477651904050775,
+        "weak_mask_iou": 0.17365270853042603,
+        "weighted_mae": 0.1685824171206567
+      },
+      "same_fuel_mean": {
+        "rgb_mae": 0.08211170881986618,
+        "rgb_mse": 0.03029141016304493,
+        "foreground_mae": 0.16594109407732355,
+        "weak_mask_iou": 0.15369674563407898,
+        "weighted_mae": 0.16508225585852795
+      },
+      "training_only_retrieval": {
+        "rgb_mae": 0.11000485718250275,
+        "rgb_mse": 0.07416941225528717,
+        "foreground_mae": 0.2964381689067264,
+        "weak_mask_iou": 0.10646805912256241,
+        "weighted_mae": 0.25822394163586593
+      }
+    }
+  },
+  "qualified_for_promotion": false,
+  "limitation": "Experimental feature-conditioned imagery only. Missing per-run oxygen/droplet-size labels, camera differences, weak masks and small trial splits prevent physical-accuracy or causal claims. Temperature variation may be a nuisance correlate.",
+  "feature_sensitivity": [
+    {
+      "fuel": "Decane",
+      "feature": "pressure_kpa",
+      "low": 51.5107307434082,
+      "high": 306.3340759277344,
+      "mean_absolute_pixel_change": 0.08127222955226898,
+      "maximum_pixel_change": 0.980379581451416
+    },
+    {
+      "fuel": "Decane",
+      "feature": "temperature_c",
+      "low": 25.235000610351562,
+      "high": 27.103500366210938,
+      "mean_absolute_pixel_change": 0.04149741306900978,
+      "maximum_pixel_change": 0.44200244545936584
+    },
+    {
+      "fuel": "Heptane",
+      "feature": "pressure_kpa",
+      "low": 102.33888244628906,
+      "high": 103.32827758789062,
+      "mean_absolute_pixel_change": 0.00019139009236823767,
+      "maximum_pixel_change": 0.00801587849855423
+    },
+    {
+      "fuel": "Heptane",
+      "feature": "temperature_c",
+      "low": 23.89150047302246,
+      "high": 26.210500717163086,
+      "mean_absolute_pixel_change": 0.021632686257362366,
+      "maximum_pixel_change": 0.20847338438034058
+    },
+    {
+      "fuel": "IsoOctane",
+      "feature": "pressure_kpa",
+      "low": 101.65630340576172,
+      "high": 103.46273040771484,
+      "mean_absolute_pixel_change": 0.00035915104672312737,
+      "maximum_pixel_change": 0.012613777071237564
+    },
+    {
+      "fuel": "IsoOctane",
+      "feature": "temperature_c",
+      "low": 23.363000869750977,
+      "high": 27.018999099731445,
+      "mean_absolute_pixel_change": 0.04692317917943001,
+      "maximum_pixel_change": 0.7110592126846313
+    },
+    {
+      "fuel": "N_Octane",
+      "feature": "pressure_kpa",
+      "low": 101.01509094238281,
+      "high": 303.7933349609375,
+      "mean_absolute_pixel_change": 0.05341620743274689,
+      "maximum_pixel_change": 0.7149420380592346
+    },
+    {
+      "fuel": "N_Octane",
+      "feature": "temperature_c",
+      "low": 24.083499908447266,
+      "high": 26.819000244140625,
+      "mean_absolute_pixel_change": 0.05721838399767876,
+      "maximum_pixel_change": 0.591237485408783
+    },
+    {
+      "fuel": "Toluene",
+      "feature": "pressure_kpa",
+      "low": 102.40782928466797,
+      "high": 104.1280746459961,
+      "mean_absolute_pixel_change": 0.0007210767944343388,
+      "maximum_pixel_change": 0.021183829754590988
+    },
+    {
+      "fuel": "Toluene",
+      "feature": "temperature_c",
+      "low": 24.252500534057617,
+      "high": 26.729999542236328,
+      "mean_absolute_pixel_change": 0.09734237194061279,
+      "maximum_pixel_change": 0.7016888856887817
+    }
+  ],
+  "training_seconds": 203.50009604200022
+}

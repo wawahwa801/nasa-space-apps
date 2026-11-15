@@ -2,6 +2,8 @@
 
 **Active comparison: [FLEX-2 live retrieval and CNN](FLEX2.md)** at http://127.0.0.1:5051/flex2/. It uses real RGB spherical-flame data with a CNN/Retrieval switch and slider updates while dragging. The SPICE page remains available separately.
 
+The frozen 100-run FLEX-2 retrieval library and trained CNN are included in Git. After installing `ml/requirements.txt`, run `python ml/verify_flex2_models.py` and `python ml/flex2_lab.py`; NASA acquisition and retraining are optional. See the published-snapshot instructions and limitations in [FLEX2.md](FLEX2.md).
+
 **New: [SPICE retrieval and feature-to-image CNN](SPICE.md).** Run `python ml/spice_lab.py` for the standalone comparison at http://127.0.0.1:5051/spice/. Its matched data and trained checkpoint must be prepared first; commands and evaluation are in the linked guide. When those artifacts exist, restarting `ml/lab.py` also mounts it at `/spice/` on port 5050.
 
 The local page now has one experiment selector, the relevant physical inputs, a CNN image, a nearest-training-trial image and an optional mask view. Detailed scores and NASA conditions are collapsed below. Two separately trained models avoid pooling solid PMMA films with liquid methanol droplets. Both produce 256×256 images and remain experimental.
@@ -94,7 +96,7 @@ Original column names, units, values, source URLs, hashes and licenses are prese
 
 ## Artifacts and API
 
-Generated data and weights remain outside Git:
+Legacy BASS-II/FLEX generated data and weights remain outside Git; the published FLEX-2 runtime pair is the explicit exception described above:
 
 - `ml/data/bass-study/`: acquisition inventory, preparation/exclusion manifest, standardized `prepared.npz` and QA montage.
 - `ml/data/flex/conditions.json`: both original conditions releases and matched-image availability.

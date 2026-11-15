@@ -92,7 +92,7 @@ def audit():
             flow_m_s=None,flow_status='No calibrated velocity; N/A nozzle settings are not m/s',
             fiber_usage_flag=values['fiber_usage_flag'],igniter_power_setting_w=values['igniter_power_setting_w'],
             settings_status=values['status'],settings_source=setting['file'] if setting else None,
-            raw_flow_nozzle_setting=values['flow_nozzle_setting'],source_conflicts=conflicts))
+            raw_flow_nozzle_setting=values['flow_nozzle_setting'],source_conflict=bool(conflicts),source_conflicts=conflicts))
     if len({r['run_id'] for r in records})!=len(records):raise ValueError('Duplicate run IDs')
     pilot_path=ROOT/'input-investigation'/'backlit-pilot.json'
     pilots=json.loads(pilot_path.read_text()) if pilot_path.exists() else []
@@ -123,7 +123,7 @@ def audit():
             'Conflicting paper/catalog fuel identities remain unresolved; no model or dashboard labels are silently changed.'])
     REPORTS.mkdir(exist_ok=True)
     (REPORTS/'flex2-input-coverage.json').write_text(json.dumps(result,indent=2)+'\n')
-    columns=['run_id','fuel','split','oxygen_mole_fraction','nitrogen_mole_fraction','gas_source','gas_status','gas_uncertainty_mole_fraction','initial_diameter_mm','initial_diameter_uncertainty_mm','diameter_status','flow_m_s','flow_status','fiber_usage_flag','igniter_power_setting_w','settings_status','settings_source','raw_flow_nozzle_setting']
+    columns=['run_id','fuel','split','oxygen_mole_fraction','nitrogen_mole_fraction','gas_source','gas_status','gas_uncertainty_mole_fraction','initial_diameter_mm','initial_diameter_uncertainty_mm','diameter_status','flow_m_s','flow_status','fiber_usage_flag','igniter_power_setting_w','settings_status','settings_source','raw_flow_nozzle_setting','source_conflict']
     with (REPORTS/'flex2-inputs.csv').open('w',newline='') as stream:
         writer=csv.DictWriter(stream,fieldnames=columns,extrasaction='ignore');writer.writeheader();writer.writerows(records)
     print(json.dumps(result['counts'],indent=2))

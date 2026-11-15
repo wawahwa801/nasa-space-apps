@@ -1,0 +1,33 @@
+{
+  "architecture": "multiscale-geometry-v1",
+  "targets": 262,
+  "epoch": 21,
+  "independent_evaluation": false,
+  "limitation": "Experimental generated geometry; residual softness and artifacts remain. No physical boundary validation.",
+  "files": {
+    "expanded/manifest.json": {
+      "bytes": 1266329,
+      "sha256": "89c940371596e539454589624b5ebf4fce1c85e40201a38cdae98afea672c402"
+    },
+    "expanded/prepared.npz": {
+      "bytes": 22788244,
+      "sha256": "64e7e4d6fa6e3202fca3513200919425de50a0f0536338df17b71a1e48e58e60"
+    },
+    "expanded/features.csv": {
+      "bytes": 54161,
+      "sha256": "f1ef4e67f5a158b30dbc9909bbda6656663ca9e7b1c567f8651ac49651c28aff"
+    },
+    "training/final.pt": {
+      "bytes": 4170129,
+      "sha256": "73a9b48363b0a8c945eb5ee7687d1dd9eec1e142199ff771d11a82cf66b74359"
+    },
+    "training/run.json": {
+      "bytes": 6747,
+      "sha256": "5b8972829099ec1c547ee45dd0ecb0aaa479e0f6b08b18635a30a102a05d866a"
+    },
+    "training/metrics.jsonl": {
+      "bytes": 4183,
+      "sha256": "ecd8d15af9d53c290ced5b55696ac46b542b1e1f853080bcb5d9d89fc06f0318"
+    }
+  }
+}
