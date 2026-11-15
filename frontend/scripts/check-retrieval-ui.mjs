@@ -7,6 +7,7 @@ import fs from 'node:fs';
 const { chromium } = createRequire(import.meta.url)('playwright');
 const base = process.env.TEST_BASE_URL || 'http://127.0.0.1:3001';
 const data = JSON.parse(fs.readFileSync(new URL('../public/flames/flex2/index.json',import.meta.url)));
+const defaultRun=data.records.find(r=>r.fuel===data.fuels[0].name&&data.fields.every(f=>r.features[f.key]===data.fuels[0].defaults[f.key]));
 
 (async () => {
   const browser = await chromium.launch({ headless:true });
@@ -113,7 +114,7 @@ const data = JSON.parse(fs.readFileSync(new URL('../public/flames/flex2/index.js
     const failure=await browser.newPage({viewport:{width:1000,height:900}});
     let failLibrary=true,failImage=true;
     await failure.route('**/flames/flex2/index.json',route=>failLibrary?route.fulfill({status:503,body:'Unavailable'}):route.continue());
-    await failure.route('**/flames/flex2/A109D04.png*',route=>failImage?route.abort():route.continue());
+    await failure.route(`**/flames/flex2/${defaultRun.id}.png*`,route=>failImage?route.abort():route.continue());
     await failure.goto(base);await failure.getByRole('tab',{name:'Feature retrieval'}).click();
     await failure.getByRole('heading',{name:'Flame library unavailable'}).waitFor();
     failLibrary=false;await failure.getByRole('button',{name:'Retry loading library'}).click();
@@ -121,6 +122,6 @@ const data = JSON.parse(fs.readFileSync(new URL('../public/flames/flex2/index.js
     failImage=false;await failure.getByRole('button',{name:'Retry image',exact:true}).click();
     await failure.waitForFunction(()=>document.querySelector('[aria-label="Retrieved flame result"] img')?.naturalWidth===256);
     await failure.close();
-    console.log(JSON.stringify({verifiedRuns:data.records.length,liveRetrievedRuns:seen,modelServiceRequests:modelCalls,browserErrors:errors,checks:'tabs, state, reset, validation, source links, 24 images, live input, keyboard, mobile, retry states'}));
+    console.log(JSON.stringify({verifiedRuns:data.records.length,liveRetrievedRuns:seen,modelServiceRequests:modelCalls,browserErrors:errors,checks:'tabs, state, reset, validation, source links, all images, live input, keyboard, mobile, retry states'}));
   } finally { await browser.close(); }
 })().catch(error=>{console.error(error);process.exitCode=1;});

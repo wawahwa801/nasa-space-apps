@@ -24,11 +24,15 @@ def export(data_path, output):
     if not train.any():raise ValueError('Training subset required for existing retrieval normalization')
     scale=np.maximum(np.ptp(d['features'][train],axis=0),1e-6)
     records=[];output.mkdir(parents=True,exist_ok=True)
+    previous=json.loads((output/'index.json').read_text()) if (output/'index.json').exists() else None
     for i,r in enumerate(manifest['records']):
         if r['run']!=str(d['groups'][i]) or r['fuel']!=manifest['fuels'][int(d['fuels'][i])]:
             raise ValueError('Run/fuel join mismatch')
         if d['images'][i].shape!=(256,256,3):raise ValueError('Expected 256px RGB targets')
         if not np.isfinite(d['features'][i]).all():raise ValueError('Nonfinite physical feature')
+        for member in r['members']:
+            if sha256((data_path/r['run']/member['file']).read_bytes()).hexdigest()!=member['sha256']:
+                raise ValueError('Source member checksum mismatch: '+member['file'])
         shown,alignment=centre_flame(d['images'][i])
         stream=BytesIO();Image.fromarray(shown).save(stream,format='PNG')
         raw=stream.getvalue();name=r['run']+'.png';(output/name).write_bytes(raw)
@@ -51,6 +55,18 @@ def export(data_path, output):
         matching='Exact fuel; lowest sum of squared feature differences normalized by the original training-subset feature ranges. All verified targets are searchable.',
         display_note='Detected luminous region translated to centre without scaling or recolouring. Alignment is approximate; weak detections retain position.',
         limitation='Selected microgravity droplet experiments, not the full FLEX-2 dataset. Missing per-run oxygen/droplet-size labels and camera/stage variation prevent a causal or calibrated fire prediction.')
+    # Remove only obsolete, unchanged images from this exporter's prior index.
+    # Preserve documentation, unrelated files and any locally modified image.
+    current_ids={r['id'] for r in records}
+    if previous and previous.get('source')=='PSI-68':
+        import re
+        for r in previous['records']:
+            if r['id'] in current_ids:continue
+            if not re.fullmatch(r'[A-Z]\d{3}[A-Z]\d{2}',r['id']):raise ValueError('Unsafe prior image ID')
+            path=output/(r['id']+'.png')
+            if path.exists():
+                if sha256(path.read_bytes()).hexdigest()!=r['image_sha256']:raise ValueError('Preserving locally modified obsolete image: '+path.name)
+                path.unlink()
     (output/'index.json').write_text(json.dumps(index,indent=2,sort_keys=True)+'\n')
     print(f'Exported {len(records)} FLEX-2 targets; {sum(p.stat().st_size for p in output.glob("*.png")):,} image bytes')
 

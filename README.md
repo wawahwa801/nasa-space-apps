@@ -48,9 +48,11 @@ appear there as extra sections.
 `frontend/public/fire-dashboard/` (generated, git-ignored), so edit `fire-dashboard/`,
 not the copy.
 
-The **Feature retrieval** tab searches a bundled set of 24 verified FLEX-2 colour targets by fuel, chamber pressure and temperature. Sliders update locally while dragging; numeric inputs validate the recorded ranges, and the result shows the actual matched conditions and source. This tab works with the frontend alone, without Flask, Torch or an inference service. Its controls apply to the droplet dataset separately from the simulation's broader scenario inputs. Switching tabs preserves both sets of inputs.
+The **Feature retrieval** tab searches a bundled set of 100 verified FLEX-2 colour targets across five fuels by fuel, chamber pressure and temperature. Sliders update locally while dragging; numeric inputs validate the recorded ranges, and the result shows the actual matched conditions and source. This tab works with the frontend alone, without Flask, Torch or an inference service. Its controls apply to the droplet dataset separately from the simulation's broader scenario inputs. Switching tabs preserves both sets of inputs.
 
 The images and provenance are in `frontend/public/flames/flex2/`. After acquiring and preparing FLEX-2 data as described in [ml/FLEX2.md](ml/FLEX2.md), regenerate them with `python ml/export_flex2_retrieval.py --data /path/to/flex2-study`. Verify the bundled image hashes and joins using `node frontend/scripts/check-feature-retrieval.mjs`.
+
+The bundled 100-run source subset was prepared by the expansion in [PR #30](https://github.com/wawahwa801/nasa-space-apps/pull/30). Until that acquisition workflow merges, use its verified prepared dataset to reproduce this expanded bundle; the older lab instructions prepare a smaller subset. The frontend itself already includes the complete exported bundle and needs no source-data download.
 
 ## LLM analysis API
 
