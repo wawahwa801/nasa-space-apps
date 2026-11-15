@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
 import {
+  NASA_DEFAULTS,
   NasaParameterFields,
   SHARED_FIELDS,
   convertRaw,
@@ -25,6 +26,7 @@ function sharedNasaInputs(values) {
     pressure_kpa: num(values.pressure),
     internal_temp_c: num(values.temperature),
     co2_ppm: co2 === null ? null : co2 * 10000,
+    humidity_pct: num(values.humidity),
     gravity: g === null ? "" : g < 0.05 ? "Microgravity (~0 g)" : `${g} g`,
   };
 }
@@ -211,7 +213,9 @@ export default function Home() {
   // NASA comparison inputs that the flame simulation doesn't have (raw text in
   // the chosen unit), their units, and the field definitions from fire-dashboard.
   const [nasaDefs, setNasaDefs] = useState(null);
-  const [nasaRaw, setNasaRaw] = useState({});
+  const [nasaRaw, setNasaRaw] = useState(() =>
+    Object.fromEntries(Object.entries(NASA_DEFAULTS).map(([k, v]) => [k, String(v)])),
+  );
   const [nasaUnits, setNasaUnits] = useState({});
   const dashboardInputs = useMemo(
     () => ({
@@ -240,7 +244,12 @@ export default function Home() {
     setValues(defaults);
     setSnapshot(null);
     setError("");
-    setNasaRaw({});
+    // Back to the default gas readings, shown in whatever units are selected.
+    setNasaRaw(
+      nasaDefs
+        ? rawFromBase(nasaDefs, NASA_DEFAULTS, nasaUnits)
+        : Object.fromEntries(Object.entries(NASA_DEFAULTS).map(([k, v]) => [k, String(v)])),
+    );
   }
   // Fill both the shared values and the NASA-only inputs from the dashboard's example.
   function loadNasaExample() {
@@ -252,6 +261,7 @@ export default function Home() {
       pressure: ex.pressure_kpa,
       temperature: ex.internal_temp_c,
       co2: Number((ex.co2_ppm / 10000).toFixed(4)),
+      humidity: ex.humidity_pct ?? v.humidity,
       gravity: String(ex.gravity).startsWith("Microgravity") ? 0 : v.gravity,
     }));
     setNasaRaw(rawFromBase(nasaDefs, ex, nasaUnits));

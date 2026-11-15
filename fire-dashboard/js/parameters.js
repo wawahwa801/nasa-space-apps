@@ -78,6 +78,8 @@
           hint: "Checked for enrichment and deficiency, and placed on the ACME chart." },
         { id: "n2_pct", label: "Nitrogen (N₂) concentration", type: "number", units: "percent", min: 0, max: 100,
           hint: "Checked with O₂ so the gas percentages add up." },
+        { id: "humidity_pct", label: "Relative humidity", type: "number", unit: "%", min: 0, max: 100,
+          hint: "With temperature and pressure, gives the water vapour shown in the air composition chart." },
         { id: "co2_ppm", label: "Carbon dioxide (CO₂) concentration", type: "number", units: "concentration", min: 0, max: 1e6,
           hint: "Compared with NIOSH exposure limits and the Saffire-I burn." },
         { id: "h2_ppm", label: "Hydrogen (H₂) concentration", type: "number", units: "concentration", min: 0, max: 1e6,
@@ -144,7 +146,7 @@
   // Example input, roughly an ISS-like cabin. Used by the "Load example" button.
   window.EXAMPLE_INPUT = {
     environment: "Pressurised", gravity: "Microgravity (~0 g)", internal_temp_c: 22.5, pressure_kpa: 101.3,
-    o2_pct: 21.5, n2_pct: 78.0, co2_ppm: 3000, h2_ppm: 20, ch4_ppm: 5, co_ppm: 2,
+    o2_pct: 21.5, n2_pct: 76.3, humidity_pct: 45, co2_ppm: 3000, h2_ppm: 20, ch4_ppm: 5, co_ppm: 2,
     monitoring: "Nominal", oxidizer_leak: "None detected",
     fuel_type: "Propane", fuel_storage: "Sealed cylinder", fuel_leak: "None detected", fuel_distance_m: 2.0,
     material_type: "Kapton", material_distance_m: 0.4,
