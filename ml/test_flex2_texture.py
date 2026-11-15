@@ -29,5 +29,17 @@ class TextureTests(unittest.TestCase):
         mean,cov=mask_moments(torch.zeros(1,1,64,64))
         self.assertTrue(torch.isfinite(mean).all());self.assertTrue(torch.isfinite(cov).all())
 
+    def test_more_geometry_influence_moves_shape_toward_cnn(self):
+        shifted=torch.roll(self.geometry,10,dims=-1)
+        _,a=texture_composite(shifted,self.images,self.masks,torch.tensor([.5,.5]),geometry_share=.2)
+        _,b=texture_composite(shifted,self.images,self.masks,torch.tensor([.5,.5]),geometry_share=.9)
+        center_a,_=mask_moments(a);center_b,_=mask_moments(b)
+        self.assertGreater(float(center_b[0,0]),float(center_a[0,0]))
+
+    def test_invalid_geometry_and_concentration_are_rejected(self):
+        for share,concentration in [(1.1,2),(.8,0),(.8,5)]:
+            with self.assertRaises(ValueError):
+                texture_composite(self.geometry,self.images,self.masks,torch.tensor([.5,.5]),share,concentration)
+
 
 if __name__=='__main__':unittest.main()

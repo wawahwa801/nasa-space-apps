@@ -20,19 +20,19 @@ from spice_model import encode
 PAGE='''<!doctype html><html lang="en"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FLEX-2 model comparison</title>
 <style>body{background:#101114;color:#eee;font:16px system-ui;max-width:1300px;margin:auto;padding:24px}p,small{color:#b8bfcb;line-height:1.5}select{padding:12px;max-width:100%;background:#222;color:white}main{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}img{width:100%;background:black}section{background:#191c22;padding:16px;border-radius:12px}#status{min-height:30px}@media(max-width:700px){main{grid-template-columns:1fr}}</style>
 <h1>FLEX-2 trained model comparison</h1><p>Choose a recorded condition to compare the trained retrieval-conditioned CNN, published feature-only CNN, and normal pressure/temperature retrieval. All references come from training runs, with the chosen run excluded.</p>
-<select id="run" aria-label="Recorded conditions"></select><div id="controls" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px"></div><p id="status" role="status">Loading…</p>
+<select id="run" aria-label="Recorded conditions"></select><div id="controls" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px"></div><div id="renderControls" style="display:flex;flex-wrap:wrap;gap:24px;margin-top:24px"></div><p id="status" role="status">Loading…</p>
 <main><section><h2>Trained hybrid</h2><img id="hybrid" alt="Trained hybrid prediction"><p id="hybridNote"></p></section><section><h2>Normal CNN</h2><img id="cnn" alt="Published CNN prediction"><p>Published 100-run CNN, using fuel, pressure and temperature.</p></section><section><h2>Feature retrieval</h2><img id="retrieval" alt="Retrieved recorded flame"><p id="retrievalNote"></p></section></main>
 <details id="geometryPanel" hidden><summary>Predicted geometry probability (weak supervision)</summary><img id="geometryMask" style="max-width:256px" alt="Uncalibrated predicted flame mask"><p>Mask uses the centered training coordinate frame. This is an image-derived probability map, not a validated physical boundary for the PINN.</p></details><p id="conditions"></p><p>All numeric hybrid features have sliders; categorical features have selectors. Fuel comes from the recorded preset. Normal CNN and retrieval use only fuel, pressure and temperature. Flags indicate missing measurements; changing them does not supply a measured value. Camera codes and campaign are nuisance inputs. Slider combinations may be unsupported by training data; predictions are experimental. Display alignment translates the luminous region without resizing.</p>
 <script>
 let version=0,generation=0,renders=0,info,busy=false,pending=false;const $=id=>document.getElementById(id);
 function preset(){generation++;const r=info.runs.find(x=>x.id===$('run').value);for(const [key,value] of Object.entries(r.values)){const el=$(key);el.value=value;const out=$(key+'Out');if(out)out.textContent=value;}update();}
 function update(){version++;pending=true;$('status').textContent='Updating comparison…';pump();}
-async function pump(){if(busy||!pending)return;pending=false;busy=true;const v=version,g=generation;const params=new URLSearchParams({run:$('run').value});for(const s of [...info.numeric,...info.categories])params.set(s.key,$(s.key).value);
+async function pump(){if(busy||!pending)return;pending=false;busy=true;const v=version,g=generation;const params=new URLSearchParams({run:$('run').value});for(const s of [...info.numeric,...info.categories,...(info.renderer||[])])params.set(s.key,$(s.key).value);
 try{const response=await fetch('/api/compare?'+params);const r=await response.json();if(!response.ok)throw Error(r.error);if(g===generation){for(const k of ['hybrid','cnn','retrieval'])$(k).src=r[k];$('hybrid').dataset.renderCount=String(++renders);$('geometryPanel').hidden=!r.mask;if(r.mask)$('geometryMask').src=r.mask;$('hybrid').dataset.inputVersion=String(v);$('hybridNote').textContent=r.model_note+' · reference '+r.hybrid_reference;$('retrievalNote').textContent='Recorded training run '+r.retrieval_reference;$('conditions').textContent=r.conditions;$('status').textContent=pending?'Live prediction · updating while you drag…':'Comparison ready';}}catch(e){if(v===version)$('status').textContent=e.message;}finally{busy=false;pump();}}
 fetch('/api/runs').then(r=>r.json()).then(r=>{info=r;for(const x of r.runs)$('run').add(new Option(x.label,x.id));
 for(const s of r.numeric){const label=document.createElement('label');label.textContent=s.label+' ('+s.unit+')';const output=document.createElement('output');output.id=s.key+'Out';output.style.display='block';const input=document.createElement('input');input.type='range';input.id=s.key;input.min=s.min;input.max=s.max;input.step=s.step;input.style.width='100%';input.disabled=s.min===s.max;input.setAttribute('aria-label',s.label);input.oninput=()=>{output.textContent=Number(input.value).toFixed(3);update();};label.append(output,input);$('controls').append(label);}
 for(const s of r.categories){const label=document.createElement('label');label.textContent=s.label;const select=document.createElement('select');select.id=s.key;select.style.display='block';select.add(new Option('Unknown / unseen code','unknown'));for(const [j,value] of s.levels)select.add(new Option(value,value));select.onchange=update;label.append(select);$('controls').append(label);}
-$('run').onchange=preset;preset();}).catch(e=>$('status').textContent=e.message);
+for(const s of r.renderer||[]){const label=document.createElement('label');label.textContent=s.label;const output=document.createElement('output');output.textContent=s.default;output.style.display='block';const input=document.createElement('input');input.type='range';input.id=s.key;input.min=s.min;input.max=s.max;input.step='0.01';input.value=s.default;input.setAttribute('aria-label',s.label);input.oninput=()=>{output.textContent=Number(input.value).toFixed(2);update();};label.append(output,input);$('renderControls').append(label);}$('run').onchange=preset;preset();}).catch(e=>$('status').textContent=e.message);
 </script></html>'''
 
 
@@ -125,15 +125,20 @@ def create_app(run_dir,texture=False):
             page=page.replace('Predicted geometry probability (weak supervision)','Combined CNN/retrieval mask (uncalibrated)')
         return render_template_string(page)
     @app.get('/api/runs')
-    def runs():return jsonify(runs=[dict(id=str(d['groups'][i]),label=f"{d['groups'][i]} · {m['fuels'][int(d['fuels'][i])]} · {d['splits'][i]}",values=defaults(i)) for i in eligible],numeric=control_specs,categories=category_specs)
+    def runs():return jsonify(runs=[dict(id=str(d['groups'][i]),label=f"{d['groups'][i]} · {m['fuels'][int(d['fuels'][i])]} · {d['splits'][i]}",values=defaults(i)) for i in eligible],numeric=control_specs,categories=category_specs,renderer=[dict(key='geometry_share',label='Learned shape influence (rendering)',min=0,max=1,default=.8),dict(key='concentration',label='Reference detail concentration (rendering)',min=1,max=4,default=2)] if texture else [])
     @app.get('/api/compare')
     def compare():
         matches=[i for i in eligible if str(d['groups'][i])==request.args.get('run')]
         if len(matches)!=1:return jsonify(error='Choose a supported recorded run'),400
         i=matches[0];fuel=m['fuels'][int(d['fuels'][i])];f=base_manifest['fuels'].index(fuel)
-        unknown=set(request.args)-{'run'}-{s['key'] for s in control_specs+category_specs}
+        unknown=set(request.args)-({'run','geometry_share','concentration'} if texture else {'run'})-{s['key'] for s in control_specs+category_specs}
         if unknown or any(len(request.args.getlist(k))!=1 for k in request.args):return jsonify(error='Unsupported or duplicate controls'),400
-        query=x[i].copy();raw=d['feature_raw_values'][i].copy()
+        query=x[i].copy();raw=d['feature_raw_values'][i].copy();geometry_share=.8;concentration=2.
+        if texture:
+            try:
+                geometry_share=float(request.args.get('geometry_share',.8));concentration=float(request.args.get('concentration',2.))
+                if not math.isfinite(geometry_share) or not 0<=geometry_share<=1 or not math.isfinite(concentration) or not 1<=concentration<=4:raise ValueError('Invalid rendering controls')
+            except ValueError as error:return jsonify(error=str(error)),400
         try:
             for j,spec in enumerate(control_specs):
                 value=float(request.args.get(spec['key'],raw[j]))
@@ -157,7 +162,7 @@ def create_app(run_dir,texture=False):
                 rgb,mask_logits=hybrid.decode(torch.tensor(query[None]),weights@conditions,pyramid)
                 if texture:
                     pool=torch.where((torch.tensor(d['fuels'])==d['fuels'][i]) & (torch.arange(len(x))!=i))[0]
-                    rgb,composite_mask=texture_composite(mask_logits.sigmoid(),images[pool],appearance_masks[pool],weights[0,pool])
+                    rgb,composite_mask=texture_composite(mask_logits.sigmoid(),images[pool],appearance_masks[pool],weights[0,pool],geometry_share,concentration)
                     mask_logits=torch.logit(composite_mask.clamp(.0001,.9999))
                 prediction=rgb[0];mask_image=png(np.repeat(mask_logits[0,0].sigmoid().numpy()[:,:,None],3,axis=2))
             elif shape:

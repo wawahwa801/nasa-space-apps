@@ -25,14 +25,18 @@ def sqrt_spd(matrix):
     return (matrix+determinant[:,None,None]*torch.eye(2,device=matrix.device)[None])/(trace+2*determinant).sqrt()[:,None,None]
 
 
-def texture_composite(cnn_mask,reference_images,reference_masks,weights,geometry_share=.45):
+def texture_composite(cnn_mask,reference_images,reference_masks,weights,geometry_share=.8,concentration=2.):
     """Warp every fixed-pool reference smoothly, then blend RGB and mask evidence.
 
     No nearest-reference selection or hard mask threshold occurs here. Geometry
-    share is fixed, not an extra trained control. Image scale is uncalibrated.
+    share and concentration are rendering controls, not trained physical inputs.
     """
     if not 0<=geometry_share<=1:raise ValueError('geometry_share must be in [0,1]')
+    if not 1<=concentration<=4:raise ValueError('concentration must be in [1,4]')
     if len(weights)!=len(reference_images) or not len(weights):raise ValueError('Reference/weight mismatch')
+    # Sharpen soft attention without switching to argmax. Subtracting the maximum
+    # log weight stabilizes powers without changing the normalized distribution.
+    weights=((weights.clamp(min=1e-30).log()-weights.max().clamp(min=1e-30).log())*concentration).exp()
     weights=weights/weights.sum().clamp(min=1e-12)
     reference_mean,reference_cov=mask_moments(reference_masks)
     cnn_mean,cnn_cov=mask_moments(cnn_mask)
@@ -51,5 +55,5 @@ def texture_composite(cnn_mask,reference_images,reference_masks,weights,geometry
     combined_mask=(geometry_share*cnn_mask+(1-geometry_share)*visual_mask).clamp(0,1)
     # Smooth foreground weighting retains recorded colour/texture without a
     # binary cutout; probability is uncalibrated and unsuitable as a PINN label.
-    alpha=1-torch.exp(-5*combined_mask)
+    alpha=1-torch.exp(-7*combined_mask)
     return texture*alpha,combined_mask
