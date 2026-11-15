@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 // A finite sensitivity sweep, never a calibrated confidence interval. Keep all
 // other conditions (including fuel and apparatus flags) at their selected values.
@@ -30,6 +30,7 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  const [stopped, setStopped] = useState(false);
   const [reduced, setReduced] = useState(false);
   const active = useRef(true);
   const request = useRef(null);
@@ -46,18 +47,19 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
 
   useEffect(() => {
     if (!playing || reduced || frames.length < 2) return;
-    const timer = setInterval(() => setIndex(i => (i + 1) % frames.length), 700);
+    const timer = setInterval(() => setIndex(i => (i + 1) % frames.length), 100);
     return () => clearInterval(timer);
   }, [playing, reduced, frames.length]);
 
-  function reset() {
+  const reset = useCallback(() => {
     version.current++;
     request.current?.abort();
     setFrames([]); setIndex(0); setPlaying(false); setLoading(false); setStatus("");
-  }
+  }, []);
 
-  async function generate() {
+  const generate = useCallback(async () => {
     reset();
+    setStopped(false);
     if (!info || info.numeric.some(s => controls[s.key] === "" || !Number.isFinite(Number(controls[s.key])))) {
       setStatus("Enter valid model conditions first."); return;
     }
@@ -90,7 +92,18 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
       clearTimeout(timeout);
       if (active.current && current === version.current) setLoading(false);
     }
-  }
+  }, [controls, info, percent, reset]);
+
+  // Debounce edits, then prepare each frame once; playback never queries the model.
+  useEffect(() => {
+    if (disabled) return;
+    const timer = setTimeout(generate, 250);
+    return () => {
+      clearTimeout(timer);
+      version.current++;
+      request.current?.abort();
+    };
+  }, [disabled, generate]);
 
   const shown = frames[index] || preview;
   return (
@@ -103,12 +116,12 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
       <div className="demo-variation-controls" aria-label="Demo variation animation">
         <label htmlFor={`${id}-range`}>Pressure / temperature range
           <span><input id={`${id}-range`} type="number" min="1" max="20" step="1" value={percent}
-            onChange={e => { reset(); setPercent(e.target.value); }} />% of each control’s full range</span>
+            onChange={e => { reset(); setStopped(false); setPercent(e.target.value); }} />% of each control’s full range</span>
         </label>
         <p className="hybrid-muted">Exploratory variation, not calibrated uncertainty or flame motion. Settings are clipped to slider limits; combinations may lack training support. Room simulation uses the selected inputs.</p>
         <div className="demo-variation-actions">
-          <button type="button" disabled={disabled || loading} onClick={generate}>{loading ? "Generating…" : "Generate variations"}</button>
-          {(frames.length > 0 || loading) && <button type="button" onClick={reset}>{loading ? "Cancel variations" : "Selected prediction"}</button>}
+          {(frames.length > 0 || loading) && <button type="button" onClick={() => { reset(); setStopped(true); }}>{loading ? "Cancel animation" : "Selected prediction"}</button>}
+          {!loading && !frames.length && (stopped || status) && <button type="button" disabled={disabled} onClick={generate}>{stopped ? "Resume animation" : "Retry animation"}</button>}
           {frames.length > 0 && !reduced && <button type="button" onClick={() => setPlaying(p => !p)}>{playing ? "Pause variations" : "Play variations"}</button>}
         </div>
         {frames.length > 0 && <label htmlFor={`${id}-frame`}>Alternative {index + 1} of {frames.length}

@@ -19,33 +19,38 @@ try {
     try { await route.fulfill(fail ? {status:503,json:{error:'Fixture service unavailable'}} : {json:{hybrid:pixel,cnn:pixel,retrieval:pixel,conditions:`Pressure ${q.n0}; temperature ${q.n1}`,model_note:'Fixture prediction'}}); } catch { /* An expected cancellation can close this request. */ }
   });
   await page.goto(base);
-  const generate=page.getByRole('button',{name:'Generate variations',exact:true});
-  await generate.waitFor(); await page.locator('#rooms-panel .hybrid-flame img').waitFor({state:'attached'});
+  const paused=page.getByRole('button',{name:'Pause variations',exact:true});
   const slider=page.locator('.demo-variation-controls input[type=range]');
   const range=page.locator('.demo-variation-controls input[type=number]');
-  await range.fill('20'); calls.length=0; await generate.click();
-  await page.getByRole('button',{name:'Pause variations',exact:true}).waitFor();
+  await paused.waitFor();
+  assert.equal(await page.getByRole('button',{name:'Generate variations',exact:true}).count(),0);
+  assert.equal(await page.locator('.demo-flame-image').evaluate(e=>getComputedStyle(e).animationName),'none');
+  const visited=await slider.evaluate(e=>new Promise(resolve=>{const values=new Set();const timer=setInterval(()=>values.add(e.value),30);setTimeout(()=>{clearInterval(timer);resolve([...values]);},450);}));
+  assert.ok(visited.length>=3,'Playback must advance quickly without a click');
+  await paused.click();
+  const held=await slider.inputValue(); await page.waitForTimeout(900); assert.equal(await slider.inputValue(),held);
+  await range.fill('20'); calls.length=0; await paused.waitFor();
   assert.equal(calls.length,8);
   for(const q of calls){assert.equal(q.run,'run-a');assert.ok(+q.n0>=info.numeric[0].min&&+q.n0<=info.numeric[0].max);assert.ok(+q.n1>=20&&+q.n1<=30);}
-  await page.getByRole('button',{name:'Pause variations',exact:true}).click();
-  const held=await slider.inputValue(); await page.waitForTimeout(900); assert.equal(await slider.inputValue(),held); assert.equal(calls.length,8);
-  await slider.fill('7'); assert.equal(await slider.inputValue(),'7');
-  await page.getByRole('button',{name:'Selected prediction',exact:true}).click();
-  assert.equal(await slider.count(),0);
-  // Cancel a delayed generation, then ensure its late answer cannot restore frames.
-  delay=400; await generate.click(); await page.getByRole('button',{name:'Cancel variations',exact:true}).click();
-  await page.waitForTimeout(500); assert.equal(await slider.count(),0); await generate.waitFor();
-  // Input changes unmount and cancel the old sweep even during a request.
-  await generate.click(); await page.getByRole('button',{name:'Cancel variations',exact:true}).waitFor();
+  await paused.click(); await slider.fill('7'); assert.equal(await slider.inputValue(),'7');
+  await page.waitForTimeout(500);assert.equal(calls.length,8,'Playback uses cached frames');
+  await page.getByRole('button',{name:'Selected prediction',exact:true}).click();assert.equal(await slider.count(),0);
+  assert.equal(await page.locator('.demo-flame-image').evaluate(e=>getComputedStyle(e).animationName),'none');
+  // Cancel an automatically started delayed sweep; late answers cannot restore it.
+  delay=400; await range.fill('10'); await page.getByRole('button',{name:'Cancel animation',exact:true}).click();
+  await page.waitForTimeout(500); assert.equal(await slider.count(),0);
+  // Input changes cancel the old sweep, then automatically prepare the new one.
+  await page.getByRole('button',{name:'Resume animation',exact:true}).click();
+  await page.getByRole('button',{name:'Cancel animation',exact:true}).waitFor();
   await page.locator('#model-parameters input[type=number]').first().fill('80');
-  await page.waitForTimeout(600); assert.equal(await slider.count(),0); await generate.waitFor();
-  delay=0; fail=true; await generate.click(); await page.getByText(/Could not generate variations: Fixture service unavailable/).waitFor();
-  assert.equal(await slider.count(),0); fail=false;
-  await range.fill('0'); await generate.click(); await page.getByText('Choose a range from 1% to 20%.').waitFor();
-  await range.fill('5'); await page.emulateMedia({reducedMotion:'reduce'}); await generate.click(); await slider.waitFor();
-  assert.equal(await page.getByRole('button',{name:'Pause variations',exact:true}).count(),0);
-  const frame=await slider.inputValue(); await page.waitForTimeout(900); assert.equal(await slider.inputValue(),frame);
+  await paused.waitFor(); delay=0;
+  fail=true;await range.fill('11');await page.getByText(/Could not generate variations: Fixture service unavailable/).waitFor();
+  assert.equal(await slider.count(),0);fail=false;await page.getByRole('button',{name:'Retry animation',exact:true}).click();await paused.waitFor();
+  await range.fill('0');await page.getByText('Choose a range from 1% to 20%.').waitFor();
+  await page.emulateMedia({reducedMotion:'reduce'});await range.fill('5');await slider.waitFor();
+  assert.equal(await paused.count(),0);
+  const frame=await slider.inputValue();await page.waitForTimeout(900);assert.equal(await slider.inputValue(),frame);
   await slider.fill('1');
   for(const width of [390,320]){await page.setViewportSize({width,height:1000});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
-  console.log('PASS: bounded requests, cached playback, cancellation/stale responses, failures/retry, invalid range, reduced motion and mobile');
+  console.log('PASS: automatic fast playback, no flicker/generate button, bounded cached queries, pause/cancel/retry, input refresh, reduced motion and mobile');
 } finally { await browser.close(); }
