@@ -1,0 +1,1356 @@
+{
+  "count": 24,
+  "display_note": "Detected luminous region translated to centre without scaling or recolouring. Alignment is approximate; weak detections retain position.",
+  "features_note": "Mean of four chamber pressure and temperature channels in the five seconds before ignition; PSIA converted to kPa. Fuel is the NASA file subcategory. No per-run oxygen, droplet diameter or airflow labels inferred.",
+  "fields": [
+    {
+      "key": "pressure_kpa",
+      "label": "Chamber pressure",
+      "unit": "kPa"
+    },
+    {
+      "key": "temperature_c",
+      "label": "Chamber temperature",
+      "unit": "\u00b0C"
+    }
+  ],
+  "fuels": [
+    {
+      "count": 10,
+      "defaults": {
+        "pressure_kpa": 101.92864227294922,
+        "temperature_c": 25.235000610351562
+      },
+      "name": "Decane",
+      "ranges": {
+        "pressure_kpa": {
+          "max": 300.170166015625,
+          "min": 101.92864227294922
+        },
+        "temperature_c": {
+          "max": 27.226999282836914,
+          "min": 25.235000610351562
+        }
+      }
+    },
+    {
+      "count": 14,
+      "defaults": {
+        "pressure_kpa": 103.32827758789062,
+        "temperature_c": 25.88949966430664
+      },
+      "name": "Heptane",
+      "ranges": {
+        "pressure_kpa": {
+          "max": 103.53167724609375,
+          "min": 102.17340850830078
+        },
+        "temperature_c": {
+          "max": 26.371000289916992,
+          "min": 23.404499053955078
+        }
+      }
+    }
+  ],
+  "license": "CC0-1.0",
+  "limitation": "Selected microgravity droplet experiments, not the full FLEX-2 dataset. Missing per-run oxygen/droplet-size labels and camera/stage variation prevent a causal or calibrated fire prediction.",
+  "matching": "Exact fuel; lowest sum of squared feature differences normalized by the original training-subset feature ranges. All verified targets are searchable.",
+  "prepared_sha256": "3726f76783a2e99cd67648f4c839d016dd03182d26ff3b329128848fb67478a5",
+  "preprocessing": "Fixed 320px square crop x160:480/y100:420; clip((RGB-3)*2), Gaussian 3px sigma .6, resize to 256; no synthetic colour",
+  "records": [
+    {
+      "archive": "PSI-68_Raw Data_A109D04D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          -18,
+          31
+        ],
+        "source_bounds": [
+          80,
+          35,
+          133,
+          124
+        ]
+      },
+      "features": {
+        "pressure_kpa": 101.92864227294922,
+        "temperature_c": 25.235000610351562
+      },
+      "fuel": "Decane",
+      "id": "A109D04",
+      "image": "/flames/flex2/A109D04.png",
+      "image_sha256": "5fbd449ef3118017b48979701c397a1d53b9634cd503a0bf99753753aa154965",
+      "members": [
+        {
+          "file": "A109D04D_00310.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "8e1dc46716c47c10731dd9358efde5d37723cc9653ffac51310229714373773a",
+          "timestamp": "2016-04-18T15:49:17.841845"
+        },
+        {
+          "file": "A109D04D_00313.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "82ac356c619fccb0d76ccf88d0c9f3844e56d4c70f91381c345f0167a443158d",
+          "timestamp": "2016-04-18T15:49:17.941845"
+        },
+        {
+          "file": "A109D04D_00316.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "18207d69f942fcfae3035954a3cad402f4e0a6d7e0ef2f5aa5bc477dc9d1422d",
+          "timestamp": "2016-04-18T15:49:18.041845"
+        },
+        {
+          "file": "A109D04D_00319.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "9adc681ee2d62a10065b9565f0ce3f01a94f78c5cdb8cc94b70f54d23446bbac",
+          "timestamp": "2016-04-18T15:49:18.141846"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A109D08D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          16,
+          -4
+        ],
+        "source_bounds": [
+          44,
+          63,
+          136,
+          139
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.18375396728516,
+        "temperature_c": 25.959999084472656
+      },
+      "fuel": "Decane",
+      "id": "A109D08",
+      "image": "/flames/flex2/A109D08.png",
+      "image_sha256": "73f4b3fe6eea5032f4a1b0f295bc22769b36c194eeaea11e381f88170dfc9f87",
+      "members": [
+        {
+          "file": "A109D08D_00313.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "e8834adfa6b3d8844a71b9712571bad39fb3cb1d2292d376cd276ee39d295675",
+          "timestamp": "2016-04-18T16:40:54.258512"
+        },
+        {
+          "file": "A109D08D_00316.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "4516d59ea0bed3dc00aa695ac3654c5ca9352528ac2c40a6017d2f7e9f161c84",
+          "timestamp": "2016-04-18T16:40:54.358512"
+        },
+        {
+          "file": "A109D08D_00319.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "64b86ad169a7523cb0359ebd7dcdc18b0ca3a7b26e9246d1082a7cd61643c023",
+          "timestamp": "2016-04-18T16:40:54.458512"
+        },
+        {
+          "file": "A109D08D_00322.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "54cd4b009a9b0e716df6777dd4d4508101e57e42ea1f62eefd89b7c8305ca1de",
+          "timestamp": "2016-04-18T16:40:54.558512"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "validation"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A123D01D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          -16,
+          -22
+        ],
+        "source_bounds": [
+          82,
+          89,
+          123,
+          122
+        ]
+      },
+      "features": {
+        "pressure_kpa": 127.99771881103516,
+        "temperature_c": 25.258499145507812
+      },
+      "fuel": "Decane",
+      "id": "A123D01",
+      "image": "/flames/flex2/A123D01.png",
+      "image_sha256": "ecf75f7e752b5f046c1b8386bf1aba35242c96869087fe29c83a353a3c72f508",
+      "members": [
+        {
+          "file": "A123D01D_00330.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "b3a9b8ea19eae750c317a12fb77031b4e0ea7a594db1ea52e815e6a7de3896f1",
+          "timestamp": "2016-05-02T14:45:48.408512"
+        },
+        {
+          "file": "A123D01D_00333.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "307982bdf79517cb749a4fcd66a5d42e75dabc10b69565d977b84bc404a6562b",
+          "timestamp": "2016-05-02T14:45:48.508512"
+        },
+        {
+          "file": "A123D01D_00336.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "2b9c9be572dac38cc7f2a989d678b4101ca09e26f1136d32c7529396bfbd4fc7",
+          "timestamp": "2016-05-02T14:45:48.608512"
+        },
+        {
+          "file": "A123D01D_00339.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "7ec8a8a3e5f13827d6cc5914ac3a811c2e61d060aab4d579a942ade22acc8740",
+          "timestamp": "2016-05-02T14:45:48.708512"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "validation"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A123D08D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          42,
+          20
+        ],
+        "source_bounds": [
+          21,
+          40,
+          130,
+          135
+        ]
+      },
+      "features": {
+        "pressure_kpa": 127.52198028564453,
+        "temperature_c": 26.66699981689453
+      },
+      "fuel": "Decane",
+      "id": "A123D08",
+      "image": "/flames/flex2/A123D08.png",
+      "image_sha256": "6c5c36d92d18a35a98b954475ed88bb4501f69918c2f85cf63960f7b9980c1b0",
+      "members": [
+        {
+          "file": "A123D08D_00345.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "7d7e6ee512561d2d3cf6ef1f4b7582557f28f89ae4a2c1b414ad114ce5dcadc4",
+          "timestamp": "2016-05-02T17:08:12.525179"
+        },
+        {
+          "file": "A123D08D_00348.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "345b3a11b16ff79413beb049881e58b1f136f882539c28f61fd33de05669182d",
+          "timestamp": "2016-05-02T17:08:12.625179"
+        },
+        {
+          "file": "A123D08D_00351.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "7f64b5fb40df536e5f8d7d98e7e46a05ce3dde4767321cc0dee8b587eab2d65a",
+          "timestamp": "2016-05-02T17:08:12.725179"
+        },
+        {
+          "file": "A123D08D_00354.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "329228300fa1f4129be1601c174ea6abe0cd9235ecdc83e8aeaaabdb4bc6ad42",
+          "timestamp": "2016-05-02T17:08:12.825179"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A127D04D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          -16,
+          -12
+        ],
+        "source_bounds": [
+          76,
+          74,
+          136,
+          132
+        ]
+      },
+      "features": {
+        "pressure_kpa": 128.3079833984375,
+        "temperature_c": 26.73699951171875
+      },
+      "fuel": "Decane",
+      "id": "A127D04",
+      "image": "/flames/flex2/A127D04.png",
+      "image_sha256": "2b919440faf395b4a135f60a521feb10a913153ba6eddcd7679f078d0ded2fa8",
+      "members": [
+        {
+          "file": "A127D04D_00350.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "cdd46de782ae47ad6b9fe3a1bd5074d6d5ebbd04d1b937d7531e5712a73079db",
+          "timestamp": "2016-05-06T16:59:40.475178"
+        },
+        {
+          "file": "A127D04D_00353.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "ed47b30e2a060618ea6d3c656db0955affc91fc9353a5dee12fd44029f8936ab",
+          "timestamp": "2016-05-06T16:59:40.575178"
+        },
+        {
+          "file": "A127D04D_00356.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "f3c15fbb2399ac0f1dbbbe0482463f3afde9f13f1074490660f0bc0f2f29255c",
+          "timestamp": "2016-05-06T16:59:40.675178"
+        },
+        {
+          "file": "A127D04D_00359.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "98a1eedf830813c522b8b1fe4bcce0e46f966c257d2145abc27d81ae113b2673",
+          "timestamp": "2016-05-06T16:59:40.775179"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A139D07D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          6,
+          -9
+        ],
+        "source_bounds": [
+          59,
+          73,
+          125,
+          128
+        ]
+      },
+      "features": {
+        "pressure_kpa": 205.47755432128906,
+        "temperature_c": 26.78700065612793
+      },
+      "fuel": "Decane",
+      "id": "A139D07",
+      "image": "/flames/flex2/A139D07.png",
+      "image_sha256": "0bed7f4e3a09ac98f1827b42dd830d387d859c817c3231c8b7b38bcab2c29fde",
+      "members": [
+        {
+          "file": "A139D07D_00434.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "956fd0b5b4754a3dc8e09dc6fb4526385b914b1a9f47e4c8a99fa945210534a4",
+          "timestamp": "2016-05-18T17:50:24.441846"
+        },
+        {
+          "file": "A139D07D_00437.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "db905f7474bad8519ded8dc07e43552d2b6790ab4b05b0e93756e9dc39796467",
+          "timestamp": "2016-05-18T17:50:24.541846"
+        },
+        {
+          "file": "A139D07D_00440.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "a7aaaab39c4948f9c824735e30183eb0e7e2aa8cbdeb92788ef6effad8df7f51",
+          "timestamp": "2016-05-18T17:50:24.641846"
+        },
+        {
+          "file": "A139D07D_00443.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "abb0619d075eb611cc8d408b5b8c4ae1d01a105676968182b8221c0c1b241a4c",
+          "timestamp": "2016-05-18T17:50:24.741846"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "test"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A298D04D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          -54,
+          -42
+        ],
+        "source_bounds": [
+          117,
+          120,
+          129,
+          100
+        ]
+      },
+      "features": {
+        "pressure_kpa": 104.08670043945312,
+        "temperature_c": 26.89900016784668
+      },
+      "fuel": "Decane",
+      "id": "A298D04",
+      "image": "/flames/flex2/A298D04.png",
+      "image_sha256": "46b37ea293b5be5192f1581083e20630dc7ea43dfb057fe8e937f20c198f0819",
+      "members": [
+        {
+          "file": "A298D04D_00330.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "e0b81cadaf251efb2291161d2ef083b8dc468b0cfd124425722eda2653d8c656",
+          "timestamp": "2016-10-24T17:02:05.708512"
+        },
+        {
+          "file": "A298D04D_00333.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "5ac7a8d1392ba5f20d1ecf66fa0f305ecf566d7b3a6a7c893be2f24c68c29d03",
+          "timestamp": "2016-10-24T17:02:05.808512"
+        },
+        {
+          "file": "A298D04D_00336.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "b8fc1c7f442368c98b7f3904d5c20a4fd5aaf1ba5245a9811b1502e81d39401a",
+          "timestamp": "2016-10-24T17:02:05.908512"
+        },
+        {
+          "file": "A298D04D_00339.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "b53e878af4c4c59ff622784956ba79f55d58af1a7da0ada519169286cb7b4fea",
+          "timestamp": "2016-10-24T17:02:06.008512"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A301D01D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          44,
+          20
+        ],
+        "source_bounds": [
+          13,
+          38,
+          142,
+          139
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.47332763671875,
+        "temperature_c": 26.36199951171875
+      },
+      "fuel": "Decane",
+      "id": "A301D01",
+      "image": "/flames/flex2/A301D01.png",
+      "image_sha256": "920c81762eabc6b43662c7d709bc395cc2bc5eee4c93cbd12cac68627782c2be",
+      "members": [
+        {
+          "file": "A301D01D_00330.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "37f0c28d4e9eca8ffc356142050b3fcc2ef5283237c1ddab16ed97e72f68e57d",
+          "timestamp": "2016-10-27T13:46:05.341846"
+        },
+        {
+          "file": "A301D01D_00333.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "0421c7eb5e4810a9c06340514d17780f854cfdd67d07e9af9d1956bea9d902b2",
+          "timestamp": "2016-10-27T13:46:05.441846"
+        },
+        {
+          "file": "A301D01D_00336.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "6063a686c202b841effdf4f87e6b35e027dcfe3731452eb6155979cd0b8cc55a",
+          "timestamp": "2016-10-27T13:46:05.541846"
+        },
+        {
+          "file": "A301D01D_00339.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "e01e6f82ab4b6d2463cff52070b64f87b6014a3ec021b1f3634f7f2a603ad139",
+          "timestamp": "2016-10-27T13:46:05.641846"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A301D05D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          4,
+          -27
+        ],
+        "source_bounds": [
+          39,
+          90,
+          171,
+          130
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.87322998046875,
+        "temperature_c": 27.058500289916992
+      },
+      "fuel": "Decane",
+      "id": "A301D05",
+      "image": "/flames/flex2/A301D05.png",
+      "image_sha256": "8202b929959807ee123a2720b2eea16bc64d3b802b7dc6a54aaf9ad6d882d7d9",
+      "members": [
+        {
+          "file": "A301D05D_00367.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "4fb3b17a98ac7516812e83b91ce498bfa0d8d895aa8ebb74f1b5eca7d2235ff9",
+          "timestamp": "2016-10-27T15:38:54.408512"
+        },
+        {
+          "file": "A301D05D_00370.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "60341c66b85988585f40d459f4d618fd25b9471b34b146cc19d9498f4d7e98fe",
+          "timestamp": "2016-10-27T15:38:54.508512"
+        },
+        {
+          "file": "A301D05D_00373.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "2f507a6810a5c56d23949db319f5f912f0e3c92a746e6034c5b367ecd51a73c3",
+          "timestamp": "2016-10-27T15:38:54.608512"
+        },
+        {
+          "file": "A301D05D_00376.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "8bb614698b77a9d6f562f8ba8e33116f4ac247384c1fa999b2aacf0a8bb8efc5",
+          "timestamp": "2016-10-27T15:38:54.708512"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A307D05D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          -16,
+          -14
+        ],
+        "source_bounds": [
+          68,
+          63,
+          153,
+          157
+        ]
+      },
+      "features": {
+        "pressure_kpa": 300.170166015625,
+        "temperature_c": 27.226999282836914
+      },
+      "fuel": "Decane",
+      "id": "A307D05",
+      "image": "/flames/flex2/A307D05.png",
+      "image_sha256": "23633b70d3e4961453d2fe42168ee1f30626c968c3b1c3dd00da6f98191b713e",
+      "members": [
+        {
+          "file": "A307D05D_00431.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "e4f2a6a67a162f4a12f7a4c922bc4864d9649b69e0841a5c55fe5b97ddc27e22",
+          "timestamp": "2016-11-02T17:10:57.191846"
+        },
+        {
+          "file": "A307D05D_00434.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "49be87e5cd4b6e5da8457b93bb1d96a6f29de21c7b08d3beb887514f154b75f1",
+          "timestamp": "2016-11-02T17:10:57.291846"
+        },
+        {
+          "file": "A307D05D_00437.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "4a58622f073cded326fc691db28af84b983b7e1f3d44d909dedc1c8cca6964f6",
+          "timestamp": "2016-11-02T17:10:57.391846"
+        },
+        {
+          "file": "A307D05D_00440.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "ca6f626ef27292f6a2a19e6a69c696ad8c7a91679e459c19ef4d5869f754a56b",
+          "timestamp": "2016-11-02T17:10:57.491846"
+        }
+      ],
+      "source_category": "Reduced Gravity/Quiescent 2016 - Decane",
+      "split": "test"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E066C01D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          19,
+          -24
+        ],
+        "source_bounds": [
+          40,
+          85,
+          138,
+          135
+        ]
+      },
+      "features": {
+        "pressure_kpa": 103.32827758789062,
+        "temperature_c": 25.88949966430664
+      },
+      "fuel": "Heptane",
+      "id": "E066C01",
+      "image": "/flames/flex2/E066C01.png",
+      "image_sha256": "9fc4a99f45be15998796cdf90b2823c27e71cf429715c68619c2ad24197ed1b3",
+      "members": [
+        {
+          "file": "E066C01D_00269.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "5dc032f55ab57a714cb80f9ccb126bdaf452a2b80bf55871878e25137f095851",
+          "timestamp": "2013-03-08T02:25:01.741846"
+        },
+        {
+          "file": "E066C01D_00272.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "9ca91e2bd1fff85aba65a0828c0df0f693b812c9f6803d6db773f021a3f35abe",
+          "timestamp": "2013-03-08T02:25:01.841845"
+        },
+        {
+          "file": "E066C01D_00275.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "999d318bedded7ba86d1be02ae1193c9954ad8777f02755a160cdcfac8958ac1",
+          "timestamp": "2013-03-08T02:25:01.941845"
+        },
+        {
+          "file": "E066C01D_00278.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "14fad2288661b36b447732a1686fec76427b4fc2e59325b17dd7dc302245b131",
+          "timestamp": "2013-03-08T02:25:02.041845"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E066C02D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          -12,
+          -12
+        ],
+        "source_bounds": [
+          64,
+          67,
+          151,
+          147
+        ]
+      },
+      "features": {
+        "pressure_kpa": 103.41791534423828,
+        "temperature_c": 26.062000274658203
+      },
+      "fuel": "Heptane",
+      "id": "E066C02",
+      "image": "/flames/flex2/E066C02.png",
+      "image_sha256": "2cd88e90b84db7898faf923a1ae048279c52c718b6e08c04a921eeeecc730094",
+      "members": [
+        {
+          "file": "E066C02D_00276.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "608495a8f9141e5ee1e37bf7c4a7f2918c9062bcd50d47d956ff2d84e1803172",
+          "timestamp": "2013-03-08T02:42:31.341846"
+        },
+        {
+          "file": "E066C02D_00279.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "cadff5aa396b597b7e297d2a03217b337de3cfd25e94a1421b8a7d573250d835",
+          "timestamp": "2013-03-08T02:42:31.441846"
+        },
+        {
+          "file": "E066C02D_00282.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "9028dc58dc45f2ed171d28c5c957b45220e19322a5785097f1a822bbd9199748",
+          "timestamp": "2013-03-08T02:42:31.541846"
+        },
+        {
+          "file": "E066C02D_00285.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "1989613fd979c2b1ec1cc72c32060043bb32d027391078dda86528500de529fc",
+          "timestamp": "2013-03-08T02:42:31.641846"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "validation"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E066C03D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          0,
+          12
+        ],
+        "source_bounds": [
+          69,
+          62,
+          119,
+          108
+        ]
+      },
+      "features": {
+        "pressure_kpa": 103.53167724609375,
+        "temperature_c": 26.371000289916992
+      },
+      "fuel": "Heptane",
+      "id": "E066C03",
+      "image": "/flames/flex2/E066C03.png",
+      "image_sha256": "164fd2d038a019291197d7c5a80f43880534d2728e5b25e7fce16d9ddaf0b5ca",
+      "members": [
+        {
+          "file": "E066C03D_00269.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "076f4e74ea85772297f109dd38dec238c31f4f0e8d3ed269a38cc0e19900760d",
+          "timestamp": "2013-03-08T03:24:29.141845"
+        },
+        {
+          "file": "E066C03D_00272.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "74bc008ffa2ef731014d1151d255e7b496eb7a5b26a1d12b7dd24dddb7a3376d",
+          "timestamp": "2013-03-08T03:24:29.241845"
+        },
+        {
+          "file": "E066C03D_00275.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "88dbe1a4c3edb85c8eb5fd5c7e4e776b093d8b6eb8cf463f552e38ab16adb95d",
+          "timestamp": "2013-03-08T03:24:29.341845"
+        },
+        {
+          "file": "E066C03D_00278.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "dab45b9b0d2a9b17b790bceab28dd5d3fb2027e18ebfe180f5a4639e2d4ece49",
+          "timestamp": "2013-03-08T03:24:29.441845"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "test"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E073C01D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "found": false,
+        "method": "No adequate luminous region; image retained",
+        "shift_pixels": [
+          0,
+          0
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.17340850830078,
+        "temperature_c": 23.404499053955078
+      },
+      "fuel": "Heptane",
+      "id": "E073C01",
+      "image": "/flames/flex2/E073C01.png",
+      "image_sha256": "27aff85c9dacebd2781027dabdb251922093b81c86d52ec60fc04bbe9ebbb9c9",
+      "members": [
+        {
+          "file": "E073C01D_00275.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "af7c9a77aab656505b0f759e4bdb1ac72f88a6e99a72020a3dd1bf56d1f9c04e",
+          "timestamp": "2013-03-14T05:13:27.875179"
+        },
+        {
+          "file": "E073C01D_00278.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "701979497eaf2fbfbdd5deb5d03190c5c80416c416da96bc8454015b3129fe05",
+          "timestamp": "2013-03-14T05:13:27.975179"
+        },
+        {
+          "file": "E073C01D_00281.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "5ad07e0da80c3440cbca8e4fa3cd77b19d2e9b47592b29897599c0e4a4643b12",
+          "timestamp": "2013-03-14T05:13:28.075179"
+        },
+        {
+          "file": "E073C01D_00284.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "feb9eaee55607e488509cff8b5f7f64abba3f14196d03222b2553704a3f5975a",
+          "timestamp": "2013-03-14T05:13:28.175179"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E073C02D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          8,
+          6
+        ],
+        "source_bounds": [
+          53,
+          57,
+          133,
+          130
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.33888244628906,
+        "temperature_c": 23.89150047302246
+      },
+      "fuel": "Heptane",
+      "id": "E073C02",
+      "image": "/flames/flex2/E073C02.png",
+      "image_sha256": "ba849f9299103dd81706f7a7b075971e7e415ecfa3fd7b68b598459f2a8c213c",
+      "members": [
+        {
+          "file": "E073C02D_00275.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "3111e0089b58bbfaf22a5983b152f2610809ff518a9c2ea18efd0a3e89fa9aa1",
+          "timestamp": "2013-03-14T05:31:33.508512"
+        },
+        {
+          "file": "E073C02D_00278.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "2bda2422212f04c7fc56e07af98bc9d9d6cd1090df6562c375ca82f8cda6f34d",
+          "timestamp": "2013-03-14T05:31:33.608512"
+        },
+        {
+          "file": "E073C02D_00281.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "3590c49844ce80722ec194ba3a5f01b9a2bf40ca5beabb586058cf452d83af85",
+          "timestamp": "2013-03-14T05:31:33.708512"
+        },
+        {
+          "file": "E073C02D_00284.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "20ee11dd3468431a91c434c6e9db070334ab19ba96aae388c180e0a9437dd5eb",
+          "timestamp": "2013-03-14T05:31:33.808512"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E073C03D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          4,
+          0
+        ],
+        "source_bounds": [
+          51,
+          56,
+          147,
+          145
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.36991119384766,
+        "temperature_c": 24.102500915527344
+      },
+      "fuel": "Heptane",
+      "id": "E073C03",
+      "image": "/flames/flex2/E073C03.png",
+      "image_sha256": "2b02556ad02296116ac24c507e633b76267be5ae42829968e4f16236d16f751c",
+      "members": [
+        {
+          "file": "E073C03D_00274.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "dfda918c1badcc4af6c90345e4a0dc3bccd520389575d179bffde57ef7fe6b0a",
+          "timestamp": "2013-03-14T05:40:31.841845"
+        },
+        {
+          "file": "E073C03D_00277.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "8649fc11faa5798963ed80c996f0823bb9bb95c0dfce917c2a1f3d64252562ac",
+          "timestamp": "2013-03-14T05:40:31.941845"
+        },
+        {
+          "file": "E073C03D_00280.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "f31fdd964d106897fd10cd843e6867f132a3a38fa2b0af11a92d57c45ca2320f",
+          "timestamp": "2013-03-14T05:40:32.041845"
+        },
+        {
+          "file": "E073C03D_00283.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "55461413d05ba020442dfaec35d3662f017876db9977a1d3428840b472e81c8b",
+          "timestamp": "2013-03-14T05:40:32.141845"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "validation"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E073C04D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          4,
+          -8
+        ],
+        "source_bounds": [
+          53,
+          62,
+          143,
+          148
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.4629898071289,
+        "temperature_c": 24.386999130249023
+      },
+      "fuel": "Heptane",
+      "id": "E073C04",
+      "image": "/flames/flex2/E073C04.png",
+      "image_sha256": "5c723aa523adf95591e23bfa585b6a71b33585c7d9cc95c898a40693e78d95d8",
+      "members": [
+        {
+          "file": "E073C04D_00282.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "3b5916556fc139547ad69e8b15387d6c9da689d4d87b9b7c658cd142dce67121",
+          "timestamp": "2013-03-14T05:52:11.558512"
+        },
+        {
+          "file": "E073C04D_00285.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "24a50802ed4f9227963de650e7d6c73752fa83d1f0b171c0c417a7397ed8122e",
+          "timestamp": "2013-03-14T05:52:11.658512"
+        },
+        {
+          "file": "E073C04D_00288.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "42f074a3134e524f25f0a0a907c4bdb980561cd7e84930424484f673951eac26",
+          "timestamp": "2013-03-14T05:52:11.758513"
+        },
+        {
+          "file": "E073C04D_00291.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "a588fdf09b523c853577d0eb6ea2ddd2b588e3fa8f3155e142fde4e45dec9abe",
+          "timestamp": "2013-03-14T05:52:11.858512"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E073C09D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          17,
+          22
+        ],
+        "source_bounds": [
+          59,
+          60,
+          104,
+          93
+        ]
+      },
+      "features": {
+        "pressure_kpa": 103.17659759521484,
+        "temperature_c": 26.33300018310547
+      },
+      "fuel": "Heptane",
+      "id": "E073C09",
+      "image": "/flames/flex2/E073C09.png",
+      "image_sha256": "b21c27afa5c909eed703630f06c397277ddf336cf7f05e2664c839230abe9cd6",
+      "members": [
+        {
+          "file": "E073C09D_00275.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "0e3d6b15a4d03599f42c92430c6d6e5d1269b97979c9da343ddb73d5b1ffb806",
+          "timestamp": "2013-03-14T08:49:19.025179"
+        },
+        {
+          "file": "E073C09D_00278.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "158766d0907ea7f22e739da9d305382a5069e051f316c48e65c4b6e747dd4048",
+          "timestamp": "2013-03-14T08:49:19.125179"
+        },
+        {
+          "file": "E073C09D_00281.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "e5508a37cedd17e3f1728d2fa8c9657fc4523765dfb52898f7c613578c9b7df9",
+          "timestamp": "2013-03-14T08:49:19.225179"
+        },
+        {
+          "file": "E073C09D_00284.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "785b8ab1d0dded2e91405428b84a7d200f7970c73290b58e8e999084608078e1",
+          "timestamp": "2013-03-14T08:49:19.325179"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "test"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E087C01D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          8,
+          1
+        ],
+        "source_bounds": [
+          52,
+          61,
+          136,
+          132
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.7491226196289,
+        "temperature_c": 24.453500747680664
+      },
+      "fuel": "Heptane",
+      "id": "E087C01",
+      "image": "/flames/flex2/E087C01.png",
+      "image_sha256": "4b0724075bf48125a82d0df913a021095a6bde97db6d7486911edfd4d2e8da77",
+      "members": [
+        {
+          "file": "E087C01D_00283.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "78feeb604a5c46b831d3a2bb49d87504fc2074fed357d269fcf7733c32115a12",
+          "timestamp": "2013-03-28T00:09:07.191845"
+        },
+        {
+          "file": "E087C01D_00286.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "80c27fc99b7b2933bcf679131f2f44e8292fbb8587a93c97573b21b9fff5417c",
+          "timestamp": "2013-03-28T00:09:07.291845"
+        },
+        {
+          "file": "E087C01D_00289.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "dc26b60959a2be21ca99ac5ee1c27b09d80e0e590d76716cf00601d080169b3c",
+          "timestamp": "2013-03-28T00:09:07.391845"
+        },
+        {
+          "file": "E087C01D_00292.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "c82c3469cc782cf94621468a2d72a7fd1fc261c1bb3ad648c5418886017265af",
+          "timestamp": "2013-03-28T00:09:07.491845"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E087C02D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "found": false,
+        "method": "No adequate luminous region; image retained",
+        "shift_pixels": [
+          0,
+          0
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.83875274658203,
+        "temperature_c": 24.677000045776367
+      },
+      "fuel": "Heptane",
+      "id": "E087C02",
+      "image": "/flames/flex2/E087C02.png",
+      "image_sha256": "4e5b7beb9b9b103312d361fec0f57f1e12c04a9833b5ef63db25f79b8e2c961f",
+      "members": [
+        {
+          "file": "E087C02D_00275.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "af6ce07fd79131e913aff58b29746ef2c2e343e49eea7f07c13e7a6c6dea45da",
+          "timestamp": "2013-03-28T00:20:43.558512"
+        },
+        {
+          "file": "E087C02D_00278.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "b404a15f647997f14eef23db7b2dc31042a767996bdc67f4fa101cacf1a6e543",
+          "timestamp": "2013-03-28T00:20:43.658512"
+        },
+        {
+          "file": "E087C02D_00281.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "c004644ebe5b2990219c1a7c26fd3c9e278673d1d1f2e01b350373fbfd4f7663",
+          "timestamp": "2013-03-28T00:20:43.758512"
+        },
+        {
+          "file": "E087C02D_00284.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "b79af93e0415a68a7ce224b64afa2af2f2d5325232f7d130df1eb5c19cc90aaa",
+          "timestamp": "2013-03-28T00:20:43.858512"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E087C03D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "found": false,
+        "method": "No adequate luminous region; image retained",
+        "shift_pixels": [
+          0,
+          0
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.85943603515625,
+        "temperature_c": 24.8125
+      },
+      "fuel": "Heptane",
+      "id": "E087C03",
+      "image": "/flames/flex2/E087C03.png",
+      "image_sha256": "de3828e05ea3d1c8015608d0baabb69f8f496aeb14d1eaf70f355f85fb09d2fb",
+      "members": [
+        {
+          "file": "E087C03D_00281.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "ed3a781622877f924bf12f773c95bb97c76085b5e56aeb9320081a62dd2b9759",
+          "timestamp": "2013-03-28T00:28:28.741845"
+        },
+        {
+          "file": "E087C03D_00284.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "1858b170ed758aad75b913cb3307c55b4431b3977f4e017eb7410431bc5e0a45",
+          "timestamp": "2013-03-28T00:28:28.841845"
+        },
+        {
+          "file": "E087C03D_00287.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "1c71d7632d7fe77d38092cbd49e27256002af02d6e9a899369f51113da6169d0",
+          "timestamp": "2013-03-28T00:28:28.941845"
+        },
+        {
+          "file": "E087C03D_00290.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "b3e3208dd1c95e7342d659d619b176081492d01e85c4a8698c2b147d89e89c40",
+          "timestamp": "2013-03-28T00:28:29.041845"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E087C04D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "found": false,
+        "method": "No adequate luminous region; image retained",
+        "shift_pixels": [
+          0,
+          0
+        ]
+      },
+      "features": {
+        "pressure_kpa": 102.90080261230469,
+        "temperature_c": 24.92799949645996
+      },
+      "fuel": "Heptane",
+      "id": "E087C04",
+      "image": "/flames/flex2/E087C04.png",
+      "image_sha256": "55c8ac1f2e1f1a76024b2faf561212c206d6310d682515a6ece609cf7c24fd57",
+      "members": [
+        {
+          "file": "E087C04D_00282.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "e9b69d2b53e6b3a6897943e7a362fc32dbfbbcf6778c12c723a476f1a3d0d465",
+          "timestamp": "2013-03-28T00:35:19.175179"
+        },
+        {
+          "file": "E087C04D_00285.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "9a7ea4990e7d042f0de4660c224368a674cd037317c830fd5fa1e512b124978e",
+          "timestamp": "2013-03-28T00:35:19.275179"
+        },
+        {
+          "file": "E087C04D_00288.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "9c1b597bdc1c64e4d81c257166c6cd9b324e94f0bc65911fe446ff9dbd527ff7",
+          "timestamp": "2013-03-28T00:35:19.375179"
+        },
+        {
+          "file": "E087C04D_00291.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "953bc403e539948d01fbb804e57940840dda2660d04cc160de8d1feae87f3181",
+          "timestamp": "2013-03-28T00:35:19.475179"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "train"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E087C06D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "found": false,
+        "method": "No adequate luminous region; image retained",
+        "shift_pixels": [
+          0,
+          0
+        ]
+      },
+      "features": {
+        "pressure_kpa": 103.09040832519531,
+        "temperature_c": 25.36549949645996
+      },
+      "fuel": "Heptane",
+      "id": "E087C06",
+      "image": "/flames/flex2/E087C06.png",
+      "image_sha256": "d06081f8fd7714e1034ab6638730346a60e4c4960abe1581656dce06d1371cc0",
+      "members": [
+        {
+          "file": "E087C06D_00281.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "bedf9393566aead176af9935b9eca869f80781e5fadb274e62d77339839c2aad",
+          "timestamp": "2013-03-28T01:07:02.725179"
+        },
+        {
+          "file": "E087C06D_00284.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "3f0d603ed85c0244567c1aff05e27796b5759b9c179a306028297b08eebed5a9",
+          "timestamp": "2013-03-28T01:07:02.825179"
+        },
+        {
+          "file": "E087C06D_00287.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "77df364d27c973b838fdefaf8d7dab777f039a8f36f4a803b2961a2a04c80c49",
+          "timestamp": "2013-03-28T01:07:02.925179"
+        },
+        {
+          "file": "E087C06D_00290.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "03be4fe9812019949cd4ac9aca2f3a91cd66501eedb6ec2e9b4a61863b63d2ba",
+          "timestamp": "2013-03-28T01:07:03.025179"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "test"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E087C07D.zip",
+      "archive_version": 1,
+      "display_alignment": {
+        "detection": "blue-shell signal",
+        "found": true,
+        "method": "Integer translation of detected luminous-region bounds; no resizing or recolouring",
+        "shift_pixels": [
+          -6,
+          -16
+        ],
+        "source_bounds": [
+          52,
+          68,
+          163,
+          152
+        ]
+      },
+      "features": {
+        "pressure_kpa": 103.26622772216797,
+        "temperature_c": 25.756000518798828
+      },
+      "fuel": "Heptane",
+      "id": "E087C07",
+      "image": "/flames/flex2/E087C07.png",
+      "image_sha256": "b63b429cbed5b3e4e8b60a4bf6899a3d673f992d401dbec433faf93fa9135669",
+      "members": [
+        {
+          "file": "E087C07D_00274.bmp",
+          "offset_after_retraction": 4.0,
+          "sha256": "eacc76e9c2024a81629b84c20aedd53d22d694158b543d2785da0e89ebdc33d7",
+          "timestamp": "2013-03-28T01:46:43.591845"
+        },
+        {
+          "file": "E087C07D_00277.bmp",
+          "offset_after_retraction": 4.1,
+          "sha256": "88eda146ad7e3f90d000faa0a9267e236f7c134037fa41dbeb29b4cf8047164b",
+          "timestamp": "2013-03-28T01:46:43.691846"
+        },
+        {
+          "file": "E087C07D_00280.bmp",
+          "offset_after_retraction": 4.2,
+          "sha256": "689a27b667bfa68fb884e2cd1b139f8f07a38899b08a552a302ee65bd0c44b20",
+          "timestamp": "2013-03-28T01:46:43.791845"
+        },
+        {
+          "file": "E087C07D_00283.bmp",
+          "offset_after_retraction": 4.3,
+          "sha256": "531830956920eb7db99d5b690ff430a9e350544908c5314fdaf888304ed7b9c2",
+          "timestamp": "2013-03-28T01:46:43.891845"
+        }
+      ],
+      "source_category": "Reduced Gravity/SurrogateFuel 2013 - Heptane",
+      "split": "validation"
+    }
+  ],
+  "resolution": 256,
+  "scale": [
+    26.37934112548828,
+    3.654001235961914
+  ],
+  "source": "PSI-68",
+  "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-68",
+  "stage": "Median of four RGB frames at 4.0/4.1/4.2/4.3 seconds after recorded igniter retraction; stage proxy, not steady-state measurement",
+  "version": "flex2-retrieval-v1"
+}
