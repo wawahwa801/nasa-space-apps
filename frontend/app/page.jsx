@@ -204,13 +204,10 @@ export default function Home() {
     [nasaDefs, nasaRaw, nasaUnits, values],
   );
   const [sliderUnits, setSliderUnits] = useState({});
-  const [snapshot, setSnapshot] = useState(null);
+  const [, setSnapshot] = useState(null);
   const [error, setError] = useState("");
   const [view, setView] = useState("flame");
   const [retrievalSession, setRetrievalSession] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [speed, setSpeed] = useState(1);
-  const [animationKey, setAnimationKey] = useState(0);
   const update = (key, value) => {
     setValues((v) => ({ ...v, [key]: value }));
     setSnapshot(null);
@@ -250,9 +247,10 @@ export default function Home() {
     setSnapshot(null);
     setError("");
   }
-  // An assessment item was clicked: open Parameters and focus the input behind it.
+  // Open the NASA comparison inputs and focus the requested field.
   function gotoNasaField(id) {
-    setParametersOpen(true);
+    const inputs = document.getElementById("nasa-inputs");
+    if (inputs) inputs.open = true;
     const target = SHARED_FIELDS[id] || `nasa-${id}`;
     setTimeout(() => {
       const el = document.getElementById(target);
@@ -266,7 +264,7 @@ export default function Home() {
     if (Number(values.oxygen) + Number(values.co2) > 100) {
       setError("Oxygen and CO₂ concentrations must total 100% or less.");
       document
-        .getElementById("parameters")
+        .getElementById("nasa-inputs")
         .scrollIntoView({ block: "nearest" });
       return;
     }
@@ -311,7 +309,6 @@ export default function Home() {
             aria-label="New scenario"
             onClick={() => {
               reset();
-              setPaused(false);
               setRetrievalSession(n => n + 1);
             }}
           >
@@ -335,119 +332,7 @@ export default function Home() {
         </header>
         <div className="content-grid dashboard-tab-panel" id="flame-panel" role="tabpanel" aria-labelledby="flame-tab" hidden={view !== "flame"}>
           <main className="conversation">
-            <div
-              className={`simulation-grid ${view !== "workspace" ? "single-view" : ""}`}
-            >
-              {view !== "physics" && (
-                <section
-                  className="simulation-card flame-card"
-                  aria-labelledby="flame-heading"
-                >
-                  <div className="card-heading">
-                    <div className="card-title">
-                      <span className="card-icon warm">
-                        <Symbol name="flame" />
-                      </span>
-                      <h2 id="flame-heading" className="sr-only">Flame preview</h2>
-                    </div>
-                    <span className="preview-badge">Preview</span>
-                  </div>
-                  <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
-                    <svg className="ember-particles" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                      <defs><radialGradient id="particle-glow"><stop stopColor="#f35b25" stopOpacity=".28" /><stop offset="1" stopColor="#f35b25" stopOpacity="0" /></radialGradient></defs>
-                      <ellipse cx="300" cy="165" rx="250" ry="130" fill="url(#particle-glow)" />
-                      {Array.from({ length: 180 }, (_, i) => {
-                        const x = (i * 137.508) % 600;
-                        const spread = ((i * 79) % 100) / 100;
-                        const y = 155 + Math.sin(x / 85) * 38 + (spread - .5) * (50 + 95 * Math.abs(x - 300) / 300);
-                        // Round so server (Node) and browser Math.sin agree; avoids a hydration mismatch.
-                        const round = (v) => Math.round(v * 100) / 100;
-                        return <circle key={i} cx={round(x)} cy={round(y)} r={i % 13 === 0 ? 1.5 : .65} fill={i % 4 === 0 ? "#ffad64" : "#e6542d"} opacity={round(.2 + (i % 5) * .1)} />;
-                      })}
-                    </svg>
-
-                    <div className="field-annotations" aria-label="Current flame scenario inputs">
-                      <div className="field-annotation annotation-oxygen"><span>ATMOSPHERE / O₂</span><strong>{values.oxygen}<small> %</small></strong><i /></div>
-                      <div className="field-annotation annotation-pressure"><span>AMBIENT PRESSURE</span><strong>{values.pressure}<small> kPa</small></strong><i /></div>
-                      <div className="field-annotation annotation-airflow"><span>AIRFLOW</span><strong>{values.flow}<small> m/s</small></strong><i /></div>
-                      <div className="field-annotation annotation-gravity"><span>GRAVITY</span><strong>{values.gravity}<small> g</small></strong><i /></div>
-                    </div>
-                    <svg
-                      viewBox="0 0 400 250"
-                      role="img"
-                      aria-label="Decorative flame illustration; not a calculated flame prediction"
-                      className="flame-art"
-                    >
-                      <defs>
-                        <linearGradient id="flame-fill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0" stopColor="#ff9a43" />
-                          <stop offset=".38" stopColor="#ff9359" />
-                          <stop offset=".61" stopColor="#b475a2" />
-                          <stop offset=".82" stopColor="#287cc4" />
-                          <stop offset="1" stopColor="#2445ad" stopOpacity=".7" />
-                        </linearGradient>
-                        <linearGradient id="flame-rim" x1="0" y1="0" x2="0" y2="1">
-                          <stop stopColor="#2449ce" />
-                          <stop offset=".55" stopColor="#359df1" />
-                          <stop offset="1" stopColor="#4bb9f4" stopOpacity=".65" />
-                        </linearGradient>
-                        <filter id="flame-soft" x="-30%" y="-25%" width="160%" height="150%">
-                          <feGaussianBlur stdDeviation="4" />
-                        </filter>
-                        <filter id="flame-glow" x="-50%" y="-40%" width="200%" height="180%">
-                          <feGaussianBlur stdDeviation="9" />
-                        </filter>
-                      </defs>
-                      <g className="flame-shape">
-                        <path
-                          className="flame-aura"
-                          d="M146 218C130 191 126 162 132 131C140 87 165 49 200 48C235 49 260 87 268 131C274 162 270 191 254 218Z"
-                          fill="#1d65e8"
-                          opacity=".55"
-                          filter="url(#flame-glow)"
-                        />
-                        <path
-                          className="flame-core"
-                          d="M146 216C132 191 129 163 135 133C143 91 168 53 200 53C232 53 257 91 265 133C271 163 268 191 254 216Z"
-                          fill="url(#flame-fill)"
-                          stroke="url(#flame-rim)"
-                          strokeWidth="9"
-                          filter="url(#flame-soft)"
-                        />
-                        <path
-                          className="flame-edge"
-                          d="M147 211C132 182 133 152 140 130M253 211C268 182 267 152 260 130"
-                          fill="none"
-                          stroke="#50bcff"
-                          strokeWidth="3"
-                          opacity=".65"
-                          filter="url(#flame-soft)"
-                        />
-                      </g>
-                    </svg>
-
-                  </div>
-                  <div className="card-footer">
-                    <span>{values.fuel}</span>
-                    <div className="playback-controls"><label>Speed <select value={speed} onChange={e => setSpeed(Number(e.target.value))} aria-label="Animation playback speed"><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option></select></label>
-                    <button className="text-button" type="button" onClick={() => { setAnimationKey(k => k + 1); setPaused(false); }}>Restart</button>
-                    <button
-                      className="text-button"
-                      aria-pressed={paused}
-                      onClick={() => setPaused(!paused)}
-                    >
-                      {paused ? "Play" : "Pause"}
-                    </button></div>
-                  </div>
-                </section>
-              )}
-            </div>
-            <div className="scenario-strip" role="status">
-              <span className={`status-dot ${snapshot ? "ready" : ""}`} />
-              {snapshot
-                ? "Parameters applied"
-                : "Adjust parameters to configure your scenario"}
-            </div>
+            <HybridSimulation key={retrievalSession} controlsContainerId="model-parameters" title="Flame simulation" />
           {/* One triangle tab: on the panel's right edge (◀ hides it), or on the
               screen's left edge when hidden (▶ shows it). */}
           {view === "flame" && (
@@ -475,6 +360,58 @@ export default function Home() {
 
               </div>
             </div>
+            <div id="model-parameters" />
+
+          </section>
+
+          <section
+            className="comparison-section"
+            id="nasa-comparison"
+            aria-labelledby="nasa-comparison-title"
+          >
+            <div className="comparison-heading">
+              <div>
+                <h2 id="nasa-comparison-title">NASA data comparison</h2>
+                <p>
+                  Your parameters checked against ACME, Saffire-I, SPICE and
+                  SAME-R microgravity fire experiments. Edit values in NASA comparison parameters below.
+                </p>
+              </div>
+              <div className="comparison-actions">
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    const inputs = document.getElementById("nasa-inputs");
+                    inputs.open = true;
+                    inputs.scrollIntoView({ block: "start" });
+                  }}
+                >
+                  Edit comparison parameters
+                </button>
+                <select
+                  className="text-button example-select"
+                  aria-label="Load an example scenario"
+                  value=""
+                  disabled={!nasaDefs}
+                  onChange={(e) => e.target.value && loadNasaExample(e.target.value)}
+                >
+                  <option value="">Load example…</option>
+                  {(nasaDefs?.examples || []).map((x) => (
+                    <option key={x.id} value={x.id}>{x.label}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => window.FireDashboard?.exportJSON()}
+                >
+                  Export results
+                </button>
+              </div>
+            </div>
+            <details className="nasa-comparison-inputs" id="nasa-inputs">
+              <summary>NASA comparison parameters</summary>
             <form id="scenario-form" onSubmit={preview}>
               <div className="field-section">
                 <span className="field-section-title">
@@ -600,51 +537,7 @@ export default function Home() {
                 </button>
               </div>
             </form>
-          </section>
-
-          <section
-            className="comparison-section"
-            id="nasa-comparison"
-            aria-labelledby="nasa-comparison-title"
-          >
-            <div className="comparison-heading">
-              <div>
-                <h2 id="nasa-comparison-title">NASA data comparison</h2>
-                <p>
-                  Your parameters checked against ACME, Saffire-I, SPICE and
-                  SAME-R microgravity fire experiments. Edit values in the
-                  Parameters panel.
-                </p>
-              </div>
-              <div className="comparison-actions">
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => setParametersOpen(true)}
-                >
-                  Edit parameters
-                </button>
-                <select
-                  className="text-button example-select"
-                  aria-label="Load an example scenario"
-                  value=""
-                  disabled={!nasaDefs}
-                  onChange={(e) => e.target.value && loadNasaExample(e.target.value)}
-                >
-                  <option value="">Load example…</option>
-                  {(nasaDefs?.examples || []).map((x) => (
-                    <option key={x.id} value={x.id}>{x.label}</option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => window.FireDashboard?.exportJSON()}
-                >
-                  Export results
-                </button>
-              </div>
-            </div>
+            </details>
             <FireSafetyComparison
               inputs={dashboardInputs}
               onDefinitions={setNasaDefs}
