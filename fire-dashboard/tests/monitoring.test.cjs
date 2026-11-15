@@ -132,3 +132,12 @@ test('sample readings CSVs import to the same readings as their demos', () => {
     assert.deepEqual(JSON.parse(JSON.stringify(rows)), JSON.parse(JSON.stringify(demo)));
   }
 });
+
+test('latest readings: flammable gas and oxygen levels are flagged, not only trends', () => {
+  const r = run(series([{ co_ppm: 1, h2_ppm: 11000, o2_pct: 24 }, { co_ppm: 1, h2_ppm: 11000, o2_pct: 24 }]));
+  assert.ok(titles(r).includes('Hydrogen near flammable concentration'));
+  assert.ok(titles(r).includes('Oxygen-enriched air'));
+  assert.equal(r.level, 'critical');
+  const leak = demoSequence(0, 5, 'leak');
+  assert.equal(detect(leak, T, leak[11].t + MIN).level, 'critical');
+});

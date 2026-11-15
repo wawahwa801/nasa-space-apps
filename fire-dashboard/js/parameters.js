@@ -223,7 +223,7 @@
   // not measurements. The first is the default.
   const ISS_CABIN = {
     environment: "Pressurised", gravity: "Microgravity (~0 g)", internal_temp_c: 22.5, pressure_kpa: 101.3,
-    o2_pct: 21.5, n2_pct: 76.3, humidity_pct: 45, co2_ppm: 3000, h2_ppm: 20, ch4_ppm: 5, co_ppm: 2,
+    o2_pct: 21.5, n2_pct: 76.3, humidity_pct: 45, co2_ppm: 6500, h2_ppm: 4500, ch4_ppm: 5, co_ppm: 45,
     monitoring: "Nominal", oxidizer_leak: "None detected",
     fuel_type: "Propane", fuel_storage: "Sealed cylinder", fuel_leak: "None detected", fuel_distance_m: 2.0,
     material_types: ["Kapton", "PMMA (acrylic)", "SIBAL fabric (cotton-fiberglass)"], material_distance_m: 0.4,
@@ -232,17 +232,17 @@
     { id: "iss", label: "ISS-like cabin", values: ISS_CABIN },
     { id: "habitat", label: "Exploration habitat (8.2 psia, 34% O₂)", values: {
       environment: "Partially pressurised", gravity: "Lunar (0.17 g)", internal_temp_c: 22, pressure_kpa: 56.5,
-      o2_pct: 34, n2_pct: 64.6, humidity_pct: 40, co2_ppm: 2500, h2_ppm: 1, ch4_ppm: 2, co_ppm: 1,
-      monitoring: "Nominal", oxidizer_leak: "None detected",
-      fuel_type: "Methane", fuel_storage: "Sealed cylinder", fuel_leak: "None detected", fuel_distance_m: 3,
-      material_types: ["Nomex", "Pyrell", "Lampwick", "Wax (candle or slab)"], material_distance_m: 1.5,
+      o2_pct: 34, n2_pct: 64.6, humidity_pct: 40, co2_ppm: 9000, h2_ppm: 1, ch4_ppm: 6000, co_ppm: 80,
+      monitoring: "Unknown", oxidizer_leak: "Unknown",
+      fuel_type: "Methane", fuel_storage: "Open / vented", fuel_leak: "Suspected", fuel_distance_m: 0.5,
+      material_types: ["Nomex", "Pyrell", "Lampwick", "Wax (candle or slab)"], material_distance_m: 0.3,
     } },
-    { id: "leak", label: "Degraded monitoring with leaks", values: {
+    { id: "leak", label: "Fuel and oxygen leaks, monitoring degraded", values: {
       environment: "Pressurised", gravity: "Microgravity (~0 g)", internal_temp_c: 24, pressure_kpa: 101.3,
-      o2_pct: 22.8, n2_pct: 74.8, humidity_pct: 55, co2_ppm: 6200, h2_ppm: 1500, ch4_ppm: 3, co_ppm: 40,
-      monitoring: "Degraded", oxidizer_leak: "Suspected",
-      fuel_type: "Methane", fuel_storage: "Plumbed line (in use)", fuel_leak: "Suspected", fuel_distance_m: 0.6,
-      material_types: ["Teflon", "Silicone", "Ultem"], material_distance_m: 0.8,
+      o2_pct: 25.5, n2_pct: 71, humidity_pct: 55, co2_ppm: 32000, h2_ppm: 12000, ch4_ppm: 3, co_ppm: 250,
+      monitoring: "Degraded", oxidizer_leak: "Confirmed",
+      fuel_type: "Methane", fuel_storage: "Plumbed line (in use)", fuel_leak: "Confirmed", fuel_distance_m: 0.2,
+      material_types: ["Teflon", "Silicone", "Ultem"], material_distance_m: 0.2,
     } },
   ];
   window.EXAMPLE_INPUT = ISS_CABIN;
