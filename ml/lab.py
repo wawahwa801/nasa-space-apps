@@ -26,6 +26,9 @@ def png(array):
 
 def create_app():
     app=Flask(__name__);torch.set_num_threads(2)
+    if (OUT/'flex2-study'/'selected.pt').exists():
+        from flex2_lab import build_blueprint as flex2_blueprint
+        app.register_blueprint(flex2_blueprint())
     # SPICE also runs independently via spice_lab.py, without BASS/FLEX artifacts.
     if (OUT/'spice-study'/'selected.pt').exists():
         from spice_lab import build_blueprint

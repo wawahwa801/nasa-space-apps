@@ -97,10 +97,15 @@ def build_blueprint():
 
 def create_app():
     app=Flask(__name__);app.register_blueprint(build_blueprint())
+    from flex2_data import ART as FLEX2_ART
+    has_flex2=(FLEX2_ART/'selected.pt').exists()
+    if has_flex2:
+        from flex2_lab import build_blueprint as flex2_blueprint
+        app.register_blueprint(flex2_blueprint())
     @app.get('/')
     def index():
         from flask import redirect
-        return redirect('/spice/')
+        return redirect('/flex2/' if has_flex2 else '/spice/')
     return app
 
 
