@@ -4,10 +4,18 @@ from unittest.mock import patch,MagicMock
 from io import StringIO
 import subprocess
 import torch
-from flex2_continuous import soft_references,ContinuousCNN,search_for_window
+import numpy as np
+from flex2_continuous import soft_references,ContinuousCNN,search_for_window,frozen_features
 
 
 class SmoothReferenceTests(unittest.TestCase):
+    def test_continuation_freezes_scaling_and_category_columns(self):
+        data=dict(groups=np.array(['old','new']),feature_names=['pressure','campaign=new','campaign=old'],feature_raw_values=np.array([[20,0,1],[40,1,0]],dtype=np.float32))
+        metadata=dict(features=['pressure','campaign=old'],preprocessing=dict(low=[10,0],scale=[20,1]))
+        x=frozen_features(data,metadata)
+        self.assertTrue(np.allclose(x,[[.5,1],[1.25,0]]))
+        self.assertEqual(data['feature_names'],['pressure','campaign=old'])
+
     def test_early_search_completion_repeats_until_full_window(self):
         clock=[0.]
         def wait(timeout):clock[0]+=5

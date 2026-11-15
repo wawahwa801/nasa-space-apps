@@ -50,6 +50,9 @@ def create_app(run_dir):
     if not final_fit and hashlib.sha256((dataset/'manifest.json').read_bytes()).hexdigest()!=saved['metadata']['manifest_sha256']:
         raise ValueError('Hybrid dataset differs from training manifest')
     d,m,x,refs,evidence_hash=load_verified(dataset)
+    if saved['metadata'].get('architecture')=='soft-reference-generator-v1' and 'preprocessing' in saved['metadata']:
+        from flex2_continuous import frozen_features
+        x=frozen_features(d,saved['metadata'])
     if evidence_hash!=saved['metadata']['evidence_sha256'] or d['feature_names']!=saved['metadata']['features']:
         raise ValueError('Hybrid feature schema/evidence differs from checkpoint')
     if d['groups'].tolist()!=saved['metadata']['target_ids']:raise ValueError('Hybrid target IDs differ from checkpoint')

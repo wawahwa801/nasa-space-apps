@@ -107,6 +107,16 @@ The **Hybrid prototype** mode is a simple 50/50 pixel average between the CNN ou
 
 ## Monitored overnight retrieval-conditioned experiment
 
+### Continue the current continuous-model checkpoint with new runs
+
+```bash
+ml/.venv/bin/python /private/tmp/nasa-flex2-hybrid-demo/ml/flex2_continue.py --resume /private/tmp/nasa-flex2-hybrid-demo/ml/data/flex2-discovery/continuous-20261115T144325Z/training/final.pt --new-runs 20 --search-hours 2 --train-hours 1 --epochs 50
+```
+
+`--new-runs` is the minimum number of newly verified independent IDs relative to this checkpoint, not the count of download matches. The search retries/refreshes in passes of at most five minutes and screens completed cached records between passes. It stops early once enough eligible IDs are verified; otherwise it stops after the search budget without training. All accepted old and new runs are mixed for continuation; every old target must still pass verification or continuation stops. Use `--new-runs 0` to continue with already cached verified data. This uses all accepted runs without splits or independent accuracy scores. Unknown new category levels map to zero indicators in the frozen original vocabulary; no new model feature columns are silently introduced.
+
+The parent checkpoint is snapshotted in a new `continuation-<UTC>/` directory. Model weights, epoch numbering, numeric normalization and category columns are retained. Optimizer state is restored when present. Legacy checkpoints did not save optimizer state, so the first continuation uses a new AdamW optimizer, which is explicitly logged. All newly written checkpoints save it for subsequent resumes. The original model files and the running demo are not overwritten. After continuation, point `flex2_compare.py --run-dir` at the new continuation directory to inspect the new model before switching the demo. Fixed epoch counts/time budgets limit training; declining training loss does not establish improvement on unseen runs.
+
 ### Smooth-reference generator, two-hour search, all-data fit
 
 From the original repository checkout, using its installed Python environment:

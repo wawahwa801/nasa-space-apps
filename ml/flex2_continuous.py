@@ -152,16 +152,39 @@ def prepare_all(cache,dataset):
     atomic_json(dataset/'verification.json',dict(accepted=len(rows),exclusions=exclusions,image_screen_exclusions=manifest['excluded'],known_fuel_conflict_ids_excluded=sorted(conflict_ids)))
 
 
-def train(dataset,out,hours,epochs):
+def frozen_features(data,metadata):
+    """Use the checkpoint's numeric scaling and category vocabulary unchanged."""
+    names=metadata['features'];prep=metadata['preprocessing']
+    lookup={name:i for i,name in enumerate(data['feature_names'])}
+    raw=np.zeros((len(data['groups']),len(names)),dtype=np.float32)
+    for j,name in enumerate(names):
+        if name in lookup:raw[:,j]=data['feature_raw_values'][:,lookup[name]]
+        elif '=' not in name:raise ValueError('Required numeric feature unavailable: '+name)
+    low=np.asarray(prep['low'],dtype=np.float32);scale=np.asarray(prep['scale'],dtype=np.float32)
+    data['feature_names']=names;data['feature_raw_values']=raw;data['feature_low']=low;data['feature_scale']=scale
+    return np.clip((raw-low)/scale,-.25,1.25).astype('float32')
+
+
+def train(dataset,out,hours,epochs,resume=None):
     d,m,x,_,evidence_hash=load_verified(dataset);out.mkdir(parents=True,exist_ok=False)
+    if resume is not None:x=frozen_features(d,resume['metadata'])
     torch.set_num_threads(2);torch.manual_seed(43);rng=np.random.default_rng(43)
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     images=torch.tensor(d['images']).permute(0,3,1,2).float()/255
     conditions=torch.tensor(x,device=device);fuels=torch.tensor(d['fuels'],device=device)
     model=ContinuousCNN(x.shape[1]).to(device);optimizer=torch.optim.AdamW(model.parameters(),lr=3e-4,weight_decay=1e-3)
+    start_epoch=0
+    if resume is not None:
+        if resume['metadata'].get('architecture')!='soft-reference-generator-v1':raise ValueError('Incompatible checkpoint architecture')
+        model.load_state_dict(resume['state']);start_epoch=resume['epoch']
+        if 'optimizer' in resume:optimizer.load_state_dict(resume['optimizer'])
+        else:print('Legacy checkpoint has no optimizer state: continuing trained weights with a fresh AdamW optimizer.',flush=True)
     metadata=dict(architecture='soft-reference-generator-v1',target_ids=d['groups'].tolist(),features=d['feature_names'],evidence_sha256=evidence_hash,manifest_sha256=hashlib.sha256((dataset/'manifest.json').read_bytes()).hexdigest(),temperature=.15,epochs=epochs,seed=43,parameters=sum(p.numel() for p in model.parameters()),independent_evaluation=False)
+    metadata['preprocessing']=dict(low=d['feature_low'].tolist(),scale=d['feature_scale'].tolist())
+    metadata['continued_from_epoch']=start_epoch
+    metadata['optimizer_restored']=resume is not None and 'optimizer' in resume
     atomic_json(out/'run.json',metadata);deadline=time.monotonic()+hours*3600
-    for epoch in range(1,epochs+1):
+    for epoch in range(start_epoch+1,start_epoch+epochs+1):
         if time.monotonic()>=deadline:break
         model.train();losses=[]
         # Refresh detached reference encodings each epoch, so query-side generation
@@ -184,7 +207,7 @@ def train(dataset,out,hours,epochs):
             optimizer.step();losses.append(float(loss.detach()))
         row=dict(epoch=epoch,training_loss=float(np.mean(losses)),independent_evaluation=False)
         with (out/'metrics.jsonl').open('a') as f:f.write(json.dumps(row)+'\n')
-        tmp=out/'checkpoint.tmp.pt';torch.save(dict(state={k:v.detach().cpu() for k,v in model.state_dict().items()},metadata=metadata,epoch=epoch,seed=43),tmp);tmp.replace(out/'final.pt')
+        tmp=out/'checkpoint.tmp.pt';torch.save(dict(state={k:v.detach().cpu() for k,v in model.state_dict().items()},optimizer=optimizer.state_dict(),metadata=metadata,epoch=epoch,seed=43),tmp);tmp.replace(out/'final.pt')
         print(json.dumps(row),flush=True)
 
 
