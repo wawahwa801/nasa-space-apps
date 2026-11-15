@@ -26,11 +26,12 @@ Source data for the fire safety dashboard.
 | `Saffire-I Sample 2 Sensor Data Complete TM graphs.xlsx` | [PSI-98: SAFFIRE-I](https://psi.nasa.gov/physci/repo/data/investigations/PSI-98) ([DOI](https://doi.org/10.60555/0t15-1z43)) | CC0-1.0 |
 | `PSI-107_Experimental table_Spice.csv` | [PSI-107: SPICE](https://psi.nasa.gov/physci/repo/data/investigations/PSI-107) ([DOI](https://doi.org/10.60555/9kbh-e962)) | CC0-1.0 |
 | `PSI-101_Experimental table_SAME-R.csv` | [PSI-101: SAME-R](https://psi.nasa.gov/physci/repo/data/investigations/PSI-101) ([DOI](https://doi.org/10.60555/2np7-jv14)) | CC0-1.0 |
-| `BASS-II Test Matrix by PI Final.xlsx` | BASS-II; PSI investigation not yet identified | Not yet checked |
+| `BASS-II Test Matrix by PI Final.xlsx` | [PSI-25: BASS-II](https://psi.nasa.gov/physci/repo/data/investigations/PSI-25) ([DOI](https://doi.org/10.60555/4qc4-de67)) | CC0-1.0 |
 | `PSI-26_Experimental table_BASS.csv` | [PSI-26: BASS](https://psi.nasa.gov/physci/repo/data/investigations/PSI-26) (record not yet checked) | Not yet checked |
 
 The PSI investigation records list the licenses above. The two BASS files were added on
-2026-11-15; their source records and reuse terms still need checking. In the BASS-II workbook,
+2026-11-15. The BASS-II source (PSI-25, DOI, CC0-1.0) is as identified in the independent review of
+PR #35/#38; the PSI-26/BASS record and reuse terms still need checking. In the BASS-II workbook,
 one T'ien test (T9) carries a 2018 date although its GMT day matches 2014 tests; dates are
 kept as recorded. NASA asks users to cite
 PSI data using the investigation DOI where available. The files first appear in

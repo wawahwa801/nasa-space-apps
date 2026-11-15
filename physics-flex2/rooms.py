@@ -27,7 +27,7 @@ def example():
                                  calibration_source='Illustrative scale, not verified calibration', image_kind='cnn_estimate'))
 
 
-def simulate(query, fitted=None):
+def simulate(query, fitted=None, burn_override=None):
     rooms, edges = query['rooms'], query['edges']
     if not isinstance(rooms,list) or not 1 <= len(rooms) <= 16 or not isinstance(edges,list) or len(edges)>120:
         raise ValueError('Supply 1–16 rooms and at most 120 edges')
@@ -65,7 +65,7 @@ def simulate(query, fitted=None):
     capture=number(query.get('transfer_fraction',.8),'transfer_fraction',0,1)
     threshold=number(query.get('ignition_threshold',.1),'ignition_threshold',.001,1)
     cooling=number(query.get('cooling_time_s',30),'cooling_time_s',.1,300)
-    burn = predict(dict(query, duration_s=duration), fitted)
+    burn = burn_override if burn_override is not None else predict(dict(query, duration_s=duration), fitted)
     count = math.ceil(duration/.1);dt=duration/count
     curve = trajectory(burn['initial_diameter_mm'],burn['k_mm2_s'],duration,dt)
     ignition=[None]*len(rooms);ignition[source]=0

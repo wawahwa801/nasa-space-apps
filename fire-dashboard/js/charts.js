@@ -348,5 +348,66 @@
     }
   }
 
-  window.Charts = { scatter, line, donut, strip, fmt, setTooltipHost, removeTooltip };
+  /**
+   * Horizontal bar chart from a zero baseline, value printed at each bar's tip.
+   * opts: { bars: [{ label, shortLabel, value, highlight, tip }], unit, xLabel }
+   */
+  function bars(container, opts) {
+    container.innerHTML = "";
+    const rowH = 32;
+    const thick = 16;
+    const width = Math.max(container.clientWidth, 280);
+    const narrow = width < 480;
+    const left = narrow ? 112 : 190;
+    const right = 70;
+    const top = 8;
+    const bottom = 40;
+    const height = top + bottom + rowH * Math.max(opts.bars.length, 1);
+    const values = opts.bars.map((b) => b.value).filter((x) => isFinite(x));
+    const xDom = niceDomain([0, ...values], 5);
+    const iw = width - left - right;
+    const sx = (v) => left + ((Math.max(v, 0) - xDom.lo) / (xDom.hi - xDom.lo)) * iw;
+    const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, width: "100%", height, class: "chart-svg bars" }, container);
+
+    const grid = el("g", { class: "grid" }, svg);
+    for (const t of xDom.ticks) {
+      el("line", { x1: sx(t), x2: sx(t), y1: top, y2: height - bottom }, grid);
+      const lbl = el("text", { x: sx(t), y: height - bottom + 18, class: "tick", "text-anchor": "middle" }, svg);
+      lbl.textContent = tickFmt(t, xDom.ticks);
+    }
+    el("line", { x1: sx(0), x2: sx(0), y1: top, y2: height - bottom, class: "baseline" }, svg);
+    const xl = el("text", { x: left + iw / 2, y: height - 4, class: "axis-label", "text-anchor": "middle" }, svg);
+    xl.textContent = opts.xLabel || "";
+
+    opts.bars.forEach((b, i) => {
+      const yc = top + rowH * i + rowH / 2;
+      const lbl = el("text", { x: left - 10, y: yc, class: `row-label${b.highlight ? " highlight" : ""}`, "text-anchor": "end", "dominant-baseline": "middle" }, svg);
+      lbl.textContent = narrow ? (b.shortLabel || b.label) : b.label;
+      if (!isFinite(b.value)) return;
+      // Square at the baseline, 4px rounded at the data end.
+      const x0 = sx(0);
+      const x1 = sx(b.value);
+      const y = yc - thick / 2;
+      const r = Math.min(4, (x1 - x0) / 2, thick / 2);
+      const d = x1 - x0 < 1
+        ? `M${x0} ${y}h1v${thick}h-1Z`
+        : `M${x0} ${y}H${x1 - r}Q${x1} ${y} ${x1} ${y + r}V${y + thick - r}Q${x1} ${y + thick} ${x1 - r} ${y + thick}H${x0}Z`;
+      const path = el("path", { d, class: "bar s1", tabindex: 0 }, svg);
+      path.setAttribute("aria-label", (b.tip || "").replace(/<[^>]+>/g, " "));
+      if (b.tip) {
+        const show = (e) => {
+          const bb = path.getBoundingClientRect();
+          showTip(b.tip, e.clientX ?? bb.x + bb.width, e.clientY ?? bb.y);
+        };
+        path.addEventListener("mousemove", show);
+        path.addEventListener("focus", show);
+        path.addEventListener("mouseleave", hideTip);
+        path.addEventListener("blur", hideTip);
+      }
+      const v = el("text", { x: x1 + 6, y: yc, class: "bar-value", "dominant-baseline": "middle" }, svg);
+      v.textContent = `${fmt(b.value)}${opts.unit ? " " + opts.unit : ""}`;
+    });
+  }
+
+  window.Charts = { scatter, line, donut, strip, bars, fmt, setTooltipHost, removeTooltip };
 })();

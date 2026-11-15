@@ -7,6 +7,7 @@ from llm import (
     InputValidationError,
     LLMProviderError,
     LLMSettings,
+    SafetyInsightService,
     available_providers,
 )
 
@@ -20,6 +21,8 @@ def create_app(service: AnalysisService | None = None) -> Flask:
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
     analysis = service or AnalysisService(LLMSettings.from_env())
+    # Shares the configured provider (LLM_PROVIDER / LLM_MODEL / LLM_API_KEY).
+    insights = SafetyInsightService(analysis.settings, analysis.provider)
 
     @app.get("/api/health")
     def health():
@@ -40,6 +43,21 @@ def create_app(service: AnalysisService | None = None) -> Flask:
             return jsonify(error="Request body must be valid JSON with Content-Type: application/json."), 400
         try:
             return jsonify(analysis.analyze(payload))
+        except InputValidationError as exc:
+            return jsonify(error=str(exc)), 400
+        except LLMProviderError as exc:
+            app.logger.warning("LLM provider error: %s", exc)
+            status = 503 if exc.retryable else 502
+            return jsonify(error=str(exc), retryable=exc.retryable), status
+
+    @app.post("/api/safety-insights")
+    def safety_insights():
+        """Plain-language insight on the fire dashboard's current safety report."""
+        payload = request.get_json(silent=True)
+        if payload is None:
+            return jsonify(error="Request body must be valid JSON with Content-Type: application/json."), 400
+        try:
+            return jsonify(insights.explain(payload))
         except InputValidationError as exc:
             return jsonify(error=str(exc)), 400
         except LLMProviderError as exc:

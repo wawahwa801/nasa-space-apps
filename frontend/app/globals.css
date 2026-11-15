@@ -1742,3 +1742,161 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
   .scenario-strip { top: 146px; }
   .parameter-panel, .chat-panel { top: 124px; }
 }
+
+/* NASA comparison: materials checklist, option explanations, vacuum note. */
+.nasa-checks {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.nasa-checks legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #b8bdc6;
+}
+.nasa-count {
+  margin-left: 6px;
+  color: #8290a2;
+}
+.nasa-check-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 2px 10px;
+}
+.parameter-panel .nasa-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  font-size: 12px;
+  color: #dde3eb;
+  cursor: pointer;
+}
+.parameter-panel .nasa-check input {
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  flex: none;
+  accent-color: #ff8a3d;
+}
+.nasa-checks:focus-within .nasa-hint {
+  display: block;
+}
+.nasa-option-hint,
+.slider-note {
+  display: block;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #b8c3d1;
+}
+.slider-note {
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-left: 2px solid #8290a2;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 0 6px 6px 0;
+}
+.slider-field.is-disabled input,
+.slider-field.is-disabled select,
+.slider-field.is-disabled button {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Slider value boxes (number + unit) start at the same left edge in every
+   row, instead of floating to the right after labels of different lengths. */
+.parameter-panel .slider-field > div:first-child {
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}
+.parameter-panel .slider-field > div:first-child > label {
+  flex: 0 0 7rem;
+  min-width: 0;
+  line-height: 1.3;
+}
+.parameter-panel .editable-value {
+  min-width: 0;
+}
+.parameter-panel .editable-value input {
+  width: 76px;
+  text-align: left;
+}
+
+/* Parameters panel tucked to the side. One triangle tab: on the panel's right
+   edge when open (◀ hides it), on the screen's left edge when hidden (▶). */
+.app-shell { --pp-left: 16px; --pp-width: min(430px, calc(100vw - 32px)); }
+@media (min-width: 1200px) { .app-shell { --pp-width: 320px; } }
+@media (max-width: 720px) { .app-shell { --pp-left: 12px; --pp-width: calc(100vw - 24px - 26px); } }
+.parameter-panel { left: var(--pp-left); width: var(--pp-width); }
+.parameters-tab {
+  position: fixed;
+  z-index: 46;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 64px;
+  padding: 0;
+  border: 1px solid #263140;
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+  background: #101720f5;
+  color: #e7b18e;
+  box-shadow: 0 8px 24px #0006;
+  cursor: pointer;
+}
+.parameters-tab.is-open { left: calc(var(--pp-left) + var(--pp-width) - 1px); }
+.parameters-tab:hover { background: #172130; color: #f2c4a5; }
+.parameters-tab:focus-visible { outline: 2px solid #e7b18e; outline-offset: 2px; }
+.parameters-tab-arrow { font-size: 12px; line-height: 1; }
+/* Slide in and out the same way: the panel stays rendered while closed
+   (hidden with visibility, so it leaves the tab order) and slides off to the left. */
+.parameter-panel,
+.parameter-panel.parameters-open { display: block; }
+.parameter-panel {
+  transform: translateX(calc(-100% - var(--pp-left) - 4px));
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.24s ease, opacity 0.24s ease, visibility 0s linear 0.24s;
+}
+.parameter-panel.parameters-open {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.24s ease, opacity 0.24s ease, visibility 0s;
+}
+.parameters-tab { transition: left 0.24s ease, background-color 0.15s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .parameter-panel, .parameter-panel.parameters-open, .parameters-tab { transition: none; }
+}
+.comparison-actions .example-select { width: auto; cursor: pointer; }
+
+.hybrid-active { padding: 24px; width: 100%; }
+.hybrid-active + .flame-stage { display: none; }
+.hybrid-active img { display: block; margin: auto; max-width: 100%; object-fit: contain; }
+.hybrid-active svg { width: 100%; max-height: 440px; }
+#hybrid-controls label { display: grid; gap: 6px; margin: 12px 0; }
+#hybrid-controls input, #hybrid-controls select { width: 100%; padding: 8px; color: inherit; background: #202024; border: 1px solid #555; border-radius: 6px; }
+
+.simulation-card.flame-card {height:auto;min-height:100dvh;overflow:visible;}
+.flame-card > .card-heading {display:none;}
+.hybrid-active {max-width:1000px;margin:auto;padding:32px 24px;overflow-wrap:anywhere;}
+.hybrid-active button, #hybrid-controls button {padding:12px 18px;border:1px solid #ae5f37;border-radius:8px;color:#fff;background:#68351f;cursor:pointer;}
+.hybrid-active button:disabled {opacity:.5;cursor:wait;}
+.hybrid-active label {display:block;margin:16px 0;}
+.hybrid-active input[type=range] {display:block;width:100%;}
+#hybrid-controls select {min-width:0;max-width:100%;}
+@media(max-width:720px){.hybrid-active {padding:20px 12px;}.hybrid-active svg{min-height:240px;}}
+.source-comparison {display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
+.source-comparison figure {margin:12px 0;max-width:100%;}
+.hybrid-active img[draggable] {cursor:grab;}
+.hybrid-active g[role=button] {cursor:crosshair;}
+.hybrid-active g[role=button]:focus rect {stroke:white;stroke-width:3;}
+.insights-content {padding:140px 24px 40px;max-width:900px;margin:auto;}
+.insights-content button {padding:12px;border-radius:8px;background:#68351f;color:white;}

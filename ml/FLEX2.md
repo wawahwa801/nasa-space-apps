@@ -1,5 +1,69 @@
 # FLEX-2 live flame lab
 
+## Learned mask with retrieved visual detail
+
+```bash
+ml/.venv/bin/python ml/flex2_compare.py --run-dir ml/data/flex2-geometry-model --texture-composite --port 5063
+```
+
+This opt-in renderer reuses the trained generated-geometry CNN. It combines the learned mask with feathered source masks and transports the recorded RGB detail to the combined centroid/covariance before blending. The default geometry contribution is 80%, reference evidence 20%; the live “Learned shape influence” renderer slider adjusts this from 0 to 100%. The live “Reference detail concentration” renderer slider sharpens the soft reference weights continuously (default 2, range 1–4) to reduce appearance averaging without an argmax switch. These are rendering controls, not additional trained physical inputs. Every same-fuel reference except the chosen target remains in the pool with continuous attention weights; no hard nearest-neighbor switch or binary output threshold occurs. The numeric input path is continuous, though categorical switches remain discrete and very concentrated weights can still cause rapid changes. This uses recorded detail rather than generated RGB to improve visual clarity without requiring another training run.
+
+This is a visual compositing experiment, not a newly trained model or accuracy improvement. It warps/rescales images, can blend source reflections and highlights, and does not provide calibrated flame dimensions or physical PINN boundary conditions. The displayed mask is the combined CNN/reference support probability, not solely the CNN output. The original generated RGB is available by omitting `--texture-composite`.
+
+## Generated geometry hybrid experiment
+
+`ml/flex2_geometry.py` generates a full spatial mask and RGB image from query conditions and continuously weighted reference feature maps at 128, 64 and 32 pixels. It has no reference RGB skip, fixed silhouette or bounded image warp. Condition modulation at each decoder scale allows geometry to change. RGB, flame-region, edge, high-frequency detail, BCE and Dice objectives provide image-derived supervision. An auxiliary reconstruction objective trains the shared reference encoder; the main reference-conditioned prediction always excludes its own target run. All runs are used for fitting as previously requested, with no held-out accuracy claim.
+
+The tracked trial is `ml/data/flex2-geometry-model/`: 262 targets, 21 completed epochs (five at attention temperature 0.02, then sixteen at 0.002), with optimizer, training log and checksums. Run `python ml/flex2_compare.py --run-dir ml/data/flex2-geometry-model --port 5063` to inspect it. It demonstrably changes its generated geometry under numeric sweeps, but images remain too soft to claim dataset-level realism. This is an architectural experiment, not a validated replacement for reference imagery or a physical PINN boundary. The sharper aligned-reference prototype remains separately available at `ml/data/flex2-shape-demo/`.
+
+```bash
+ml/.venv/bin/python ml/flex2_geometry.py --dataset ml/data/flex2-continuous-model/expanded --out ml/data/flex2-geometry-demo/training --epochs 20
+```
+
+The model writes atomically saved checkpoints with optimizer state and per-epoch loss components. Serve it using `python ml/flex2_compare.py --run-dir ml/data/flex2-geometry-demo --port 5053`. The page exposes the predicted mask probability separately. This weakly supervised mask includes bright image regions as well as the existing colour mask: hardware, saturation, and reflections may be included. It is an image-space geometry prototype, not a calibrated physical flame surface or a validated PINN boundary condition. Numeric inputs have a continuous path through reference attention and the decoder; categorical inputs remain discrete. Data availability and training determine how much geometry actually changes.
+
+## Aligned structure-preserving hybrid prototype
+
+`ml/flex2_shape.py` tests an alternative to the diffuse full-image decoder: source RGB references and weak masks receive the same integer centering translation, continuous same-fuel reference weights use temperature 0.02, and a conditioned network predicts smooth spatial displacement and RGB logit corrections. There is no hard nearest-reference switch. An auxiliary weak-mask head, image-gradient loss, and flow smoothness regularizer supplement RGB error. No artificial flame texture, colour rule or upscaling claim is introduced. Saturated hardware and background artifacts present in references can remain visible. These are spherical droplet flames, not terrestrial upward-burning plumes.
+
+Example training command (writes a new checkpoint directory):
+
+```bash
+ml/.venv/bin/python ml/flex2_shape.py --dataset ml/data/flex2-continuous-model/expanded --out ml/data/flex2-shape-demo/training --epochs 20
+```
+
+Serve with `python ml/flex2_compare.py --run-dir ml/data/flex2-shape-demo --port 5053`. The original continuous checkpoint remains separate. All targets are used for fitting; training losses are not comparable across architectures with different objectives, and this prototype has no independent accuracy score.
+
+## Published trained continuous hybrid
+
+The completed 200-epoch, 262-run smooth-reference generator is bundled at `ml/data/flex2-continuous-model/` (~29 MB) with its matching image/reference library, features, manifest, verification report and training log. `snapshot.json` lists SHA256 hashes and sizes; the demo checks these before loading. All runs were used for training, so this checkpoint has no held-out accuracy score. Legacy training did not save optimizer state; continuation restores these weights with a fresh optimizer on its first resume.
+
+```bash
+ml/.venv/bin/python ml/flex2_compare.py --port 5053
+```
+
+Open http://127.0.0.1:5053 for centered previews and continuous slider updates. It compares this trained hybrid against the published feature-only CNN and normal retrieval on their five shared fuels. Reference/condition features use the exact trained schema. No NASA download or retraining is required for this published snapshot. To continue these weights later, use `ml/flex2_continue.py --resume ml/data/flex2-continuous-model/training/final.pt --new-runs 20 --search-hours 2 --train-hours 1 --epochs 50`.
+
+## Published retrieval and CNN snapshot
+
+The repository includes the matching **100-run retrieval library and trained CNN checkpoint**. A fresh checkout can run both without NASA downloads or retraining:
+
+```bash
+python3 -m venv ml/.venv
+source ml/.venv/bin/activate
+pip install -r ml/requirements.txt
+python ml/verify_flex2_models.py
+python -m unittest discover -s ml -p 'test_flex2.py' -v
+python ml/flex2_lab.py
+```
+
+Open **http://127.0.0.1:5051/flex2/** and use **Retrieval / CNN**. The frozen snapshot has five fuels and 60/20/20 whole-run splits; its CNN selected epoch 60 from the 100-epoch run. The optional SPICE comparison has separate data/checkpoints and is not included in this snapshot.
+
+The committed runtime files are `ml/data/flex2-study/prepared.npz`, `ml/data/flex2-study/manifest.json`, `ml/artifacts/flex2-study/selected.pt` and `ml/artifacts/flex2-study/report.json` (about 13 MB total). `ml/reports/flex2-model-artifacts.json` records their sizes, SHA256 hashes, source revision and limitations. The verifier checks those hashes, array/manifest/run/split joins, checkpoint compatibility and training-only normalization. The existing checkpoint loader uses `weights_only=True`.
+
+Original camera archives, selected raw members, telemetry caches, other model artifacts and generated comparison images remain ignored. Two source-acquisition tests skip on a runtime-only checkout; they run once their raw inventory/member caches are present. Runtime integrity and both inference-mode tests run from the committed snapshot. Acquisition/training commands below are for rebuilding; they overwrite these tracked runtime files, and publishing a new snapshot requires updating and verifying its checksum index deliberately.
+
+This is an existing experimental model snapshot, not a new accuracy result. Seven catalog/paper fuel-identity disagreements remain tracked in [#33](https://github.com/wawahwa801/nasa-space-apps/issues/33). Published fuel labels preserve the existing PSI catalog joins pending that resolution; do not treat them as independent chemical verification. Missing physical labels and camera/stage calibration also remain unresolved. Publication is tracked in [#36](https://github.com/wawahwa801/nasa-space-apps/issues/36).
 The exact-run missing-input investigation is documented in [FLEX2_INPUTS.md](FLEX2_INPUTS.md), with a 100-row provenance table, partial published gas-condition matches, backlit-camera pilot and unresolved source conflicts. These audit labels have not been added to the inference schema.
 
 ## 100-run retrieval expansion
@@ -23,7 +87,7 @@ python ml/flex2_lab.py
 
 `--runs-per-fuel` retains its historical name but limits candidates **per campaign category**. The expanded allowlist covers quiescent decane and single-droplet surrogate-fuel campaigns for heptane, n-octane, isooctane and toluene. Binary arrays and imposed-flow campaigns are excluded. Camera format, run identity, explicit telemetry units, pre-ignition timing, source member checksums and visible connected colour signal must pass. `NA` telemetry units are not guessed. Repeated identical inventory nodes are deduplicated; conflicting archive identities fail acquisition. Cached frame/metadata hashes are checked before reuse.
 
-Preparation requires at least 400 connected colour-mask pixels in the fixed ROI, increased from 100 after montage inspection found near-empty accepted targets. This is a basic visibility screen; remaining highlights, reflections, saturation and weak segmentation are not calibrated away. Preparation refuses to replace the existing library if fewer than 100 usable independent runs remain. It allocates fuel quotas round-robin, then selects evenly spaced pressure-sorted runs within each fuel. At least six runs per retained fuel and whole-run train/validation/test splits remain required. Accepted runs outside this bounded selection are distinguished from failed acquisition/image checks in the exclusions. The testing page derives its fuels, ranges and count from the rebuilt artifacts. Retrain the CNN after preparation because the server rejects a checkpoint for a different dataset. Models and source images stay local/ignored; reproduce them with the commands above.
+Preparation requires at least 400 connected colour-mask pixels in the fixed ROI, increased from 100 after montage inspection found near-empty accepted targets. This is a basic visibility screen; remaining highlights, reflections, saturation and weak segmentation are not calibrated away. Preparation refuses to replace the existing library if fewer than 100 usable independent runs remain. It allocates fuel quotas round-robin, then selects evenly spaced pressure-sorted runs within each fuel. At least six runs per retained fuel and whole-run train/validation/test splits remain required. Accepted runs outside this bounded selection are distinguished from failed acquisition/image checks in the exclusions. The testing page derives its fuels, ranges and count from the rebuilt artifacts. Retrain the CNN after preparation because the server rejects a checkpoint for a different dataset. The frozen runtime pair is published as described above; original source frames and acquisition caches remain local/ignored.
 
 `ml/reports/flex2-100-data.json` records accepted run IDs, source resource versions, selected member hashes, split membership and exclusions. `flex2-100-audit.json` reports per-fuel ranges, distinct measured feature pairs, camera-setting distributions, pre-ignition stability, sensor spread and image quality indicators. Run `flex2_audit.py` after every dataset rebuild. The retrained benchmark is saved separately as `flex2-rgb-100-v1.json`; compare CNN against training-only retrieval and same-fuel means on this dataset, not against the earlier five-test-run scores.
 
@@ -51,7 +115,7 @@ python ml/flex2_model.py --epochs 250
 python ml/flex2_lab.py
 ```
 
-Open **http://127.0.0.1:5051/flex2/**. Existing local data and checkpoint allow skipping preparation/training. Stop an older server on port 5051 before starting; restart after training or template changes. `python ml/spice_lab.py` also makes FLEX-2 the default when its checkpoint exists. Both launchers retain SPICE navigation when its artifacts exist. The older BASS/FLEX lab mounts `/flex2/` on port 5050 when those artifacts exist at startup. Models, source frames and raw telemetry remain local/ignored; tracked source audits and reports support review.
+Open **http://127.0.0.1:5051/flex2/**. The published data/checkpoint allow skipping preparation/training. Stop an older server on port 5051 before starting; restart after training or template changes. `python ml/spice_lab.py` also makes FLEX-2 the default when its checkpoint exists. Both launchers retain SPICE navigation when its artifacts exist. The older BASS/FLEX lab mounts `/flex2/` on port 5050 when those artifacts exist at startup. Original source frames and raw telemetry remain local/ignored; the frozen runtime pair, source audits and reports support review.
 
 ## What the inputs actually mean
 
@@ -82,6 +146,68 @@ Whole-test-point hash splits within fuel keep all frames of a run together. Only
 Retrieval matches fuel exactly and ranks normalized pressure/temperature distance. The default library includes all recorded targets, including held-out examples; enable **Retrieve training images only** for a restricted comparison. Reported retrieval benchmarks always use training targets only. Retrieval can stay unchanged between recorded conditions and does not synthesize a continuous physical transition. Neither model predicts arbitrary oxygen/diameter conditions, temperature fields, heat flux or fire spread.
 
 The page starts in **Retrieval** to show recorded colour flames immediately; the **CNN** button selects generated estimates. The final CPU run took **29.8 seconds**, completed 70 epochs and selected epoch 20. On five test runs, CNN RGB MAE was **0.0759** versus **0.0383** for the same-fuel training mean and **0.0374** for training-only retrieval; foreground MAE was **0.2632 / 0.2016 / 0.2259**, respectively. The CNN is worse than those baselines on these errors. It produces blurred or distorted colours/shapes and severe artifacts outside training ranges. Slider sensitivity demonstrates that inputs reach the model; it does not demonstrate predictive accuracy. Missing physical labels and camera variation remain substantive blockers to that accuracy.
+
+The **Hybrid prototype** mode is a simple 50/50 pixel average between the CNN output and the nearest retrieved image. It is useful for a visual side-by-side comparison, but it is not a learned hybrid: it cannot decide which reference details to retain, correct for feature differences, or learn when the retrieval is misleading. A trained retrieval-conditioned CNN would receive the selected reference image and condition data (including feature differences) during training, with all references restricted to other training runs for validation/test. It could learn a feature-aware residual or attention over the reference. That is the better research direction if it beats retrieval, the training mean, and the existing CNN on leakage-free held-out runs; until that comparison exists, neither method is established as better. The demo blend is explicitly an untrained prototype and has no benchmark claim.
+
+## Monitored overnight retrieval-conditioned experiment
+
+### Continue the current continuous-model checkpoint with new runs
+
+```bash
+ml/.venv/bin/python /private/tmp/nasa-flex2-hybrid-demo/ml/flex2_continue.py --resume /private/tmp/nasa-flex2-hybrid-demo/ml/data/flex2-discovery/continuous-20261115T144325Z/training/final.pt --new-runs 20 --search-hours 2 --train-hours 1 --epochs 50
+```
+
+`--new-runs` is the minimum number of newly verified independent IDs relative to this checkpoint, not the count of download matches. The search retries/refreshes in passes of at most five minutes and screens completed cached records between passes. It stops early once enough eligible IDs are verified; otherwise it stops after the search budget without training. All accepted old and new runs are mixed for continuation; every old target must still pass verification or continuation stops. Use `--new-runs 0` to continue with already cached verified data. This uses all accepted runs without splits or independent accuracy scores. Unknown new category levels map to zero indicators in the frozen original vocabulary; no new model feature columns are silently introduced.
+
+The parent checkpoint is snapshotted in a new `continuation-<UTC>/` directory. Model weights, epoch numbering, numeric normalization and category columns are retained. Optimizer state is restored when present. Legacy checkpoints did not save optimizer state, so the first continuation uses a new AdamW optimizer, which is explicitly logged. All newly written checkpoints save it for subsequent resumes. The original model files and the running demo are not overwritten. After continuation, point `flex2_compare.py --run-dir` at the new continuation directory to inspect the new model before switching the demo. Fixed epoch counts/time budgets limit training; declining training loss does not establish improvement on unseen runs.
+
+### Smooth-reference generator, two-hour search, all-data fit
+
+From the original repository checkout, using its installed Python environment:
+
+```bash
+ml/.venv/bin/python /private/tmp/nasa-flex2-hybrid-demo/ml/flex2_continuous.py --search-hours 2 --train-hours 6 --epochs 200
+```
+
+This new architecture uses soft distance weights over every same-fuel reference (excluding the target run). Weights vary continuously for numeric conditions, without a hard nearest-reference switch. An image encoder and a condition/difference encoder feed a full image decoder; it does not copy a retrieved image plus a small bounded residual. Categorical inputs remain discrete. The architecture makes smooth numeric responses possible; their visibility and physical accuracy are not guaranteed by architecture alone.
+
+Discovery attempts every compatible candidate in the existing single-droplet campaign allowlist and the six blend/formulation campaigns. It reuses the previous source cache when present. Discovery runs for the full requested two-hour window before preparation or training. When a pass finishes early, the supervisor pauses briefly, refreshes the NASA listing, and retries candidates until the deadline. Cached and newly acquired sources are distinguished in the log and run IDs are deduplicated; repeated matches do not increase the run count. The search subprocess stops at the deadline plus termination grace, with no fixed added-run quota. Completed cached records are then screened for source hashes, exact settings/event IDs, known fuel conflicts, and the existing visibility threshold. All accepted targets are assigned to training. Verification and preparation run after the network search deadline; fitting then has a six-hour maximum and stops at 200 epochs if sooner. Total elapsed time can exceed eight hours by preparation and the last training epoch. Missing physical labels remain missing. There are no validation/test scores or claims of improved accuracy. Every epoch checks finite loss and gradients, logs training loss and atomically saves the latest checkpoint.
+
+Outputs use a new ignored `ml/data/flex2-discovery/continuous-<UTC>/` folder: `search.log`, `search-status.json`, `expanded/verification.json`, manifest, features, images, and `training/final.pt`. Search failures/timeouts are reported; any completed cached records are still screened. If no usable set remains, the workflow stops before training. The published models and current local demo stay separate. After training, serve the new model with:
+
+```bash
+ml/.venv/bin/python /private/tmp/nasa-flex2-hybrid-demo/ml/flex2_compare.py --run-dir /path/to/continuous-<UTC> --port 5054
+```
+
+The comparison page recognizes the new architecture and uses the same smooth reference weighting at inference. The normal CNN/retrieval panels cover only the five fuels they support. All-run fits display a notice that no held-out score exists.
+
+For a separate final fit using all eligible verified discovery targets, including the former validation and test runs:
+
+```bash
+ml/.venv/bin/python ml/flex2_refit.py --source ml/data/flex2-discovery/run-20261115T052053Z --epochs 8
+```
+
+This creates a new dated `all-runs-refit-*` directory and fits 158 eligible targets, excluding the two rejected settings joins. References exclude the target run. The fixed eight-epoch schedule comes from the earlier validation-selected seed 43; the final checkpoint is saved as `training/final.pt` with training loss only. No independent test scores are produced. Earlier benchmark data, weights, reports and the running comparison demo remain available separately.
+
+With the published runtime snapshot and exact-run input audit present, run one command from the repository root:
+
+```bash
+python ml/flex2_overnight.py --hours 8 --seeds 3 --patience 25
+```
+
+To search additional PSI-68 single-droplet fuel/blend campaigns first, then train using every newly verified run up to 60:
+
+```bash
+ml/.venv/bin/python ml/flex2_discovery.py --hours 8 --additional-runs 60 --seeds 3 --patience 25
+```
+
+This bounded workflow searches six additional surrogate-fuel formulation campaigns, verifies independent run IDs, exact settings IDs and event-summary joins, downloads/screen-checks candidate RGB targets, and creates a new dated dataset without replacing the published snapshot. Search uses at most half of the time budget (no more than four hours); training uses the remaining time. The original validation/test IDs stay fixed and eligible additions join training. If fewer than 60 survive, it uses the verified number and records exclusions. If discovery fails, it falls back to the existing verified 140-target set and records the error. Workflow logs, source audit, added run IDs and training metrics/checkpoints are saved under ignored `ml/data/flex2-discovery/run-<UTC timestamp>/`. Run this only with the connected network available; the script does not contact investigators or modify GitHub.
+
+The tracked `ml/data/flex2-expanded/` snapshot adds 40 independent source/image-verified runs to the original 100. It freezes every original split assignment and puts new runs in training only: 100 train / 20 validation / 20 test. Exact apparatus settings are verified for 139/140 targets; the rejected placeholder `E183L11` is excluded by the overnight runner, leaving 99 train / 20 validation / 20 test targets. `expansion-report.json` lists IDs and checksums. The untracked full acquisition cache used to prepare the extra candidates is not needed to run training from this snapshot.
+
+The runner verifies target IDs and whole-run split agreement against the expanded snapshot's `features.csv`. Its feature vector uses pressure, temperature, exact-run fiber usage, commanded igniter wattage, igniter-on duration from the verified run summary, missingness flags, seconds from igniter-on to the selected image timestamp, campaign category, and raw shutter/gain codes as categorical nuisance inputs. All 140 expanded targets have exact-run igniter-on duration records; 139 have accepted test-point settings, with `E183L11` excluded. Categorical vocabularies and numeric scaling are fitted from training runs only; missing wattage is imputed using the training median. Raw camera codes are not calibrated exposure measurements, and commanded wattage/time do not measure delivered energy. Oxygen, calibrated camera measurements, diameter and flow are not fabricated or assumed joined. Output goes to ignored `ml/artifacts/flex2-study/overnight/`: run manifest, per-epoch JSONL metrics, best checkpoint per seed, and held-out test metrics. The runner stops starting epochs at the deadline and finishes its current epoch, early-stops on validation score, checks finite losses/gradients/metrics and GPU memory, and prints progress continuously. Test metrics compare the trained hybrid with training-only extended-feature retrieval, same-fuel training mean, and the published feature-only CNN. It does not alter the published checkpoint.
+
+The task uses one fixed whole-run split and only three seeds by default; results remain exploratory. A small dataset cannot establish robust physical accuracy. Keep the overnight machine powered and the checkout/environment available. Additional surveyed features require exact target joins and their own ablations before being added.
 
 Preview alignment uses an integer translation to put the detected luminous-region bounding-box centre in the middle of the display. Smoothed intensity and component filtering reduce camera noise/reflection influence. This is approximate display alignment, not calibrated segmentation; empty/weak detections retain their position. No scaling or recolouring is applied. Background at an image edge can be clipped as it moves off-canvas. Training targets, checkpoints and reported unaligned benchmark scores remain unchanged, so the display does not imply a new accuracy result.
 
