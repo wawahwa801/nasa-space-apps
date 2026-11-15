@@ -5,7 +5,7 @@ import { FlatCompat } from "@eslint/eslintrc";
 const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
 
 const config = [
-  // Generated copy of ../fire-dashboard (see scripts/sync-fire-dashboard.mjs).
+  // Old generated copy of ../fire-dashboard, in case one is still on disk.
   { ignores: [".next/**", "public/fire-dashboard/**"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];

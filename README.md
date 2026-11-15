@@ -47,9 +47,8 @@ The page has the Ember flame simulation and, below it, the NASA data comparison 
 panel: O₂, pressure, temperature, CO₂ and gravity are shared, and the NASA-only inputs
 appear there as extra sections. Unit pickers on the panel's sliders switch O₂/CO₂ between
 % and ppm, pressure between kPa, psia and atm, and temperature between °C, K and °F.
-`npm run dev` and `npm run build` first copy `fire-dashboard/` into
-`frontend/public/fire-dashboard/` (generated, git-ignored), so edit `fire-dashboard/`,
-not the copy.
+The app serves `fire-dashboard/` directly at `/nasa-dashboard/`, so there is no copy or
+sync step; edit `fire-dashboard/` and reload.
 
 The **Feature retrieval** tab searches a bundled set of 100 verified FLEX-2 colour targets across five fuels by fuel, chamber pressure and temperature. Sliders update locally while dragging; numeric inputs validate the recorded ranges, and the result shows the actual matched conditions and source. This tab works with the frontend alone, without Flask, Torch or an inference service. Its controls apply to the droplet dataset separately from the simulation's broader scenario inputs. Switching tabs preserves both sets of inputs.
 
