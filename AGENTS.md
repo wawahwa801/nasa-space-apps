@@ -12,6 +12,15 @@ This repository is worked on by three people using Codex and/or Claude agents. K
 - Keep each change focused. After each code change, run the relevant verification, then commit and push the task branch so its pull request stays current. Use a concise commit message that describes the change. Do not commit or push directly to `main`.
 - If verification fails, report the failure and do not describe the change as verified. Fix it and rerun relevant verification before committing and pushing, or document the unresolved result in the pull request and track it as an issue as described below.
 
+## Windows and macOS compatibility
+
+Project members work on both Windows and macOS. Keep the repository working on both.
+
+- Do not commit symlinks. Windows ZIP downloads and clones without symlink support turn them into small text files. Commit real files instead; Git stores identical copies only once. CI rejects symlinks.
+- Files checked by checksum or compared byte for byte (model data, published artifacts, hashed images) must be covered by a `-text` rule in `.gitattributes`. Otherwise Git for Windows rewrites their line endings and the checksums fail.
+- Do not write instructions or scripts that work on only one system. Give the Windows PowerShell form alongside the macOS form, or use cross-platform commands such as `python ...` and `node ...`.
+- CI runs the checks on Windows and macOS for every pull request (`.github/workflows/ci.yml`). Do not merge while it fails. When you add a test or a check, add it to the workflow too.
+
 ## Pull requests and review
 
 - Open a GitHub pull request for each completed task and describe the purpose, notable changes, and checks performed. Link related issues when applicable.

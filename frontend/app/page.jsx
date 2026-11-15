@@ -283,7 +283,10 @@ export default function Home() {
     [nasaDefs, nasaRaw, nasaUnits, values],
   );
   const [sliderUnits, setSliderUnits] = useState({});
-  const [, setSnapshot] = useState(null);
+  const [snapshot, setSnapshot] = useState(null);
+  const [paused, setPaused] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [animationKey, setAnimationKey] = useState(0);
   const [error, setError] = useState("");
   const [view, setView] = useState("flame");
   const [retrievalSession, setRetrievalSession] = useState(0);
