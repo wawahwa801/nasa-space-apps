@@ -13,6 +13,7 @@ const SCRIPTS = [
   "data/reference-data.js",
   "js/parameters.js",
   "js/charts.js",
+  "js/monitoring.js",
   "js/app.js",
 ];
 

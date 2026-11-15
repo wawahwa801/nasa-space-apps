@@ -28,6 +28,9 @@ export const NASA_DEFAULTS = {
 
 const tidy = (x) => String(Number(x.toPrecision(6)));
 
+export const VACUUM_NOTE = "Vacuum environments have near-zero pressure, so the pressure value is ignored.";
+export const isVacuum = (raw) => raw?.environment === "Vacuum";
+
 export function unitOf(field, units, unitPrefs) {
   if (!field.units) return { unit: field.unit || "", toBase: (x) => x, fromBase: (x) => x };
   const system = units[field.units];
@@ -42,7 +45,9 @@ export function nasaInputsFromRaw(defs, raw, unitPrefs) {
     for (const f of section.fields) {
       if (SHARED_FIELDS[f.id]) continue;
       const x = raw[f.id];
-      if (f.type === "number") {
+      if (f.type === "multi") {
+        out[f.id] = Array.isArray(x) ? f.options.filter((o) => x.includes(o)) : [];
+      } else if (f.type === "number") {
         out[f.id] = x === undefined || x === "" ? null : unitOf(f, defs.units, unitPrefs).toBase(Number(x));
       } else {
         out[f.id] = x || "";
@@ -53,14 +58,21 @@ export function nasaInputsFromRaw(defs, raw, unitPrefs) {
 }
 
 // Turn base-unit values (e.g. EXAMPLE_INPUT) into raw panel text in the current units.
-export function rawFromBase(defs, values, unitPrefs) {
+export function rawFromBase(defs, input, unitPrefs) {
   const out = {};
+  // Older exports used a single material_type.
+  const values = input.material_types === undefined && input.material_type
+    ? { ...input, material_types: [input.material_type] }
+    : input;
   for (const section of defs.sections) {
     for (const f of section.fields) {
       if (SHARED_FIELDS[f.id] || values[f.id] === undefined || values[f.id] === null) continue;
-      out[f.id] = f.type === "number"
-        ? tidy(unitOf(f, defs.units, unitPrefs).fromBase(Number(values[f.id])))
-        : String(values[f.id]);
+      const x = values[f.id];
+      out[f.id] = f.type === "multi"
+        ? (Array.isArray(x) ? [...x] : [])
+        : f.type === "number"
+          ? tidy(unitOf(f, defs.units, unitPrefs).fromBase(Number(x)))
+          : String(x);
     }
   }
   return out;
@@ -103,6 +115,32 @@ export function NasaParameterFields({ defs, raw, unitPrefs, onChange, onUnitChan
               const id = `nasa-${f.id}`;
               const unit = unitOf(f, defs.units, unitPrefs);
               const error = f.type === "number" ? rangeError(f, raw[f.id], unit) : "";
+              if (f.type === "multi") {
+                const picked = Array.isArray(raw[f.id]) ? raw[f.id] : [];
+                const toggle = (o, on) =>
+                  onChange(f.id, on ? [...picked.filter((p) => p !== o), o] : picked.filter((p) => p !== o));
+                return (
+                  <fieldset className="field nasa-field nasa-checks full" key={f.id} id={id} tabIndex={-1} aria-describedby={`${id}-hint`}>
+                    <legend>
+                      {f.label} <span className="nasa-count">{picked.length ? `${picked.length} selected` : "none selected"}</span>
+                    </legend>
+                    <div className="nasa-check-list">
+                      {f.options.map((o) => (
+                        <label className="nasa-check" key={o}>
+                          <input type="checkbox" checked={picked.includes(o)} onChange={(e) => toggle(o, e.target.checked)} />
+                          <span>{o}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {f.hint && (
+                      <small className="nasa-hint" id={`${id}-hint`}>
+                        {f.hint}
+                      </small>
+                    )}
+                  </fieldset>
+                );
+              }
+              const optionHint = f.optionHints?.[raw[f.id]];
               return (
                 <div className="field nasa-field" key={f.id}>
                   <label htmlFor={id}>{f.label}</label>
@@ -144,6 +182,11 @@ export function NasaParameterFields({ defs, raw, unitPrefs, onChange, onUnitChan
                         <option key={o}>{o}</option>
                       ))}
                     </select>
+                  )}
+                  {optionHint && (
+                    <small className="nasa-option-hint" aria-live="polite">
+                      {optionHint}
+                    </small>
                   )}
                   {error && (
                     <small className="nasa-field-error" id={`${id}-error`}>

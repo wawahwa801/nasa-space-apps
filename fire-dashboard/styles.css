@@ -443,3 +443,36 @@ input[aria-invalid="true"] { border-color: var(--critical); }
 @container fd-results (max-width: 640px) {
   .smoke-grid { grid-template-columns: 1fr; }
 }
+
+/* --- Live monitoring ------------------------------------------------------- */
+
+.mon-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 6px; }
+.mon-toolbar .filter { margin-left: auto; }
+.mon-status { display: flex; align-items: center; gap: 8px; max-width: 420px; }
+.mon-headline { font-weight: 600; font-size: 0.92rem; }
+#monitor-card .flags { max-height: none; margin-bottom: 8px; }
+#monitor-card { border-color: var(--accent); }
+@container fd-results (max-width: 640px) {
+  .mon-toolbar .filter { margin-left: 0; }
+}
+
+/* Materials checklist, option explanations and the vacuum note. */
+.field-label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 3px; }
+.check-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 2px 10px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--page); }
+.check-list:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.check { display: flex; gap: 6px; align-items: center; min-height: 30px; font-size: 0.88rem; color: var(--text-primary); cursor: pointer; }
+.field .check { justify-content: flex-start; margin: 0; }
+.check input { width: auto; margin: 0; accent-color: var(--accent); }
+.option-hint, .field-note { margin: 4px 0 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; }
+.field-note { padding: 6px 8px; border-left: 3px solid var(--info); background: var(--highlight); border-radius: 0 6px 6px 0; }
+.field.is-disabled input, .field.is-disabled select { opacity: 0.5; cursor: not-allowed; }
+
+/* Live monitoring: which listed material could be burning. */
+.mon-suspects { margin: 10px 0 4px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; }
+.mon-suspects h3 { margin: 0 0 4px; font-size: 0.95rem; }
+.suspects { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.suspects li { display: grid; grid-template-columns: 7.5em 1fr; gap: 10px; align-items: start; }
+.suspect-tag { display: inline-block; text-align: center; font-size: 0.75rem; font-weight: 600; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-secondary); }
+.suspect-tag.likely { border-color: var(--accent); color: var(--text-primary); background: var(--highlight); }
+.suspect-tag.unlikely { color: var(--text-muted); }
+@container fd-results (max-width: 480px) { .suspects li { grid-template-columns: 1fr; gap: 2px; } .suspect-tag { justify-self: start; } }
