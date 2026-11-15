@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
 import { HybridSimulation } from "../components/hybrid-simulation";
-import { FeatureRetrieval } from "../components/feature-retrieval";
+import { LlmInsights } from "../components/llm-insights";
 import {
   NASA_DEFAULTS,
   NasaParameterFields,
@@ -231,6 +231,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [view, setView] = useState("flame");
   const [retrievalSession, setRetrievalSession] = useState(0);
+  const [appliedHybrid, setAppliedHybrid] = useState(null);
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
   const [paused, setPaused] = useState(false);
@@ -301,10 +302,11 @@ export default function Home() {
   }
   const nav = [
     ["flame", "Flame simulation", "flame"],
-    ["retrieval", "Feature retrieval", "sliders"],
+    ["insights", "LLM insights", "chat"],
   ];
   function changeView(next) {
     setView(next);
+    if(next === "insights") {setParametersOpen(false);setChatOpen(false);}
     window.scrollTo({ top: 0, behavior: "instant" });
     if (next === "flame") requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
   }
@@ -349,11 +351,11 @@ export default function Home() {
           }}>
             NASA data
           </a>
-          <button className="panel-toggle" hidden={view === "retrieval"} aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
+          <button className="panel-toggle" hidden={view === "insights"} aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
           <button
             ref={chatTrigger}
             className="chat-toggle"
-            hidden={view === "retrieval"}
+            hidden={view === "insights"}
             aria-expanded={chatOpen}
             aria-controls="chat-panel"
             onClick={() => (chatOpen ? closeChat() : setChatOpen(true))}
@@ -395,7 +397,7 @@ export default function Home() {
                     </div>
                     <span className="preview-badge">Preview</span>
                   </div>
-                  <HybridSimulation onStarted={() => {setParametersOpen(false);setChatOpen(false);}} />
+                  <HybridSimulation key={retrievalSession} onResult={setAppliedHybrid} onStarted={() => {setParametersOpen(false);setChatOpen(false);}} />
                   <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
                     <svg className="ember-particles" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                       <defs><radialGradient id="particle-glow"><stop stopColor="#f35b25" stopOpacity=".28" /><stop offset="1" stopColor="#f35b25" stopOpacity="0" /></radialGradient></defs>
@@ -765,8 +767,8 @@ export default function Home() {
           </aside>{" "}
 
         </div>
-        <main className="dashboard-tab-panel retrieval-tab-panel" id="retrieval-panel" role="tabpanel" aria-labelledby="retrieval-tab" hidden={view !== "retrieval"}>
-          <FeatureRetrieval key={retrievalSession} />
+        <main className="dashboard-tab-panel retrieval-tab-panel" id="insights-panel" role="tabpanel" aria-labelledby="insights-tab" hidden={view !== "insights"}>
+          <LlmInsights scenario={appliedHybrid} />
         </main>
       </div>
     </div>

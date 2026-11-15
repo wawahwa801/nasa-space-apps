@@ -1759,3 +1759,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .hybrid-active input[type=range] {display:block;width:100%;}
 #hybrid-controls select {min-width:0;max-width:100%;}
 @media(max-width:720px){.hybrid-active {padding:20px 12px;}.hybrid-active svg{min-height:240px;}}
+.source-comparison {display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
+.source-comparison figure {margin:12px 0;max-width:100%;}
+.hybrid-active img[draggable] {cursor:grab;}
+.hybrid-active g[role=button] {cursor:crosshair;}
+.hybrid-active g[role=button]:focus rect {stroke:white;stroke-width:3;}
+.insights-content {padding:140px 24px 40px;max-width:900px;margin:auto;}
+.insights-content button {padding:12px;border-radius:8px;background:#68351f;color:white;}
