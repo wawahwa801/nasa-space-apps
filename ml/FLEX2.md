@@ -107,6 +107,14 @@ The **Hybrid prototype** mode is a simple 50/50 pixel average between the CNN ou
 
 ## Monitored overnight retrieval-conditioned experiment
 
+For a separate final fit using all eligible verified discovery targets, including the former validation and test runs:
+
+```bash
+ml/.venv/bin/python ml/flex2_refit.py --source ml/data/flex2-discovery/run-20261115T052053Z --epochs 8
+```
+
+This creates a new dated `all-runs-refit-*` directory and fits 158 eligible targets, excluding the two rejected settings joins. References exclude the target run. The fixed eight-epoch schedule comes from the earlier validation-selected seed 43; the final checkpoint is saved as `training/final.pt` with training loss only. No independent test scores are produced. Earlier benchmark data, weights, reports and the running comparison demo remain available separately.
+
 With the published runtime snapshot and exact-run input audit present, run one command from the repository root:
 
 ```bash
