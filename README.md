@@ -5,8 +5,10 @@ A starter project for an interactive dashboard with a Next.js frontend and Flask
 ## Project structure
 
 ```text
-frontend/   Next.js dashboard
-backend/    Flask API
+frontend/        Next.js dashboard (Ember workspace + NASA data comparison)
+fire-dashboard/  NASA data comparison dashboard (standalone page, also embedded in frontend/)
+data/            NASA fire experiment data sets
+backend/         Flask API
 ```
 
 ## Requirements
@@ -37,6 +39,14 @@ npm run dev
 ```
 
 Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `http://localhost:5000/api/health`.
+
+The page has the Ember flame simulation and, below it, the NASA data comparison from
+`fire-dashboard/` (rendered in an isolated shadow root). Both read the same Parameters
+panel: O₂, pressure, temperature, CO₂ and gravity are shared, and the NASA-only inputs
+appear there as extra sections.
+`npm run dev` and `npm run build` first copy `fire-dashboard/` into
+`frontend/public/fire-dashboard/` (generated, git-ignored), so edit `fire-dashboard/`,
+not the copy.
 
 ## LLM analysis API
 
