@@ -12,7 +12,8 @@ It can be opened on its own or viewed inside the Next.js app in `frontend/`.
 ## Open it
 
 Open `fire-dashboard/index.html` in a browser. No server is needed, and nothing
-is sent over the network. Click **Load example** to see a filled-in dashboard.
+is sent over the network unless you click **Generate insight** (below). Click
+**Load example** to see a filled-in dashboard.
 
 ## Using it
 
@@ -22,6 +23,16 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
 - **Help and checks:** click a field to see what it is used for. Values outside a
   sensible range (for example O₂ above 100%) are marked and ignored until corrected.
 - **Progress:** each section heading shows how many of its fields are filled.
+- **Test data:** **Load example** has three scenarios (`EXAMPLE_INPUTS` in `js/parameters.js`): an
+  ISS-like cabin, an exploration habitat at 8.2 psia with 34% O₂, and degraded monitoring with fuel
+  and oxidizer leaks. **Play demo** has three live-monitoring demos (`DEMOS` in `js/monitoring.js`):
+  smouldering turning into flames, smouldering with no flame, and an oxygen and hydrogen leak. The
+  same demos are in `data/sample-readings/*.csv` for testing **Import readings CSV**; regenerate them
+  with `node fire-dashboard/scripts/make_sample_readings.cjs`. All of these are synthetic.
+- **Hide and collapse sections:** click a section title to collapse it, or use **Sections** above the
+  results to hide sections entirely (**Expand all**, **Collapse all**, **Show all** and **Reset view** are
+  there too). Results are grouped into *Current conditions* and *Compared with NASA experiments*; the
+  Saffire, related-tests and data-set sections start collapsed. The view is remembered in this browser.
 - **From result to input:** click an item in the assessment to jump to the input behind it.
 - **Saving:** inputs save automatically in the browser. **Export** downloads them as
   JSON (in kPa, °C, ppm and m) and **Import** loads such a file again.
@@ -29,6 +40,34 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
 
 ## What it shows
 
+- **Safety insight (AI):** on request, the current report (inputs, assessment, smoke status
+  and live monitoring, built by `buildReport` in `js/app.js`) is sent to the backend's
+  `POST /api/safety-insights`, which asks OpenRouter's Dots3-Note Preview model
+  (`dots-studio/dots-3-note-preview:free`) for a plain-language reading: headline, concerns,
+  next checks and data gaps. It needs the Next.js dev server (which proxies `/api` to Flask)
+  and the backend running with `backend/.env` set to:
+
+  ```
+  LLM_PROVIDER=openrouter
+  LLM_MODEL=dots-studio/dots-3-note-preview:free
+  LLM_API_KEY=<your OpenRouter key>
+  LLM_MAX_OUTPUT_TOKENS=6000
+  LLM_TIMEOUT_SECONDS=150
+  ```
+
+  Without a key the backend's offline mock answers instead. The prompt is in
+  `backend/llm/safety_insights.py`. The AI text explains the report; the rule-based
+  assessment remains the dashboard's result.
+
+- **Live monitoring:** readings taken over time (default every 5 minutes) are compared to detect a
+  fire starting or smoke building up: CO rising for several intervals without heat (possible
+  smouldering), CO and CO₂ rising together as O₂ falls (combustion signature), fast heating with
+  combustion gases (possible flaming fire), flammable gas accumulating, O₂ rising, CO/CO₂ above NIOSH
+  limits with a time-to-limit projection, and missed readings. Readings come from **Record reading**
+  (the current inputs), a CSV import (a time column plus gas/temperature columns), the accelerated
+  demo, or `FireDashboard.addReading({...})` for a sensor feed. Detection logic is in
+  `js/monitoring.js`; its rise thresholds (`THRESHOLDS.monitoring` in `js/parameters.js`) are
+  placeholders to tune with real sensor data, and the demo sequence is synthetic.
 - **Summary tiles:** issue count and highest severity, O₂ %, O₂ partial pressure, internal pressure.
 - **Assessment:** rule-based flags (oxygen enrichment, flammable gases against their
   flammability limits, CO and CO₂ against NIOSH limits, leaks, distance to ignition
@@ -42,6 +81,10 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
   with your values as reference lines.
 - **BASS-II solid materials:** 129 ISS burn tests plotted by starting O₂, one row per material, with
   your O₂ as a reference line; CO/CO₂ rises during burns and the earlier BASS run counts.
+- **Smoke and soot hazards:** an overall smoke-hazard level from your CO and CO₂ readings (NIOSH limits),
+  smoke-detection status and your material; what the material's or fuel's smoke can contain (general
+  combustion chemistry from its composition, kept in `SMOKE_PRODUCTS` in `js/parameters.js`, not measured
+  data); and measured CO rises during BASS-II burns, by material.
 - **Related NASA tests:** SAME-R and BASS tests for your material; SPICE and ACME tests for your fuel.
 - **Data sets:** the four built-in data sets, plus any CSV you add.
 

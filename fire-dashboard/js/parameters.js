@@ -7,7 +7,8 @@
 // Field types:
 //   number - numeric input. Either a fixed `unit`, or `units` naming one of
 //            UNIT_SYSTEMS so the user can pick the unit.
-//   choice - pick one of `options`
+//   choice - pick one of `options` (`optionHints` explains each option)
+//   multi  - tick any number of `options` (stored as an array)
 
 (function () {
   const REF = window.REFERENCE_DATA;
@@ -66,13 +67,20 @@
       title: "Environment",
       fields: [
         { id: "environment", label: "Environmental condition", type: "choice", options: ["Pressurised", "Partially pressurised", "Vacuum"],
-          hint: "Checked against the pressure reading." },
+          hint: "Sets how the pressure reading is used. Vacuum ignores it.",
+          optionHints: {
+            "Pressurised": "Held at about sea-level pressure (~101 kPa, 14.7 psia) with Earth-like air (~21% O₂), as on the ISS.",
+            "Partially pressurised": "Held below sea-level pressure on purpose, e.g. ~56.5 kPa (8.2 psia) with ~34% O₂ in exploration habitats " +
+              "to shorten spacewalk prep. Less total oxygen, but the higher O₂ share helps materials burn.",
+            "Vacuum": "Open to space: pressure is near zero, so the pressure value is ignored. With no oxygen, nothing can burn, " +
+              "but materials can still overheat and outgas.",
+          } },
         { id: "gravity", label: "Gravity condition", type: "choice", options: ["Microgravity (~0 g)", "Lunar (0.17 g)", "Martian (0.38 g)", "Earth (1 g)"],
           hint: "Microgravity changes how a flame gets oxygen. All loaded NASA tests are in microgravity." },
         { id: "internal_temp_c", label: "Internal temperature", type: "number", units: "temperature", min: -273.15, max: 2000,
           hint: "Shown against plume temperatures from the Saffire-I burn." },
         { id: "pressure_kpa", label: "Internal pressure", type: "number", units: "pressure", min: 0, max: 1000,
-          hint: "Used with O₂ for partial pressure and to find similar ACME tests." },
+          hint: "Used with O₂ for partial pressure and to find similar ACME tests. Ignored in a vacuum." },
       ],
     },
     {
@@ -117,9 +125,9 @@
       id: "materials",
       title: "Combustible materials (solids)",
       fields: [
-        { id: "material_type", label: "Material type", type: "choice", options: materials,
-          hint: "Finds SAME-R smoke tests and BASS / BASS-II burn tests for this material." },
-        { id: "material_distance_m", label: "Material distance from ignition sources", type: "number", units: "length", min: 0, max: 1000,
+        { id: "material_types", label: "Materials present", type: "multi", options: materials,
+          hint: "Tick every material nearby. Finds SAME-R smoke tests and BASS / BASS-II burns, and is compared with live readings to suggest what could be burning." },
+        { id: "material_distance_m", label: "Closest material's distance from ignition sources", type: "number", units: "length", min: 0, max: 1000,
           hint: "Flagged when closer than the minimum separation in parameters.js." },
       ],
     },
@@ -146,14 +154,96 @@
     min_ignition_distance_m: 1.0,
     // Number of nearest ACME test points to compare against.
     acme_neighbours: 10,
+    // Live monitoring: change detection between timed readings.
+    // PLACEHOLDERS, not validated detection thresholds: tune them with real
+    // sensor data for your cabin volume, ventilation and sensor noise.
+    // Rises are per monitoring interval (rates are scaled to interval_min).
+    monitoring: {
+      interval_min: 5,                // expected time between readings
+      stale_after_intervals: 2,       // flag a gap after this many missed intervals
+      co_rise_ppm: { warning: 5, serious: 20 },
+      co2_rise_ppm: 300,
+      o2_drop_pct: 0.2,
+      o2_rise_pct: 0.5,               // possible oxidizer leak
+      temp_rise_c: { warning: 2, serious: 10 },
+      lfl_share_rise: 0.05,           // H₂ / CH₄ rise as a share of the LFL
+      max_readings: 500,
+    },
   };
 
-  // Example input, roughly an ISS-like cabin. Used by the "Load example" button.
-  window.EXAMPLE_INPUT = {
+  // How each material typically behaves when heated (general fire-science
+  // knowledge, NOT from the loaded NASA data), used to suggest which listed
+  // material could be burning:
+  //   smoulders - can burn slowly without flame (cellulose, foams), giving CO and smoke first
+  //   flames    - melts or vaporises and burns with a flame (thermoplastics, wax)
+  //   chars     - high-temperature polymer: hard to ignite, chars and smokes when overheated
+  //   resists   - barely burns in normal air; overheating gives fumes rather than CO
+  // The BASS-II CO/CO₂ ratios used alongside this are measured (data/reference-data.js).
+
+  // What each material or fuel can release when it overheats or burns.
+  // This is general combustion chemistry inferred from what each material is
+  // made of (elements present), NOT measured in the loaded NASA data. Actual
+  // amounts depend on temperature, oxygen and airflow. Review before relying on it.
+  //   level: how the assessment flags it ("serious", "warning" or "info")
+  //   products: [name, why it matters]
+  const ORGANIC = ["Carbon monoxide (CO)", "Toxic; binds to blood haemoglobin. Produced by incomplete burning and smouldering."];
+  const CO2 = ["Carbon dioxide (CO₂)", "Builds up in a closed cabin; raises breathing rate."];
+  const HCN = ["Hydrogen cyanide (HCN)", "Highly toxic; can form when nitrogen-containing materials burn or decompose."];
+  window.SMOKE_PRODUCTS = {
+    materials: {
+      "Kapton": { makeup: "polyimide film (carbon, hydrogen, nitrogen, oxygen)", level: "warning", behaviour: "chars",
+        products: [ORGANIC, HCN, ["Nitrogen oxides (NOx)", "Respiratory irritants."], ["Dense smoke particles", "Obscure vision and carry adsorbed toxins."]] },
+      "Nomex": { makeup: "aramid fabric (carbon, hydrogen, nitrogen, oxygen)", level: "warning", behaviour: "chars",
+        products: [ORGANIC, HCN, ["Smoke particles", "Irritant; carry adsorbed toxins."]] },
+      "Ultem": { makeup: "polyetherimide (carbon, hydrogen, nitrogen, oxygen)", level: "warning", behaviour: "chars",
+        products: [ORGANIC, HCN, ["Smoke particles", "Irritant; carry adsorbed toxins."]] },
+      "Pyrell": { makeup: "flame-retardant polyurethane foam (carbon, hydrogen, nitrogen, oxygen)", level: "warning", behaviour: "smoulders",
+        products: [ORGANIC, HCN, ["Isocyanate vapours", "Strong respiratory irritants from decomposing polyurethane."], ["Dense smoke particles", "Foams smoulder and smoke heavily."]] },
+      "Teflon": { makeup: "PTFE fluoropolymer (carbon, fluorine)", level: "serious", behaviour: "resists",
+        products: [["Hydrogen fluoride (HF)", "Highly toxic and corrosive; forms from fluorinated decomposition products and moisture."],
+          ["Carbonyl fluoride (COF₂)", "Toxic gas from overheated PTFE."],
+          ["Fluorinated fume particles", "Overheated PTFE fume causes 'polymer fume fever'."]] },
+      "PMMA (acrylic)": { makeup: "acrylic plastic (carbon, hydrogen, oxygen)", level: "info", behaviour: "flames",
+        products: [ORGANIC, CO2, ["Methyl methacrylate vapour", "Irritant monomer released as PMMA decomposes."]] },
+      "SIBAL fabric (cotton-fiberglass)": { makeup: "cotton (cellulose) with fiberglass", level: "info", behaviour: "smoulders",
+        products: [ORGANIC, CO2, ["Smoke particles", "Cotton smoulders and smokes; fiberglass doesn't burn."]] },
+      "Lampwick": { makeup: "cotton (cellulose)", level: "info", behaviour: "smoulders",
+        products: [ORGANIC, CO2, ["Smoke particles", "Cotton smoulders and smokes."]] },
+      "Silicone": { makeup: "silicone polymer (silicon, oxygen, carbon, hydrogen)", level: "info", behaviour: "resists",
+        products: [ORGANIC, CO2, ["Silica (SiO₂) particles", "Fine white smoke; irritant if inhaled."]] },
+      "Wax (candle or slab)": { makeup: "paraffin or plant wax (carbon, hydrogen, oxygen)", level: "info", behaviour: "flames",
+        products: [ORGANIC, CO2, ["Soot", "Wax flames are sooty; soot coats surfaces and sensors."]] },
+    },
+    // Hydrocarbon gas fuels (all in the fuel list): same products whatever the gas.
+    fuel: { makeup: "hydrocarbon gas (carbon, hydrogen)", level: "info",
+      products: [ORGANIC, CO2, ["Soot", "Forms when the flame is short of oxygen; SPICE studied when these flames start to smoke."]] },
+  };
+
+  // Example inputs for testing, picked with "Load example". Illustrative values,
+  // not measurements. The first is the default.
+  const ISS_CABIN = {
     environment: "Pressurised", gravity: "Microgravity (~0 g)", internal_temp_c: 22.5, pressure_kpa: 101.3,
-    o2_pct: 21.5, n2_pct: 76.3, humidity_pct: 45, co2_ppm: 3000, h2_ppm: 20, ch4_ppm: 5, co_ppm: 2,
+    o2_pct: 21.5, n2_pct: 76.3, humidity_pct: 45, co2_ppm: 6500, h2_ppm: 4500, ch4_ppm: 5, co_ppm: 45,
     monitoring: "Nominal", oxidizer_leak: "None detected",
     fuel_type: "Propane", fuel_storage: "Sealed cylinder", fuel_leak: "None detected", fuel_distance_m: 2.0,
-    material_type: "Kapton", material_distance_m: 0.4,
+    material_types: ["Kapton", "PMMA (acrylic)", "SIBAL fabric (cotton-fiberglass)"], material_distance_m: 0.4,
   };
+  window.EXAMPLE_INPUTS = [
+    { id: "iss", label: "ISS-like cabin", values: ISS_CABIN },
+    { id: "habitat", label: "Exploration habitat (8.2 psia, 34% O₂)", values: {
+      environment: "Partially pressurised", gravity: "Lunar (0.17 g)", internal_temp_c: 22, pressure_kpa: 56.5,
+      o2_pct: 34, n2_pct: 64.6, humidity_pct: 40, co2_ppm: 9000, h2_ppm: 1, ch4_ppm: 6000, co_ppm: 80,
+      monitoring: "Unknown", oxidizer_leak: "Unknown",
+      fuel_type: "Methane", fuel_storage: "Open / vented", fuel_leak: "Suspected", fuel_distance_m: 0.5,
+      material_types: ["Nomex", "Pyrell", "Lampwick", "Wax (candle or slab)"], material_distance_m: 0.3,
+    } },
+    { id: "leak", label: "Fuel and oxygen leaks, monitoring degraded", values: {
+      environment: "Pressurised", gravity: "Microgravity (~0 g)", internal_temp_c: 24, pressure_kpa: 101.3,
+      o2_pct: 25.5, n2_pct: 71, humidity_pct: 55, co2_ppm: 32000, h2_ppm: 12000, ch4_ppm: 3, co_ppm: 250,
+      monitoring: "Degraded", oxidizer_leak: "Confirmed",
+      fuel_type: "Methane", fuel_storage: "Plumbed line (in use)", fuel_leak: "Confirmed", fuel_distance_m: 0.2,
+      material_types: ["Teflon", "Silicone", "Ultem"], material_distance_m: 0.2,
+    } },
+  ];
+  window.EXAMPLE_INPUT = ISS_CABIN;
 })();

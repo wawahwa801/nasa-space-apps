@@ -42,4 +42,4 @@ BASS (first experiment), ISS, 2012–2013. Columns: Date (a few typos, e.g. 6/29
 The build script groups both files' materials into categories (PMMA, SIBAL fabric, Nomex, Ultem, wax).
 
 ## Gaps
-No liquid fuels, no gravity other than microgravity, and no recorded ignition/extinction outcomes for solids (BASS-II gives the O₂ levels flames were studied at). CO/CO₂ during fires come only from BASS-II chamber readings. Source records and licenses for the BASS files still need checking (see README.md).
+No liquid fuels, no gravity other than microgravity, and no recorded ignition/extinction outcomes for solids (BASS-II gives the O₂ levels flames were studied at). CO/CO₂ during fires come only from BASS-II chamber readings. BASS-II is PSI-25 (CC0-1.0); the PSI-26/BASS record and license still need checking (see README.md).

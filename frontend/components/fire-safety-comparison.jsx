@@ -13,6 +13,7 @@ const SCRIPTS = [
   "data/reference-data.js",
   "js/parameters.js",
   "js/charts.js",
+  "js/monitoring.js",
   "js/app.js",
 ];
 
@@ -76,6 +77,7 @@ export function FireSafetyComparison({ inputs, onDefinitions, onGotoField, onLoa
           sections: window.PARAMETER_SECTIONS,
           units: window.UNIT_SYSTEMS,
           example: window.EXAMPLE_INPUT,
+          examples: window.EXAMPLE_INPUTS || [],
         });
 
         const host = hostRef.current;

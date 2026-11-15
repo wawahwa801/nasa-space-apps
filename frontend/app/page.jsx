@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
 import { HybridSimulation } from "../components/hybrid-simulation";
@@ -9,7 +9,9 @@ import {
   NASA_DEFAULTS,
   NasaParameterFields,
   SHARED_FIELDS,
+  VACUUM_NOTE,
   convertRaw,
+  isVacuum,
   nasaInputsFromRaw,
   rawFromBase,
 } from "../components/nasa-parameter-fields";
@@ -108,7 +110,7 @@ function Symbol({ name, ...props }) {
   );
 }
 
-function Slider({ name, label, suffix, min, max, step, value, onChange, units, onUnitChange }) {
+function Slider({ name, label, suffix, min, max, step, value, onChange, units, onUnitChange, disabled = false, note = "" }) {
   const [draft, setDraft] = useState(String(value));
   useEffect(() => setDraft(String(value)), [value]);
   // Keep at least as many decimals as the step needs (e.g. atm or psia steps).
@@ -116,10 +118,10 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
   const change = (v) =>
     onChange(Number(Math.min(max, Math.max(min, v)).toFixed(decimals)));
   return (
-    <div className="slider-field">
+    <div className={`slider-field${disabled ? " is-disabled" : ""}`}>
       <div>
         <label htmlFor={name}>{label}</label>
-        <span className="editable-value"><input aria-label={`${label} value`} type="number" required min={min} max={max} step={units ? "any" : step} value={draft} onChange={e => {setDraft(e.target.value); const n=e.target.valueAsNumber; if(Number.isFinite(n) && n>=min && n<=max) onChange(n);}} onBlur={() => {const n=Number(draft); if(draft.trim() && Number.isFinite(n)) {const bounded=Number(Math.min(max,Math.max(min,n)).toFixed(decimals));onChange(bounded);setDraft(String(bounded));} else setDraft(String(value));}}/>{units ? (<select className="slider-unit" aria-label={`${label} unit`} value={suffix} onChange={(e) => onUnitChange(e.target.value)}>{units.map((u) => <option key={u.unit}>{u.unit}</option>)}</select>) : <span>{suffix}</span>}</span>
+        <span className="editable-value"><input aria-label={`${label} value`} disabled={disabled} aria-describedby={note ? `${name}-note` : undefined} type="number" required min={min} max={max} step={units ? "any" : step} value={draft} onChange={e => {setDraft(e.target.value); const n=e.target.valueAsNumber; if(Number.isFinite(n) && n>=min && n<=max) onChange(n);}} onBlur={() => {const n=Number(draft); if(draft.trim() && Number.isFinite(n)) {const bounded=Number(Math.min(max,Math.max(min,n)).toFixed(decimals));onChange(bounded);setDraft(String(bounded));} else setDraft(String(value));}}/>{units ? (<select className="slider-unit" disabled={disabled} aria-label={`${label} unit`} value={suffix} onChange={(e) => onUnitChange(e.target.value)}>{units.map((u) => <option key={u.unit}>{u.unit}</option>)}</select>) : <span>{suffix}</span>}</span>
       </div>
       <input
         id={name}
@@ -128,6 +130,8 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
         max={max}
         step={step}
         value={value}
+        disabled={disabled}
+        aria-describedby={note ? `${name}-note` : undefined}
         aria-valuetext={`${value} ${suffix}`}
         onChange={(e) => change(Number(e.target.value))}
       />
@@ -136,7 +140,7 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
         <button
           type="button"
           aria-label={`Decrease ${label}`}
-          disabled={value <= min}
+          disabled={disabled || value <= min}
           onClick={() => change(Number(value) - step)}
         >
           −
@@ -144,7 +148,7 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
         <button
           type="button"
           aria-label={`Increase ${label}`}
-          disabled={value >= max}
+          disabled={disabled || value >= max}
           onClick={() => change(Number(value) + step)}
         >
           +
@@ -153,26 +157,25 @@ function Slider({ name, label, suffix, min, max, step, value, onChange, units, o
           {Number(Number(max).toPrecision(5))} {suffix}
         </span>
       </div>
+      {note && (
+        <small className="slider-note" id={`${name}-note`}>
+          {note}
+        </small>
+      )}
     </div>
   );
 }
 
 export default function Home() {
-  const [chatOpen, setChatOpen] = useState(false);
   const [parametersOpen, setParametersOpen] = useState(false);
-  const [mobile, setMobile] = useState(false);
-  const chatRef = useRef(null),
-    chatTrigger = useRef(null);
   useEffect(() => {
     const media = matchMedia("(min-width: 721px)");
     const wideMedia = matchMedia("(min-width: 1200px)");
     const sync = () => {
-      setMobile(!media.matches);
-      if (!media.matches) { setParametersOpen(false); setChatOpen(false); }
+      if (!media.matches) setParametersOpen(false);
     };
     const syncPanels = () => {
       setParametersOpen(wideMedia.matches);
-      setChatOpen(false);
     };
     sync();
     syncPanels();
@@ -183,34 +186,6 @@ export default function Home() {
       wideMedia.removeEventListener("change", syncPanels);
     };
   }, []);
-  useEffect(() => {
-    if (chatOpen && mobile) chatRef.current?.focus();
-  }, [chatOpen, mobile]);
-  function closeChat() {
-    setChatOpen(false);
-    chatTrigger.current?.focus();
-  }
-  function handleChatKey(e) {
-    if (e.key === "Escape") closeChat();
-    if (e.key === "Tab" && mobile) {
-      const nodes = chatRef.current.querySelectorAll(
-        "button:not(:disabled),textarea,a[href]",
-      );
-      const first = nodes[0],
-        last = nodes[nodes.length - 1];
-      if (
-        e.shiftKey &&
-        (document.activeElement === first ||
-          document.activeElement === chatRef.current)
-      ) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }
   const [values, setValues] = useState(defaults);
   // NASA comparison inputs that the flame simulation doesn't have (raw text in
   // the chosen unit), their units, and the field definitions from fire-dashboard.
@@ -223,6 +198,8 @@ export default function Home() {
     () => ({
       ...nasaInputsFromRaw(nasaDefs, nasaRaw, nasaUnits),
       ...sharedNasaInputs(values),
+      // A vacuum has near-zero pressure: the slider value is ignored.
+      ...(isVacuum(nasaRaw) ? { pressure_kpa: null } : {}),
     }),
     [nasaDefs, nasaRaw, nasaUnits, values],
   );
@@ -232,8 +209,6 @@ export default function Home() {
   const [view, setView] = useState("flame");
   const [retrievalSession, setRetrievalSession] = useState(0);
   const [appliedHybrid, setAppliedHybrid] = useState(null);
-  const [prompt, setPrompt] = useState("");
-  const [messages, setMessages] = useState([]);
   const [paused, setPaused] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [animationKey, setAnimationKey] = useState(0);
@@ -255,10 +230,14 @@ export default function Home() {
         : Object.fromEntries(Object.entries(NASA_DEFAULTS).map(([k, v]) => [k, String(v)])),
     );
   }
-  // Fill both the shared values and the NASA-only inputs from the dashboard's example.
-  function loadNasaExample() {
+  // Fill both the shared values and the NASA-only inputs from one of the
+  // dashboard's examples (the default one when no id is given).
+  function loadNasaExample(id) {
     if (!nasaDefs) return;
-    const ex = nasaDefs.example;
+    const ex = (typeof id === "string" && nasaDefs.examples?.find((x) => x.id === id)?.values) || nasaDefs.example;
+    // "Lunar (0.17 g)" -> 0.17; microgravity -> 0.
+    const g = String(ex.gravity || "");
+    const gravity = g.startsWith("Microgravity") ? 0 : Number((g.match(/([\d.]+)\s*g/) || [])[1]);
     setValues((v) => ({
       ...v,
       oxygen: ex.o2_pct,
@@ -266,7 +245,7 @@ export default function Home() {
       temperature: ex.internal_temp_c,
       co2: Number((ex.co2_ppm / 10000).toFixed(4)),
       humidity: ex.humidity_pct ?? v.humidity,
-      gravity: String(ex.gravity).startsWith("Microgravity") ? 0 : v.gravity,
+      gravity: Number.isFinite(gravity) ? gravity : v.gravity,
     }));
     setNasaRaw(rawFromBase(nasaDefs, ex, nasaUnits));
     setSnapshot(null);
@@ -295,10 +274,6 @@ export default function Home() {
     const next = { ...values };
     setSnapshot(next);
     setError("");
-    if (event.nativeEvent.submitter?.value === "send" && prompt.trim()) {
-      setMessages((old) => [...old, { text: prompt.trim(), parameters: next }]);
-      setPrompt("");
-    }
   }
   const nav = [
     ["flame", "Flame simulation", "flame"],
@@ -306,7 +281,7 @@ export default function Home() {
   ];
   function changeView(next) {
     setView(next);
-    if(next === "insights") {setParametersOpen(false);setChatOpen(false);}
+    if(next === "insights") {setParametersOpen(false);}
     window.scrollTo({ top: 0, behavior: "instant" });
     if (next === "flame") requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
   }
@@ -320,7 +295,7 @@ export default function Home() {
     document.getElementById(`${nav[next][0]}-tab`)?.focus();
   }
   return (
-    <div className={`app-shell ${chatOpen ? "chat-open" : ""} ${parametersOpen ? "controls-open" : ""}`}>
+    <div className={`app-shell ${parametersOpen ? "controls-open" : ""}`}>
       <div className="workspace-shell" id="workspace">
         <header className="topbar">
           <a className="brand" href="#workspace">
@@ -337,8 +312,6 @@ export default function Home() {
             aria-label="New scenario"
             onClick={() => {
               reset();
-              setMessages([]);
-              setPrompt("");
               setPaused(false);
               setRetrievalSession(n => n + 1);
             }}
@@ -352,16 +325,6 @@ export default function Home() {
             NASA data
           </a>
           <button className="panel-toggle" hidden={view === "insights"} aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
-          <button
-            ref={chatTrigger}
-            className="chat-toggle"
-            hidden={view === "insights"}
-            aria-expanded={chatOpen}
-            aria-controls="chat-panel"
-            onClick={() => (chatOpen ? closeChat() : setChatOpen(true))}
-          >
-            Scenario chat
-          </button>
           <span>
             Ember <span className="header-divider">/</span>{" "}
             <b>{nav.find(([key]) => key === view)[1]}</b>
@@ -372,13 +335,6 @@ export default function Home() {
           </a>
         </header>
         <div className="content-grid dashboard-tab-panel" id="flame-panel" role="tabpanel" aria-labelledby="flame-tab" hidden={view !== "flame"}>
-          {chatOpen && mobile && (
-            <button
-              className="chat-backdrop"
-              aria-label="Dismiss chat"
-              onClick={closeChat}
-            />
-          )}
           <main className="conversation">
             <div
               className={`simulation-grid ${view !== "workspace" ? "single-view" : ""}`}
@@ -397,7 +353,7 @@ export default function Home() {
                     </div>
                     <span className="preview-badge">Preview</span>
                   </div>
-                  <HybridSimulation key={retrievalSession} onResult={setAppliedHybrid} onStarted={() => {setParametersOpen(false);setChatOpen(false);}} />
+                  <HybridSimulation key={retrievalSession} onResult={setAppliedHybrid} onStarted={() => {setParametersOpen(false);}} />
                   <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
                     <svg className="ember-particles" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                       <defs><radialGradient id="particle-glow"><stop stopColor="#f35b25" stopOpacity=".28" /><stop offset="1" stopColor="#f35b25" stopOpacity="0" /></radialGradient></defs>
@@ -494,6 +450,21 @@ export default function Home() {
                 ? "Parameters applied"
                 : "Adjust parameters to configure your scenario"}
             </div>
+          {/* One triangle tab: on the panel's right edge (◀ hides it), or on the
+              screen's left edge when hidden (▶ shows it). */}
+          {view === "flame" && (
+            <button
+              type="button"
+              className={`parameters-tab ${parametersOpen ? "is-open" : ""}`}
+              aria-controls="parameters"
+              aria-expanded={parametersOpen}
+              aria-label={parametersOpen ? "Hide parameters" : "Show parameters"}
+              title={parametersOpen ? "Hide parameters" : "Show parameters"}
+              onClick={() => setParametersOpen((open) => !open)}
+            >
+              <span className="parameters-tab-arrow" aria-hidden="true">{parametersOpen ? "◀" : "▶"}</span>
+            </button>
+          )}
           <section
             className={`parameter-panel ${parametersOpen ? "parameters-open" : ""}`}
             id="parameters"
@@ -505,7 +476,6 @@ export default function Home() {
                 <h2 id="parameters-heading">Parameters</h2>
 
               </div>
-              <button type="button" className="parameters-close" onClick={() => setParametersOpen(false)} aria-label="Close parameters">×</button>
             </div>
             <div id="hybrid-controls" />
             <form id="scenario-form" onSubmit={preview}>
@@ -533,6 +503,8 @@ export default function Home() {
                         step={u ? tidyNumber(Math.abs(u.fromBase(min + step) - u.fromBase(min))) : step}
                         value={values[key] === "" ? "" : show(Number(values[key]))}
                         units={SLIDER_UNITS[key]}
+                        disabled={key === "pressure" && isVacuum(nasaRaw)}
+                        note={key === "pressure" && isVacuum(nasaRaw) ? VACUUM_NOTE : ""}
                         onUnitChange={(next) => setSliderUnits((s) => ({ ...s, [key]: next }))}
                         onChange={(v) => update(key, u ? tidyNumber(u.toBase(v)) : v)}
                       />
@@ -655,14 +627,18 @@ export default function Home() {
                 >
                   Edit parameters
                 </button>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={loadNasaExample}
+                <select
+                  className="text-button example-select"
+                  aria-label="Load an example scenario"
+                  value=""
                   disabled={!nasaDefs}
+                  onChange={(e) => e.target.value && loadNasaExample(e.target.value)}
                 >
-                  Load example
-                </button>
+                  <option value="">Load example…</option>
+                  {(nasaDefs?.examples || []).map((x) => (
+                    <option key={x.id} value={x.id}>{x.label}</option>
+                  ))}
+                </select>
                 <button
                   type="button"
                   className="text-button"
@@ -676,95 +652,10 @@ export default function Home() {
               inputs={dashboardInputs}
               onDefinitions={setNasaDefs}
               onGotoField={gotoNasaField}
-              onLoadExample={loadNasaExample}
+              onLoadExample={() => loadNasaExample()}
             />
           </section>
           </main>
-          <aside
-            className="chat-panel"
-            id="chat-panel"
-            hidden={!chatOpen}
-            ref={chatRef}
-            tabIndex={-1}
-            role={mobile ? "dialog" : undefined}
-            aria-modal={mobile || undefined}
-            aria-label="Scenario chat"
-            onKeyDown={handleChatKey}
-          >
-            <div className="chat-heading">
-              <h2>Experiment assistant</h2>
-              <button onClick={closeChat} aria-label="Close chat">
-                ×
-              </button>
-            </div>{" "}
-            <div className="chat-summary"><span>CURRENT INPUTS</span><p>{values.oxygen}% O₂ · {values.pressure} kPa · {values.gravity} g</p><small>Notes are saved locally for this session. AI explanations are not connected.</small></div>
-            <section
-              className="conversation-log"
-              aria-label="Scenario conversation"
-              aria-live="polite"
-            >
-              {messages.length === 0 ? (
-                <div className="conversation-intro">
-                  <span className="assistant-mark">e.</span>
-                  <div>
-                    <h2>Scenario notes</h2>
-                    <p>
-                      Save experiment observations with the current parameter values.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                messages.map((message, index) => (
-                  <article className="conversation-turn" key={index}>
-                    <div className="user-message">{message.text}</div>
-                    <div className="assistant-message">
-                      <span className="assistant-mark">e.</span>
-                      <div>
-                        <p>
-                          Saved · {message.parameters.oxygen}%
-                          oxygen, {message.parameters.pressure} kPa pressure,{" "}
-                          {message.parameters.flow} m/s airflow and{" "}
-                          {message.parameters.gravity} g gravity.
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                ))
-              )}
-            </section>
-            <div className="composer-area">
-              <div className="composer">
-                <label className="sr-only" htmlFor="scenario-prompt">
-                  Describe your scenario
-                </label>
-                <textarea
-                  id="scenario-prompt"
-                  form="scenario-form"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Add a scenario note…"
-                  maxLength={2000}
-                  rows={2}
-                />
-                <div className="composer-toolbar">
-                  <button type="button" className="chat-parameters-link" onClick={() => { setParametersOpen(true); if (mobile) closeChat(); }}><Symbol name="sliders" /> Parameters</button>
-                  <button
-                    type="submit"
-                    form="scenario-form"
-                    value="send"
-                    className="send-button"
-                    aria-label="Save scenario note"
-                    disabled={!prompt.trim()}
-                  >
-                    <Symbol name="arrow" />
-                  </button>
-                </div>
-              </div>
-              <p className="composer-disclaimer">
-                Model not connected · Notes only.
-              </p>
-            </div>
-          </aside>{" "}
 
         </div>
         <main className="dashboard-tab-panel retrieval-tab-panel" id="insights-panel" role="tabpanel" aria-labelledby="insights-tab" hidden={view !== "insights"}>

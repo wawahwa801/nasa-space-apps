@@ -20,6 +20,7 @@
     <aside class="panel inputs" id="inputs" aria-label="Inputs">
       <div class="toolbar">
         <button type="button" id="load-example">Load example</button>
+        <select id="example-pick" aria-label="Example to load"></select>
         <button type="button" id="export" class="secondary">Export</button>
         <label class="file-btn secondary">Import<input id="import-file" type="file" accept=".json,application/json"></label>
         <button type="button" id="clear-inputs" class="secondary">Clear</button>
@@ -31,21 +32,116 @@
     </aside>
 
     <section class="dashboard" id="results" aria-label="Dashboard">
-      <div id="summary" class="tiles"></div>
+      <div id="summary" class="tiles" data-panel="summary" data-title="Summary tiles" data-group="now"></div>
+
+      <div class="view-bar" id="view-bar">
+        <details class="menu view-menu" id="view-menu">
+          <summary class="menu-btn">Sections <span id="view-hidden-count" class="muted"></span></summary>
+          <div class="menu-body" id="view-menu-body"></div>
+        </details>
+        <button type="button" class="link-btn" data-view="expand">Expand all</button>
+        <button type="button" class="link-btn" data-view="collapse">Collapse all</button>
+      </div>
+
+      <p class="group-title" data-group-title="now">Current conditions</p>
+
+      <article class="card" data-panel="monitor" data-title="Live monitoring" data-group="now" id="monitor-card">
+        <div class="card-head">
+          <div>
+            <h2>Live monitoring</h2>
+            <p class="card-sub">Compares readings over time to spot a fire starting or smoke building up. Record one every <span id="mon-interval-text">5</span> minutes.</p>
+          </div>
+          <div id="mon-status" class="mon-status card-status"></div>
+        </div>
+        <div class="mon-toolbar">
+          <button type="button" id="mon-record-now">Record reading now</button>
+          <button type="button" id="mon-record-next" class="secondary">Record next (+5 min)</button>
+          <details class="menu" id="mon-demo-menu">
+            <summary class="menu-btn" id="mon-demo">Play demo</summary>
+            <div class="menu-body" id="mon-demo-list"></div>
+          </details>
+          <details class="menu">
+            <summary class="menu-btn">More</summary>
+            <div class="menu-body">
+              <label class="file-btn secondary">Import readings CSV<input id="mon-import" type="file" accept=".csv,text/csv"></label>
+              <button type="button" id="mon-clear" class="secondary">Clear readings</button>
+            </div>
+          </details>
+          <label class="filter">Interval <select id="mon-interval"><option value="1">1 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option></select></label>
+        </div>
+        <p id="mon-note" class="hint" role="status">A reading saves the current CO, CO₂, O₂, temperature, humidity, H₂, CH₄ and pressure values.</p>
+        <ul id="mon-events" class="flags"></ul>
+        <section id="mon-suspects" class="mon-suspects" aria-live="polite" hidden></section>
+        <div id="mon-charts" class="minis"></div>
+        <details class="table-view"><summary>Readings (<span id="mon-count">0</span>)</summary><div id="mon-table" class="table-wrap"></div></details>
+        <details class="about"><summary>About live monitoring</summary><p class="source-note" id="mon-source">Each reading is compared with earlier ones. The rise thresholds are placeholders in <code>js/parameters.js</code> (<code>THRESHOLDS.monitoring</code>), not validated detection limits; tune them with real sensor data. The demo sequence is synthetic. CSV columns: a time column (date/time or minutes from start) plus any of CO, CO₂, O₂, temperature, humidity, H₂, CH₄, pressure.</p></details>
+      </article>
 
       <div class="grid-2">
-        <article class="card">
+        <article class="card" data-panel="assessment" data-title="Assessment" data-group="now">
           <h2>Assessment</h2>
           <ul id="flags" class="flags"></ul>
         </article>
-        <article class="card">
+        <article class="card" data-panel="gas" data-title="Gas levels" data-group="now">
           <h2>Gas levels</h2>
           <p class="card-sub">Each bar fills toward the limit it is measured against.</p>
           <div id="meters" class="meters"></div>
         </article>
       </div>
 
-      <article class="card" id="composition-card">
+      <article class="card" data-panel="notes" data-title="Notes and uncertainty" data-group="now" id="notes-card">
+        <div class="card-head">
+          <div>
+            <h2>Notes and uncertainty</h2>
+            <p class="card-sub">Context for the assessment, and what the dashboard does not know. Missing data is not evidence of safety.</p>
+          </div>
+          <div id="notes-count" class="card-status"></div>
+        </div>
+        <ul id="notes" class="flags"></ul>
+      </article>
+
+      <article class="card" data-panel="insight" data-title="Safety insight (AI)" data-group="now" id="insight-card">
+        <div class="card-head">
+          <div>
+            <h2>Safety insight <span class="ai-tag">AI</span></h2>
+            <p class="card-sub">Dots3-Note Preview reads the safety report on this page and explains it in plain language: the main concerns, what to check and what data is missing.</p>
+          </div>
+          <div class="insight-actions">
+            <button type="button" id="insight-run">Generate insight</button>
+          </div>
+        </div>
+        <p id="insight-status" class="hint" role="status"></p>
+        <p id="insight-stale" class="insight-stale" hidden>The inputs or readings have changed since this insight was generated. Generate it again to update it.</p>
+        <div id="insight-body" class="insight-body" aria-live="polite"><p class="muted">Generate an insight to get a plain-language reading of the current report. It is only created when you ask, not on every change.</p></div>
+        <details class="about"><summary>What is sent, and limits</summary><p class="source-note">Sends the current report (inputs, assessment, smoke status and live monitoring) through the project backend to OpenRouter's free Dots3-Note Preview model. Free models may log prompts, so don't enter anything confidential. AI text can be wrong: the rule-based assessment below is the dashboard's result, and any fire indication must be verified with crew procedures.</p></details>
+      </article>
+
+      <article class="card" data-panel="smoke" data-title="Smoke and soot hazards" data-group="now" id="smoke-card">
+        <div class="card-head">
+          <div>
+            <h2>Smoke and soot hazards</h2>
+            <p class="card-sub">In a closed cabin, smoke and toxic gases can harm crew even when a fire stays small, and overheating materials can smoke without ever flaming.</p>
+          </div>
+          <div id="smoke-level" class="card-status"></div>
+        </div>
+        <div class="smoke-grid">
+          <section>
+            <h3>Your readings</h3>
+            <ul id="smoke-readings" class="smoke-list"></ul>
+          </section>
+          <section id="smoke-products-section" hidden>
+            <h3 id="smoke-products-title">What the smoke can contain</h3>
+            <ul id="smoke-products" class="smoke-list"></ul>
+            <p class="source-note">General combustion chemistry from what each material is made of, not measured in the loaded data. Amounts depend on temperature, oxygen and airflow.</p>
+          </section>
+        </div>
+        <h3>CO produced during BASS-II burns (measured)</h3>
+        <p class="card-sub">Largest rise in chamber carbon monoxide during a single test, by material. Hover a bar for the typical rise and CO₂.</p>
+        <div id="smoke-chart" class="chart"></div>
+        <ul id="smoke-notes" class="related"></ul>
+      </article>
+
+      <article class="card" data-panel="composition" data-title="Air composition" data-group="now" id="composition-card">
         <div class="card-head">
           <div>
             <h2>Air composition</h2>
@@ -62,7 +158,9 @@
         </div>
       </article>
 
-      <article class="card">
+      <p class="group-title" data-group-title="nasa">Compared with NASA experiments</p>
+
+      <article class="card" data-panel="acme" data-title="ACME ignition tests" data-group="nasa">
         <div class="card-head">
           <div>
             <h2>Your atmosphere vs ACME ignition tests</h2>
@@ -79,7 +177,7 @@
         <details class="table-view"><summary>Show data table <span class="muted">(rows closest to your input are highlighted)</span></summary><div id="acme-table" class="table-wrap"></div></details>
       </article>
 
-      <article class="card" id="bass-card">
+      <article class="card" data-panel="bass" data-title="BASS-II solid materials" data-group="nasa" id="bass-card">
         <h2>Solid materials burned on the ISS (BASS-II)</h2>
         <p class="card-sub" id="bass-caption"></p>
         <div id="bass-chart" class="chart"></div>
@@ -87,18 +185,18 @@
         <details class="table-view"><summary>Show data table <span class="muted">(rows for your material are highlighted)</span></summary><div id="bass-table" class="table-wrap"></div></details>
       </article>
 
-      <article class="card">
+      <article class="card" data-panel="saffire" data-title="Saffire-I burn" data-group="nasa">
         <h2>Saffire-I sample 2: conditions during a large-scale burn</h2>
         <p class="card-sub">Sensor readings over the test, with your values drawn as a horizontal line for comparison.</p>
         <div id="saffire-charts" class="minis"></div>
       </article>
 
-      <article class="card">
+      <article class="card" data-panel="related" data-title="Related NASA tests" data-group="nasa">
         <h2>Related NASA tests for your fuel and material</h2>
         <ul id="related" class="related"></ul>
       </article>
 
-      <article class="card">
+      <article class="card" data-panel="datasets" data-title="Data sets" data-group="nasa">
         <div class="card-head">
           <div>
             <h2>Data sets</h2>
@@ -120,6 +218,7 @@
   <script src="data/reference-data.js"></script>
   <script src="js/parameters.js"></script>
   <script src="js/charts.js"></script>
+  <script src="js/monitoring.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

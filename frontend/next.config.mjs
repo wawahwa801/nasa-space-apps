@@ -1,7 +1,8 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  async rewrites() {
-    return [{source:'/insight-api/:path*',destination:'http://127.0.0.1:5000/api/:path*'}, { source: '/hybrid/:path*', destination: 'http://127.0.0.1:5055/api/:path*' }];
-  },
+const backend = process.env.BACKEND_URL || 'http://127.0.0.1:5000';
+export default {
+ async rewrites(){return [
+ {source:'/api/:path*',destination:`${backend}/api/:path*`},
+ {source:'/insight-api/:path*',destination:`${backend}/api/:path*`},
+ {source:'/hybrid/:path*',destination:'http://127.0.0.1:5055/api/:path*'}];},
+ experimental:{proxyTimeout:180000}
 };
-export default nextConfig;

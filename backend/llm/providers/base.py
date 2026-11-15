@@ -29,6 +29,10 @@ class LLMRequest:
     model: str | None = None
     max_output_tokens: int = 1024
     timeout_seconds: float = 60.0
+    # Ask for a JSON object (providers that support it enforce the format).
+    json_output: bool = False
+    # None leaves the provider's default.
+    temperature: float | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
 

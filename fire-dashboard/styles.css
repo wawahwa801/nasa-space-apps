@@ -234,6 +234,7 @@ textarea { resize: vertical; }
 .status-warning .status-icon { background: var(--warning); color: #0b0b0b; }
 .status-good .status-icon { background: var(--good); }
 .status-info .status-icon { background: var(--info); }
+.status-unknown .status-icon { background: transparent; color: var(--text-secondary); border: 1.5px dashed var(--text-muted); }
 
 .flags { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 10px; max-height: 420px; overflow-y: auto; }
 .flag { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: start; padding-bottom: 10px; border-bottom: 1px solid var(--grid); }
@@ -423,3 +424,127 @@ input[aria-invalid="true"] { border-color: var(--critical); }
 .chart-svg .row-label { fill: var(--text-secondary); font-size: 12px; }
 .chart-svg .row-label.highlight { fill: var(--text-primary); font-weight: 700; }
 .chart-svg.strip .baseline { stroke: var(--grid); }
+
+/* --- Smoke and soot hazards ------------------------------------------------ */
+
+#smoke-card h3 { font-size: 0.95rem; margin: 18px 0 6px; }
+.smoke-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; }
+.smoke-grid h3 { margin-top: 10px; }
+.smoke-grid.single { grid-template-columns: minmax(0, 1fr); }
+.status-uncertain .status-icon { background: transparent; color: var(--text-secondary); border: 1.5px dashed var(--text-muted); box-sizing: border-box; }
+.status-uncertain { color: var(--text-secondary); }
+#notes { max-height: none; }
+.smoke-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 0.88rem; }
+.smoke-list li { display: grid; grid-template-columns: 1fr auto auto; gap: 2px 10px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--grid); }
+.smoke-list li:last-child { border-bottom: 0; }
+.smoke-list li > small { grid-column: 1 / -1; color: var(--text-secondary); font-size: 0.8rem; }
+.smoke-list .value { font-variant-numeric: tabular-nums; }
+.smoke-list .smoke-group { display: block; border-bottom: 0; padding: 6px 0 0; color: var(--text-primary); }
+.source-note { margin: 8px 0 0; font-size: 0.78rem; color: var(--text-muted); }
+.chart-svg .bar.s1 { fill: var(--series-1); cursor: pointer; }
+.chart-svg .bar:hover, .chart-svg .bar:focus { stroke: var(--text-primary); stroke-width: 1.5; }
+.chart-svg .bar-value { fill: var(--text-primary); font-size: 12px; font-variant-numeric: tabular-nums; }
+@container fd-results (max-width: 640px) {
+  .smoke-grid { grid-template-columns: 1fr; }
+}
+
+/* --- Live monitoring ------------------------------------------------------- */
+
+.mon-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 6px; }
+.mon-toolbar .filter { margin-left: auto; }
+.mon-status { display: flex; align-items: center; gap: 8px; max-width: 420px; }
+.mon-headline { font-weight: 600; font-size: 0.92rem; }
+#monitor-card .flags { max-height: none; margin-bottom: 8px; }
+#monitor-card { border-color: var(--accent); }
+@container fd-results (max-width: 640px) {
+  .mon-toolbar .filter { margin-left: 0; }
+}
+
+/* Materials checklist, option explanations and the vacuum note. */
+.field-label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 3px; }
+.check-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 2px 10px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--page); }
+.check-list:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.check { display: flex; gap: 6px; align-items: center; min-height: 30px; font-size: 0.88rem; color: var(--text-primary); cursor: pointer; }
+.field .check { justify-content: flex-start; margin: 0; }
+.check input { width: auto; margin: 0; accent-color: var(--accent); }
+.option-hint, .field-note { margin: 4px 0 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; }
+.field-note { padding: 6px 8px; border-left: 3px solid var(--info); background: var(--highlight); border-radius: 0 6px 6px 0; }
+.field.is-disabled input, .field.is-disabled select { opacity: 0.5; cursor: not-allowed; }
+
+/* Live monitoring: which listed material could be burning. */
+.mon-suspects { margin: 10px 0 4px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; }
+.mon-suspects h3 { margin: 0 0 4px; font-size: 0.95rem; }
+.suspects { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.suspects li { display: grid; grid-template-columns: 7.5em 1fr; gap: 10px; align-items: start; }
+.suspect-tag { display: inline-block; text-align: center; font-size: 0.75rem; font-weight: 600; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-secondary); }
+.suspect-tag.likely { border-color: var(--accent); color: var(--text-primary); background: var(--highlight); }
+.suspect-tag.unlikely { color: var(--text-muted); }
+@container fd-results (max-width: 480px) { .suspects li { grid-template-columns: 1fr; gap: 2px; } .suspect-tag { justify-self: start; } }
+
+/* Safety insight (AI explanation of the report). */
+.ai-tag { display: inline-block; margin-left: 6px; padding: 1px 6px; border: 1px solid var(--border); border-radius: 999px; font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); vertical-align: middle; }
+.insight-actions { display: flex; gap: 8px; align-items: center; }
+#insight-card[aria-busy="true"] .insight-body { opacity: 0.55; }
+.insight-stale { margin: 6px 0 0; padding: 6px 10px; border-left: 3px solid var(--warning); background: var(--track-warning); border-radius: 0 6px 6px 0; font-size: 0.85rem; }
+.insight-body { margin-top: 8px; }
+.insight-body h3 { margin: 14px 0 4px; font-size: 0.9rem; }
+.insight-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.insight-headline { font-size: 1rem; }
+.insight-text { margin: 8px 0 0; line-height: 1.5; white-space: pre-wrap; }
+.insight-body .flags { max-height: none; }
+.insight-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+.insight-cols ol, .insight-cols ul { margin: 4px 0 0; padding-left: 1.2em; line-height: 1.5; }
+.insight-meta { margin: 12px 0 0; font-size: 0.78rem; color: var(--text-muted); }
+@container fd-results (max-width: 560px) { .insight-cols { grid-template-columns: 1fr; } }
+
+/* ---- View: hide and collapse sections, dropdown menus, groups ---- */
+[hidden] { display: none !important; }
+
+.view-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.view-bar .link-btn { margin: 0; padding: 6px 4px; font-size: 0.85rem; }
+.group-title { margin: 8px 0 -4px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+
+/* Dropdown built on <details>. */
+.menu { position: relative; }
+.menu > summary { list-style: none; }
+.menu > summary::-webkit-details-marker { display: none; }
+.menu-btn { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.88rem; color: var(--text-primary); background: transparent; user-select: none; }
+.menu-btn::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.menu[open] > .menu-btn::after { transform: translateY(1px) rotate(-135deg); }
+.menu-body { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 220px; display: grid; gap: 6px; padding: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); }
+.menu-body > button, .menu-body > .file-btn { width: 100%; justify-content: flex-start; text-align: left; }
+#mon-demo-list { min-width: 300px; }
+.demo-option { display: grid; gap: 2px; padding: 8px 10px; }
+.demo-option small { font-size: 0.78rem; color: var(--text-secondary); font-weight: 400; line-height: 1.35; }
+#example-pick { width: auto; max-width: 100%; flex: 1 1 160px; }
+.view-menu .menu-body { min-width: 260px; }
+.view-group { margin: 0; padding: 0; border: 0; display: grid; gap: 0; }
+.view-group legend { padding: 0; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+.view-group + .view-group { margin-top: 6px; }
+.view-actions { display: flex; gap: 6px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--border); }
+.view-actions button { flex: 1; padding: 5px 8px; font-size: 0.82rem; }
+
+/* Collapsible cards: the title is the toggle. */
+.card-toggle { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: inherit; color: inherit; border-radius: 6px; }
+.card-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-toggle:hover .chev { border-color: var(--text-primary); }
+.chev { flex: none; width: 7px; height: 7px; border-right: 2px solid var(--text-muted); border-bottom: 2px solid var(--text-muted); transform: rotate(45deg); margin: 0 3px 3px 1px; transition: transform 0.15s; }
+.card-toggle[aria-expanded="false"] .chev { transform: rotate(-45deg); margin: 0 3px 0 0; }
+.card.collapsed { padding-top: 12px; padding-bottom: 12px; }
+.card.collapsed > :not(.card-head):not(h2) { display: none; }
+.card.collapsed h2 { margin: 0; }
+.card.collapsed .card-head { align-items: center; }
+.card.collapsed .card-head > :not(div:first-child):not(.card-status) { display: none; }
+.card.collapsed .card-head .card-sub { display: none; }
+.grid-2.single { grid-template-columns: minmax(0, 1fr); }
+@media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
+
+/* Notes behind an "About" toggle. */
+.about { margin-top: 10px; font-size: 0.82rem; }
+.about > summary { cursor: pointer; color: var(--text-secondary); width: fit-content; }
+.about .source-note { margin-top: 6px; }
+
+.smoke-ref { display: block; }
+.smoke-ref > details > summary { cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); padding: 4px 0; }
+.smoke-ref .smoke-list { margin-top: 6px; }
+.tile-top { display: block; margin-top: 4px; font-size: 0.82rem; color: var(--text-primary); line-height: 1.3; }
