@@ -98,3 +98,7 @@ python -m pytest
 - Add API integrations and application endpoints in `backend/app.py`.
 - Add model training code and document its data, configuration, and outputs before connecting it to the API.
 - Keep secrets in environment variables; do not commit credentials or private data.
+
+## Flame-model experiments
+
+See [ml/README.md](ml/README.md) for separate BASS-II PMMA and NASA FLEX methanol experiments. The simplified local page at `http://127.0.0.1:5050` has one experiment selector, relevant physical controls and two 256×256 comparison images. Models use independent whole-run splits and explicit baselines; neither has demonstrated a meaningful accuracy win. The page also includes 274 FLEX and 8 FLEX-2 conditions rows and original CSV downloads. The previous four-source prototype is preserved in `ml/LEGACY.md`.

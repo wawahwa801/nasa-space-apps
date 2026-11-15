@@ -1,0 +1,11 @@
+# Local environments, generated data and models
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+.next/
+.env*
+!.env.example
+ml/data/
+ml/artifacts/
+.DS_Store

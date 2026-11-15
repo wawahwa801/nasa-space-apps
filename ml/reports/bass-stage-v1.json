@@ -1,0 +1,111 @@
+{
+  "version": "bass-stage-v1",
+  "resolution": 256,
+  "fields": [
+    "initial_oxygen_percent",
+    "thickness_mm",
+    "width_cm"
+  ],
+  "seed": 42,
+  "trials": {
+    "train": [
+      "B1",
+      "B2",
+      "B4",
+      "B6",
+      "B8",
+      "B16",
+      "B21",
+      "B22"
+    ],
+    "validation": [
+      "B9",
+      "B10"
+    ],
+    "test": [
+      "B11",
+      "B19"
+    ]
+  },
+  "targets_per_trial": 1,
+  "mask_ground_truth": "weak HSV/color-derived masks, not manual/physical measurements",
+  "stage": "fixed five-second visually stable area proxy; physical steady conditions not established",
+  "selection": "lowest validation RGB MSE across predeclared objectives/checkpoints; test used only after selection",
+  "candidates": [
+    {
+      "name": "rgb-focused",
+      "selected_epoch": 20,
+      "validation": {
+        "rgb_mse": 0.0024998371955007315,
+        "flame_rgb_mse": 0.087790846824646,
+        "mask_iou": 0.11956444382667542,
+        "area_absolute_fraction": 0.02214813232421875,
+        "height_absolute_fraction": 0.0859375
+      }
+    },
+    {
+      "name": "shape-assisted",
+      "selected_epoch": 120,
+      "validation": {
+        "rgb_mse": 0.002496859524399042,
+        "flame_rgb_mse": 0.08791878819465637,
+        "mask_iou": 0.13739606738090515,
+        "area_absolute_fraction": 0.03443145751953125,
+        "height_absolute_fraction": 0.11328125
+      }
+    }
+  ],
+  "selected": "shape-assisted",
+  "selected_epoch": 120,
+  "evaluation": {
+    "validation": {
+      "cnn": {
+        "rgb_mse": 0.002496859524399042,
+        "flame_rgb_mse": 0.08791878819465637,
+        "mask_iou": 0.13739606738090515,
+        "area_absolute_fraction": 0.03443145751953125,
+        "height_absolute_fraction": 0.11328125
+      },
+      "mean_image": {
+        "rgb_mse": 0.0025032847188413143,
+        "flame_rgb_mse": 0.0877373218536377,
+        "mask_iou": 0.11956444382667542,
+        "area_absolute_fraction": 0.02214813232421875,
+        "height_absolute_fraction": 0.0859375
+      },
+      "nearest_condition": {
+        "rgb_mse": 0.006296856328845024,
+        "flame_rgb_mse": 0.12000396102666855,
+        "mask_iou": 0.09413085877895355,
+        "area_absolute_fraction": 0.044769287109375,
+        "height_absolute_fraction": 0.205078125
+      }
+    },
+    "test": {
+      "cnn": {
+        "rgb_mse": 0.0027612096164375544,
+        "flame_rgb_mse": 0.06829240173101425,
+        "mask_iou": 0.4335106909275055,
+        "area_absolute_fraction": 0.017425537109375,
+        "height_absolute_fraction": 0.025390625
+      },
+      "mean_image": {
+        "rgb_mse": 0.0027619183529168367,
+        "flame_rgb_mse": 0.0681254044175148,
+        "mask_iou": 0.37759706377983093,
+        "area_absolute_fraction": 0.00836181640625,
+        "height_absolute_fraction": 0.017578125
+      },
+      "nearest_condition": {
+        "rgb_mse": 0.004165963269770145,
+        "flame_rgb_mse": 0.09302937239408493,
+        "mask_iou": 0.30636435747146606,
+        "area_absolute_fraction": 0.013336181640625,
+        "height_absolute_fraction": 0.103515625
+      }
+    }
+  },
+  "qualified_for_promotion": false,
+  "baseline_check_passed": true,
+  "promotion_note": "Experimental only: two test trials and image-derived weak targets are insufficient to establish reliable physical accuracy; inspect every reported metric."
+}

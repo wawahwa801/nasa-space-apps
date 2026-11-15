@@ -1,0 +1,103 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FLEX-2 flame lab</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;color:#eee;background:#101114}*{box-sizing:border-box}body{max-width:1050px;margin:auto;padding:28px}h1{font-size:28px;margin:18px 0 8px}p{color:#b8bfcb;line-height:1.55}a{color:#a6c9ff}nav{display:flex;gap:18px;font-size:14px}nav a[aria-current]{color:#fff;font-weight:600}.layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px;margin-top:22px}aside,.preview{background:#191c22;border:1px solid #333947;border-radius:14px;padding:22px}label{display:block;font-size:14px;margin-bottom:26px}select{width:100%;margin-top:8px;padding:10px;background:#101216;border:1px solid #495263;border-radius:7px;color:inherit;font:inherit}input[type=range]{display:block;width:100%;margin:16px 0;accent-color:#72a7ff}output{display:block;font-size:21px;margin-top:8px;color:#d7e6ff;font-variant-numeric:tabular-nums}small{display:block;color:#99a3b4;line-height:1.5;font-size:12px}.modes{display:flex;gap:8px;margin-bottom:18px}button{font:inherit;padding:10px 18px;border:1px solid #465064;border-radius:7px;color:#c5cfdd;background:#101216;cursor:pointer}button[aria-pressed=true]{background:#29456d;border-color:#75a7ef;color:white}.figure{margin:0;display:grid;justify-items:center}.figure img{display:block;width:100%;max-width:460px;aspect-ratio:1;object-fit:contain;background:black;border-radius:10px}.figure img[hidden]{display:none}.figure figcaption{font-size:13px;margin-top:12px;line-height:1.5;color:#bbc7da;min-height:36px;width:100%}#status{min-height:40px;font-size:13px;color:#a9c9ff}#status.error{color:#ff9c9c}#counts{font-size:13px;color:#97a3b5}details{margin-top:18px;font-size:13px;border-top:1px solid #343b49;padding-top:16px}summary{cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;font-size:12px}input[type=checkbox]{width:auto}#trainingLabel{margin-top:20px;margin-bottom:8px}#comparison{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px}td{padding:8px;border-bottom:1px solid #343b49;white-space:nowrap}@media(max-width:680px){body{padding:16px}.layout{grid-template-columns:1fr;gap:16px}aside,.preview{padding:17px}label{margin-bottom:18px}.modes button{flex:1}}
+</style></head><body>
+<nav><a href="/flex2/" aria-current="page">FLEX-2</a><a href="/spice/">SPICE</a></nav>
+<h1>FLEX-2 flame lab</h1><p>Slide the conditions to explore spherical droplet flames. Switch between the CNN estimate and a real recorded colour image.</p>
+<div id="counts">Loading FLEX-2 model…</div><p id="benchmark" style="font-size:13px"></p>
+<main class="layout"><aside><label>Fuel<select id="fuel" disabled></select></label><div id="controls"></div>
+<small>Inputs are measured pre-ignition chamber pressure and temperature. Oxygen and initial droplet size are not yet linked per run.</small>
+<details><summary>Recorded examples</summary><select id="example" aria-label="Recorded example"><option value="">Choose a run</option></select><label id="trainingLabel"><input id="trainOnly" type="checkbox"> Retrieve training images only</label></details>
+</aside><section class="preview">
+<div class="modes" role="group" aria-label="Flame display mode"><button id="cnn" aria-pressed="false" disabled>CNN</button><button id="retrieval" aria-pressed="true" disabled>Retrieval</button></div>
+<div id="status" role="status" aria-live="polite">Loading…</div>
+<figure class="figure"><img id="flame" alt="FLEX-2 flame preview" hidden><figcaption id="caption"></figcaption></figure>
+<small id="modeNote">Recorded colour image. Retrieval changes when a different recorded condition becomes closest.</small><small>Preview aligned to the detected luminous region; flame size is preserved.</small>
+<details><summary>What changes when I move the sliders?</summary><p>Retrieval selects a recorded run nearest your pressure and temperature. Differences in ring size, brightness and colour can also reflect droplet size, oxygen, burn stage and camera settings.</p><p>The CNN changes its predicted pixels continuously. In a sweep across the decane training range, increasing pressure made its diffuse prediction brighter and larger; temperature caused smaller colour and shape changes. These are model responses, not validated physical effects. The heptane pressure range is narrow and its response is much smaller.</p><p>Temperature here is the chamber temperature, not the flame temperature. There is no supported rule here that hotter means redder, bluer or bigger.</p></details>
+<details><summary>Results and source</summary><div id="comparison"></div><p id="limitation"></p><p id="processing"></p><a id="source" target="_blank" rel="noopener">NASA FLEX-2 / PSI-68</a></details>
+</section></main>
+<script>
+let info,mode='retrieval',generation=0,desired=null,inFlight=false,lastStart=0,startTimer=null,controller=null;
+let renderVersion=0,shownVersion=0,renderCount=0;
+const $=id=>document.getElementById(id),getSpec=()=>info.fuels.find(f=>f.name===$('fuel').value);
+function status(text,error=false){$('status').textContent=text;$('status').className=error?'error':'';}
+function values(){return Object.fromEntries(getSpec().fields.map(f=>[f.key,Number($(f.key).value)]));}
+function controls(){
+ $('controls').replaceChildren();
+ for(const f of getSpec().fields){
+  const label=document.createElement('label');label.htmlFor=f.key;label.textContent=f.label;
+  const output=document.createElement('output');output.id=f.key+'Value';
+  const input=document.createElement('input');input.id=f.key;input.type='range';input.min=f.min;input.max=f.max;input.step='any';input.value=f.default;
+  const range=document.createElement('small');range.textContent=f.min.toFixed(2)+'–'+f.max.toFixed(2)+' '+f.unit;
+  input.addEventListener('input',()=>{output.textContent=Number(input.value).toFixed(2)+' '+f.unit;requestUpdate();});
+  output.textContent=Number(input.value).toFixed(2)+' '+f.unit;label.append(output,input,range);$('controls').append(label);
+ }
+}
+function nearestLocal(query){
+ let best=null,bestDistance=Infinity;
+ for(const record of info.library){
+  if(record.fuel!==query.fuel||($('trainOnly').checked&&record.split!=='train'))continue;
+  const d=info.fields.reduce((sum,key,j)=>sum+((record.features[key]-query.features[key])/info.scale[j])**2,0);
+  if(d<bestDistance){best=record;bestDistance=d;}
+ }
+ return best;
+}
+function featureText(v){return v.pressure_kpa.toFixed(2)+' kPa · '+v.temperature_c.toFixed(2)+' °C';}
+function show(image,caption,version){
+ $('flame').src=image;$('flame').hidden=false;$('caption').textContent=caption;
+ shownVersion=version;renderCount++;$('flame').dataset.renderCount=String(renderCount);$('flame').dataset.inputVersion=String(version);
+}
+function requestUpdate(){
+ const query={fuel:$('fuel').value,features:values(),generation,version:++renderVersion};
+ if(mode==='retrieval'){
+  desired=null;const record=nearestLocal(query);
+  if(!record){status('No recorded image for these filters.',true);return;}
+  show(record.image,'Recorded '+record.id+' · '+record.split+' · '+featureText(record.features),query.version);
+  status('Live retrieval · closest recorded conditions');return;
+ }
+ desired=query;status('Updating CNN…');pump();
+}
+function pump(){
+ if(inFlight||!desired||mode!=='cnn')return;
+ const delay=Math.max(0,70-(performance.now()-lastStart));
+ if(delay){if(!startTimer)startTimer=setTimeout(()=>{startTimer=null;pump();},delay);return;}
+ const query=desired;desired=null;inFlight=true;lastStart=performance.now();controller=new AbortController();
+ const params=new URLSearchParams({fuel:query.fuel,mode:'cnn',...query.features});
+ fetch('/flex2/api/predict?'+params,{signal:controller.signal}).then(async response=>{
+  const result=await response.json();if(!response.ok)throw Error(result.error||'CNN request failed');
+  if(query.generation!==generation||mode!=='cnn')return;
+  // Display completed intermediate predictions while dragging; keep only the latest pending inputs.
+  show(result.image,'CNN generated · '+query.fuel+' · '+featureText(result.features),query.version);
+  status(result.outside_training_range?'Outside this fuel’s training range · experimental extrapolation':desired?'Live CNN · updating toward the current slider values':'Live CNN · experimental estimate');
+ }).catch(error=>{if(error.name!=='AbortError'&&query.generation===generation){$('flame').hidden=true;status(error.message,true);}})
+ .finally(()=>{inFlight=false;controller=null;pump();});
+}
+function changeMode(next){
+ if(!info)return;mode=next;generation++;desired=null;controller?.abort();clearTimeout(startTimer);startTimer=null;
+ $('cnn').setAttribute('aria-pressed',String(mode==='cnn'));$('retrieval').setAttribute('aria-pressed',String(mode==='retrieval'));
+ $('modeNote').textContent=mode==='cnn'?'CNN-generated image; experimental and not a physical fire forecast.':'Actual colour image from the matched library. The image changes when a different recorded run becomes closest; no synthetic interpolation.';
+ $('flame').hidden=true;requestUpdate();
+}
+async function init(){
+ try{
+  const response=await fetch('/flex2/api/info');if(!response.ok)throw Error('FLEX-2 data could not be loaded');info=await response.json();
+  for(const fuel of info.fuels)$('fuel').add(new Option(fuel.name,fuel.name));
+  for(const r of info.library)$('example').add(new Option(r.id+' · '+r.fuel+' · '+r.split,r.id));
+  const r=info.report,c=r.counts;$('counts').textContent=c.pairs+' colour targets · '+c.splits.train+' train / '+c.splits.validation+' validation / '+c.splits.test+' test runs · '+r.parameters.toLocaleString()+' CNN parameters';
+  const test=r.evaluation.test;
+  $('benchmark').textContent=test.cnn.rgb_mae<test.same_fuel_mean.rgb_mae&&test.cnn.foreground_mae<test.same_fuel_mean.foreground_mae?'Experimental CNN: lower image errors than the training mean on this small test set; physical accuracy is unverified.':'Experimental CNN: it does not beat the training mean on both image-error measures. Retrieval shows recorded evidence.';
+  const table=document.createElement('table');
+  for(const row of [['Test method','RGB MAE','Flame-region MAE'],...Object.entries(r.evaluation.test).map(([name,m])=>[name,m.rgb_mae.toFixed(4),m.foreground_mae.toFixed(4)])]){
+   const tr=document.createElement('tr');for(const value of row){const td=document.createElement('td');td.textContent=value;tr.append(td);}table.append(tr);
+  }$('comparison').append(table);$('limitation').textContent=r.limitation;$('processing').textContent=info.stage+'. '+info.preprocessing;$('source').href=info.source_url;
+  $('fuel').disabled=false;$('cnn').disabled=false;$('retrieval').disabled=false;
+  $('fuel').onchange=()=>{generation++;controller?.abort();controls();requestUpdate();};
+  $('cnn').onclick=()=>changeMode('cnn');$('retrieval').onclick=()=>changeMode('retrieval');$('trainOnly').onchange=()=>{if(mode==='retrieval')requestUpdate();};
+  $('example').onchange=()=>{
+   const r=info.library.find(x=>x.id===$('example').value);if(!r)return;generation++;controller?.abort();$('fuel').value=r.fuel;controls();
+   for(const f of getSpec().fields){$(f.key).value=r.features[f.key];$(f.key+'Value').textContent=r.features[f.key].toFixed(2)+' '+f.unit;}requestUpdate();
+  };controls();requestUpdate();
+ }catch(error){status(error.message,true);}
+}
+init();
+</script></body></html>
