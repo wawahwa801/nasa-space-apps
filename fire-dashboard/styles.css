@@ -535,3 +535,8 @@ input[aria-invalid="true"] { border-color: var(--critical); }
 .about { margin-top: 10px; font-size: 0.82rem; }
 .about > summary { cursor: pointer; color: var(--text-secondary); width: fit-content; }
 .about .source-note { margin-top: 6px; }
+
+.smoke-ref { display: block; }
+.smoke-ref > details > summary { cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); padding: 4px 0; }
+.smoke-ref .smoke-list { margin-top: 6px; }
+.tile-top { display: block; margin-top: 4px; font-size: 0.82rem; color: var(--text-primary); line-height: 1.3; }
