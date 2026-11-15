@@ -1,5 +1,15 @@
 # FLEX-2 live flame lab
 
+## Learned mask with retrieved visual detail
+
+```bash
+ml/.venv/bin/python ml/flex2_compare.py --run-dir ml/data/flex2-geometry-model --texture-composite --port 5063
+```
+
+This opt-in renderer reuses the trained generated-geometry CNN. It combines the learned mask with feathered source masks and transports the recorded RGB detail to the combined centroid/covariance before blending. The geometry contribution is fixed at 45%, reference evidence 55%. Every same-fuel reference except the chosen target remains in the pool with continuous attention weights; no hard nearest-neighbor switch or binary output threshold occurs. The numeric input path is continuous, though categorical switches remain discrete and very concentrated weights can still cause rapid changes. This uses recorded detail rather than generated RGB to improve visual clarity without requiring another training run.
+
+This is a visual compositing experiment, not a newly trained model or accuracy improvement. It warps/rescales images, can blend source reflections and highlights, and does not provide calibrated flame dimensions or physical PINN boundary conditions. The displayed mask is the combined CNN/reference support probability, not solely the CNN output. The original generated RGB is available by omitting `--texture-composite`.
+
 ## Generated geometry hybrid experiment
 
 `ml/flex2_geometry.py` generates a full spatial mask and RGB image from query conditions and continuously weighted reference feature maps at 128, 64 and 32 pixels. It has no reference RGB skip, fixed silhouette or bounded image warp. Condition modulation at each decoder scale allows geometry to change. RGB, flame-region, edge, high-frequency detail, BCE and Dice objectives provide image-derived supervision. An auxiliary reconstruction objective trains the shared reference encoder; the main reference-conditioned prediction always excludes its own target run. All runs are used for fitting as previously requested, with no held-out accuracy claim.

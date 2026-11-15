@@ -36,7 +36,7 @@ $('run').onchange=preset;preset();}).catch(e=>$('status').textContent=e.message)
 </script></html>'''
 
 
-def create_app(run_dir):
+def create_app(run_dir,texture=False):
     run_dir=Path(run_dir);training=run_dir/'training'
     snapshot=run_dir/'snapshot.json'
     if snapshot.exists():
@@ -83,7 +83,12 @@ def create_app(run_dir):
     cnn,cnn_saved=load();base=np.load(ROOT/'prepared.npz');train=np.where(base['splits']=='train')[0]
     images=torch.tensor(d['images']).permute(0,3,1,2).float()/255;conditions=torch.tensor(x)
     if shape or geometry:
-        aligned,_=aligned_data(d['images'],d['masks']);images=torch.tensor(aligned).permute(0,3,1,2).float()/255
+        aligned,aligned_masks=aligned_data(d['images'],d['masks']);images=torch.tensor(aligned).permute(0,3,1,2).float()/255
+    if texture:
+        if not geometry:raise ValueError('Texture compositor requires the generated geometry model')
+        from flex2_texture import texture_composite
+        import torch.nn.functional as F
+        appearance_masks=F.avg_pool2d(F.max_pool2d(torch.tensor(aligned_masks).unsqueeze(1),13,1,6),7,1,3)
     if continuous:
         with torch.inference_mode():embedding_bank=torch.cat([hybrid.encode_references(b) for b in images.split(8)])
     if geometry:
@@ -113,7 +118,12 @@ def create_app(run_dir):
         aligned,_=centre_flame(im);return png(aligned.astype('float32')/255)
     app=Flask(__name__)
     @app.get('/')
-    def index():return render_template_string(PAGE)
+    def index():
+        page=PAGE
+        if texture:
+            page=page.replace('<h1>','<p>Visual compositing prototype: learned CNN mask + smoothly weighted recorded RGB. Source detail is warped and rescaled; rendered geometry is uncalibrated. This is not a newly trained model or an accuracy result.</p><h1>',1)
+            page=page.replace('Predicted geometry probability (weak supervision)','Combined CNN/retrieval mask (uncalibrated)')
+        return render_template_string(page)
     @app.get('/api/runs')
     def runs():return jsonify(runs=[dict(id=str(d['groups'][i]),label=f"{d['groups'][i]} · {m['fuels'][int(d['fuels'][i])]} · {d['splits'][i]}",values=defaults(i)) for i in eligible],numeric=control_specs,categories=category_specs)
     @app.get('/api/compare')
@@ -145,6 +155,10 @@ def create_app(run_dir):
                 weights=soft_references(torch.tensor(query[None]),conditions,torch.tensor(d['fuels']),torch.tensor([d['fuels'][i]]),torch.tensor([i]),saved['metadata']['temperature'])
                 pyramid=[torch.einsum('bn,nchw->bchw',weights,bank) for bank in pyramid_banks]
                 rgb,mask_logits=hybrid.decode(torch.tensor(query[None]),weights@conditions,pyramid)
+                if texture:
+                    pool=torch.where((torch.tensor(d['fuels'])==d['fuels'][i]) & (torch.arange(len(x))!=i))[0]
+                    rgb,composite_mask=texture_composite(mask_logits.sigmoid(),images[pool],appearance_masks[pool],weights[0,pool])
+                    mask_logits=torch.logit(composite_mask.clamp(.0001,.9999))
                 prediction=rgb[0];mask_image=png(np.repeat(mask_logits[0,0].sigmoid().numpy()[:,:,None],3,axis=2))
             elif shape:
                 weights=soft_references(torch.tensor(query[None]),conditions,torch.tensor(d['fuels']),torch.tensor([d['fuels'][i]]),torch.tensor([i]),saved['metadata']['temperature'])
@@ -155,9 +169,9 @@ def create_app(run_dir):
                 prediction=hybrid.decode(torch.tensor(query[None]),weights@conditions,embedding)[0]
             else:prediction=hybrid(torch.tensor(query[None]),conditions[ref:ref+1],images[ref:ref+1])[0]
             original,_=cnn(encode(torch.tensor(raw[None,:2]),torch.tensor([f]),cnn_saved['low'],cnn_saved['scale'],len(base_manifest['fuels'])))
-        return jsonify(mask=mask_image,hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],model_note=f"{'Generated geometry hybrid · ' if geometry else 'Aligned shape hybrid · ' if shape else ''}All {len(x)} runs fitted · no held-out score" if final_fit else f"Validation-selected seed {saved['seed']}",hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{fuel} · {raw[0]:.2f} kPa · {raw[1]:.2f} °C · experimental input combination")
+        return jsonify(mask=mask_image,hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],model_note=f"{'CNN mask + retrieved texture · ' if texture else 'Generated geometry hybrid · ' if geometry else 'Aligned shape hybrid · ' if shape else ''}All {len(x)} runs fitted · no held-out score" if final_fit else f"Validation-selected seed {saved['seed']}",hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{fuel} · {raw[0]:.2f} kPa · {raw[1]:.2f} °C · experimental input combination")
     return app
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--run-dir',type=Path,default=ROOT.parent/'flex2-continuous-model');p.add_argument('--port',type=int,default=5053);a=p.parse_args();create_app(a.run_dir).run(host='127.0.0.1',port=a.port,debug=False)
+    p=argparse.ArgumentParser();p.add_argument('--run-dir',type=Path,default=ROOT.parent/'flex2-continuous-model');p.add_argument('--port',type=int,default=5053);p.add_argument('--texture-composite',action='store_true');a=p.parse_args();create_app(a.run_dir,a.texture_composite).run(host='127.0.0.1',port=a.port,debug=False)
