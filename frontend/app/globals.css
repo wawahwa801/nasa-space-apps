@@ -1922,3 +1922,39 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .nasa-comparison-inputs .editable-value input { width: 76px; }
 .comparison-actions { flex-wrap: wrap; min-width: 0; max-width: 100%; }
 .comparison-actions .example-select { min-width: 0; max-width: 100%; }
+
+/* Reserve layout space for Parameters instead of floating over the workspace. */
+#flame-panel .conversation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px 32px;
+  padding: 80px 16px 24px;
+  align-items: start;
+}
+#flame-panel .hybrid-with-panel { grid-column: 1; min-width: 0; }
+#flame-panel .comparison-section { grid-column: 1; min-width: 0; margin: 0; }
+#flame-panel .parameter-panel {
+  grid-column: 1;
+  display: none;
+  position: sticky;
+  inset: 80px auto auto;
+  width: 100%;
+  max-height: calc(100dvh - 96px);
+  margin: 0;
+  transform: none;
+  transition: none;
+}
+#flame-panel .parameter-panel.parameters-open { display: block; }
+@media (min-width: 721px) {
+  .app-shell { --pp-width: 280px; }
+  .controls-open #flame-panel .conversation { grid-template-columns: var(--pp-width) minmax(0, 1fr); }
+  .controls-open #flame-panel .hybrid-with-panel,
+  .controls-open #flame-panel .comparison-section { grid-column: 2; }
+  #flame-panel .parameter-panel { grid-column: 1; grid-row: 1 / span 2; }
+}
+@media (min-width: 1200px) { .app-shell { --pp-width: 320px; } }
+@media (max-width: 720px) {
+  #flame-panel .conversation { padding: 140px 12px 24px; }
+  #flame-panel .parameter-panel { position: static; max-height: none; grid-row: 1; }
+  #flame-panel .parameters-tab { display: none; }
+}
