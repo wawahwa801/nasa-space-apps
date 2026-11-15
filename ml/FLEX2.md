@@ -1,5 +1,17 @@
 # FLEX-2 live flame lab
 
+## Aligned structure-preserving hybrid prototype
+
+`ml/flex2_shape.py` tests an alternative to the diffuse full-image decoder: source RGB references and weak masks receive the same integer centering translation, continuous same-fuel reference weights use temperature 0.02, and a conditioned network predicts smooth spatial displacement and RGB logit corrections. There is no hard nearest-reference switch. An auxiliary weak-mask head, image-gradient loss, and flow smoothness regularizer supplement RGB error. No artificial flame texture, colour rule or upscaling claim is introduced. Saturated hardware and background artifacts present in references can remain visible. These are spherical droplet flames, not terrestrial upward-burning plumes.
+
+Example training command (writes a new checkpoint directory):
+
+```bash
+ml/.venv/bin/python ml/flex2_shape.py --dataset ml/data/flex2-continuous-model/expanded --out ml/data/flex2-shape-demo/training --epochs 20
+```
+
+Serve with `python ml/flex2_compare.py --run-dir ml/data/flex2-shape-demo --port 5053`. The original continuous checkpoint remains separate. All targets are used for fitting; training losses are not comparable across architectures with different objectives, and this prototype has no independent accuracy score.
+
 ## Published trained continuous hybrid
 
 The completed 200-epoch, 262-run smooth-reference generator is bundled at `ml/data/flex2-continuous-model/` (~29 MB) with its matching image/reference library, features, manifest, verification report and training log. `snapshot.json` lists SHA256 hashes and sizes; the demo checks these before loading. All runs were used for training, so this checkpoint has no held-out accuracy score. Legacy training did not save optimizer state; continuation restores these weights with a fresh optimizer on its first resume.
