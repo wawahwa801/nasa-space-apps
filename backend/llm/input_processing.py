@@ -80,6 +80,11 @@ def _check_column_count(count: int) -> None:
 def _column_summary(values: list[Any]) -> dict[str, Any]:
     present = [v for v in values if v is not None and v != ""]
     missing = len(values) - len(present)
+    # Validate every numeric cell before categorical detection can short-circuit.
+    for value in present:
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            if not _is_number(value):
+                raise InputValidationError("Quantitative columns must contain only finite numbers.")
     if present and all(_is_number(v) for v in present):
         summary = {"kind": "numeric", **_numeric_stats([float(v) for v in present])}
     else:
