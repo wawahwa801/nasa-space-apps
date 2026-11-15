@@ -25,15 +25,16 @@ def sha(path):
     return h.hexdigest()
 
 
-def expand(candidates,evidence,target_runs=140,out=None,run_cache=None):
-    candidates=Path(candidates);evidence=Path(evidence);out=Path(out or ROOT.parent/'flex2-expanded')
+def expand(candidates,evidence,target_runs=140,out=None,run_cache=None,base_root=None):
+    candidates=Path(candidates);evidence=Path(evidence);base_root=Path(base_root or ROOT)
+    out=Path(out or ROOT.parent/'flex2-expanded')
     run_cache=Path(run_cache or candidates)
-    base_npz=np.load(ROOT/'prepared.npz');base=json.loads((ROOT/'manifest.json').read_text())
+    base_npz=np.load(base_root/'prepared.npz');base=json.loads((base_root/'manifest.json').read_text())
     cand_npz=np.load(candidates/'prepared.npz');cand=json.loads((candidates/'manifest.json').read_text())
     rows={r['run_id']:r for r in csv.DictReader(evidence.open(newline=''))}
     if target_runs<=len(base_npz['groups']) or target_runs>len(base_npz['groups'])+len(cand_npz['groups']):
         raise ValueError('Target must extend the base and fit available candidate rows')
-    if base['fuels']!=cand['fuels']:raise ValueError('Fuel-index schemas differ')
+    combined_fuels=base['fuels']+[f for f in cand['fuels'] if f not in base['fuels']]
     base_ids=set(base_npz['groups'].astype(str));cand_ids=cand_npz['groups'].astype(str)
     if len(base_ids)!=len(base_npz['groups']) or len(set(cand_ids))!=len(cand_ids):raise ValueError('Duplicate run IDs in source datasets')
     extra_count=target_runs-len(base_ids);records={r['run']:r for r in cand['records']}
@@ -42,15 +43,29 @@ def expand(candidates,evidence,target_runs=140,out=None,run_cache=None):
         run=str(run)
         if run in base_ids:continue
         row=rows.get(run)
-        if not row or row['settings_status']!='exact_run_match' or row['fiber_usage_flag'] not in ('True','False'):
+        if not row or row['settings_status']!='exact_run_match' or row['fiber_usage_flag'] not in ('True','False') or row.get('source_conflict','False').lower()=='true':
             continue
         if not np.isfinite(cand_npz['images'][i]).all():raise ValueError('Non-finite target image: '+run)
         valid.append(i)
-    if len(valid)<extra_count:raise ValueError(f'Only {len(valid)} new exact-settings image targets; need {extra_count}')
+    grouped={}
+    for i in valid:grouped.setdefault(records[str(cand_ids[i])]['fuel'],[]).append(i)
+    for fuel in grouped:grouped[fuel].sort(key=lambda i:str(cand_ids[i]))
+    ordered=[]
+    while any(grouped.values()):
+        for fuel in sorted(grouped):
+            if grouped[fuel]:ordered.append(grouped[fuel].pop(0))
+    valid=ordered
+    extra_count=min(extra_count,len(valid))
+    if not extra_count:raise ValueError('No new exact-settings image targets are available')
     # Candidate preparation pressure-spreads across fuels; stable ordering keeps selection reproducible.
     selected=valid[:extra_count]
     fields=('features','fuels','images','masks','groups')
-    payload={k:np.concatenate([base_npz[k],cand_npz[k][selected]],axis=0) for k in fields}
+    payload={k:np.concatenate([base_npz[k],cand_npz[k][selected]],axis=0) for k in fields if k!='fuels'}
+    base_fuel_names=[base['fuels'][int(i)] for i in base_npz['fuels']]
+    candidate_record_fuels={r['run']:r['fuel'] for r in cand['records']}
+    added_fuel_names=[candidate_record_fuels[str(cand_ids[i])] for i in selected]
+    fuel_ids={name:i for i,name in enumerate(combined_fuels)}
+    payload['fuels']=np.asarray([fuel_ids[name] for name in base_fuel_names+added_fuel_names],dtype=base_npz['fuels'].dtype)
     old_splits=base_npz['splits'].astype(str);new_splits=np.asarray(['train']*len(selected))
     payload['splits']=np.concatenate([old_splits,new_splits])
     merged_records=[dict(r) for r in base['records']]
@@ -58,11 +73,12 @@ def expand(candidates,evidence,target_runs=140,out=None,run_cache=None):
         r=dict(records[str(cand_ids[i])]);r['split']='train';merged_records.append(r)
     out.mkdir(parents=True,exist_ok=True)
     np.savez_compressed(out/'prepared.npz',**payload)
-    manifest=dict(base,records=merged_records,target_runs=target_runs,
+    target_runs=len(payload['groups'])
+    manifest=dict(base,fuels=combined_fuels,records=merged_records,target_runs=target_runs,
         split='Original validation/test run IDs frozen; new independently verified targets assigned to training.',
         counts=dict(pairs=target_runs,groups=target_runs,
             splits={s:int(np.sum(payload['splits']==s)) for s in ('train','validation','test')}),
-        expansion=dict(base_manifest_sha256=sha(ROOT/'manifest.json'),candidate_manifest_sha256=sha(candidates/'manifest.json'),
+        expansion=dict(base_manifest_sha256=sha(base_root/'manifest.json'),candidate_manifest_sha256=sha(candidates/'manifest.json'),
             candidate_input_evidence_sha256=sha(evidence),added_run_ids=[str(cand_ids[i]) for i in selected],
             new_runs_are_independent=True))
     (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
@@ -95,5 +111,5 @@ def expand(candidates,evidence,target_runs=140,out=None,run_cache=None):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--candidates',required=True);p.add_argument('--evidence',required=True);p.add_argument('--target-runs',type=int,default=140);p.add_argument('--out');p.add_argument('--run-cache');a=p.parse_args()
-    print(json.dumps(expand(a.candidates,a.evidence,a.target_runs,a.out,a.run_cache),indent=2))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--candidates',required=True);p.add_argument('--evidence',required=True);p.add_argument('--target-runs',type=int,default=140);p.add_argument('--out');p.add_argument('--run-cache');p.add_argument('--base-root');a=p.parse_args()
+    print(json.dumps(expand(a.candidates,a.evidence,a.target_runs,a.out,a.run_cache,a.base_root),indent=2))

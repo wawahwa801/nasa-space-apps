@@ -118,18 +118,19 @@ def load_verified(dataset_root=EXPANDED_ROOT):
     return data,manifest,x,np.asarray(refs),hashlib.sha256(raw).hexdigest()
 
 
-def main(hours,seed_count,patience):
+def main(hours,seed_count,patience,dataset_root=EXPANDED_ROOT,output_dir=OUT):
     if not 0<hours<=8:raise ValueError('--hours must be between 0 and 8')
-    data,manifest,x,refs,evidence_hash=load_verified()
-    OUT.mkdir(parents=True,exist_ok=True);torch.set_num_threads(max(1,min(4,os.cpu_count() or 1)))
+    dataset_root=Path(dataset_root);output_dir=Path(output_dir)
+    data,manifest,x,refs,evidence_hash=load_verified(dataset_root)
+    output_dir.mkdir(parents=True,exist_ok=True);torch.set_num_threads(max(1,min(4,os.cpu_count() or 1)))
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    start=time.monotonic();deadline=start+hours*3600;log=OUT/'metrics.jsonl'
+    start=time.monotonic();deadline=start+hours*3600;log=output_dir/'metrics.jsonl'
     images=torch.tensor(data['images'],device=device).permute(0,3,1,2).float()/255
     masks=torch.tensor(data['masks'],device=device).unsqueeze(1).float()
     cond=torch.tensor(x,device=device);refs=torch.tensor(refs,device=device)
     splits={s:np.where(data['splits']==s)[0] for s in ('train','validation','test')}
-    metadata={'device':str(device),'hours':hours,'target_count':len(x),'features':data['feature_names'],'feature_caveats':'Camera shutter/gain values are categorical raw device codes, not calibrated exposure measurements. Campaign one-hot may act as a proxy for acquisition conditions. Igniter on-time is exact-run event-summary metadata, not measured delivered energy.','dataset_root':str(EXPANDED_ROOT),'manifest_sha256':hashlib.sha256((EXPANDED_ROOT/'manifest.json').read_bytes()).hexdigest(),'evidence_sha256':evidence_hash,'target_ids':data['groups'].tolist(),'split_ids':{k:data['groups'][v].tolist() for k,v in splits.items()},'selection':'validation foreground-weighted MAE; test split evaluated after training','reference_pool':'train only; self-run excluded','model':'small retrieval-conditioned CNN; query, reference features, feature difference, and reference image'}
-    (OUT/'run.json').write_text(json.dumps(metadata,indent=2))
+    metadata={'device':str(device),'hours':hours,'target_count':len(x),'features':data['feature_names'],'feature_caveats':'Camera shutter/gain values are categorical raw device codes, not calibrated exposure measurements. Campaign one-hot may act as a proxy for acquisition conditions. Igniter on-time is exact-run event-summary metadata, not measured delivered energy.','dataset_root':str(dataset_root),'manifest_sha256':hashlib.sha256((dataset_root/'manifest.json').read_bytes()).hexdigest(),'evidence_sha256':evidence_hash,'target_ids':data['groups'].tolist(),'split_ids':{k:data['groups'][v].tolist() for k,v in splits.items()},'selection':'validation foreground-weighted MAE; test split evaluated after training','reference_pool':'train only; self-run excluded','model':'small retrieval-conditioned CNN; query, reference features, feature difference, and reference image'}
+    (output_dir/'run.json').write_text(json.dumps(metadata,indent=2))
     run_no=0
     while time.monotonic()<deadline and run_no<seed_count:
         seed=42+run_no;random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
@@ -152,7 +153,7 @@ def main(hours,seed_count,patience):
             improved=score<best
             if improved:
                 best=score;stale=0;best_state={k:v.detach().cpu().clone() for k,v in net.state_dict().items()}
-                tmp=OUT/f'.seed-{seed}.tmp.pt';torch.save({'state':best_state,'seed':seed,'epoch':epoch,'validation':val,'metadata':metadata},tmp);tmp.replace(OUT/f'seed-{seed}-best.pt')
+                tmp=output_dir/f'.seed-{seed}.tmp.pt';torch.save({'state':best_state,'seed':seed,'epoch':epoch,'validation':val,'metadata':metadata},tmp);tmp.replace(output_dir/f'seed-{seed}-best.pt')
             else:stale+=1
             rec={'seed':seed,'epoch':epoch,'train_loss':float(np.mean(losses)),'validation':val,'best_validation_weighted_mae':best,'stale_epochs':stale,'seconds':time.monotonic()-start,'gpu_memory_bytes':torch.cuda.max_memory_allocated() if device.type=='cuda' else None}
             with log.open('a') as f:f.write(json.dumps(rec,allow_nan=False)+'\n')
@@ -168,13 +169,13 @@ def main(hours,seed_count,patience):
                 mean_images=torch.stack([images[train_ix][torch.as_tensor(data['fuels'][splits['train']]==data['fuels'][i],device=device)].mean(0) for i in splits['test']])
                 mean_score=metrics(mean_images,images[ix],masks[ix])
                 base_net,base_saved=load_published();base_net=base_net.to(device)
-                base_cond=encode(torch.tensor(data['features'][splits['test']],device=device),torch.tensor(data['fuels'][splits['test']],device=device),base_saved['low'].to(device),base_saved['scale'].to(device),len(manifest['fuels']))
+                base_cond=encode(torch.tensor(data['features'][splits['test']],device=device),torch.tensor(data['fuels'][splits['test']],device=device),base_saved['low'].to(device),base_saved['scale'].to(device),len(base_saved['report']['fuels']))
                 base_pred=torch.cat([base_net(batch)[0] for batch in base_cond.split(8)])
                 base_score=metrics(base_pred,images[ix],masks[ix])
             out={'seed':seed,'selected_epoch':epoch-stale,'test_metrics':{'retrieval_conditioned_cnn':hybrid_score,'extended_feature_retrieval':retrieval_score,'same_fuel_training_mean':mean_score,'published_feature_only_cnn':base_score},'test_reference_ids':data['groups'][refs[splits['test']]].tolist()}
-            (OUT/f'seed-{seed}-test.json').write_text(json.dumps(out,indent=2,allow_nan=False))
+            (output_dir/f'seed-{seed}-test.json').write_text(json.dumps(out,indent=2,allow_nan=False))
         run_no+=1
-    print(json.dumps({'finished_seeds':run_no,'elapsed_seconds':time.monotonic()-start,'deadline_seconds':hours*3600,'metrics_log':str(log),'artifacts':str(OUT)},indent=2),flush=True)
+    print(json.dumps({'finished_seeds':run_no,'elapsed_seconds':time.monotonic()-start,'deadline_seconds':hours*3600,'metrics_log':str(log),'artifacts':str(output_dir)},indent=2),flush=True)
 
 
 if __name__=='__main__':
