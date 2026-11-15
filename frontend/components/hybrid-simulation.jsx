@@ -2,21 +2,25 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-export function HybridSimulation() {
+export function HybridSimulation({ onStarted }) {
   const [info, setInfo] = useState(null), [controls, setControls] = useState({});
   const [target, setTarget] = useState(null), [result, setResult] = useState(null);
   const [status, setStatus] = useState("Loading hybrid controls…"), [busy, setBusy] = useState(false);
   const [scale, setScale] = useState(.03), [k, setK] = useState(.8), [source, setSource] = useState(3);
   const [frame, setFrame] = useState(0), [playing, setPlaying] = useState(false);
   const generation = useRef(0);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     setTarget(document.getElementById("hybrid-controls"));
     const abort = new AbortController();
+    let retry, active = true;
+    const timeout = setTimeout(() => abort.abort(), 10000);
     fetch('/hybrid/runs', {signal: abort.signal}).then(async r => {if (!r.ok) throw Error('Hybrid service unavailable. Start python ml/dashboard_simulation.py.'); return r.json();}).then(data => {
+      if (!active) return;
       setInfo(data); setControls({run: data.runs[0].id, ...data.runs[0].values}); setStatus('Choose model conditions, then Simulate.');
-    }).catch(e => {if(e.name !== 'AbortError') setStatus(e.message);});
-    return () => {abort.abort(); generation.current++;};
-  }, []);
+    }).catch(() => {if (!active) return; setStatus('Connecting to model… retrying automatically.'); retry=setTimeout(()=>setAttempt(n=>n+1),3000);}).finally(()=>clearTimeout(timeout));
+    return () => {active=false;abort.abort();clearTimeout(retry); clearTimeout(timeout); generation.current++;};
+  }, [attempt]);
   useEffect(() => {
     if (!playing || !result) return;
     const timer = setInterval(() => setFrame(i => {if(i >= result.simulation.frames.length - 1) {setPlaying(false); return i;} return i + 1;}), 500);
@@ -30,7 +34,7 @@ export function HybridSimulation() {
       const response = await fetch('/hybrid/simulate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({controls, mm_per_pixel:scale, k_mm2_s:k, source})});
       const data = await response.json(); if (!response.ok) throw Error(data.error || 'Simulation failed');
       if(id !== generation.current) return;
-      setResult(data); setFrame(0); setPlaying(true); setStatus('Simulation running · illustrative flame-size proxy');
+      setResult(data); setFrame(0); setPlaying(true); setStatus('Simulation ready · illustrative flame-size proxy'); onStarted?.();
     } catch(e) {if(id === generation.current) setStatus(e.message);}
     finally {if(id === generation.current) setBusy(false);}
   }
@@ -45,7 +49,7 @@ export function HybridSimulation() {
       <label>Ignition module<select value={source} onChange={e=>{invalidate();setSource(Number(e.target.value));}}>{['Forward dock','Cargo','Habitat node','Station core','Science node','Laboratory','Observatory','Cupola','Command','Crew quarters','Medical','EVA airlock','Life support','Engineering','Power systems','Greenhouse'].map((n,i)=><option key={n} value={i}>{n}</option>)}</select></label>
       <button type="button" onClick={run} disabled={busy}>Simulate</button></>}
     </div>,target)}
-    <p role="status">{status}</p>
+    <h2>Hybrid flame & room simulation</h2><p role="status">{status}</p>{info && <button type="button" onClick={run} disabled={busy}>{busy ? "Simulating…" : "Simulate current parameters"}</button>}
     {result && <><img src={result.prediction.hybrid} alt="Hybrid CNN flame estimate" width="256" height="256" />
       <p>{result.prediction.conditions} · {result.prediction.model_note}</p>
       <p>Mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm</p>
@@ -53,7 +57,7 @@ export function HybridSimulation() {
         {result.simulation.scenario.edges.map((e,i)=>{const a=result.simulation.scenario.rooms[e.a],b=result.simulation.scenario.rooms[e.b];return <line key={i} x1={a.x*110+60} y1={a.y*90+45} x2={b.x*110+60} y2={b.y*90+45} stroke="#888" strokeWidth="5"/>;})}
         {result.simulation.scenario.rooms.map((r,i)=><g key={r.id}><rect x={r.x*110+10} y={r.y*90+10} width="100" height="70" rx="6" fill={({burning:'#e65326',burned:'#444',warming:'#8a6134',unignited:'#243a49',inert:'#222'})[current.rooms[i].state]} /><text x={r.x*110+60} y={r.y*90+47} textAnchor="middle" fill="white" fontSize="10">{r.name}</text></g>)}
       </svg>
-      <button type="button" onClick={()=>setPlaying(p=>!p)}>{playing?'Pause':'Play'}</button>
+      <button type="button" onClick={()=>{if(frame===result.simulation.frames.length-1)setFrame(0);setPlaying(p=>!p);}}>{playing?'Pause':'Play'}</button>
       <label>Time: {current.time_s.toFixed(1)} s<input type="range" min="0" max={result.simulation.frames.length-1} value={frame} onChange={e=>{setPlaying(false);setFrame(Number(e.target.value));}} /></label>
     </>}
     <p>Illustrative room spread using an assumed conversion from flame mask size. Burn rate and room transfer are assumptions; airflow and oxygen effects are not solved.</p>

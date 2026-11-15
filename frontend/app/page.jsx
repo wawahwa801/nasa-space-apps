@@ -172,7 +172,7 @@ export default function Home() {
     };
     const syncPanels = () => {
       setParametersOpen(wideMedia.matches);
-      setChatOpen(wideMedia.matches);
+      setChatOpen(false);
     };
     sync();
     syncPanels();
@@ -395,7 +395,7 @@ export default function Home() {
                     </div>
                     <span className="preview-badge">Preview</span>
                   </div>
-                  <HybridSimulation />
+                  <HybridSimulation onStarted={() => {setParametersOpen(false);setChatOpen(false);}} />
                   <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
                     <svg className="ember-particles" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                       <defs><radialGradient id="particle-glow"><stop stopColor="#f35b25" stopOpacity=".28" /><stop offset="1" stopColor="#f35b25" stopOpacity="0" /></radialGradient></defs>
