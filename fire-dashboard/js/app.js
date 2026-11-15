@@ -305,8 +305,11 @@
     }
     const noBurnData = materialsOf(v).filter((m) => !REF.bass.tests.some((t) => t.category === m));
     if (noBurnData.length) {
-      add(`No NASA burn data for ${esc(noBurnData.join(", "))}`,
-        "BASS-II didn't burn these materials, so how they behave here and whether they could be the source of a fire rely on general fire knowledge only.", "material_types");
+      // Only the data loaded in this dashboard is checked: absence here does not
+      // mean NASA never tested the material (issue #58).
+      add(`No matching BASS-II records in the loaded data for ${esc(noBurnData.join(", "))}`,
+        "The BASS-II data loaded in this dashboard has no burns of these materials. Other tests may exist outside this data set; " +
+        "here, how they behave and whether they could be the source of a fire rely on general fire knowledge only.", "material_types");
     }
     if (result.near && result.near.outOfRange) {
       add("Outside the conditions ACME tested", "The ACME comparison is an extrapolation at your O₂ and pressure.", "o2_pct");
