@@ -38,6 +38,12 @@ $('run').onchange=preset;preset();}).catch(e=>$('status').textContent=e.message)
 
 def create_app(run_dir):
     run_dir=Path(run_dir);training=run_dir/'training'
+    snapshot=run_dir/'snapshot.json'
+    if snapshot.exists():
+        for name,expected in json.loads(snapshot.read_text())['files'].items():
+            path=run_dir/name
+            if path.stat().st_size!=expected['bytes'] or hashlib.sha256(path.read_bytes()).hexdigest()!=expected['sha256']:
+                raise ValueError('Published model snapshot checksum mismatch: '+name)
     checkpoints=[]
     for path in training.glob('seed-*-best.pt'):
         saved=torch.load(path,map_location='cpu',weights_only=True)
@@ -128,4 +134,4 @@ def create_app(run_dir):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--run-dir',type=Path,required=True);p.add_argument('--port',type=int,default=5053);a=p.parse_args();create_app(a.run_dir).run(host='127.0.0.1',port=a.port,debug=False)
+    p=argparse.ArgumentParser();p.add_argument('--run-dir',type=Path,default=ROOT.parent/'flex2-continuous-model');p.add_argument('--port',type=int,default=5053);a=p.parse_args();create_app(a.run_dir).run(host='127.0.0.1',port=a.port,debug=False)

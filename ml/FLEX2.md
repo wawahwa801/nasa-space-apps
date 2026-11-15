@@ -1,5 +1,15 @@
 # FLEX-2 live flame lab
 
+## Published trained continuous hybrid
+
+The completed 200-epoch, 262-run smooth-reference generator is bundled at `ml/data/flex2-continuous-model/` (~29 MB) with its matching image/reference library, features, manifest, verification report and training log. `snapshot.json` lists SHA256 hashes and sizes; the demo checks these before loading. All runs were used for training, so this checkpoint has no held-out accuracy score. Legacy training did not save optimizer state; continuation restores these weights with a fresh optimizer on its first resume.
+
+```bash
+ml/.venv/bin/python ml/flex2_compare.py --port 5053
+```
+
+Open http://127.0.0.1:5053 for centered previews and continuous slider updates. It compares this trained hybrid against the published feature-only CNN and normal retrieval on their five shared fuels. Reference/condition features use the exact trained schema. No NASA download or retraining is required for this published snapshot. To continue these weights later, use `ml/flex2_continue.py --resume ml/data/flex2-continuous-model/training/final.pt --new-runs 20 --search-hours 2 --train-hours 1 --epochs 50`.
+
 ## Published retrieval and CNN snapshot
 
 The repository includes the matching **100-run retrieval library and trained CNN checkpoint**. A fresh checkout can run both without NASA downloads or retraining:
