@@ -47,16 +47,16 @@ export function HybridSimulation({ onStarted, onResult }) {
   }
   const current = result?.simulation.frames[frame];
   return <section className="hybrid-active" aria-label="Hybrid CNN room simulation">
-    {target && createPortal(<div className="field-section"><h3>Hybrid model & simulation</h3><p>These controls drive Simulate. Atmospheric controls below remain available for NASA comparison.</p>
+    {target && createPortal(<div className="field-section"><span className="field-section-title">Model conditions</span>
       {info && <><label>Recorded fuel / state<select value={controls.run} onChange={e => {invalidate(); const r=info.runs.find(r=>r.id===e.target.value);setControls({run:r.id,...r.values});}}>{info.runs.map(r=><option key={r.id} value={r.id}>{r.label}</option>)}</select></label>
-      {info.numeric.map(s=><label key={s.key}>{s.label} ({s.unit})<input type="number" min={s.min} max={s.max} step={s.step} value={controls[s.key] ?? ''} onChange={e=>change(s.key,e.target.value)} /></label>)}
+      {info.numeric.map(s=><div className="slider-field" key={s.key}><div><label htmlFor={`hybrid-${s.key}`}>{s.label}</label><span className="editable-value"><input aria-label={`${s.label} value`} type="number" min={s.min} max={s.max} step="any" value={controls[s.key] ?? ''} onChange={e=>change(s.key,e.target.value)}/><span>{s.unit}</span></span></div><input id={`hybrid-${s.key}`} type="range" min={s.min} max={s.max} step={s.step} value={controls[s.key] ?? s.min} onChange={e=>change(s.key,e.target.value)}/></div>)}
       {info.categories.map(s=><label key={s.key}>{s.label}<select value={controls[s.key]} onChange={e=>change(s.key,e.target.value)}><option value="unknown">Unknown</option>{s.levels.map(([,v])=><option key={v} value={v}>{v}</option>)}</select></label>)}
       <label>Assumed size conversion (mm/pixel)<input type="number" min="0.0001" max="0.1" step="0.001" value={scale} onChange={e=>{invalidate();setScale(Number(e.target.value));}} /></label>
       <label>Assumed burn coefficient (mm²/s)<input type="number" min="0.000001" max="10" step="0.01" value={k} onChange={e=>{invalidate();setK(Number(e.target.value));}} /></label>
       <label>Ignition module<select value={source} onChange={e=>{invalidate();setSource(Number(e.target.value));}}>{['Forward dock','Cargo','Habitat node','Station core','Science node','Laboratory','Observatory','Cupola','Command','Crew quarters','Medical','EVA airlock','Life support','Engineering','Power systems','Greenhouse'].map((n,i)=><option key={n} value={i}>{n}</option>)}</select></label>
       <button type="button" onClick={()=>run()} disabled={busy}>Simulate</button></>}
     </div>,target)}
-    <h2>Hybrid flame & room simulation</h2><p role="status">{status}</p>{info && <button type="button" onClick={()=>run()} disabled={busy}>{busy ? "Simulating…" : "Simulate current parameters"}</button>}
+    <h2 className="sr-only">Hybrid flame & room simulation</h2><p role="status">{status}</p>{info && <button type="button" onClick={()=>run()} disabled={busy}>{busy ? "Simulating…" : "Simulate current parameters"}</button>}
     {result && <><img draggable={false} style={{touchAction:"none"}} onPointerDown={e=>{e.preventDefault();dragging.current=true;}} onDragStart={e=>{e.dataTransfer.setData("text/plain","ember-hybrid");e.dataTransfer.effectAllowed="copy";}} title="Drag onto a room to set its ignition point" src={result.prediction.hybrid} alt="Hybrid CNN flame estimate" width="256" height="256" />
       <p>Drag the flame onto a room, or select a room to restart there.</p><button type="button" aria-expanded={comparison} onClick={()=>setComparison(v=>!v)}>Compare source images</button>{comparison && <div className="source-comparison"><figure><img src={result.prediction.cnn} alt="Feature-only CNN for applied parameters" width="192" height="192"/><figcaption>Feature-only CNN</figcaption></figure><figure><img src={result.prediction.retrieval} alt="Retrieved reference for applied parameters" width="192" height="192"/><figcaption>Recorded reference · {result.prediction.retrieval_reference}</figcaption></figure></div>}<p>{result.prediction.conditions} · {result.prediction.model_note}</p>
       <p>Mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm</p>
@@ -67,6 +67,6 @@ export function HybridSimulation({ onStarted, onResult }) {
       <button type="button" onClick={()=>{if(frame===result.simulation.frames.length-1)setFrame(0);setPlaying(p=>!p);}}>{playing?'Pause':'Play'}</button>
       <label>Time: {current.time_s.toFixed(1)} s<input type="range" min="0" max={result.simulation.frames.length-1} value={frame} onChange={e=>{setPlaying(false);setFrame(Number(e.target.value));}} /></label>
     </>}
-    <p>Illustrative room spread using an assumed conversion from flame mask size. Burn rate and room transfer are assumptions; airflow and oxygen effects are not solved.</p>
+    <details className="hybrid-limitations"><summary>Simulation assumptions</summary><p>Illustrative room spread using an assumed conversion from flame mask size. Burn rate and room transfer are assumptions; airflow and oxygen effects are not solved.</p></details>
   </section>;
 }
