@@ -1,18 +1,22 @@
 "use client";
 
-// Room simulation tab: the hybrid CNN flame image (ml/dashboard_simulation.py,
-// proxied at /hybrid/*) drives the illustrative room-spread physics from
-// physics-flex2/rooms.py. Controls live in this tab so the flame simulation
-// and its Parameters panel are unchanged.
+// Shared model workspace for the flame and room tabs. The main tab portals
+// the same working controls into its collapsible Parameters panel.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { LlmInsights } from "./llm-insights";
 
 const MODULES = ["Forward dock", "Cargo", "Habitat node", "Station core", "Science node", "Laboratory", "Observatory", "Cupola",
   "Command", "Crew quarters", "Medical", "EVA airlock", "Life support", "Engineering", "Power systems", "Greenhouse"];
 const ROOM_FILL = { burning: "#e65326", burned: "#444", warming: "#8a6134", unignited: "#243a49", inert: "#222" };
 
-export function HybridSimulation() {
+export function HybridSimulation({ controlsContainerId, title = "Room simulation" }) {
+  const controlId = useId();
+  const [controlsContainer, setControlsContainer] = useState(null);
+  useEffect(() => {
+    setControlsContainer(controlsContainerId ? document.getElementById(controlsContainerId) : null);
+  }, [controlsContainerId]);
   const [info, setInfo] = useState(null);
   const [controls, setControls] = useState({});
   const [result, setResult] = useState(null);
@@ -194,22 +198,8 @@ export function HybridSimulation() {
   }
 
   const current = result?.simulation.frames[frame];
-
-  return (
-    <section className="hybrid-active" aria-label="Hybrid CNN room simulation">
-      <header className="hybrid-head">
-        <h2>Room simulation</h2>
-        <p>
-          The hybrid CNN generates a flame image for the chosen conditions; its flame size drives an illustrative fire-spread
-          model across station modules.
-        </p>
-        <p role="status" className="hybrid-status">{status}</p>
-      </header>
-
-      <div className="hybrid-layout">
-        {/* noValidate: the service validates ranges; browser step checks would
-            otherwise silently block defaults such as K = 0.8 with step 0.01. */}
-        <form className="hybrid-controls" noValidate onSubmit={(e) => { e.preventDefault(); run(); }}>
+  const modelControls = (
+    <form className="hybrid-controls" noValidate onSubmit={(e) => { e.preventDefault(); run(); }}>
           <h3>Model conditions</h3>
           {info ? (
             <>
@@ -225,14 +215,14 @@ export function HybridSimulation() {
               {info.numeric.map((s) => (
                 <div className="slider-field" key={s.key}>
                   <div>
-                    <label htmlFor={`hybrid-${s.key}`}>{s.label}</label>
+                    <label htmlFor={`${controlId}-${s.key}`}>{s.label}</label>
                     <span className="editable-value">
                       <input aria-label={`${s.label} value`} type="number" min={s.min} max={s.max} step="any"
                         value={controls[s.key] ?? ""} onChange={(e) => change(s.key, e.target.value)} />
                       <span>{s.unit}</span>
                     </span>
                   </div>
-                  <input id={`hybrid-${s.key}`} type="range" min={s.min} max={s.max} step={s.step}
+                  <input id={`${controlId}-${s.key}`} type="range" min={s.min} max={s.max} step={s.step}
                     value={controls[s.key] ?? s.min} onChange={(e) => change(s.key, e.target.value)} />
                 </div>
               ))}
@@ -261,6 +251,23 @@ export function HybridSimulation() {
             <p className="hybrid-muted">Controls appear once the model service responds.</p>
           )}
         </form>
+  );
+
+  return (
+    <section className={`hybrid-active ${controlsContainerId ? "hybrid-with-panel" : ""}`} aria-label={title}>
+      <header className="hybrid-head">
+        <h2>{title}</h2>
+        <p>
+          The hybrid CNN generates a flame image for the chosen conditions; its flame size drives an illustrative fire-spread
+          model across station modules.
+        </p>
+        <p role="status" className="hybrid-status">{status}</p>
+      </header>
+
+      <div className="hybrid-layout">
+        {/* noValidate: the service validates ranges; browser step checks would
+            otherwise silently block defaults such as K = 0.8 with step 0.01. */}
+        {controlsContainerId ? (controlsContainer && createPortal(modelControls, controlsContainer)) : modelControls}
 
         <div className="hybrid-results">
           {!preview && !result && <p className="hybrid-muted">The generated flame appears here; Simulate shows how fire spreads between modules.</p>}

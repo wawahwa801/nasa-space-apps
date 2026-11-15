@@ -1908,3 +1908,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .rooms-tab-panel .insights-content { max-width: none; margin: 20px 0 0; }
 @media (max-width: 860px) { .hybrid-layout { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 720px) { .rooms-tab-panel .hybrid-active { padding: 84px 12px 32px; } .hybrid-results svg { min-height: 240px; } }
+
+/* The flame workspace uses the same model controls in its side panel. */
+.hybrid-with-panel .hybrid-layout { grid-template-columns: minmax(0, 1fr); }
+#model-parameters .hybrid-controls { border: 0; padding: 0; background: transparent; }
+#model-parameters .hybrid-controls button { padding: 10px 16px; border: 1px solid #ae5f37; border-radius: 8px; color: white; background: #68351f; cursor: pointer; }
+#model-parameters .hybrid-controls button:disabled { opacity: .5; cursor: wait; }
+.nasa-comparison-inputs { margin: 16px 0; padding: 16px; border: 1px solid #263140; border-radius: 14px; }
+.nasa-comparison-inputs summary { cursor: pointer; margin-bottom: 12px; }
+.nasa-comparison-inputs .fields-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.nasa-comparison-inputs .slider-field > div:first-child { flex-wrap: wrap; gap: 8px; }
+.nasa-comparison-inputs .editable-value { min-width: 0; max-width: 100%; }
+.nasa-comparison-inputs .editable-value input { width: 76px; }
+.comparison-actions { flex-wrap: wrap; min-width: 0; max-width: 100%; }
+.comparison-actions .example-select { min-width: 0; max-width: 100%; }
