@@ -3,13 +3,13 @@
 :root{color-scheme:dark;font-family:system-ui,sans-serif;color:#eee;background:#101114}*{box-sizing:border-box}body{max-width:1050px;margin:auto;padding:28px}h1{font-size:28px;margin:18px 0 8px}p{color:#b8bfcb;line-height:1.55}a{color:#a6c9ff}nav{display:flex;gap:18px;font-size:14px}nav a[aria-current]{color:#fff;font-weight:600}.layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px;margin-top:22px}aside,.preview{background:#191c22;border:1px solid #333947;border-radius:14px;padding:22px}label{display:block;font-size:14px;margin-bottom:26px}select{width:100%;margin-top:8px;padding:10px;background:#101216;border:1px solid #495263;border-radius:7px;color:inherit;font:inherit}input[type=range]{display:block;width:100%;margin:16px 0;accent-color:#72a7ff}output{display:block;font-size:21px;margin-top:8px;color:#d7e6ff;font-variant-numeric:tabular-nums}small{display:block;color:#99a3b4;line-height:1.5;font-size:12px}.modes{display:flex;gap:8px;margin-bottom:18px}button{font:inherit;padding:10px 18px;border:1px solid #465064;border-radius:7px;color:#c5cfdd;background:#101216;cursor:pointer}button[aria-pressed=true]{background:#29456d;border-color:#75a7ef;color:white}.figure{margin:0;display:grid;justify-items:center}.figure img{display:block;width:100%;max-width:460px;aspect-ratio:1;object-fit:contain;background:black;border-radius:10px}.figure img[hidden]{display:none}.figure figcaption{font-size:13px;margin-top:12px;line-height:1.5;color:#bbc7da;min-height:36px;width:100%}#status{min-height:40px;font-size:13px;color:#a9c9ff}#status.error{color:#ff9c9c}#counts{font-size:13px;color:#97a3b5}details{margin-top:18px;font-size:13px;border-top:1px solid #343b49;padding-top:16px}summary{cursor:pointer}pre{white-space:pre-wrap;word-break:break-word;font-size:12px}input[type=checkbox]{width:auto}#trainingLabel{margin-top:20px;margin-bottom:8px}#comparison{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px}td{padding:8px;border-bottom:1px solid #343b49;white-space:nowrap}@media(max-width:680px){body{padding:16px}.layout{grid-template-columns:1fr;gap:16px}aside,.preview{padding:17px}label{margin-bottom:18px}.modes button{flex:1}}
 </style></head><body>
 <nav><a href="/flex2/" aria-current="page">FLEX-2</a><a href="/spice/">SPICE</a></nav>
-<h1>FLEX-2 flame lab</h1><p>Slide the conditions to explore spherical droplet flames. Switch between the CNN estimate and a real recorded colour image.</p>
+<h1>FLEX-2 flame lab</h1><p>Compare a recorded example, a CNN estimate, and a retrieval plus CNN blend prototype.</p>
 <div id="counts">Loading FLEX-2 model…</div><p id="benchmark" style="font-size:13px"></p>
 <main class="layout"><aside><label>Fuel<select id="fuel" disabled></select></label><div id="controls"></div>
 <small>Inputs are measured pre-ignition chamber pressure and temperature. Oxygen and initial droplet size are not yet linked per run.</small>
 <details><summary>Recorded examples</summary><select id="example" aria-label="Recorded example"><option value="">Choose a run</option></select><label id="trainingLabel"><input id="trainOnly" type="checkbox"> Retrieve training images only</label></details>
 </aside><section class="preview">
-<div class="modes" role="group" aria-label="Flame display mode"><button id="cnn" aria-pressed="false" disabled>CNN</button><button id="retrieval" aria-pressed="true" disabled>Retrieval</button></div>
+<div class="modes" role="group" aria-label="Flame display mode"><button id="retrieval" aria-pressed="true" disabled>Retrieval</button><button id="cnn" aria-pressed="false" disabled>CNN</button><button id="hybrid" aria-pressed="false" disabled>Hybrid prototype</button></div>
 <div id="status" role="status" aria-live="polite">Loading…</div>
 <figure class="figure"><img id="flame" alt="FLEX-2 flame preview" hidden><figcaption id="caption"></figcaption></figure>
 <small id="modeNote">Recorded colour image. Retrieval changes when a different recorded condition becomes closest.</small><small>Preview aligned to the detected luminous region; flame size is preserved.</small>
@@ -55,27 +55,27 @@ function requestUpdate(){
   show(record.image,'Recorded '+record.id+' · '+record.split+' · '+featureText(record.features),query.version);
   status('Live retrieval · closest recorded conditions');return;
  }
- desired=query;status('Updating CNN…');pump();
+ desired=query;status(mode==='hybrid'?'Updating hybrid prototype…':'Updating CNN…');pump();
 }
 function pump(){
- if(inFlight||!desired||mode!=='cnn')return;
+ if(inFlight||!desired||!['cnn','hybrid'].includes(mode))return;
  const delay=Math.max(0,70-(performance.now()-lastStart));
  if(delay){if(!startTimer)startTimer=setTimeout(()=>{startTimer=null;pump();},delay);return;}
  const query=desired;desired=null;inFlight=true;lastStart=performance.now();controller=new AbortController();
- const params=new URLSearchParams({fuel:query.fuel,mode:'cnn',...query.features});
+ const params=new URLSearchParams({fuel:query.fuel,mode,library:$('trainOnly').checked?'train':'catalog',...query.features});
  fetch('/flex2/api/predict?'+params,{signal:controller.signal}).then(async response=>{
   const result=await response.json();if(!response.ok)throw Error(result.error||'CNN request failed');
-  if(query.generation!==generation||mode!=='cnn')return;
+  if(query.generation!==generation||!['cnn','hybrid'].includes(mode))return;
   // Display completed intermediate predictions while dragging; keep only the latest pending inputs.
-  show(result.image,'CNN generated · '+query.fuel+' · '+featureText(result.features),query.version);
-  status(result.outside_training_range?'Outside this fuel’s training range · experimental extrapolation':desired?'Live CNN · updating toward the current slider values':'Live CNN · experimental estimate');
+  show(result.image,(mode==='hybrid'?'50/50 retrieval + CNN blend prototype':'CNN generated')+' · '+query.fuel+' · '+featureText(result.features),query.version);
+  status(result.outside_training_range?'Outside this fuel’s training range · experimental extrapolation':desired?'Updating toward current slider values':mode==='hybrid'?'Hybrid prototype · not trained or benchmarked':'Live CNN · experimental estimate');
  }).catch(error=>{if(error.name!=='AbortError'&&query.generation===generation){$('flame').hidden=true;status(error.message,true);}})
  .finally(()=>{inFlight=false;controller=null;pump();});
 }
 function changeMode(next){
  if(!info)return;mode=next;generation++;desired=null;controller?.abort();clearTimeout(startTimer);startTimer=null;
- $('cnn').setAttribute('aria-pressed',String(mode==='cnn'));$('retrieval').setAttribute('aria-pressed',String(mode==='retrieval'));
- $('modeNote').textContent=mode==='cnn'?'CNN-generated image; experimental and not a physical fire forecast.':'Actual colour image from the matched library. The image changes when a different recorded run becomes closest; no synthetic interpolation.';
+ $('cnn').setAttribute('aria-pressed',String(mode==='cnn'));$('retrieval').setAttribute('aria-pressed',String(mode==='retrieval'));$('hybrid').setAttribute('aria-pressed',String(mode==='hybrid'));
+ $('modeNote').textContent=mode==='hybrid'?'Prototype blends the nearest recorded training/catalog image 50/50 with the CNN output. This is pixel averaging, not a trained retrieval-conditioned model.':'Actual colour image from the matched library. The image changes when a different recorded run becomes closest; no synthetic interpolation.';
  $('flame').hidden=true;requestUpdate();
 }
 async function init(){
@@ -90,9 +90,9 @@ async function init(){
   for(const row of [['Test method','RGB MAE','Flame-region MAE'],...Object.entries(r.evaluation.test).map(([name,m])=>[name,m.rgb_mae.toFixed(4),m.foreground_mae.toFixed(4)])]){
    const tr=document.createElement('tr');for(const value of row){const td=document.createElement('td');td.textContent=value;tr.append(td);}table.append(tr);
   }$('comparison').append(table);$('limitation').textContent=r.limitation;$('processing').textContent=info.stage+'. '+info.preprocessing;$('source').href=info.source_url;
-  $('fuel').disabled=false;$('cnn').disabled=false;$('retrieval').disabled=false;
+  $('fuel').disabled=false;$('cnn').disabled=false;$('retrieval').disabled=false;$('hybrid').disabled=false;
   $('fuel').onchange=()=>{generation++;controller?.abort();controls();requestUpdate();};
-  $('cnn').onclick=()=>changeMode('cnn');$('retrieval').onclick=()=>changeMode('retrieval');$('trainOnly').onchange=()=>{if(mode==='retrieval')requestUpdate();};
+  $('cnn').onclick=()=>changeMode('cnn');$('retrieval').onclick=()=>changeMode('retrieval');$('hybrid').onclick=()=>changeMode('hybrid');$('trainOnly').onchange=()=>{if(mode==='retrieval'||mode==='hybrid')requestUpdate();};
   $('example').onchange=()=>{
    const r=info.library.find(x=>x.id===$('example').value);if(!r)return;generation++;controller?.abort();$('fuel').value=r.fuel;controls();
    for(const f of getSpec().fields){$(f.key).value=r.features[f.key];$(f.key+'Value').textContent=r.features[f.key].toFixed(2)+' '+f.unit;}requestUpdate();
