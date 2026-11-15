@@ -2,5 +2,6 @@ node_modules/
 .next/
 next-env.d.ts
 
-# Generated from ../fire-dashboard by scripts/sync-fire-dashboard.mjs
+# Old generated copy of ../fire-dashboard (no longer used; the dashboard is
+# served by app/nasa-dashboard/[...path]/route.js). Ignored in case it exists.
 public/fire-dashboard/

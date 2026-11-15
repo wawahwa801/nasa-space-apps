@@ -128,9 +128,9 @@ place to enter values**:
 
 The standalone page still has its own form and calls `mount(document)` automatically.
 
-`frontend/scripts/sync-fire-dashboard.mjs` copies this folder into
-`frontend/public/fire-dashboard/` before `npm run dev` and `npm run build`. Keep
-editing the files here; the copy is regenerated.
+The Next.js app serves this folder directly at `/nasa-dashboard/` (see
+`frontend/app/nasa-dashboard/[...path]/route.js`), so edits here show up on reload
+with no copy step.
 
 ## Rebuilding the reference data
 

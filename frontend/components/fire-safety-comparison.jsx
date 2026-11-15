@@ -4,11 +4,12 @@
 // It renders inside a shadow root so its CSS, element IDs and scripts stay
 // separate from the rest of the page. Its inputs come from the page's
 // Parameters panel (`inputs`, base units), so it shows results only.
-// The files are copied to public/fire-dashboard by scripts/sync-fire-dashboard.mjs.
+// The files are served straight from ../fire-dashboard by
+// app/nasa-dashboard/[...path]/route.js (no copy step).
 
 import { useEffect, useRef, useState } from "react";
 
-const BASE = "/fire-dashboard";
+const BASE = "/nasa-dashboard";
 const SCRIPTS = [
   "data/reference-data.js",
   "js/parameters.js",
@@ -111,7 +112,7 @@ export function FireSafetyComparison({ inputs, onDefinitions, onGotoField, onLoa
       } catch (err) {
         if (!cancelled) {
           setError(
-            `The NASA comparison could not load (${err.message}). Run "npm run sync:fire-dashboard" and reload.`,
+            `The NASA comparison could not load (${err.message}). Check that the fire-dashboard folder is next to frontend/ and that the dev server is running, then reload.`,
           );
         }
       }
