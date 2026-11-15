@@ -2,14 +2,25 @@
 import math
 from model import number, predict, trajectory
 
-LABELS = ['Bridge', 'Avionics', 'Science', 'Crew quarters', 'Central hub', 'Medical', 'Life support', 'Cargo', 'Engineering']
+# Fictional modular station: longitudinal spine, branches and two bypass loops.
+MODULES = [
+    ('Forward dock', 0, 2), ('Cargo', 1, 2), ('Habitat node', 2, 2),
+    ('Station core', 3, 2), ('Science node', 4, 2), ('Laboratory', 5, 2),
+    ('Observatory', 6, 2), ('Cupola', 3, 0), ('Command', 3, 1),
+    ('Crew quarters', 2, 1), ('Medical', 1, 1), ('EVA airlock', 2, 3),
+    ('Life support', 1, 3), ('Engineering', 3, 3), ('Power systems', 3, 4),
+    ('Greenhouse', 5, 3),
+]
+CONNECTIONS = [(0,1),(1,2),(2,3),(3,4),(4,5),(5,6),
+               (3,8),(8,7),(2,9),(9,10),(9,8),
+               (2,11),(11,12),(3,13),(13,14),(11,13),(5,15)]
 
 
 def example():
-    rooms = [dict(id=f'R{i+1}', name=name, x=i % 3, y=i // 3, fuel=True) for i, name in enumerate(LABELS)]
-    edges = [dict(a=i, b=j, open=True) for i in range(9) for j in range(i+1,9)
-             if abs(rooms[i]['x']-rooms[j]['x'])+abs(rooms[i]['y']-rooms[j]['y']) == 1]
-    return dict(rooms=rooms, edges=edges, source=4, duration_s=60,
+    rooms = [dict(id=f'R{i+1}', name=name, x=x, y=y, fuel=True)
+             for i, (name, x, y) in enumerate(MODULES)]
+    edges = [dict(a=a, b=b, open=True) for a,b in CONNECTIONS]
+    return dict(rooms=rooms, edges=edges, source=3, duration_s=60,
                 transfer_fraction=.8, ignition_threshold=.10, cooling_time_s=30,
                 run_id='A184D09', k_mm2_s=.8,
                 observation=dict(diameter_px=100, mm_per_pixel=.03,
