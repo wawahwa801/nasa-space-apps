@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SPICE flame test</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101114;color:#eee}*{box-sizing:border-box}body{max-width:1120px;margin:auto;padding:28px}h1{font-size:27px;margin:0 0 8px}p{line-height:1.5;color:#b9bdc8}a{color:#ffba83}main{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:24px}section,aside{background:#191b20;border:1px solid #30333c;border-radius:12px;padding:20px}label{display:block;margin-bottom:18px;font-size:14px}select,input,button{font:inherit;color:inherit;background:#101114;border:1px solid #454956;border-radius:6px;padding:9px;width:100%;margin-top:6px}input[type=range]{padding:0;accent-color:#e58e55}button{cursor:pointer;background:#784221}input[type=checkbox]{width:auto}figure{margin:0;min-width:0}figure img{width:100%;max-width:330px;display:block;background:#000;aspect-ratio:1;object-fit:contain;border-radius:8px}figcaption{margin:10px 0;color:#c9cbd2;font-size:14px}.images{display:grid;grid-template-columns:1fr 1fr;gap:16px}#status{min-height:44px;font-size:14px}#status.error{color:#ff9696}small{display:block;color:#aaa;line-height:1.5}details{margin-top:20px}pre{white-space:pre-wrap;word-break:break-word;font-size:12px}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:7px;text-align:left;border-bottom:1px solid #333}.match{font-size:13px}#counts{font-size:14px}@media(max-width:720px){body{padding:16px}main{grid-template-columns:1fr}.images{gap:10px}section,aside{padding:14px}}
+</style></head><body>
+<h1>SPICE flame test</h1>
+<p>Change the conditions to compare a CNN-generated flame with a recorded NASA flame. Gas-jet diffusion flames in microgravity; images keep the camera’s horizontal orientation.</p>
+<div id="counts">Loading model and image library…</div>
+<main><aside>
+<label>Fuel<select id="fuel"></select></label><div id="controls"></div>
+<label><input type="checkbox" id="trainOnly"> Search training images only</label>
+<button id="update">Update images</button>
+<label style="margin-top:20px">Try a recorded condition<select id="example"><option value="">Choose an example</option></select></label>
+<small>Retrieval selects an existing image. It changes when another recorded condition becomes the closest match. The CNN uses the feature values only.</small>
+</aside><section>
+<div id="status" role="status" aria-live="polite">Loading…</div>
+<div class="images"><figure><img id="prediction" alt="CNN-generated flame estimate" hidden><figcaption>CNN generated · 256 × 256</figcaption></figure><figure><img id="reference" alt="Closest recorded NASA SPICE flame" hidden><figcaption id="referenceTitle">Recorded NASA flame</figcaption></figure></div>
+<div id="match" class="match"></div>
+<details><summary>Evaluation on unseen experiments</summary><p>Checkpoint selection uses validation groups. Test groups and identical recorded conditions are held out of training. The all-images retrieval library includes those held-out images; reported retrieval scores use training images only. Lower image errors are better.</p><div id="metrics"></div><p id="limitations"></p></details>
+<details><summary>Image preparation and source</summary><p>Still-image IDs are joined directly to the NASA workbook. A fixed camera crop and equal-scale padding preserve relative flame sizes. One −5 EV exposure bracket is selected per row; source-marked saturated images are excluded. Masks are image-derived proxies. Methane is excluded because too few usable ignition groups remain in this subset.</p><a id="source" target="_blank" rel="noopener">NASA SPICE dataset</a><pre id="preprocessing"></pre></details>
+</section></main>
+<script>
+let info,abort,sequence=0,timer;
+const $=id=>document.getElementById(id);
+function setStatus(text,error=false){$('status').textContent=text;$('status').className=error?'error':'';}
+function controls(){
+ const spec=info.fuels.find(f=>f.name===$('fuel').value);$('controls').replaceChildren();
+ for(const field of spec.fields){
+  const label=document.createElement('label');label.textContent=field.label+' ('+field.unit+')';
+  const input=document.createElement(field.key==='nozzle_mm'?'select':'input');input.id=field.key;
+  if(field.key==='nozzle_mm'){
+   for(const value of spec.nozzles)input.add(new Option(value.toFixed(4),String(value)));
+  }else{
+   input.type='number';input.min=field.min;input.max=field.max;input.step='any';
+  }
+  input.value=field.default;label.append(input);
+  if(field.key!=='nozzle_mm'){
+   const slider=document.createElement('input');slider.type='range';slider.min=field.min;slider.max=field.max;
+   slider.step=(field.max-field.min)/200||1;slider.value=field.default;
+   slider.setAttribute('aria-label',field.label+' slider');slider.oninput=()=>{input.value=Number(slider.value).toFixed(4);schedule();};
+   input.oninput=()=>{slider.value=input.value;schedule();};label.append(slider);
+   const range=document.createElement('small');range.textContent='Recorded range: '+field.min.toFixed(2)+'–'+field.max.toFixed(2)+' '+field.unit;label.append(range);
+  }else input.onchange=schedule;
+  $('controls').append(label);
+ }
+}
+function schedule(){clearTimeout(timer);timer=setTimeout(predict,220);}
+async function predict(){
+ const current=++sequence;abort?.abort();abort=new AbortController();setStatus('Updating…');
+ const query=new URLSearchParams({fuel:$('fuel').value,library:$('trainOnly').checked?'train':'catalog'});
+ for(const key of ['nozzle_mm','fuel_sccm','air_cm_s']){
+  const input=$(key);if(!input.value||!input.checkValidity()){$('prediction').hidden=true;$('reference').hidden=true;setStatus('Enter values within the displayed recorded ranges.',true);return;}query.set(key,input.value);
+ }
+ try{
+  const response=await fetch('/spice/api/predict?'+query,{signal:abort.signal});const result=await response.json();
+  if(current!==sequence)return;if(!response.ok)throw Error(result.error||'Prediction failed');
+  $('prediction').src=result.prediction;$('prediction').hidden=false;
+  const match=result.matches[0];$('reference').src=match.image;$('reference').hidden=false;
+  $('referenceTitle').textContent=match.id+' · '+match.split+' image';
+  $('match').replaceChildren();const text=document.createElement('p');
+  text.textContent=(match.exact_conditions?'Exact recorded conditions. ':'Closest available conditions. ')+
+   'Nozzle '+match.features.nozzle_mm.toFixed(4)+' mm · fuel '+match.features.fuel_sccm.toFixed(2)+' sccm · air '+match.features.air_cm_s.toFixed(2)+' cm/s.';
+  const link=document.createElement('a');link.href=match.original_url;link.target='_blank';link.rel='noopener';link.textContent='Open original NASA still';
+  $('match').append(text,link);
+  setStatus(result.outside_training_range?'Outside this fuel’s training range; the CNN is extrapolating.':'Experimental image estimate. Unobserved feature combinations may be unreliable.');
+ }catch(error){if(error.name!=='AbortError'){
+  $('prediction').hidden=true;$('reference').hidden=true;setStatus(error.message,true);
+ }}
+}
+async function init(){
+ try{
+  const response=await fetch('/spice/api/info');if(!response.ok)throw Error('Could not load SPICE model');info=await response.json();
+  for(const fuel of info.fuels)$('fuel').add(new Option(fuel.name,fuel.name));
+  for(const record of info.examples)$('example').add(new Option(record.id+' · '+record.fuel+' · '+record.split,record.id));
+  const r=info.report,c=r.counts;$('counts').textContent=c.pairs+' matched stills · '+c.groups+' experiment groups · '+c.splits.train+' train / '+c.splits.validation+' validation / '+c.splits.test+' test · '+r.parameters.toLocaleString()+' CNN parameters';
+  const table=document.createElement('table');
+  for(const row of [['Test method','RGB MAE','Flame-region MAE'],...Object.entries(r.evaluation.test).map(([name,m])=>[name,m.rgb_mae.toFixed(4),m.foreground_mae.toFixed(4)])]){
+   const tr=document.createElement('tr');for(const value of row){const td=document.createElement('td');td.textContent=value;tr.append(td);}table.append(tr);
+  }$('metrics').append(table);$('limitations').textContent=r.limitation;
+  $('source').href=info.source_url;$('preprocessing').textContent=JSON.stringify(info.preprocessing,null,2);
+  $('fuel').onchange=()=>{controls();predict();};$('trainOnly').onchange=predict;$('update').onclick=predict;
+  $('example').onchange=()=>{
+   const record=info.examples.find(r=>r.id===$('example').value);if(!record)return;
+   $('fuel').value=record.fuel;controls();
+   for(const [key,value] of Object.entries(record.features)){
+    $(key).value=value;const slider=$(key).parentElement.querySelector('input[type=range]');if(slider)slider.value=value;
+   }predict();
+  };controls();await predict();
+ }catch(error){setStatus(error.message,true);}
+}
+init();
+</script></body></html>

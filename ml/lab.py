@@ -26,6 +26,10 @@ def png(array):
 
 def create_app():
     app=Flask(__name__);torch.set_num_threads(2)
+    # SPICE also runs independently via spice_lab.py, without BASS/FLEX artifacts.
+    if (OUT/'spice-study'/'selected.pt').exists():
+        from spice_lab import build_blueprint
+        app.register_blueprint(build_blueprint())
     app.jinja_loader=DictLoader({'lab.html':(Path(__file__).resolve().parent/'templates'/'lab.html').read_text()})
     engines={}
     definitions=[

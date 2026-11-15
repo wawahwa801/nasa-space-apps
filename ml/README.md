@@ -1,5 +1,7 @@
 # Focused BASS-II and FLEX flame experiments
 
+**New: [SPICE retrieval and feature-to-image CNN](SPICE.md).** Run `python ml/spice_lab.py` for the standalone comparison at http://127.0.0.1:5051/spice/. Its matched data and trained checkpoint must be prepared first; commands and evaluation are in the linked guide. When those artifacts exist, restarting `ml/lab.py` also mounts it at `/spice/` on port 5050.
+
 The local page now has one experiment selector, the relevant physical inputs, a CNN image, a nearest-training-trial image and an optional mask view. Detailed scores and NASA conditions are collapsed below. Two separately trained models avoid pooling solid PMMA films with liquid methanol droplets. Both produce 256×256 images and remain experimental.
 
 | Experiment | Independent targets | Train / validation / test | Source frames used |

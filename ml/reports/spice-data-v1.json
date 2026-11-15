@@ -1,0 +1,2149 @@
+{
+  "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-107",
+  "license": "CC0-1.0 (NASA PSI catalog)",
+  "fields": [
+    "nozzle_mm",
+    "fuel_sccm",
+    "air_cm_s"
+  ],
+  "fuels": [
+    "50 % Propylene",
+    "75 % Propylene",
+    "Ethylene",
+    "Propane"
+  ],
+  "resolution": 256,
+  "preprocessing": {
+    "camera_size": [
+      3008,
+      2000
+    ],
+    "fixed_crop": [
+      150,
+      680,
+      2950,
+      1100
+    ],
+    "resize": "aspect-preserving pad to 256; no per-flame scale normalization",
+    "exposure": "-5 EV bracket only; reject workbook-marked RGB saturation; unknown flags retained",
+    "mask": "weak HSV largest component, not a physical measurement"
+  },
+  "split": "seed42 hash order within fuel; whole ignitions and duplicate physical conditions grouped",
+  "files": {
+    "PSI-107_Raw Data_Spice Flight Test Data II modified.xls": {
+      "bytes": 429568,
+      "sha256": "52cdb88a3d6c1a4008abb3c1edc601f96a210985e1227e42687b5400784d108d"
+    },
+    "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip": {
+      "bytes": 6793541,
+      "sha256": "367ea3434bebf8b8b676cc1c44622a7feacf10a3424a19c0b5ca2c3f47020b0b"
+    },
+    "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip": {
+      "bytes": 9011150,
+      "sha256": "551486f44b00ccc38f56f09656211e0a73b00f62ebf9174feb197a11eeda29c5"
+    },
+    "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip": {
+      "bytes": 131468585,
+      "sha256": "9e7e97d169354a875c6c76b97ae017eb8c7b445e8b9c5e6cdaeb6e236c78ab7b"
+    },
+    "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip": {
+      "bytes": 77523642,
+      "sha256": "7c1f37c9b658f21b7f5ce042fa858ae0f71aabc0ba3d9f3396878145e0d6b85f"
+    },
+    "PSI-107_Raw Data_SPICE_GMT2009_062_jpegs.zip": {
+      "bytes": 94753456,
+      "sha256": "8a36aba6eb121068593dc0c0b130e47949ba702cc24663ed5e232860be2685cf"
+    }
+  },
+  "counts": {
+    "pairs": 92,
+    "groups": 44,
+    "splits": {
+      "train": 64,
+      "validation": 12,
+      "test": 16
+    },
+    "fuels": {
+      "Ethylene": 20,
+      "Propane": 16,
+      "75 % Propylene": 22,
+      "50 % Propylene": 34
+    }
+  },
+  "records": [
+    {
+      "id": "ISS018E030336",
+      "excel_row": 6,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-52628",
+      "features": [
+        1.6002,
+        103.8,
+        36.39132270957638
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030336.jpg",
+      "image_sha256": "2be316662a14beb73b53b84a3fd3450cde62142748aa60f271cfc4cead6b6f60",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-52628",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E030339",
+      "excel_row": 8,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-53407",
+      "features": [
+        1.6002,
+        51.6,
+        40.152184247612084
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030339.jpg",
+      "image_sha256": "808cd5649b5d2b0919b5cc4dbd64960de19bc80d2c099f4071cd3fe58890abf0",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-53407",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E030342",
+      "excel_row": 10,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-56144",
+      "features": [
+        1.6002,
+        138.0,
+        57.07606116877278
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030342.jpg",
+      "image_sha256": "89deeb52c64ae7e92fec6e987acc3b4151e7095f2f15418f49657816c6fb0f58",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-56144",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E030345",
+      "excel_row": 11,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-56144",
+      "features": [
+        1.6002,
+        137.4,
+        57.07606116877278
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030345.jpg",
+      "image_sha256": "8a75e96a82d97ff2af58e1a41c949526a4fb6fdbabb330fce0c4a4a4ab037b9f",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-56144",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E030351",
+      "excel_row": 13,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-56542",
+      "features": [
+        1.6002,
+        69.0,
+        58.01627655328171
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030351.jpg",
+      "image_sha256": "5450d62b5077995db72a2f196a674fb08e81ace1ec16ba052d2a5278e9d58add",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-56542",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E030354",
+      "excel_row": 15,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-56919",
+      "features": [
+        1.6002,
+        63.599999999999994,
+        17.587015019397825
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030354.jpg",
+      "image_sha256": "95316e707ad6daa591b02c142db58b111abcef45be93e2498ef3f38d101d3965",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-56919",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E030357",
+      "excel_row": 17,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-57059",
+      "features": [
+        1.6002,
+        34.8,
+        16.646799634888897
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030357.jpg",
+      "image_sha256": "8ae8803fc753db693e69c8864f98943860d959adc59e77f102db1998e5ac7299",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-57059",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E030360",
+      "excel_row": 19,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-61906",
+      "features": [
+        0.762,
+        221.4,
+        33.57067655604959
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030360.jpg",
+      "image_sha256": "316bb1d020cfcfaac4a4680358ee20b9bf1248facb515453cd1dac87f427e6d3",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-61906",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E030363",
+      "excel_row": 21,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-62105",
+      "features": [
+        0.762,
+        109.2,
+        35.45110732506745
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030363.jpg",
+      "image_sha256": "0d9ef9b9ccc77806d32175d1ccd646b6518832f8aee27787d99d411b2983a8b0",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-62105",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E030366",
+      "excel_row": 22,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-62446",
+      "features": [
+        0.762,
+        231.6,
+        58.01627655328171
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030366.jpg",
+      "image_sha256": "56e50c3228cb90d62d60f888f730b61bac0126596d680d710aac998125c5097b",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-62446",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E030372",
+      "excel_row": 27,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-62868",
+      "features": [
+        0.762,
+        199.2,
+        18.527230403906753
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030372.jpg",
+      "image_sha256": "58cf49dee9c72341ed2f89f79d87136e632da4203375ca837d4c1fcf4baf4cf8",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-62868",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E030375",
+      "excel_row": 29,
+      "day": 45,
+      "fuel": "Ethylene",
+      "group": "045-ignition-62988",
+      "features": [
+        0.762,
+        114.0,
+        16.646799634888897
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT045 2009 jpegs.zip",
+      "member": "ISS018E030375.jpg",
+      "image_sha256": "e8e53e15b8bad24fca085bdd4d012867693b45b10007ad6cfecac8308772587d",
+      "source": "PSI-107",
+      "ignition_group": "045-ignition-62988",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033332",
+      "excel_row": 32,
+      "day": 48,
+      "fuel": "Ethylene",
+      "group": "048-ignition-52497",
+      "features": [
+        0.4064,
+        192.0,
+        35.45110732506745
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033332.jpg",
+      "image_sha256": "c517a0328a45d25b621ceabe0f191b2e3863b6e17c6d8c805e61529636db1545",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-52497",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033341",
+      "excel_row": 40,
+      "day": 48,
+      "fuel": "Ethylene",
+      "group": "048-ignition-53299",
+      "features": [
+        0.4064,
+        60.599999999999994,
+        17.587015019397825
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033341.jpg",
+      "image_sha256": "2ef34fcdbc0766d3b0fbfb84e9707ce12d0c5f79cf7de6ea9175c74b9a2d1a74",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-53299",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033344",
+      "excel_row": 41,
+      "day": 48,
+      "fuel": "Ethylene",
+      "group": "048-ignition-53299",
+      "features": [
+        0.4064,
+        61.199999999999996,
+        17.587015019397825
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033344.jpg",
+      "image_sha256": "39f1899efdb6efbce12188fc43711f4bfe86c27ecc07d2535a59ace212f535c7",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-53299",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033347",
+      "excel_row": 42,
+      "day": 48,
+      "fuel": "Ethylene",
+      "group": "048-ignition-53299",
+      "features": [
+        0.4064,
+        120.6,
+        17.587015019397825
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033347.jpg",
+      "image_sha256": "2a3c7de9f90af511ad2223a7e81a59316f8d9d217b8eac0c1744863b9bd30d9f",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-53299",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033350",
+      "excel_row": 43,
+      "day": 48,
+      "fuel": "Ethylene",
+      "group": "048-ignition-53299",
+      "features": [
+        0.4064,
+        179.4,
+        16.646799634888897
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033350.jpg",
+      "image_sha256": "ad2d4512a9f94a6a31439c2a4f32807bbfaf85a73c6bfcc829dfb74ff1f579e3",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-53299",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033353",
+      "excel_row": 44,
+      "day": 48,
+      "fuel": "Ethylene",
+      "group": "048-ignition-53299",
+      "features": [
+        0.4064,
+        31.2,
+        15.706584250379969
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033353.jpg",
+      "image_sha256": "2407341130d20a02a17da59e1397261c983658361c8b58aec866e680424d8030",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-53299",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033356",
+      "excel_row": 45,
+      "day": 48,
+      "fuel": "Ethylene",
+      "group": "048-ignition-53299",
+      "features": [
+        0.4064,
+        90.0,
+        15.706584250379969
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033356.jpg",
+      "image_sha256": "33ce0461d177b2fd1936cb98028bbedfc7c9a60f639ec683eca62d2945e2769e",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-53299",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033359",
+      "excel_row": 46,
+      "day": 48,
+      "fuel": "Ethylene",
+      "group": "048-ignition-53299",
+      "features": [
+        0.4064,
+        88.8,
+        15.706584250379969
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033359.jpg",
+      "image_sha256": "3b5fbc1be50b2cd908c75a2154010eb83660ea6daede2f499b5de27776ff586a",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-53299",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033368",
+      "excel_row": 51,
+      "day": 48,
+      "fuel": "Propane",
+      "group": "048-ignition-61296",
+      "features": [
+        1.6002,
+        91.08,
+        46.73369193917458
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033368.jpg",
+      "image_sha256": "2d99b830e3cd2e9fe4ec749f2db04a04b4784cd0e55844fea7194a721610e14c",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-61296",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033374",
+      "excel_row": 55,
+      "day": 48,
+      "fuel": "Propane",
+      "group": "048-ignition-61881",
+      "features": [
+        1.6002,
+        78.48,
+        36.39132270957638
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033374.jpg",
+      "image_sha256": "053fc8c1cf65a5c9ba944d79b802ff15ccbb0ede65436e2a559e1c95d31d46fe",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-61881",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E033380",
+      "excel_row": 59,
+      "day": 48,
+      "fuel": "Propane",
+      "group": "048-ignition-63878",
+      "features": [
+        1.6002,
+        59.04,
+        22.28809194194246
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE GMT048 2009 jpegs.zip",
+      "member": "ISS018E033380.jpg",
+      "image_sha256": "da95e2f852d491c1b9fc01eb1bac0784291b7799055b77ab9489d2fbdfef5bf3",
+      "source": "PSI-107",
+      "ignition_group": "048-ignition-63878",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E033876",
+      "excel_row": 63,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-41931",
+      "features": [
+        0.762,
+        113.39999999999999,
+        32.63046117154067
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033876.jpg",
+      "image_sha256": "d491f62f8166e45f7b930b566f3423e6605fb87f99a7f77c524b91865820d215",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-41931",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E033882",
+      "excel_row": 67,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-42170",
+      "features": [
+        0.762,
+        83.52,
+        20.407661172924605
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033882.jpg",
+      "image_sha256": "f4e977411c2dd7f41a3a6ecd14ea8c65aa840b8bc90df76c22fa73d036ae6d8c",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-42170",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033891",
+      "excel_row": 72,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-42575",
+      "features": [
+        0.762,
+        33.839999999999996,
+        15.706584250379969
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033891.jpg",
+      "image_sha256": "23c790e9c7f84d7dee5157fc8e41e746fcc047552cc63edfe69e0ca250d7c2af",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-42575",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033894",
+      "excel_row": 73,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-43307",
+      "features": [
+        0.4064,
+        53.28,
+        33.57067655604959
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033894.jpg",
+      "image_sha256": "76472f8c06c4ca021df33163727501264a3d3892e6401f4c96c4ab6d36c90bde",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-43307",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033900",
+      "excel_row": 77,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-44479",
+      "features": [
+        0.4064,
+        35.64,
+        33.57067655604959
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033900.jpg",
+      "image_sha256": "057583b0313fb4e5d3434f418cbf60ee9367166c30e0e732d8589dc9c68a0f32",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-44479",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033906",
+      "excel_row": 81,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-44804",
+      "features": [
+        0.4064,
+        53.64,
+        26.989168864487098
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033906.jpg",
+      "image_sha256": "314912f829eb1441c97a8a4c011e27ae76d456f8a281331c23af1ee1be69e6e1",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-44804",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E033909",
+      "excel_row": 82,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-44804",
+      "features": [
+        0.4064,
+        27.0,
+        26.989168864487098
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033909.jpg",
+      "image_sha256": "427002542f0094a1dca418da525ea76fa37951b31ce5cc888768e7f837b82a10",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-44804",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E033912",
+      "excel_row": 83,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-44932",
+      "features": [
+        0.4064,
+        65.52,
+        14.76636886587104
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033912.jpg",
+      "image_sha256": "dd9b938cff351e8058e720ec34e34be36bf91ab3b17bd2a376d51fa3d093a260",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-44932",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033915",
+      "excel_row": 84,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-44932",
+      "features": [
+        0.4064,
+        32.4,
+        14.76636886587104
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033915.jpg",
+      "image_sha256": "74d05e99438bbbd99b05953309168af168b98745179edce24d73993af5cd4f3a",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-44932",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033918",
+      "excel_row": 87,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-45767",
+      "features": [
+        0.4064,
+        93.24,
+        16.646799634888897
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033918.jpg",
+      "image_sha256": "3f36937e595a02f5e2bc142f0d8058cbefe5aa2e139a4ca7253b8251401c4b8a",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-45767",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033921",
+      "excel_row": 88,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-45767",
+      "features": [
+        0.4064,
+        45.0,
+        15.706584250379969
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033921.jpg",
+      "image_sha256": "fb07455d0aa0c745603978599f908e24c0a81d2569a41c84308337394f169a07",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-45767",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033930",
+      "excel_row": 95,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-47065",
+      "features": [
+        1.6002,
+        111.6,
+        66.47821501386206
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033930.jpg",
+      "image_sha256": "dcec5e3389b6c163ec16109fa90343a908ffb47ec94adbc89b6075b0588f9e05",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-47065",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033933",
+      "excel_row": 96,
+      "day": 52,
+      "fuel": "Propane",
+      "group": "052-ignition-47065",
+      "features": [
+        1.6002,
+        55.8,
+        66.47821501386206
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033933.jpg",
+      "image_sha256": "791d835097610aa06670fa0b37ad8f4ea8f468153bf986dcc1efe3a8bc52a15b",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-47065",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033947",
+      "excel_row": 100,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-58445",
+      "features": [
+        1.6002,
+        58.193548387096776,
+        64.5977842448442
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033947.jpg",
+      "image_sha256": "a4b1cff93b44505cb71191e9ca219e0ea01b364cd5cf7bebd44479081382f00e",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-58445",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033950",
+      "excel_row": 101,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-58445",
+      "features": [
+        1.6002,
+        29.81818181818182,
+        65.53799962935314
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033950.jpg",
+      "image_sha256": "84a8452616f552e1839f681b790b868b88a776c3c75d65609c2688e91bbd5e28",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-58445",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033953",
+      "excel_row": 102,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-58937",
+      "features": [
+        1.6002,
+        33.18475073313783,
+        29.809815018013886
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033953.jpg",
+      "image_sha256": "174e44d989c222dcdfb603f8194d79e8cf9de726330bd2c8c8f66eae4fed55e6",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-58937",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E033956",
+      "excel_row": 103,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-58937",
+      "features": [
+        1.6002,
+        37.9941348973607,
+        28.869599633504954
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033956.jpg",
+      "image_sha256": "44ec8a360fb010a163ed5298bb77b8e86b2d26e00cd72164cc4b12b38d0883e9",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-58937",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E033959",
+      "excel_row": 104,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-58937",
+      "features": [
+        1.6002,
+        15.870967741935484,
+        29.809815018013886
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033959.jpg",
+      "image_sha256": "2f9fff71bb2876dcf91b64e1fbf252189ad3a34884824b63aa61540f0b7cb598",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-58937",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E033979",
+      "excel_row": 115,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-62749",
+      "features": [
+        0.762,
+        65.88856304985337,
+        61.777138091317426
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033979.jpg",
+      "image_sha256": "017601b142c178f1e8dcb4e7a6910912b27e26dd8b7d77261b8bd15f565e3d2e",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-62749",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033982",
+      "excel_row": 116,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-62749",
+      "features": [
+        0.762,
+        32.70381231671554,
+        60.836922706808494
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033982.jpg",
+      "image_sha256": "0d0f2b91e2440ccce586f29233846b0f4280323397bd3b5ccfe759adbfed82fb",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-62749",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033985",
+      "excel_row": 117,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-62749",
+      "features": [
+        0.762,
+        71.17888563049854,
+        59.89670732229956
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033985.jpg",
+      "image_sha256": "d3ef09baf573ac17457f1ca1890b6d9eb74dc4c8baf878dc1c75b0ffc53e2d84",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-62749",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033988",
+      "excel_row": 121,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-63018",
+      "features": [
+        0.762,
+        45.20821114369502,
+        38.271753478594235
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033988.jpg",
+      "image_sha256": "ed003415f45e5b7e2f44a815c9115a7a46e7eee7339a4e8e28ce15141b7d3e92",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-63018",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033991",
+      "excel_row": 122,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-63018",
+      "features": [
+        0.762,
+        21.642228739002935,
+        37.3315380940853
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033991.jpg",
+      "image_sha256": "24ab591fff747d103d1c25f4383cb6d57117c97aeec07b3927602106c6ae862b",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-63018",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033994",
+      "excel_row": 123,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-63018",
+      "features": [
+        0.762,
+        61.56011730205279,
+        37.3315380940853
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033994.jpg",
+      "image_sha256": "756a9f58287821423d77cc94bcbc4b1ec515ba83d7132df5781f405447c6af96",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-63018",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E033997",
+      "excel_row": 126,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64032",
+      "features": [
+        0.4064,
+        44.24633431085044,
+        13.826153481362113
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E033997.jpg",
+      "image_sha256": "58595439ec8c23b03239f326d173fe7fc0967cd0a4b0f9ee38a69f0d31c2c118",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64032",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E034000",
+      "excel_row": 127,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64032",
+      "features": [
+        0.4064,
+        22.60410557184751,
+        13.826153481362113
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034000.jpg",
+      "image_sha256": "8ff9974d054a216066d425a895932847f2cb662263a585858a45d77997ab7fe3",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64032",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E034003",
+      "excel_row": 128,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64032",
+      "features": [
+        0.4064,
+        44.24633431085044,
+        13.826153481362113
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034003.jpg",
+      "image_sha256": "c8b74b6618fe625a9ac77c920ea0bf2f069a49ba3106f30a78dc848cdedd2945",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64032",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E034006",
+      "excel_row": 131,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64249",
+      "features": [
+        0.4064,
+        26.451612903225808,
+        41.092399632121015
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034006.jpg",
+      "image_sha256": "15540814674569f11db2decc372cf52d6eee244557a734877579afc60b81c540",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64249",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E034009",
+      "excel_row": 132,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64249",
+      "features": [
+        0.4064,
+        27.41348973607038,
+        41.092399632121015
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034009.jpg",
+      "image_sha256": "3a0e60beeb35451b1154a46ce5ecd6ae36e4a3d0dab516a490b035229445b9d2",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64249",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E034012",
+      "excel_row": 133,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64249",
+      "features": [
+        0.4064,
+        12.98533724340176,
+        41.092399632121015
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034012.jpg",
+      "image_sha256": "66a8be186a4951f6656f37787cf9831d1cfbd38a261bd7b5298c7fd72a5cca8e",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64249",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E034015",
+      "excel_row": 134,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64249",
+      "features": [
+        0.4064,
+        27.41348973607038,
+        41.092399632121015
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034015.jpg",
+      "image_sha256": "c1d78bff6d2da71ebbe8c4f6fca91cc21a71c183e440dfd05ee0ce8e58b568d0",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64249",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E034018",
+      "excel_row": 135,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64249",
+      "features": [
+        0.4064,
+        27.41348973607038,
+        41.092399632121015
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034018.jpg",
+      "image_sha256": "bc79ffa973910026e3e879ad9f0c4ad77d483cfadc6c9c363b3d7ffa5cdcccde",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64249",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E034024",
+      "excel_row": 140,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64690",
+      "features": [
+        0.4064,
+        12.504398826979472,
+        66.47821501386206
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034024.jpg",
+      "image_sha256": "573abe711d06adeb027162049b48c9723bdd951dc64f094aaf675e01af9f859a",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64690",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E034030",
+      "excel_row": 142,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64690",
+      "features": [
+        0.4064,
+        9.618768328445748,
+        85.28252270404062
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034030.jpg",
+      "image_sha256": "bf400617aa274206c914c1fb5c3f458aa10fc26784aef0db89876628d1f028ba",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64690",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E034033",
+      "excel_row": 143,
+      "day": 52,
+      "fuel": "75 % Propylene",
+      "group": "052-ignition-64690",
+      "features": [
+        0.4064,
+        10.580645161290324,
+        66.47821501386206
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT052_2009_jpegs.zip",
+      "member": "ISS018E034033.jpg",
+      "image_sha256": "673be51a6bf3fb4ef9d9b1b8ede13ff3993fe48232a5237ae3494c107099f8d4",
+      "source": "PSI-107",
+      "ignition_group": "052-ignition-64690",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035873",
+      "excel_row": 148,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-32176",
+      "features": [
+        1.6002,
+        47.68794326241135,
+        10.065291943326404
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035873.jpg",
+      "image_sha256": "d1b2bd029d96085e9e2bb7c25a2b1d449398e1d2b9f497b63ebb6c7ad7495df6",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-32176",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035876",
+      "excel_row": 149,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-32176",
+      "features": [
+        1.6002,
+        55.24822695035461,
+        10.065291943326404
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035876.jpg",
+      "image_sha256": "ebe7c16b8213c1c8e3d2245d1a7dd51b106d78bff2f047b999cdeee4c9e452b4",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-32176",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035879",
+      "excel_row": 150,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-32176",
+      "features": [
+        1.6002,
+        27.914893617021278,
+        10.065291943326404
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035879.jpg",
+      "image_sha256": "b57e20f1a4cfd69fced27e1b550a8bdebe3f89a4a789039847ff2d7a0833fd10",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-32176",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035882",
+      "excel_row": 151,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-32176",
+      "features": [
+        1.6002,
+        69.20567375886526,
+        10.065291943326404
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035882.jpg",
+      "image_sha256": "71019c180b25c9dccac29f3451b8b7c6c626705822a01decc330e7de0ec8aa3f",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-32176",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035888",
+      "excel_row": 156,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-32426",
+      "features": [
+        1.6002,
+        43.61702127659575,
+        57.07606116877278
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035888.jpg",
+      "image_sha256": "165b10b0298bfbe7f7b91d0ce6f6e71712b71bd4da443ac431ea760c58cd533a",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-32426",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035891",
+      "excel_row": 157,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-32426",
+      "features": [
+        1.6002,
+        100.60992907801419,
+        57.07606116877278
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035891.jpg",
+      "image_sha256": "0054863532a7459ac93c1e4d48b95f9bb9a4ca36ee5924b7f7e1f858e9c8e8f8",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-32426",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035894",
+      "excel_row": 158,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-32426",
+      "features": [
+        1.6002,
+        107.00709219858157,
+        57.07606116877278
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035894.jpg",
+      "image_sha256": "52511ebee735f34d588dc2e5e19e044cb12396e51b459f9c86eb0239d0ecad65",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-32426",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035897",
+      "excel_row": 162,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-34574",
+      "features": [
+        1.6002,
+        81.41843971631207,
+        26.048953479978174
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035897.jpg",
+      "image_sha256": "16e86dccef1c8de028ae51ac3d78d4c2e78f9263d291c0755eee4e3993ee1082",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-34574",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E035900",
+      "excel_row": 163,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-34574",
+      "features": [
+        1.6002,
+        40.70921985815603,
+        26.048953479978174
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035900.jpg",
+      "image_sha256": "0a962a1f31a6dd612324e0bcb280c9ab7f4ca1334d0e38a1ae0bfe1ec36edb3c",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-34574",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E035903",
+      "excel_row": 164,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-34574",
+      "features": [
+        1.6002,
+        92.46808510638299,
+        25.108738095469246
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035903.jpg",
+      "image_sha256": "da0499d24d1886b9579310c49973c629230c38daf2facb4b1191f75d549d8dd8",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-34574",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E035909",
+      "excel_row": 169,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-34754",
+      "features": [
+        1.6002,
+        46.52482269503547,
+        39.21196886310316
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035909.jpg",
+      "image_sha256": "6970c7bf24d8575c19d0e146de493979a7f5a9e7da05166296442336f65291ef",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-34754",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035912",
+      "excel_row": 170,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-34754",
+      "features": [
+        1.6002,
+        105.26241134751774,
+        39.21196886310316
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035912.jpg",
+      "image_sha256": "898a7154543dad18c3672cd66533c86a9837f25cac7e5387f47f9377e80248b4",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-34754",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035915",
+      "excel_row": 171,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-34754",
+      "features": [
+        1.6002,
+        117.47517730496455,
+        39.21196886310316
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035915.jpg",
+      "image_sha256": "69996ae6fb11f852af3467c3b0921f525da6d7afbc01be7524c90d3a910dd13b",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-34754",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035918",
+      "excel_row": 175,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-35396",
+      "features": [
+        0.762,
+        106.42553191489363,
+        11.94572271234426
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035918.jpg",
+      "image_sha256": "b5ef13064937fed544ff6b7f552fef9bc3feb508ccd04950321eff4c168b01ad",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-35396",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E035921",
+      "excel_row": 176,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-35396",
+      "features": [
+        0.762,
+        52.921985815602845,
+        11.005507327835332
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035921.jpg",
+      "image_sha256": "a23de767a50e4680cc391b3c00dbf861aa881f331cb64f1d48a12837c06f5e0e",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-35396",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E035924",
+      "excel_row": 177,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-35396",
+      "features": [
+        0.762,
+        97.12056737588654,
+        11.005507327835332
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035924.jpg",
+      "image_sha256": "092a64d1334db25265b6dbe98cd61194c82b3bd2da1ee1ce4ccdb9e280273b6b",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-35396",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E035927",
+      "excel_row": 178,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-35396",
+      "features": [
+        0.762,
+        87.81560283687944,
+        11.005507327835332
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035927.jpg",
+      "image_sha256": "5f5b0a1f4519377d5ddf00b36557c5a4510ffaf8941110a64d142e739c0a9f71",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-35396",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E035930",
+      "excel_row": 182,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-35616",
+      "features": [
+        0.762,
+        67.46099290780143,
+        26.989168864487098
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035930.jpg",
+      "image_sha256": "390d0d0cb2d6b3b1550657e3bf812db38584d2e2da2c9755e598954a9cd17908",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-35616",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035933",
+      "excel_row": 183,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-35616",
+      "features": [
+        0.762,
+        34.312056737588655,
+        26.989168864487098
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035933.jpg",
+      "image_sha256": "fc152a90c062bb3b083758ab7c90ef86e766f8cfb699ed957372f1898cc30555",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-35616",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035936",
+      "excel_row": 184,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-35616",
+      "features": [
+        0.762,
+        65.71631205673759,
+        26.048953479978174
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035936.jpg",
+      "image_sha256": "2b798dd18caecf1a743e59e99fc77a3e0cc561f5e4f60e3a126742b552004eb8",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-35616",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035939",
+      "excel_row": 187,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-36060",
+      "features": [
+        0.762,
+        45.361702127659576,
+        42.03261501662994
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035939.jpg",
+      "image_sha256": "38d36458a0cc1ac58fc6960c77b1a2104974740d0ed270d0e75c5bd939cd3809",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-36060",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035946",
+      "excel_row": 191,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-36939",
+      "features": [
+        0.762,
+        57.57446808510639,
+        15.706584250379969
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035946.jpg",
+      "image_sha256": "84d7ad223a0807afab2786180f107e86eb6b5ca46b17be89d075c59cc8219e4b",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-36939",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E035949",
+      "excel_row": 192,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-36939",
+      "features": [
+        0.762,
+        88.39716312056738,
+        14.76636886587104
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035949.jpg",
+      "image_sha256": "7a988d04e8932f931369e7c4418c2b85683dba4f456e437ebb772b1ee8378729",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-36939",
+      "split": "validation"
+    },
+    {
+      "id": "ISS018E035952",
+      "excel_row": 195,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-37540",
+      "features": [
+        0.762,
+        64.55319148936171,
+        26.989168864487098
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035952.jpg",
+      "image_sha256": "dc86c3e36c7cae6bd1355b0c5b3b58704edce9dbee02ab51ba535ed334b9f1db",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-37540",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035955",
+      "excel_row": 196,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-37540",
+      "features": [
+        0.762,
+        65.13475177304966,
+        26.048953479978174
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035955.jpg",
+      "image_sha256": "353caa10dd04508b9b5f7c1de8176cbe7dff0b9fe1da8d8397bdbde6ec9ac51a",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-37540",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035958",
+      "excel_row": 203,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-38047",
+      "features": [
+        0.762,
+        27.914893617021278,
+        11.005507327835332
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035958.jpg",
+      "image_sha256": "c61bef6f9dc7063292fb27765c3f5fcfa5062dad0759b6d93a1bb6c5b91862ca",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-38047",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035961",
+      "excel_row": 204,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-38047",
+      "features": [
+        0.762,
+        28.496453900709223,
+        14.76636886587104
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035961.jpg",
+      "image_sha256": "4b3f9bc297621d7a5edebaae691f6a315a84d8d5e271bc295c7795408fa7e5b5",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-38047",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035964",
+      "excel_row": 205,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-38047",
+      "features": [
+        0.762,
+        28.496453900709223,
+        23.22830732645139
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035964.jpg",
+      "image_sha256": "2b8ba585df8126cf6f9a98015e3ac9056daa937ed570fde9312bd533929ef8e1",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-38047",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035967",
+      "excel_row": 206,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-38047",
+      "features": [
+        0.762,
+        27.914893617021278,
+        33.57067655604959
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035967.jpg",
+      "image_sha256": "5947552b4c3bdc51dda5a39ea7b16a490b4376d98d91b0fc888d882492aa7b4f",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-38047",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035970",
+      "excel_row": 207,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-38047",
+      "features": [
+        0.762,
+        27.914893617021278,
+        45.79347655466565
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035970.jpg",
+      "image_sha256": "98a87e0791b9d908c72ade5b7409841a88e46f46f913ff3568ea57c052dc99b6",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-38047",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035979",
+      "excel_row": 211,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-39140",
+      "features": [
+        0.4064,
+        11.631205673758867,
+        11.005507327835332
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035979.jpg",
+      "image_sha256": "c55b4dd1a7dd2f007844c87abfc3a7eae8ca37b1f41e9add6695ea23aad88689",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-39140",
+      "split": "train"
+    },
+    {
+      "id": "ISS018E035982",
+      "excel_row": 215,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-40361",
+      "features": [
+        0.4064,
+        22.680851063829788,
+        11.005507327835332
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035982.jpg",
+      "image_sha256": "b74195c01facf55e9ed98d2f3a2df611b354fe1b0e14f4556c0d71a3fedeffc8",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-40361",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E035985",
+      "excel_row": 216,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-40361",
+      "features": [
+        0.4064,
+        11.049645390070923,
+        11.005507327835332
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035985.jpg",
+      "image_sha256": "4bc2e72814a56a3c3559c53635a915d278f69917fe1fb4f450717c2026fc56a4",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-40361",
+      "split": "test"
+    },
+    {
+      "id": "ISS018E035988",
+      "excel_row": 217,
+      "day": 55,
+      "fuel": "50 % Propylene",
+      "group": "055-ignition-40361",
+      "features": [
+        0.4064,
+        25.588652482269506,
+        10.065291943326404
+      ],
+      "pressure_pa": 101325.0,
+      "exposure_bracket_ev": -5,
+      "archive": "PSI-107_Raw Data_SPICE_GMT2009_055_jpeg.zip",
+      "member": "ISS018E035988.jpg",
+      "image_sha256": "d19a697c4d429041970bf712c294f2e19e96c8512b1e092dfbad87994a6ae063",
+      "source": "PSI-107",
+      "ignition_group": "055-ignition-40361",
+      "split": "test"
+    }
+  ],
+  "excluded": [
+    {
+      "excel_row": 34,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 48,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 52,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 56,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 60,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 64,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 68,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 71,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 74,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 78,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 91,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 92,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 98,
+      "reason": "Missing/ambiguous ignition clock"
+    },
+    {
+      "excel_row": 99,
+      "reason": "Missing/ambiguous ignition clock"
+    },
+    {
+      "excel_row": 105,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 106,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 107,
+      "reason": "Missing/ambiguous ignition clock"
+    },
+    {
+      "excel_row": 110,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 111,
+      "reason": "No unambiguous -5 EV bracket"
+    },
+    {
+      "excel_row": 139,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 141,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 144,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 155,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 168,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 188,
+      "reason": "No unambiguous -5 EV bracket"
+    },
+    {
+      "excel_row": 208,
+      "reason": "No visible flame in fixed ROI"
+    },
+    {
+      "excel_row": 210,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 275,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 276,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 279,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 280,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 283,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 284,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 286,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 287,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 290,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 291,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 294,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 295,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 298,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 299,
+      "reason": "Missing physical condition"
+    },
+    {
+      "excel_row": 301,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 308,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 309,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 310,
+      "reason": "Source marks selected bracket saturated"
+    },
+    {
+      "excel_row": 320,
+      "reason": "No visible flame in fixed ROI"
+    },
+    {
+      "excel_row": 321,
+      "reason": "No visible flame in fixed ROI"
+    },
+    {
+      "excel_row": 311,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 312,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 313,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 316,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 317,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 318,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 319,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 326,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 327,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 328,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    },
+    {
+      "excel_row": 329,
+      "reason": "Fuel has fewer than four usable ignition/condition groups"
+    }
+  ]
+}
