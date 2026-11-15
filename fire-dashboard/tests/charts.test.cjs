@@ -47,3 +47,18 @@ test('strip plot places one dot per finite point and ignores unknown rows', () =
   for (const d of dots) assert.ok(Number.isFinite(Number(d.attrs.cx)) && Number.isFinite(Number(d.attrs.cy)));
   assert.ok(svg.children.some((c) => c.attrs.class === 'row-label highlight'));
 });
+
+test('bar chart draws finite bars from zero and skips missing values', () => {
+  const container = node();
+  const context = vm.createContext({ window: {}, document: { createElementNS: node }, container });
+  vm.runInContext(readFileSync(require.resolve('../js/charts.js'), 'utf8'), context);
+  vm.runInContext(`window.Charts.bars(container, {
+    bars: [{ label: 'A', value: 575 }, { label: 'B', value: 0.4 }, { label: 'C', value: NaN, highlight: true }],
+    unit: 'ppm', xLabel: 'CO',
+  })`, context, { timeout: 3000 });
+  const svg = container.children[0];
+  const bars = svg.children.filter((c) => c.attrs.class === 'bar s1');
+  assert.equal(bars.length, 2);
+  for (const b of bars) assert.doesNotMatch(b.attrs.d, /NaN|Infinity/);
+  assert.ok(svg.children.some((c) => c.attrs.class === 'row-label highlight'));
+});

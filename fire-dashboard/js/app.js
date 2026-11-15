@@ -7,6 +7,7 @@
 (function () {
   const REF = window.REFERENCE_DATA;
   const T = window.THRESHOLDS;
+  const SMOKE = window.SMOKE_PRODUCTS;
   const SECTIONS = window.PARAMETER_SECTIONS;
   const UNITS = window.UNIT_SYSTEMS;
   const { fmt } = window.Charts;
@@ -309,6 +310,17 @@
       }
     }
 
+    // Smoke: what the selected material can release when it overheats or burns
+    // (general chemistry from its composition; see SMOKE_PRODUCTS in parameters.js).
+    const smoke = v.material_type ? SMOKE.materials[v.material_type] : null;
+    if (smoke) {
+      const mat = esc(v.material_type);
+      const names = smoke.products.map(([name]) => name).join(", ");
+      add(smoke.level, smoke.level === "info" ? `Smoke from ${mat}` : `Toxic smoke if ${mat} overheats or burns`,
+        `${mat} (${esc(smoke.makeup)}) can release ${esc(names)}. Overheating alone can produce this smoke, before any flame. ` +
+        "General combustion chemistry, not measured in the loaded data; see Smoke and soot hazards.", "material_type");
+    }
+
     flags.sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank);
     return { flags, near };
   }
@@ -560,6 +572,63 @@
       .join("")}</tbody></table>`;
   }
 
+  function renderSmoke(v) {
+    const parts = [];
+    const gasLevel = (x, lim) => (!has(x) ? null : x > lim.serious ? "serious" : x > lim.warning ? "warning" : "good");
+    const co = gasLevel(v.co_ppm, T.co_ppm);
+    const co2 = gasLevel(v.co2_ppm, T.co2_ppm);
+    const detection = v.monitoring === "Offline" ? "serious" : ["Degraded", "Unknown"].includes(v.monitoring) ? "warning" : v.monitoring ? "good" : null;
+    const material = v.material_type ? SMOKE.materials[v.material_type] : null;
+    for (const lv of [co, co2, detection, material && material.level]) if (lv) parts.push(lv);
+    const overall = parts.sort((a, b) => LEVELS[b].rank - LEVELS[a].rank)[0];
+    $("#smoke-level").innerHTML = overall ? `${badge(overall)} <span class="muted">smoke hazard</span>` : "";
+
+    const reading = (label, value, unit, lv, note) =>
+      `<li><span>${label}</span><span class="value">${value === null ? '<span class="muted">no reading</span>' : `${fmt(value)} ${unit}`}</span>${lv ? badge(lv) : "<span></span>"}<small>${note}</small></li>`;
+    $("#smoke-readings").innerHTML = [
+      reading("Carbon monoxide (CO)", has(v.co_ppm) ? v.co_ppm : null, "ppm", co, `NIOSH limits ${T.co_ppm.warning} ppm (8-hour average) and ${T.co_ppm.serious} ppm (ceiling). Rising CO is an early sign of smouldering.`),
+      reading("Carbon dioxide (CO₂)", has(v.co2_ppm) ? v.co2_ppm : null, "ppm", co2, `NIOSH limits ${T.co2_ppm.warning.toLocaleString()} ppm (8-hour average) and ${T.co2_ppm.serious.toLocaleString()} ppm (short-term).`),
+      `<li><span>Smoke detection</span><span class="value">${v.monitoring ? esc(v.monitoring) : '<span class="muted">not specified</span>'}</span>${detection ? badge(detection) : "<span></span>"}<small>${detection === "serious" || detection === "warning" ? "Smoke and toxic gases may go unnoticed while monitoring is " + esc(v.monitoring.toLowerCase()) + "." : "Atmospheric monitoring status from the Parameters panel."}</small></li>`,
+    ].join("");
+
+    const productList = (title, entry) => `<li class="smoke-group">${title} <span class="muted">(${esc(entry.makeup)})</span></li>` +
+      entry.products.map(([name, why]) => `<li><span>${esc(name)}</span><small>${esc(why)}</small></li>`).join("");
+    const groups = [];
+    if (material) groups.push(productList(`If <strong>${esc(v.material_type)}</strong> overheats or burns`, material));
+    if (v.fuel_type) groups.push(productList(`If <strong>${esc(v.fuel_type)}</strong> burns`, SMOKE.fuel));
+    $("#smoke-products").innerHTML = groups.length ? groups.join("") : '<li class="muted">Select a material or fuel in the Parameters panel to see what its smoke can contain.</li>';
+
+    // Measured: chamber CO rise during BASS-II burns, by material.
+    const byCat = new Map();
+    for (const t of REF.bass.tests) {
+      if (!byCat.has(t.category)) byCat.set(t.category, []);
+      byCat.get(t.category).push(t);
+    }
+    const median = (xs) => { const a = [...xs].sort((p, q) => p - q); return a.length ? (a.length % 2 ? a[(a.length - 1) / 2] : (a[a.length / 2 - 1] + a[a.length / 2]) / 2) : null; };
+    const barsData = [...byCat.entries()].map(([cat, tests]) => {
+      const rises = tests.map((t) => t.co_rise_ppm).filter((x) => x != null);
+      const co2r = tests.map((t) => t.co2_rise_pct).filter((x) => x != null);
+      return {
+        label: cat, shortLabel: cat.split(" (")[0], value: rises.length ? Math.max(...rises) : NaN, highlight: cat === v.material_type,
+        tip: `<strong>${esc(cat)}</strong><br>${rises.length} tests with CO readings<br>Typical CO rise ${fmt(median(rises))} ppm, largest ${fmt(Math.max(...rises))} ppm` +
+          (co2r.length ? `<br>CO₂ rise up to ${fmt(Math.max(...co2r))}%` : ""),
+      };
+    }).sort((a, b) => (b.value || 0) - (a.value || 0));
+    Charts.bars($("#smoke-chart"), { bars: barsData, unit: "ppm", xLabel: "Largest CO rise in one test (ppm)" });
+
+    const notes = [];
+    const allRises = REF.bass.tests.map((t) => t.co_rise_ppm).filter((x) => x != null);
+    notes.push(`<li>CO rose in ${allRises.filter((x) => x > 0).length} of ${allRises.length} BASS-II burns with CO readings, by up to ${fmt(Math.max(...allRises))} ppm. These are readings in the small BASS-II test chamber; in a full cabin the same burn is diluted into more air, but smoke collects near its source first.</li>`);
+    if ((v.gravity || "").startsWith("Microgravity")) {
+      notes.push("<li><strong>Microgravity:</strong> smoke doesn't rise. It lingers around the source and moves only with ventilation airflow, so where it goes depends on the cabin fans.</li>");
+    }
+    const same = v.material_type ? REF.samer.tests.filter((t) => t.material === v.material_type) : [];
+    notes.push(same.length
+      ? `<li><strong>SAME-R</strong> heated ${esc(v.material_type)} in ${same.length} tests to study the smoke spacecraft detectors must sense. Its measured particle sizes aren't in the loaded data.</li>`
+      : "<li><strong>Data gap:</strong> the loaded data doesn't measure smoke particles or toxic gases such as HCN or HF; SAME-R's particle-size results and SPICE's smoke points would fill it.</li>");
+    $("#smoke-notes").innerHTML = notes.join("");
+  }
+
   function range(values) {
     const xs = values.filter((x) => x != null);
     return xs.length ? `${fmt(Math.min(...xs))}–${fmt(Math.max(...xs))}` : "–";
@@ -706,6 +775,7 @@
     renderMeters(v);
     renderComposition(v);
     renderBass(v);
+    renderSmoke(v);
     renderAcme(v, result);
     renderSaffire(v);
     renderRelated(v);

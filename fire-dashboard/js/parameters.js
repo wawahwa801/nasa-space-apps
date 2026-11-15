@@ -148,6 +148,45 @@
     acme_neighbours: 10,
   };
 
+  // What each material or fuel can release when it overheats or burns.
+  // This is general combustion chemistry inferred from what each material is
+  // made of (elements present), NOT measured in the loaded NASA data. Actual
+  // amounts depend on temperature, oxygen and airflow. Review before relying on it.
+  //   level: how the assessment flags it ("serious", "warning" or "info")
+  //   products: [name, why it matters]
+  const ORGANIC = ["Carbon monoxide (CO)", "Toxic; binds to blood haemoglobin. Produced by incomplete burning and smouldering."];
+  const CO2 = ["Carbon dioxide (CO₂)", "Builds up in a closed cabin; raises breathing rate."];
+  const HCN = ["Hydrogen cyanide (HCN)", "Highly toxic; can form when nitrogen-containing materials burn or decompose."];
+  window.SMOKE_PRODUCTS = {
+    materials: {
+      "Kapton": { makeup: "polyimide film (carbon, hydrogen, nitrogen, oxygen)", level: "warning",
+        products: [ORGANIC, HCN, ["Nitrogen oxides (NOx)", "Respiratory irritants."], ["Dense smoke particles", "Obscure vision and carry adsorbed toxins."]] },
+      "Nomex": { makeup: "aramid fabric (carbon, hydrogen, nitrogen, oxygen)", level: "warning",
+        products: [ORGANIC, HCN, ["Smoke particles", "Irritant; carry adsorbed toxins."]] },
+      "Ultem": { makeup: "polyetherimide (carbon, hydrogen, nitrogen, oxygen)", level: "warning",
+        products: [ORGANIC, HCN, ["Smoke particles", "Irritant; carry adsorbed toxins."]] },
+      "Pyrell": { makeup: "flame-retardant polyurethane foam (carbon, hydrogen, nitrogen, oxygen)", level: "warning",
+        products: [ORGANIC, HCN, ["Isocyanate vapours", "Strong respiratory irritants from decomposing polyurethane."], ["Dense smoke particles", "Foams smoulder and smoke heavily."]] },
+      "Teflon": { makeup: "PTFE fluoropolymer (carbon, fluorine)", level: "serious",
+        products: [["Hydrogen fluoride (HF)", "Highly toxic and corrosive; forms from fluorinated decomposition products and moisture."],
+          ["Carbonyl fluoride (COF₂)", "Toxic gas from overheated PTFE."],
+          ["Fluorinated fume particles", "Overheated PTFE fume causes 'polymer fume fever'."]] },
+      "PMMA (acrylic)": { makeup: "acrylic plastic (carbon, hydrogen, oxygen)", level: "info",
+        products: [ORGANIC, CO2, ["Methyl methacrylate vapour", "Irritant monomer released as PMMA decomposes."]] },
+      "SIBAL fabric (cotton-fiberglass)": { makeup: "cotton (cellulose) with fiberglass", level: "info",
+        products: [ORGANIC, CO2, ["Smoke particles", "Cotton smoulders and smokes; fiberglass doesn't burn."]] },
+      "Lampwick": { makeup: "cotton (cellulose)", level: "info",
+        products: [ORGANIC, CO2, ["Smoke particles", "Cotton smoulders and smokes."]] },
+      "Silicone": { makeup: "silicone polymer (silicon, oxygen, carbon, hydrogen)", level: "info",
+        products: [ORGANIC, CO2, ["Silica (SiO₂) particles", "Fine white smoke; irritant if inhaled."]] },
+      "Wax (candle or slab)": { makeup: "paraffin or plant wax (carbon, hydrogen, oxygen)", level: "info",
+        products: [ORGANIC, CO2, ["Soot", "Wax flames are sooty; soot coats surfaces and sensors."]] },
+    },
+    // Hydrocarbon gas fuels (all in the fuel list): same products whatever the gas.
+    fuel: { makeup: "hydrocarbon gas (carbon, hydrogen)", level: "info",
+      products: [ORGANIC, CO2, ["Soot", "Forms when the flame is short of oxygen; SPICE studied when these flames start to smoke."]] },
+  };
+
   // Example input, roughly an ISS-like cabin. Used by the "Load example" button.
   window.EXAMPLE_INPUT = {
     environment: "Pressurised", gravity: "Microgravity (~0 g)", internal_temp_c: 22.5, pressure_kpa: 101.3,

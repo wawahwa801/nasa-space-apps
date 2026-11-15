@@ -42,6 +42,10 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
   with your values as reference lines.
 - **BASS-II solid materials:** 129 ISS burn tests plotted by starting O₂, one row per material, with
   your O₂ as a reference line; CO/CO₂ rises during burns and the earlier BASS run counts.
+- **Smoke and soot hazards:** an overall smoke-hazard level from your CO and CO₂ readings (NIOSH limits),
+  smoke-detection status and your material; what the material's or fuel's smoke can contain (general
+  combustion chemistry from its composition, kept in `SMOKE_PRODUCTS` in `js/parameters.js`, not measured
+  data); and measured CO rises during BASS-II burns, by material.
 - **Related NASA tests:** SAME-R and BASS tests for your material; SPICE and ACME tests for your fuel.
 - **Data sets:** the four built-in data sets, plus any CSV you add.
 

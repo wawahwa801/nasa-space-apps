@@ -87,6 +87,31 @@
         <details class="table-view"><summary>Show data table <span class="muted">(rows for your material are highlighted)</span></summary><div id="bass-table" class="table-wrap"></div></details>
       </article>
 
+      <article class="card" id="smoke-card">
+        <div class="card-head">
+          <div>
+            <h2>Smoke and soot hazards</h2>
+            <p class="card-sub">In a closed cabin, smoke and toxic gases can harm crew even when a fire stays small, and overheating materials can smoke without ever flaming.</p>
+          </div>
+          <div id="smoke-level"></div>
+        </div>
+        <div class="smoke-grid">
+          <section>
+            <h3>Your readings</h3>
+            <ul id="smoke-readings" class="smoke-list"></ul>
+          </section>
+          <section>
+            <h3 id="smoke-products-title">What the smoke can contain</h3>
+            <ul id="smoke-products" class="smoke-list"></ul>
+            <p class="source-note">General combustion chemistry from what each material is made of, not measured in the loaded data. Amounts depend on temperature, oxygen and airflow.</p>
+          </section>
+        </div>
+        <h3>CO produced during BASS-II burns (measured)</h3>
+        <p class="card-sub">Largest rise in chamber carbon monoxide during a single test, by material. Hover a bar for the typical rise and CO₂.</p>
+        <div id="smoke-chart" class="chart"></div>
+        <ul id="smoke-notes" class="related"></ul>
+      </article>
+
       <article class="card">
         <h2>Saffire-I sample 2: conditions during a large-scale burn</h2>
         <p class="card-sub">Sensor readings over the test, with your values drawn as a horizontal line for comparison.</p>
