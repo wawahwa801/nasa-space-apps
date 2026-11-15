@@ -1989,11 +1989,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 }
 
 #flame-panel .hybrid-flame > .demo-variation-preview { display: grid; justify-items: center; gap: 16px; width: 100%; max-width: none; }
-#flame-panel .demo-flame-image.showing-variation { animation: none; cursor: default; }
 .demo-frame-conditions { max-width: 640px; }
-.demo-variation-controls { width: min(100%, 560px); text-align: left; padding: 12px 0; }
-.demo-variation-controls label { display: grid; gap: 8px; font-size: 12px; color: #a9b4c3; }
-.demo-variation-controls label > span { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-.demo-variation-controls input[type=number] { width: 64px; padding: 6px; border: 1px solid #283444; border-radius: 7px; background: #090f17; color: #e4eaf2; }
-.demo-variation-controls input[type=range] { width: 100%; accent-color: #e7b18e; }
-.demo-variation-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.hybrid-active .demo-image-button { display: block; width: min(100%, 72svh, 760px); padding: 0; border: 0; border-radius: 0; background: transparent; line-height: 0; }
+.hybrid-active .demo-image-button:disabled { opacity: 1; cursor: default; }
+.hybrid-active .demo-image-button:focus-visible { outline: 2px solid #e7b18e; outline-offset: 6px; }
+.demo-image-button img { display: block; }
