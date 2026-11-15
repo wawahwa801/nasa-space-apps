@@ -122,7 +122,7 @@ place to enter values**:
 - The dashboard runs in a shadow root (`frontend/components/fire-safety-comparison.jsx`)
   with `FireDashboard.mount(shadowRoot, { externalInputs: true, ... })`: its own form is
   hidden, values arrive through `FireDashboard.setInputs(values)` in base units, and the
-  `ember` theme (`data-theme="ember"`) matches the flame simulation's look.
+  `pyroclast` theme (`data-theme="pyroclast"`) matches the flame simulation's look.
 - The results layout follows the space it is given (container queries), so it also
   fits between the Parameters and chat panels.
 
