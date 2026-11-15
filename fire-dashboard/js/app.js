@@ -8,6 +8,7 @@
   const REF = window.REFERENCE_DATA;
   const T = window.THRESHOLDS;
   const SMOKE = window.SMOKE_PRODUCTS;
+  const MON = window.Monitoring;
   const SECTIONS = window.PARAMETER_SECTIONS;
   const UNITS = window.UNIT_SYSTEMS;
   const { fmt } = window.Charts;
@@ -330,6 +331,11 @@
         "General combustion chemistry, not measured in the loaded data; see Smoke and soot hazards.", "material_type");
     }
 
+    // Live monitoring: changes between timed readings (see renderMonitoring).
+    const live = MON.detect(readings, monThresholds());
+    const liveTop = live.events.find((e) => LEVELS[e.level] && LEVELS[e.level].rank >= LEVELS.warning.rank);
+    if (liveTop) add(liveTop.level, `Live monitoring: ${liveTop.title}`, esc(liveTop.detail), liveTop.field || undefined);
+
     flags.sort((a, b) => LEVELS[b.level].rank - LEVELS[a.level].rank);
     return { flags, near };
   }
@@ -403,6 +409,111 @@
       exposure("co_ppm", "Carbon monoxide", T.co_ppm),
       exposure("co2_ppm", "Carbon dioxide", T.co2_ppm),
     ].join("");
+  }
+
+  // ---------------------------------------------------------- live monitoring
+
+  let readings = MON.normalise(load("fd.readings", []));
+  let monInterval = Number(load("fd.monInterval", T.monitoring.interval_min)) || T.monitoring.interval_min;
+  let demoTimer = null;
+
+  const monThresholds = () => ({ ...T, monitoring: { ...T.monitoring, interval_min: monInterval } });
+
+  function saveReadings() {
+    readings = MON.normalise(readings).slice(-T.monitoring.max_readings);
+    save("fd.readings", readings);
+  }
+
+  function addReading(reading) {
+    const r = { t: isFinite(reading && reading.t) ? Number(reading.t) : Date.now() };
+    for (const f of MON.FIELDS) {
+      const x = reading ? reading[f.id] : null;
+      if (typeof x === "number" && isFinite(x)) r[f.id] = x;
+    }
+    readings.push(r);
+    saveReadings();
+    update();
+    return r;
+  }
+
+  // Snapshot the current inputs as a reading, now or one interval after the last one.
+  function recordReading(next) {
+    const { v } = readValues();
+    const last = readings[readings.length - 1];
+    const t = next && last ? last.t + monInterval * 60000 : Date.now();
+    const r = addReading({ ...v, t });
+    monNote(`Recorded a reading at ${new Date(r.t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}${next && last ? ` (+${monInterval} min)` : ""}.`);
+  }
+
+  function monNote(msg) { const n = $("#mon-note"); if (n) n.textContent = msg; }
+
+  function stopDemo() {
+    if (demoTimer) clearInterval(demoTimer);
+    demoTimer = null;
+    const b = $("#mon-demo");
+    if (b) b.textContent = "Play demo";
+  }
+
+  function playDemo() {
+    if (demoTimer) { stopDemo(); monNote("Demo stopped."); return; }
+    if (readings.length && !window.confirm("Replace the current readings with the demo sequence?")) return;
+    const seq = MON.demoSequence(Date.now() - 11 * monInterval * 60000, monInterval);
+    readings = [];
+    saveReadings();
+    let i = 0;
+    const step = () => {
+      if (i >= seq.length) { stopDemo(); monNote("Demo finished: 12 synthetic readings, smouldering turning into flames."); return; }
+      addReading(seq[i++]);
+      monNote(`Demo: reading ${i} of ${seq.length} (each is ${monInterval} min apart, played every 1.5 s).`);
+    };
+    step();
+    demoTimer = setInterval(step, 1500);
+    $("#mon-demo").textContent = "Stop demo";
+  }
+
+  function renderMonitoring() {
+    const card = $("#monitor-card");
+    if (!card) return;
+    const result = MON.detect(readings, monThresholds());
+    $("#mon-status").innerHTML = result.level
+      ? `${badge(result.level)} <span class="mon-headline">${esc(result.headline)}</span>`
+      : '<span class="muted">No readings yet</span>';
+    $("#mon-interval-text").textContent = monInterval;
+    $("#mon-record-next").textContent = `Record as next reading (+${monInterval} min)`;
+    $("#mon-count").textContent = readings.length;
+
+    const events = result.events;
+    $("#mon-events").innerHTML = events.length
+      ? events.map((e) => `<li class="flag">${badge(e.level)}<div>${e.field
+          ? `<button type="button" class="flag-title flag-link" data-goto="${e.field}">${esc(e.title)}</button>`
+          : `<div class="flag-title">${esc(e.title)}</div>`}<div class="flag-detail">${esc(e.detail)}</div></div></li>`).join("")
+      : '<li class="empty">Record readings over time, import a CSV, or play the demo to see how changes are detected.</li>';
+
+    const t0 = readings.length ? readings[0].t : 0;
+    const xs = readings.map((r) => (r.t - t0) / 60000);
+    const charts = [
+      { id: "co_ppm", title: "Carbon monoxide", unit: "ppm", ref: { value: T.co_ppm.warning, label: `NIOSH limit ${T.co_ppm.warning} ppm` } },
+      { id: "co2_ppm", title: "Carbon dioxide", unit: "ppm", ref: { value: T.co2_ppm.warning, label: `NIOSH limit ${T.co2_ppm.warning.toLocaleString()} ppm` } },
+      { id: "o2_pct", title: "Oxygen", unit: "%", ref: null },
+      { id: "internal_temp_c", title: "Temperature", unit: "°C", ref: null },
+    ];
+    $("#mon-charts").innerHTML = readings.length >= 2
+      ? charts.map((c) => `<figure class="mini"><figcaption>${c.title} <span class="muted">(${c.unit})</span></figcaption><div class="chart" id="mon-${c.id}"></div></figure>`).join("")
+      : "";
+    if (readings.length >= 2) {
+      for (const c of charts) {
+        Charts.line($(`#mon-${c.id}`), {
+          x: xs, y: readings.map((r) => (typeof r[c.id] === "number" ? r[c.id] : null)),
+          xLabel: "Minutes since first reading", yLabel: c.unit, unit: c.unit, height: 170, ref: c.ref,
+        });
+      }
+    }
+
+    const cell = (x) => (typeof x === "number" ? fmt(x) : "–");
+    $("#mon-table").innerHTML = readings.length
+      ? `<table><thead><tr><th>Time</th>${MON.FIELDS.map((f) => `<th>${f.short} ${f.unit}</th>`).join("")}</tr></thead><tbody>${[...readings].reverse()
+          .map((r) => `<tr><td>${new Date(r.t).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>${MON.FIELDS.map((f) => `<td>${cell(r[f.id])}</td>`).join("")}</tr>`).join("")}</tbody></table>`
+      : '<p class="muted">No readings yet.</p>';
   }
 
   let acmeFilter = "auto";
@@ -798,6 +909,7 @@
     renderComposition(v);
     renderBass(v);
     renderSmoke(v);
+    renderMonitoring();
     renderAcme(v, result);
     renderSaffire(v);
     renderRelated(v);
@@ -917,6 +1029,50 @@
       renderDatasets();
     });
 
+    // Live monitoring controls.
+    $("#mon-interval").value = String(monInterval);
+    $("#mon-interval").addEventListener("change", (e) => {
+      monInterval = Number(e.target.value) || T.monitoring.interval_min;
+      save("fd.monInterval", monInterval);
+      update();
+    });
+    $("#mon-record-now").addEventListener("click", () => recordReading(false));
+    $("#mon-record-next").addEventListener("click", () => recordReading(true));
+    $("#mon-demo").addEventListener("click", playDemo);
+    $("#mon-clear").addEventListener("click", () => {
+      if (readings.length && !window.confirm(`Clear all ${readings.length} readings?`)) return;
+      stopDemo();
+      readings = [];
+      saveReadings();
+      update();
+      monNote("Readings cleared.");
+    });
+    $("#mon-import").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const { columns, rows } = parseCsv(String(reader.result));
+          const imported = MON.parseReadingsCsv(rows, columns);
+          readings = readings.concat(imported);
+          saveReadings();
+          update();
+          monNote(`Imported ${imported.length} readings from ${file.name}.`);
+        } catch (err) {
+          monNote(`${file.name}: ${err.message}`);
+        }
+      };
+      reader.readAsText(file);
+    });
+    $("#mon-events").addEventListener("click", (e) => {
+      const id = e.target.closest("[data-goto]")?.dataset.goto;
+      if (id) (OPTS.onGotoField || gotoField)(id);
+    });
+    // Re-check every 30 s so a missed reading shows up as a monitoring gap.
+    const monTick = setInterval(() => { if (readings.length) update(); }, 30000);
+
     let resizeTimer;
     const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { update(); renderDatasets(); }, 200); };
     window.addEventListener("resize", onResize);
@@ -927,6 +1083,8 @@
       clearTimeout(resizeTimer);
       clearTimeout(timer);
       window.Charts.removeTooltip();
+      clearInterval(monTick);
+      stopDemo();
     };
   }
 
@@ -993,7 +1151,8 @@
     return () => { if (cleanup) { cleanup(); cleanup = null; } };
   }
 
-  window.FireDashboard = { mount, setInputs, exportJSON };
+  // addReading({ t, co_ppm, co2_ppm, o2_pct, internal_temp_c, ... }) lets a sensor feed push readings.
+  window.FireDashboard = { mount, setInputs, exportJSON, addReading };
   // Pure functions exposed for the regression tests in tests/.
   window.FireDashboard._test = { assess, smokeStatus };
 

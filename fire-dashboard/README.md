@@ -29,6 +29,15 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
 
 ## What it shows
 
+- **Live monitoring:** readings taken over time (default every 5 minutes) are compared to detect a
+  fire starting or smoke building up: CO rising for several intervals without heat (possible
+  smouldering), CO and CO₂ rising together as O₂ falls (combustion signature), fast heating with
+  combustion gases (possible flaming fire), flammable gas accumulating, O₂ rising, CO/CO₂ above NIOSH
+  limits with a time-to-limit projection, and missed readings. Readings come from **Record reading**
+  (the current inputs), a CSV import (a time column plus gas/temperature columns), the accelerated
+  demo, or `FireDashboard.addReading({...})` for a sensor feed. Detection logic is in
+  `js/monitoring.js`; its rise thresholds (`THRESHOLDS.monitoring` in `js/parameters.js`) are
+  placeholders to tune with real sensor data, and the demo sequence is synthetic.
 - **Summary tiles:** issue count and highest severity, O₂ %, O₂ partial pressure, internal pressure.
 - **Assessment:** rule-based flags (oxygen enrichment, flammable gases against their
   flammability limits, CO and CO₂ against NIOSH limits, leaks, distance to ignition

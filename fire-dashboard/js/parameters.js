@@ -146,6 +146,21 @@
     min_ignition_distance_m: 1.0,
     // Number of nearest ACME test points to compare against.
     acme_neighbours: 10,
+    // Live monitoring: change detection between timed readings.
+    // PLACEHOLDERS, not validated detection thresholds: tune them with real
+    // sensor data for your cabin volume, ventilation and sensor noise.
+    // Rises are per monitoring interval (rates are scaled to interval_min).
+    monitoring: {
+      interval_min: 5,                // expected time between readings
+      stale_after_intervals: 2,       // flag a gap after this many missed intervals
+      co_rise_ppm: { warning: 5, serious: 20 },
+      co2_rise_ppm: 300,
+      o2_drop_pct: 0.2,
+      o2_rise_pct: 0.5,               // possible oxidizer leak
+      temp_rise_c: { warning: 2, serious: 10 },
+      lfl_share_rise: 0.05,           // H₂ / CH₄ rise as a share of the LFL
+      max_readings: 500,
+    },
   };
 
   // What each material or fuel can release when it overheats or burns.

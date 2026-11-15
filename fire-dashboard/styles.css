@@ -443,3 +443,15 @@ input[aria-invalid="true"] { border-color: var(--critical); }
 @container fd-results (max-width: 640px) {
   .smoke-grid { grid-template-columns: 1fr; }
 }
+
+/* --- Live monitoring ------------------------------------------------------- */
+
+.mon-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 6px; }
+.mon-toolbar .filter { margin-left: auto; }
+.mon-status { display: flex; align-items: center; gap: 8px; max-width: 420px; }
+.mon-headline { font-weight: 600; font-size: 0.92rem; }
+#monitor-card .flags { max-height: none; margin-bottom: 8px; }
+#monitor-card { border-color: var(--accent); }
+@container fd-results (max-width: 640px) {
+  .mon-toolbar .filter { margin-left: 0; }
+}

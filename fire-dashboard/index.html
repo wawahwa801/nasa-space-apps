@@ -33,6 +33,29 @@
     <section class="dashboard" id="results" aria-label="Dashboard">
       <div id="summary" class="tiles"></div>
 
+      <article class="card" id="monitor-card">
+        <div class="card-head">
+          <div>
+            <h2>Live monitoring</h2>
+            <p class="card-sub">Readings taken over time are compared to spot a fire starting or smoke building up. Record a reading every <span id="mon-interval-text">5</span> minutes.</p>
+          </div>
+          <div id="mon-status" class="mon-status"></div>
+        </div>
+        <div class="mon-toolbar">
+          <button type="button" id="mon-record-now">Record reading now</button>
+          <button type="button" id="mon-record-next" class="secondary">Record as next reading (+5 min)</button>
+          <label class="file-btn secondary">Import readings CSV<input id="mon-import" type="file" accept=".csv,text/csv"></label>
+          <button type="button" id="mon-demo" class="secondary">Play demo</button>
+          <button type="button" id="mon-clear" class="secondary">Clear readings</button>
+          <label class="filter">Interval <select id="mon-interval"><option value="1">1 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option></select></label>
+        </div>
+        <p id="mon-note" class="hint" role="status">A reading saves the current CO, CO₂, O₂, temperature, humidity, H₂, CH₄ and pressure values.</p>
+        <ul id="mon-events" class="flags"></ul>
+        <div id="mon-charts" class="minis"></div>
+        <details class="table-view"><summary>Readings (<span id="mon-count">0</span>)</summary><div id="mon-table" class="table-wrap"></div></details>
+        <p class="source-note">Each reading is compared with earlier ones. The rise thresholds are placeholders in <code>js/parameters.js</code> (<code>THRESHOLDS.monitoring</code>), not validated detection limits; tune them with real sensor data. The demo sequence is synthetic. CSV columns: a time column (date/time or minutes from start) plus any of CO, CO₂, O₂, temperature, humidity, H₂, CH₄, pressure.</p>
+      </article>
+
       <div class="grid-2">
         <article class="card">
           <h2>Assessment</h2>
@@ -145,6 +168,7 @@
   <script src="data/reference-data.js"></script>
   <script src="js/parameters.js"></script>
   <script src="js/charts.js"></script>
+  <script src="js/monitoring.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

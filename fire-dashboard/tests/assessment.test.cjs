@@ -12,7 +12,7 @@ function load() {
     console,
   });
   context.window = context;
-  for (const file of ['../data/reference-data.js', '../js/parameters.js', '../js/charts.js', '../js/app.js']) {
+  for (const file of ['../data/reference-data.js', '../js/parameters.js', '../js/charts.js', '../js/monitoring.js', '../js/app.js']) {
     vm.runInContext(readFileSync(require.resolve(file), 'utf8'), context, { filename: file });
   }
   return context.FireDashboard._test;
