@@ -29,4 +29,11 @@ class PhysicsTests(unittest.TestCase):
         self.assertGreater(b['ignition_seconds'][10],a['ignition_seconds'][10])
     def test_ensemble(self):
         r=ensemble(example());self.assertLess(r['cases']['high']['ignition_seconds'][10],r['cases']['low']['ignition_seconds'][10])
+    def test_adaptive_step_budget(self):
+        s=example();s.update(duration=600,dt=.1,h=50,source_w=0,source_seconds=0,capture_fraction=0)
+        s['patches']=[dict(s['patches'][0],x=x,y=y,area=.001,thickness=.0001,density=50,cp=100,
+            conductivity=0,emissivity=0,fuel=False) for y in range(6) for x in range(10)]
+        s['source_index']=0
+        with self.assertRaisesRegex(ValueError,'computation budget'):
+            simulate(s)
 if __name__=='__main__':unittest.main()

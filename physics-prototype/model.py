@@ -3,6 +3,7 @@ import copy
 import math
 
 SIGMA = 5.670374419e-8
+WORK_BUDGET = 400_000
 
 
 def number(obj, key, low, high):
@@ -22,7 +23,7 @@ def validate(s):
         raise ValueError('Supply 1–100 patches')
     if type(s.get('source_index')) is not int or not 0 <= s['source_index'] < len(patches):
         raise ValueError('Invalid source index')
-    if len(patches) * s["duration"] / s["dt"] > 400000:
+    if len(patches) * s["duration"] / s["dt"] > WORK_BUDGET:
         raise ValueError("Scenario exceeds interactive computation budget")
     coords = set()
     for p in patches:
@@ -58,9 +59,14 @@ def simulate(s, factor=1.0):
                 k = 2*p['conductivity']*q['conductivity']/(p['conductivity']+q['conductivity']) if p['conductivity']+q['conductivity'] else 0
                 g = k * min(math.sqrt(p['area']), math.sqrt(q['area'])) * min(p['thickness'], q['thickness']) / ((math.sqrt(p['area'])+math.sqrt(q['area']))/2)
                 links.append((i, j, g))
-    frames=[]; t=0.; next_frame=0.; emitted=absorbed=external=losses=0.
+    frames=[]; t=0.; next_frame=0.; emitted=absorbed=external=losses=0.; steps=0
     initial_fuel=sum(fuel)
     while t < s['duration']-1e-9:
+        # The adaptive stability limit can make the actual step count far larger
+        # than duration / the user-requested dt. Bound real patch updates too.
+        if (steps + 1) * n > WORK_BUDGET:
+            raise ValueError('Scenario exceeds interactive computation budget')
+        steps += 1
         conductance=[s['h']*p['area'] + 4*p['emissivity']*SIGMA*p['area']*max(temp[i], ambient)**3 for i,p in enumerate(patches)]
         for i,j,g in links: conductance[i]+=g; conductance[j]+=g
         dt=min(s['dt'],s['duration']-t,min(.2*capacity[i]/g for i,g in enumerate(conductance) if g>0) if any(conductance) else s['dt'])
