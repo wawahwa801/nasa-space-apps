@@ -1,5 +1,26 @@
 # FLEX-2 live flame lab
 
+## Published retrieval and CNN snapshot
+
+The repository includes the matching **100-run retrieval library and trained CNN checkpoint**. A fresh checkout can run both without NASA downloads or retraining:
+
+```bash
+python3 -m venv ml/.venv
+source ml/.venv/bin/activate
+pip install -r ml/requirements.txt
+python ml/verify_flex2_models.py
+python -m unittest discover -s ml -p 'test_flex2.py' -v
+python ml/flex2_lab.py
+```
+
+Open **http://127.0.0.1:5051/flex2/** and use **Retrieval / CNN**. The frozen snapshot has five fuels and 60/20/20 whole-run splits; its CNN selected epoch 60 from the 100-epoch run. The optional SPICE comparison has separate data/checkpoints and is not included in this snapshot.
+
+The committed runtime files are `ml/data/flex2-study/prepared.npz`, `ml/data/flex2-study/manifest.json`, `ml/artifacts/flex2-study/selected.pt` and `ml/artifacts/flex2-study/report.json` (about 13 MB total). `ml/reports/flex2-model-artifacts.json` records their sizes, SHA256 hashes, source revision and limitations. The verifier checks those hashes, array/manifest/run/split joins, checkpoint compatibility and training-only normalization. The existing checkpoint loader uses `weights_only=True`.
+
+Original camera archives, selected raw members, telemetry caches, other model artifacts and generated comparison images remain ignored. Two source-acquisition tests skip on a runtime-only checkout; they run once their raw inventory/member caches are present. Runtime integrity and both inference-mode tests run from the committed snapshot. Acquisition/training commands below are for rebuilding; they overwrite these tracked runtime files, and publishing a new snapshot requires updating and verifying its checksum index deliberately.
+
+This is an existing experimental model snapshot, not a new accuracy result. Seven catalog/paper fuel-identity disagreements remain tracked in [#33](https://github.com/wawahwa801/nasa-space-apps/issues/33). Published fuel labels preserve the existing PSI catalog joins pending that resolution; do not treat them as independent chemical verification. Missing physical labels and camera/stage calibration also remain unresolved. Publication is tracked in [#36](https://github.com/wawahwa801/nasa-space-apps/issues/36).
+
 ## 100-run retrieval expansion
 
 Issue [#17](https://github.com/wawahwa801/nasa-space-apps/issues/17) expands the bounded testing library to **100 independent test points**, each represented by four timestamp-selected RGB frames. This is source verification and basic image screening, not certification of 100 steady physical states. Independent runs can share measured conditions; exact pressure/temperature-pair coverage is reported separately. The 24-target results below describe the earlier prototype and do not measure the expanded library.
@@ -21,7 +42,7 @@ python ml/flex2_lab.py
 
 `--runs-per-fuel` retains its historical name but limits candidates **per campaign category**. The expanded allowlist covers quiescent decane and single-droplet surrogate-fuel campaigns for heptane, n-octane, isooctane and toluene. Binary arrays and imposed-flow campaigns are excluded. Camera format, run identity, explicit telemetry units, pre-ignition timing, source member checksums and visible connected colour signal must pass. `NA` telemetry units are not guessed. Repeated identical inventory nodes are deduplicated; conflicting archive identities fail acquisition. Cached frame/metadata hashes are checked before reuse.
 
-Preparation requires at least 400 connected colour-mask pixels in the fixed ROI, increased from 100 after montage inspection found near-empty accepted targets. This is a basic visibility screen; remaining highlights, reflections, saturation and weak segmentation are not calibrated away. Preparation refuses to replace the existing library if fewer than 100 usable independent runs remain. It allocates fuel quotas round-robin, then selects evenly spaced pressure-sorted runs within each fuel. At least six runs per retained fuel and whole-run train/validation/test splits remain required. Accepted runs outside this bounded selection are distinguished from failed acquisition/image checks in the exclusions. The testing page derives its fuels, ranges and count from the rebuilt artifacts. Retrain the CNN after preparation because the server rejects a checkpoint for a different dataset. Models and source images stay local/ignored; reproduce them with the commands above.
+Preparation requires at least 400 connected colour-mask pixels in the fixed ROI, increased from 100 after montage inspection found near-empty accepted targets. This is a basic visibility screen; remaining highlights, reflections, saturation and weak segmentation are not calibrated away. Preparation refuses to replace the existing library if fewer than 100 usable independent runs remain. It allocates fuel quotas round-robin, then selects evenly spaced pressure-sorted runs within each fuel. At least six runs per retained fuel and whole-run train/validation/test splits remain required. Accepted runs outside this bounded selection are distinguished from failed acquisition/image checks in the exclusions. The testing page derives its fuels, ranges and count from the rebuilt artifacts. Retrain the CNN after preparation because the server rejects a checkpoint for a different dataset. The frozen runtime pair is published as described above; original source frames and acquisition caches remain local/ignored.
 
 `ml/reports/flex2-100-data.json` records accepted run IDs, source resource versions, selected member hashes, split membership and exclusions. `flex2-100-audit.json` reports per-fuel ranges, distinct measured feature pairs, camera-setting distributions, pre-ignition stability, sensor spread and image quality indicators. Run `flex2_audit.py` after every dataset rebuild. The retrained benchmark is saved separately as `flex2-rgb-100-v1.json`; compare CNN against training-only retrieval and same-fuel means on this dataset, not against the earlier five-test-run scores.
 
@@ -49,7 +70,7 @@ python ml/flex2_model.py --epochs 250
 python ml/flex2_lab.py
 ```
 
-Open **http://127.0.0.1:5051/flex2/**. Existing local data and checkpoint allow skipping preparation/training. Stop an older server on port 5051 before starting; restart after training or template changes. `python ml/spice_lab.py` also makes FLEX-2 the default when its checkpoint exists. Both launchers retain SPICE navigation when its artifacts exist. The older BASS/FLEX lab mounts `/flex2/` on port 5050 when those artifacts exist at startup. Models, source frames and raw telemetry remain local/ignored; tracked source audits and reports support review.
+Open **http://127.0.0.1:5051/flex2/**. The published data/checkpoint allow skipping preparation/training. Stop an older server on port 5051 before starting; restart after training or template changes. `python ml/spice_lab.py` also makes FLEX-2 the default when its checkpoint exists. Both launchers retain SPICE navigation when its artifacts exist. The older BASS/FLEX lab mounts `/flex2/` on port 5050 when those artifacts exist at startup. Original source frames and raw telemetry remain local/ignored; the frozen runtime pair, source audits and reports support review.
 
 ## What the inputs actually mean
 

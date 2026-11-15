@@ -53,6 +53,7 @@ class DataTests(unittest.TestCase):
         self.assertTrue(np.isfinite([r['features'] for r in m['records']]).all())
         self.assertEqual(len({r['run'] for r in m['records']}),len(m['records']))
 
+    @unittest.skipUnless((ROOT/'inventory.json').exists(),'Raw NASA acquisition inventory not downloaded')
     def test_insufficient_runs_does_not_replace_prepared_data(self):
         from flex2_data import prepare
         before=hashlib.sha256((ROOT/'prepared.npz').read_bytes()).hexdigest()
@@ -60,6 +61,7 @@ class DataTests(unittest.TestCase):
             prepare(1000000)
         self.assertEqual(hashlib.sha256((ROOT/'prepared.npz').read_bytes()).hexdigest(),before)
 
+    @unittest.skipUnless(any(ROOT.glob('*/record.json')),'Raw NASA source members not downloaded')
     def test_join_hashes_preignition_telemetry_and_splits(self):
         d=np.load(ROOT/'prepared.npz');m=json.loads((ROOT/'manifest.json').read_text());groups={}
         self.assertEqual(m['fields'],['pressure_kpa','temperature_c'])
@@ -85,6 +87,14 @@ class DataTests(unittest.TestCase):
         self.assertEqual(d['images'].shape[1:],(256,256,3))
         sets=[set(d['groups'][d['splits']==s]) for s in ['train','validation','test']]
         self.assertTrue(all(sets));self.assertFalse(sets[0]&sets[1] or sets[0]&sets[2] or sets[1]&sets[2])
+
+
+class PublishedArtifactTests(unittest.TestCase):
+    def test_published_runtime_pair_integrity_and_consistency(self):
+        from verify_flex2_models import verify
+        result=verify()
+        self.assertEqual(result['runs'],100)
+        self.assertEqual(result['files_verified'],4)
 
 
 @unittest.skipUnless((ART/'selected.pt').exists(),'FLEX-2 checkpoint not trained')

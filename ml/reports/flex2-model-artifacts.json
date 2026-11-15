@@ -1,0 +1,32 @@
+{
+  "version": "flex2-100-epoch60",
+  "source_commit": "9b883c1",
+  "dataset_sha256": "97a64166836b3e1daf490092f7b17190cfd95e819cef075506e11b4f62490b90",
+  "files": [
+    {
+      "path": "ml/data/flex2-study/prepared.npz",
+      "bytes": 7496153,
+      "sha256": "97a64166836b3e1daf490092f7b17190cfd95e819cef075506e11b4f62490b90"
+    },
+    {
+      "path": "ml/data/flex2-study/manifest.json",
+      "bytes": 498072,
+      "sha256": "2b3b125e466e7d8c70d7dfa41b70675dc005a6d7fa1fee69f54be714bb64c315"
+    },
+    {
+      "path": "ml/artifacts/flex2-study/selected.pt",
+      "bytes": 4331229,
+      "sha256": "646c59303dc971d7da4fc4868256066700104234f4172c791a734058b46adecf"
+    },
+    {
+      "path": "ml/artifacts/flex2-study/report.json",
+      "bytes": 10004,
+      "sha256": "cf74a524a115c8acfba912ffa728f263ec4a62eeb0e7b1ae672ea53733330b34"
+    }
+  ],
+  "limitations": [
+    "Experimental feature-conditioned imagery, not a validated physical fire forecast.",
+    "Fuel identity conflicts for seven runs remain tracked in issue #33.",
+    "Raw NASA archives and acquisition caches are not part of this runtime publication."
+  ]
+}
