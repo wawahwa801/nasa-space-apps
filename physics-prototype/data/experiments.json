@@ -1,0 +1,17 @@
+[
+  {
+    "investigation": "PSI-98",
+    "experiment": "SAFFIRE-I",
+    "source": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-98",
+    "material": "SIBAL, 75% cotton / 25% fiberglass by mass",
+    "length_m": 0.94,
+    "width_m": 0.4,
+    "flow_m_s": 0.2,
+    "gravity": "microgravity",
+    "temperature_k": null,
+    "ignition_times_s": null,
+    "heat_flux_w_m2": null,
+    "thermal_properties": null,
+    "use": "Catalog metadata only; not solver calibration or a held-out validation experiment"
+  }
+]

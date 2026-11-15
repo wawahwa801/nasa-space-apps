@@ -34,9 +34,11 @@ Start the frontend in another terminal:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
+
+`npm ci` installs the exact versions in `package-lock.json`. Use `npm install` only when changing dependencies, then commit the updated lockfile and run `npm audit`. The `overrides` in `package.json` patch `postcss` (bundled with Next.js 15) and `minimatch` (ESLint tooling) against published advisories until upstream releases include the fixes.
 
 Open `http://localhost:3000`. The retrieval and NASA-comparison views work with the frontend alone. The separate Flask API provides `http://localhost:5000/api/health` and the analysis endpoints below.
 
