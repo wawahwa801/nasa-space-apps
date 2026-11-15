@@ -1877,32 +1877,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 }
 .comparison-actions .example-select { width: auto; cursor: pointer; }
 
-
-/* Room simulation tab (components/hybrid-simulation.jsx). Scoped to the tab so
-   the flame simulation card and Parameters panel keep their original layout. */
-.rooms-tab-panel .hybrid-active { max-width: 1180px; margin: 0 auto; padding: 96px 24px 48px; color: #dde3eb; overflow-wrap: anywhere; }
-.hybrid-head h2 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
-.hybrid-head p { margin: 0 0 6px; color: #9daaba; font-size: 13px; line-height: 1.5; }
-.hybrid-status { color: #e7b18e !important; }
-.hybrid-muted { color: #8290a2; font-size: 12px; line-height: 1.5; }
-.hybrid-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; margin-top: 18px; align-items: start; }
-.hybrid-controls, .hybrid-results, .rooms-tab-panel .insights-content { border: 1px solid #263140; border-radius: 14px; background: #101720f5; padding: 20px; }
-.hybrid-controls h3, .rooms-tab-panel .insights-content h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
-.hybrid-controls label { display: grid; gap: 6px; margin: 12px 0; font-size: 12px; color: #a9b4c3; }
-.hybrid-controls input, .hybrid-controls select { width: 100%; min-width: 0; padding: 8px; color: #e4eaf2; background: #090f17; border: 1px solid #283444; border-radius: 7px; }
-.hybrid-active button { padding: 10px 16px; border: 1px solid #ae5f37; border-radius: 8px; color: #fff; background: #68351f; cursor: pointer; }
-.hybrid-active button:disabled { opacity: .5; cursor: wait; }
-.hybrid-flame { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
-.hybrid-flame img { flex: none; max-width: 100%; border-radius: 10px; cursor: grab; }
-.hybrid-flame p { margin: 0 0 8px; font-size: 13px; line-height: 1.5; }
-.hybrid-results svg { width: 100%; max-height: 440px; margin-top: 12px; }
-.hybrid-results g[role=button] { cursor: crosshair; }
-.hybrid-results g[role=button]:focus rect { stroke: white; stroke-width: 3; }
-.hybrid-playback { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.hybrid-playback label { flex: 1 1 220px; display: grid; gap: 4px; font-size: 12px; color: #a9b4c3; }
-.hybrid-playback input[type=range] { width: 100%; }
-.source-comparison { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-.source-comparison figure { margin: 12px 0; max-width: 100%; }
-.rooms-tab-panel .insights-content { max-width: none; margin: 20px 0 0; }
-@media (max-width: 860px) { .hybrid-layout { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 720px) { .rooms-tab-panel .hybrid-active { padding: 84px 12px 32px; } .hybrid-results svg { min-height: 240px; } }
+/* Preserve the merged dashboard theme for the new model controls and output. */
+.simulation-card.flame-card {height:auto;min-height:100dvh;}
+.hybrid-active {width:100%;max-width:1000px;margin:auto;padding:40px 32px;overflow-wrap:anywhere;text-align:center;}
+.hybrid-active > p[role=status] {font-size:12px;color:#8290a2;margin:20px 0;}
+.hybrid-active img {display:block;margin:20px auto;max-width:100%;object-fit:contain;border-radius:12px;}
+.hybrid-active > img {width:256px;height:auto;cursor:grab;}
+.hybrid-active svg {display:block;width:100%;max-height:420px;margin:20px 0;}
+.hybrid-active button,#hybrid-controls button {font:inherit;font-size:12px;padding:9px 14px;border:1px solid #ffffff20;border-radius:8px;background:#ffffff06;color:#e7b18e;cursor:pointer;}
+.hybrid-active button:disabled {opacity:.5;cursor:wait;}
+.hybrid-active p,.hybrid-active label {font-size:12px;line-height:1.6;color:#8290a2;}
+.hybrid-active input[type=range] {display:block;width:100%;margin-top:12px;accent-color:#e7b18e;}
+.hybrid-active g[role=button] {cursor:crosshair;}
+.hybrid-active g[role=button]:focus rect {stroke:#e7b18e;stroke-width:3;}
+.hybrid-limitations {margin:28px 0;text-align:left;}
+.hybrid-limitations summary,.hybrid-comparison-settings summary {font-size:12px;color:#a9b2bf;cursor:pointer;padding:12px 0;}
+#hybrid-controls > .field-section > label {display:grid;gap:8px;margin:16px 0;font-size:12px;color:#b8bdc6;}
+#hybrid-controls select {width:100%;min-width:0;max-width:100%;padding:9px;background:#080b10b3;border:1px solid #ffffff20;border-radius:8px;color:#d4d8df;font:inherit;}
+#hybrid-controls > .field-section > label > input {padding:9px;background:#080b10b3;border:1px solid #ffffff20;border-radius:8px;color:#d4d8df;}
+#hybrid-controls .slider-field {margin:20px 0;}
+.source-comparison {display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.source-comparison figure {margin:12px 0;max-width:100%;font-size:11px;color:#8290a2;}
+.insights-content {padding:140px 24px 40px;max-width:900px;margin:auto;}
+@media(min-width:1200px){.controls-open .hybrid-active {padding-left:360px;max-width:1300px;}}
+@media(max-width:720px){.hybrid-active{padding:24px 30px;}.hybrid-active>img{width:200px;}}
