@@ -97,5 +97,9 @@ test('uncertainty: missing readings and context are named, never treated as safe
   // A vacuum doesn't count pressure as missing; unknown burn data is named.
   const vac = assess({ environment: 'Vacuum', material_types: ['Teflon'] }).uncertain.map((u) => u.title);
   assert.ok(!vac.some((t) => /pressure/.test(t)));
-  assert.ok(vac.includes('No NASA burn data for Teflon'));
+  // Scoped to the loaded data, never a claim that no tests exist (issue #58).
+  assert.ok(vac.includes('No matching BASS-II records in the loaded data for Teflon'));
+  const detail = assess({ material_types: ['Teflon'] }).uncertain.find((u) => /Teflon/.test(u.title)).detail;
+  assert.match(detail, /loaded in this dashboard/);
+  assert.doesNotMatch(detail, /didn't burn|never|No NASA/);
 });
