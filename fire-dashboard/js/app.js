@@ -19,6 +19,8 @@
     warning: { label: "Warning", icon: "!", rank: 2 },
     info: { label: "Note", icon: "i", rank: 1 },
     good: { label: "OK", icon: "✓", rank: 0 },
+    // Not a severity: readings needed to judge are missing.
+    unknown: { label: "Incomplete", icon: "?", rank: 0.5 },
   };
 
   // All lookups go through ROOT so the dashboard also works inside a shadow root.
@@ -299,10 +301,17 @@
       const lo = Math.min(...o2s);
       const hi = Math.max(...o2s);
       const mat = esc(v.material_type);
-      if (v.o2_pct >= lo) {
-        add("warning", `BASS-II flames on ${mat} at ${fmt(lo)}% O₂ and above`,
-          `${bassTests.length} BASS-II tests studied flames on ${mat} in microgravity with starting chamber O₂ from ${fmt(lo)}% to ${fmt(hi)}%. ` +
-          `Your O₂ (${fmt(v.o2_pct)}%) is at or above the lowest tested level, so a flame on this material could be sustained once ignited.`, "material_type");
+      // The BASS-II matrix records starting O₂ but not ignition or extinction,
+      // so this only places the user's O₂ relative to the tested range (issue #39).
+      const caveat = " The test sheets don't record whether flames ignited or went out, and sample shapes and airflow varied, " +
+        "so this compares conditions only; it is not a burning threshold.";
+      if (v.o2_pct >= lo && v.o2_pct <= hi) {
+        add("info", `Your O₂ is within the range BASS-II tested for ${mat}`,
+          `${bassTests.length} BASS-II tests studied flames on ${mat} in microgravity at starting chamber O₂ from ${fmt(lo)}% to ${fmt(hi)}%; ` +
+          `your O₂ (${fmt(v.o2_pct)}%) is inside that range.` + caveat, "material_type");
+      } else if (v.o2_pct > hi) {
+        add("info", `Your O₂ is above the range BASS-II tested for ${mat}`,
+          `BASS-II tests on ${mat} started at ${fmt(lo)}–${fmt(hi)}% O₂; your O₂ (${fmt(v.o2_pct)}%) is higher, so there is no test data at your level.` + caveat, "o2_pct");
       } else {
         add("info", `Below the lowest O₂ BASS-II tested for ${mat}`,
           `BASS-II tests on ${mat} started at ${fmt(lo)}% O₂ or more; your O₂ (${fmt(v.o2_pct)}%) is lower. ` +
@@ -572,16 +581,29 @@
       .join("")}</tbody></table>`;
   }
 
-  function renderSmoke(v) {
-    const parts = [];
+  // Overall smoke status. Known hazards (high CO/CO₂, monitoring down, a
+  // toxic-smoke material) always show. Otherwise the result is only "OK" when
+  // both CO and CO₂ readings are present: a working monitor is not evidence
+  // that unreported readings are safe (issue #40).
+  function smokeStatus(v) {
     const gasLevel = (x, lim) => (!has(x) ? null : x > lim.serious ? "serious" : x > lim.warning ? "warning" : "good");
     const co = gasLevel(v.co_ppm, T.co_ppm);
     const co2 = gasLevel(v.co2_ppm, T.co2_ppm);
     const detection = v.monitoring === "Offline" ? "serious" : ["Degraded", "Unknown"].includes(v.monitoring) ? "warning" : v.monitoring ? "good" : null;
     const material = v.material_type ? SMOKE.materials[v.material_type] : null;
-    for (const lv of [co, co2, detection, material && material.level]) if (lv) parts.push(lv);
-    const overall = parts.sort((a, b) => LEVELS[b].rank - LEVELS[a].rank)[0];
-    $("#smoke-level").innerHTML = overall ? `${badge(overall)} <span class="muted">smoke hazard</span>` : "";
+    const missing = [["CO", co], ["CO₂", co2]].filter(([, lv]) => !lv).map(([name]) => name);
+    const known = [co, co2, material && material.level, detection === "good" ? null : detection].filter(Boolean);
+    const worst = known.sort((a, b) => LEVELS[b].rank - LEVELS[a].rank)[0] || null;
+    let overall;
+    if (worst && LEVELS[worst].rank >= LEVELS.warning.rank) overall = worst;
+    else if (missing.length) overall = "unknown";
+    else overall = worst || "good";
+    return { overall, co, co2, detection, material, missing };
+  }
+
+  function renderSmoke(v) {
+    const { overall, co, co2, detection, material, missing } = smokeStatus(v);
+    $("#smoke-level").innerHTML = `${badge(overall)} <span class="muted">smoke hazard${missing.length ? ` · ${missing.join(" and ")} reading${missing.length > 1 ? "s" : ""} needed` : ""}</span>`;
 
     const reading = (label, value, unit, lv, note) =>
       `<li><span>${label}</span><span class="value">${value === null ? '<span class="muted">no reading</span>' : `${fmt(value)} ${unit}`}</span>${lv ? badge(lv) : "<span></span>"}<small>${note}</small></li>`;
@@ -972,6 +994,8 @@
   }
 
   window.FireDashboard = { mount, setInputs, exportJSON };
+  // Pure functions exposed for the regression tests in tests/.
+  window.FireDashboard._test = { assess, smokeStatus };
 
   // Standalone page: mount when the dashboard markup is in the document itself.
   const autoMount = () => { if (document.getElementById("input-sections")) mount(document); };
