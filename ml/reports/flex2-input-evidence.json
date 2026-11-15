@@ -1,0 +1,41 @@
+{
+  "reviewed_utc": "2026-11-15",
+  "assertions": [
+    {
+      "source_url": "https://doi.org/10.1080/00102202.2025.2595114",
+      "title": "Influence of Droplet Size and Fuel Composition on Sooting Behavior in Microgravity Droplet Combustion",
+      "location": "Experimental conditions, PDF page 3; author lists exact heptane run identifiers and reports 21% O2 / 79% N2",
+      "catalog_fuel": "Heptane",
+      "oxygen_mole_fraction": 0.21,
+      "nitrogen_mole_fraction": 0.79,
+      "run_ids": ["E066C01", "E066C02", "E066C03", "E066C04", "E073C01", "E073C02", "E073C03", "E073C04", "E073C07", "E073C09", "E087C01", "E087C04", "E087C06", "E087C07"],
+      "uncertainty": null,
+      "evidence_type": "Published experimental condition, not raw sensor telemetry"
+    }
+  ],
+  "conflicting_assertions": [
+    {
+      "source_url": "https://doi.org/10.1080/00102202.2025.2595114",
+      "location": "Experimental conditions, PDF page 3",
+      "paper_fuel": "Decane",
+      "run_ids": ["E135F02", "E135F03", "E135F04", "E135F06", "E135F11", "E156F05", "E156F09", "E156F10", "E159F01", "E159F03", "E159F04", "E159F06"],
+      "note": "The PSI file inventory places these IDs under N_Octane. Do not resolve the contradiction by guessing or assign additional labels to these runs."
+    }
+  ],
+  "diameter_references": [
+    {
+      "source_url": "https://doi.org/10.1109/TPAMI.2022.3170926",
+      "location": "Section 1.2",
+      "note": "Backlit 1024x1024 TIFF imagery and approximate field size are described. This is not an exact-run spatial calibration or an initial-diameter table."
+    },
+    {
+      "source_url": "https://doi.org/10.1016/j.combustflame.2016.05.013",
+      "location": "Section 3.1",
+      "note": "Deployment proceeds through a liquid bridge, needle retraction and droplet relaxation. A pre-ignition image need not contain a relaxed free droplet. No exact run IDs were found in the searched paper."
+    }
+  ],
+  "manual_event_log_review": {
+    "run_ids": ["A109D04", "A109D07", "A109D10"],
+    "note": "Each DOCX contains an embedded screenshot. Visually inspected original embedded PNGs; fields are test ID, igniter timing/wattage/positions, burn timing, events and camera image counts. No oxygen, gas mixture, initial droplet diameter or calibrated flow value is present."
+  }
+}

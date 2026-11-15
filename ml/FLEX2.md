@@ -20,6 +20,7 @@ The committed runtime files are `ml/data/flex2-study/prepared.npz`, `ml/data/fle
 Original camera archives, selected raw members, telemetry caches, other model artifacts and generated comparison images remain ignored. Two source-acquisition tests skip on a runtime-only checkout; they run once their raw inventory/member caches are present. Runtime integrity and both inference-mode tests run from the committed snapshot. Acquisition/training commands below are for rebuilding; they overwrite these tracked runtime files, and publishing a new snapshot requires updating and verifying its checksum index deliberately.
 
 This is an existing experimental model snapshot, not a new accuracy result. Seven catalog/paper fuel-identity disagreements remain tracked in [#33](https://github.com/wawahwa801/nasa-space-apps/issues/33). Published fuel labels preserve the existing PSI catalog joins pending that resolution; do not treat them as independent chemical verification. Missing physical labels and camera/stage calibration also remain unresolved. Publication is tracked in [#36](https://github.com/wawahwa801/nasa-space-apps/issues/36).
+The exact-run missing-input investigation is documented in [FLEX2_INPUTS.md](FLEX2_INPUTS.md), with a 100-row provenance table, partial published gas-condition matches, backlit-camera pilot and unresolved source conflicts. These audit labels have not been added to the inference schema.
 
 ## 100-run retrieval expansion
 
