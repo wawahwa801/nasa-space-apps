@@ -107,6 +107,26 @@ The **Hybrid prototype** mode is a simple 50/50 pixel average between the CNN ou
 
 ## Monitored overnight retrieval-conditioned experiment
 
+### Smooth-reference generator, two-hour search, all-data fit
+
+From the original repository checkout, using its installed Python environment:
+
+```bash
+ml/.venv/bin/python /private/tmp/nasa-flex2-hybrid-demo/ml/flex2_continuous.py --search-hours 2 --train-hours 6 --epochs 200
+```
+
+This new architecture uses soft distance weights over every same-fuel reference (excluding the target run). Weights vary continuously for numeric conditions, without a hard nearest-reference switch. An image encoder and a condition/difference encoder feed a full image decoder; it does not copy a retrieved image plus a small bounded residual. Categorical inputs remain discrete. The architecture makes smooth numeric responses possible; their visibility and physical accuracy are not guaranteed by architecture alone.
+
+Discovery attempts every compatible candidate in the existing single-droplet campaign allowlist and the six blend/formulation campaigns. It reuses the previous source cache when present. The search subprocess stops after at most two hours plus termination grace, with no fixed added-run quota. Completed cached records are then screened for source hashes, exact settings/event IDs, known fuel conflicts, and the existing visibility threshold. All accepted targets are assigned to training. Verification and preparation run after the network search deadline; fitting then has a six-hour maximum and stops at 200 epochs if sooner. Total elapsed time can exceed eight hours by preparation and the last training epoch. Missing physical labels remain missing. There are no validation/test scores or claims of improved accuracy. Every epoch checks finite loss and gradients, logs training loss and atomically saves the latest checkpoint.
+
+Outputs use a new ignored `ml/data/flex2-discovery/continuous-<UTC>/` folder: `search.log`, `search-status.json`, `expanded/verification.json`, manifest, features, images, and `training/final.pt`. Search failures/timeouts are reported; any completed cached records are still screened. If no usable set remains, the workflow stops before training. The published models and current local demo stay separate. After training, serve the new model with:
+
+```bash
+ml/.venv/bin/python /private/tmp/nasa-flex2-hybrid-demo/ml/flex2_compare.py --run-dir /path/to/continuous-<UTC> --port 5054
+```
+
+The comparison page recognizes the new architecture and uses the same smooth reference weighting at inference. The normal CNN/retrieval panels cover only the five fuels they support. All-run fits display a notice that no held-out score exists.
+
 For a separate final fit using all eligible verified discovery targets, including the former validation and test runs:
 
 ```bash

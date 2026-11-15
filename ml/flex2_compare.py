@@ -54,9 +54,16 @@ def create_app(run_dir):
         raise ValueError('Hybrid feature schema/evidence differs from checkpoint')
     if d['groups'].tolist()!=saved['metadata']['target_ids']:raise ValueError('Hybrid target IDs differ from checkpoint')
     torch.set_num_threads(2)
-    hybrid=RetrievalConditioned(x.shape[1]*3);hybrid.load_state_dict(saved['state']);hybrid.eval()
+    continuous=saved['metadata'].get('architecture')=='soft-reference-generator-v1'
+    if continuous:
+        from flex2_continuous import ContinuousCNN,soft_references
+        hybrid=ContinuousCNN(x.shape[1])
+    else:hybrid=RetrievalConditioned(x.shape[1]*3)
+    hybrid.load_state_dict(saved['state']);hybrid.eval()
     cnn,cnn_saved=load();base=np.load(ROOT/'prepared.npz');train=np.where(base['splits']=='train')[0]
     images=torch.tensor(d['images']).permute(0,3,1,2).float()/255;conditions=torch.tensor(x)
+    if continuous:
+        with torch.inference_mode():embedding_bank=torch.cat([hybrid.encode_references(b) for b in images.split(8)])
     base_manifest=json.loads((ROOT/'manifest.json').read_text())
     eligible=[i for i,f in enumerate(d['fuels']) if m['fuels'][int(f)] in base_manifest['fuels']]
     eligible.sort(key=lambda i:(str(d['splits'][i])!='test',str(d['groups'][i])))
@@ -107,7 +114,11 @@ def create_app(run_dir):
         ranking,_=nearest(base['features'],base['fuels'],raw[:2],f,cnn_saved['scale'].numpy(),candidates)
         normal_ref=int(ranking[0])
         with torch.inference_mode():
-            prediction=hybrid(torch.tensor(query[None]),conditions[ref:ref+1],images[ref:ref+1])[0]
+            if continuous:
+                weights=soft_references(torch.tensor(query[None]),conditions,torch.tensor(d['fuels']),torch.tensor([d['fuels'][i]]),torch.tensor([i]),saved['metadata']['temperature'])
+                embedding=.5*torch.einsum('bn,nchw->bchw',weights,embedding_bank)+.5*hybrid.encode_references(torch.einsum('bn,nchw->bchw',weights,images))
+                prediction=hybrid.decode(torch.tensor(query[None]),weights@conditions,embedding)[0]
+            else:prediction=hybrid(torch.tensor(query[None]),conditions[ref:ref+1],images[ref:ref+1])[0]
             original,_=cnn(encode(torch.tensor(raw[None,:2]),torch.tensor([f]),cnn_saved['low'],cnn_saved['scale'],len(base_manifest['fuels'])))
         return jsonify(hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],model_note=f"All {len(x)} runs fitted · no held-out score" if final_fit else f"Validation-selected seed {saved['seed']}",hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{fuel} · {raw[0]:.2f} kPa · {raw[1]:.2f} °C · experimental input combination")
     return app
