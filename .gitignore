@@ -1,5 +1,6 @@
 # Local environments, generated data and models
 .venv/
+.venv-ml/
 __pycache__/
 *.pyc
 node_modules/

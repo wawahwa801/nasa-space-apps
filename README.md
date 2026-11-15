@@ -40,6 +40,39 @@ npm run dev
 
 `npm ci` installs the exact versions in `package-lock.json`. Use `npm install` only when changing dependencies, then commit the updated lockfile and run `npm audit`. The `overrides` in `package.json` patch `postcss` (bundled with Next.js 15) and `minimatch` (ESLint tooling) against published advisories until upstream releases include the fixes.
 
+### Windows (PowerShell)
+
+The commands above are for macOS and Linux. On Windows, use three PowerShell terminals, starting from the repository root in each.
+
+Backend (port 5000):
+
+```powershell
+cd backend
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python app.py
+```
+
+Hybrid model service (port 5055; needed for the hybrid Simulate controls, see [below](#hybrid-image--illustrative-room-simulation)):
+
+```powershell
+python -m venv .venv-ml
+.venv-ml\Scripts\python -m pip install -r ml\requirements.txt
+.venv-ml\Scripts\python ml\dashboard_simulation.py
+```
+
+Frontend (port 3000):
+
+```powershell
+cd frontend
+npm.cmd ci
+npm.cmd run dev
+```
+
+- These commands call the virtual environment's `python` directly and use `npm.cmd`, so they work even when PowerShell blocks scripts ("running scripts is disabled on this system"). To use `.venv\Scripts\activate` and plain `npm` instead, run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` once.
+- `Failed to proxy http://127.0.0.1:5055/api/runs ... ECONNREFUSED` in the frontend terminal means the hybrid model service is not running. Check its own terminal for the error.
+- Clone with Git rather than downloading a ZIP, so `git pull` keeps your copy current.
+
 Open `http://localhost:3000`. The retrieval and NASA-comparison views work with the frontend alone. The separate Flask API provides `http://localhost:5000/api/health` and the analysis endpoints below.
 
 The page has the Ember flame simulation and, below it, the NASA data comparison from
