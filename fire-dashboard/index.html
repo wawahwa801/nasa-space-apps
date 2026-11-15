@@ -45,6 +45,23 @@
         </article>
       </div>
 
+      <article class="card" id="composition-card">
+        <div class="card-head">
+          <div>
+            <h2>Air composition</h2>
+            <p class="card-sub" id="composition-caption"></p>
+          </div>
+          <div class="segmented" role="group" aria-label="Composition units">
+            <button type="button" data-comp-unit="%" aria-pressed="true">%</button>
+            <button type="button" data-comp-unit="ppm" aria-pressed="false">ppm</button>
+          </div>
+        </div>
+        <div class="composition">
+          <div id="composition-chart" class="donut-wrap"></div>
+          <ul id="composition-legend" class="comp-legend" aria-label="Air composition values"></ul>
+        </div>
+      </article>
+
       <article class="card">
         <div class="card-head">
           <div>

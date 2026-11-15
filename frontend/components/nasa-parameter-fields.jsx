@@ -11,7 +11,19 @@ export const SHARED_FIELDS = {
   pressure_kpa: "pressure",
   internal_temp_c: "temperature",
   co2_ppm: "co2",
+  humidity_pct: "humidity",
   gravity: "gravity",
+};
+
+// Starting values for the NASA-only gas readings (base units): typical cabin
+// air, so the air composition chart has data before anything is entered.
+// With the flame panel's defaults (20.9% O₂, 0.04% CO₂, 45% humidity at 22 °C)
+// the remainder is ~0.9%, roughly the argon in Earth air.
+export const NASA_DEFAULTS = {
+  n2_pct: 77,
+  h2_ppm: 0.5,
+  ch4_ppm: 1.9,
+  co_ppm: 0.1,
 };
 
 const tidy = (x) => String(Number(x.toPrecision(6)));
@@ -81,7 +93,7 @@ export function NasaParameterFields({ defs, raw, unitPrefs, onChange, onUnitChan
   return (
     <div className="nasa-fields">
       <p className="nasa-fields-intro">
-        <b>Hazard checks · NASA comparison.</b> O₂, pressure, temperature, CO₂ and gravity above are shared with the NASA comparison.
+        <b>Hazard checks · NASA comparison.</b> O₂, pressure, temperature, CO₂, humidity and gravity above are shared with the NASA comparison.
       </p>
       {sections.map((section) => (
         <div className="field-section" key={section.id}>

@@ -11,7 +11,7 @@
   const UNITS = window.UNIT_SYSTEMS;
   const { fmt } = window.Charts;
 
-  const STORE = { values: "fd.values", datasets: "fd.datasets", units: "fd.units" };
+  const STORE = { values: "fd.values", datasets: "fd.datasets", units: "fd.units", compUnit: "fd.compUnit" };
   const LEVELS = {
     critical: { label: "Critical", icon: "✕", rank: 4 },
     serious: { label: "Serious", icon: "▲", rank: 3 },
@@ -34,6 +34,7 @@
 
   let userDatasets = load(STORE.datasets, []);
   let unitPrefs = load(STORE.units, {});
+  let compUnit = load(STORE.compUnit, "%") === "ppm" ? "ppm" : "%";
   // Mount options. With externalInputs, the host page supplies the values
   // (via FireDashboard.setInputs) and the dashboard's own form is hidden.
   let OPTS = {};
@@ -421,6 +422,74 @@
     }
   }
 
+  // Air composition donut. Everything is converted to ppm (1% = 10,000 ppm),
+  // then shown in the unit the user picked.
+  const TRACE = [["co2_ppm", "CO₂"], ["h2_ppm", "H₂"], ["ch4_ppm", "CH₄"], ["co_ppm", "CO"]];
+
+  // Water vapour (ppm by volume) from relative humidity, temperature and
+  // pressure: saturation pressure from the Buck equations (over water at or
+  // above 0 °C, over ice below), capped at the total pressure.
+  function waterVapourPpm(v) {
+    if (!has(v.humidity_pct) || !has(v.internal_temp_c) || !has(v.pressure_kpa) || v.pressure_kpa <= 0) return null;
+    const t = v.internal_temp_c;
+    const psat = t >= 0
+      ? 0.61121 * Math.exp((18.678 - t / 234.5) * (t / (257.14 + t)))
+      : 0.61115 * Math.exp((23.036 - t / 333.7) * (t / (279.82 + t)));
+    if (!isFinite(psat)) return null;
+    const pv = Math.min((v.humidity_pct / 100) * psat, v.pressure_kpa);
+    return (pv / v.pressure_kpa) * 1e6;
+  }
+
+  function compText(ppm) {
+    if (compUnit === "ppm") return `${Math.round(ppm).toLocaleString()} ppm`;
+    const pct = ppm / 10000;
+    if (pct === 0) return "0%";
+    return `${pct >= 1 ? pct.toLocaleString(undefined, { maximumFractionDigits: 2 }) : pct.toLocaleString(undefined, { maximumSignificantDigits: 3 })}%`;
+  }
+
+  function renderComposition(v) {
+    ROOT.querySelectorAll("[data-comp-unit]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.compUnit === compUnit)));
+    const n2 = has(v.n2_pct) ? v.n2_pct * 10000 : null;
+    const o2 = has(v.o2_pct) ? v.o2_pct * 10000 : null;
+    const water = waterVapourPpm(v);
+    const trace = [["Water vapour (H₂O)", water], ...TRACE.map(([k, name]) => [name, has(v[k]) ? v[k] : null])];
+    const traceSum = trace.reduce((a, [, x]) => a + (x || 0), 0);
+    const known = (n2 || 0) + (o2 || 0) + traceSum;
+    const legend = $("#composition-legend");
+    const caption = $("#composition-caption");
+    if (!known) {
+      Charts.donut($("#composition-chart"), { slices: [], size: 180, center: { value: "–", label: "no readings" }, label: "No gas readings yet" });
+      legend.innerHTML = '<li class="comp-note">Enter O₂, N₂, humidity or trace gas readings to see the composition.</li>';
+      caption.textContent = "Share of each gas in the cabin air.";
+      return;
+    }
+    const over = known > 1e6 + 1;
+    const other = over ? 0 : Math.max(0, 1e6 - known);
+    const slices = [
+      { name: "Nitrogen (N₂)", value: n2 || 0, cls: "s1" },
+      { name: "Oxygen (O₂)", value: o2 || 0, cls: "s2" },
+      { name: "Minor gases", value: traceSum, cls: "s3" },
+      { name: "Unaccounted", value: other, cls: "other" },
+    ];
+    for (const sl of slices) sl.tip = `<strong>${sl.name}</strong><br>${compText(sl.value)} · ${fmt((sl.value / Math.max(known, 1e6)) * 100)}% of total`;
+    Charts.donut($("#composition-chart"), {
+      slices, size: 180,
+      center: { value: compText(Math.min(known, 1e6)).replace(" ppm", ""), label: compUnit === "ppm" ? "ppm measured" : "measured" },
+      label: `Air composition: ${slices.filter((x) => x.value > 0).map((x) => `${x.name} ${compText(x.value)}`).join(", ")}`,
+    });
+    const row = (sl) => `<li><span class="swatch ${sl.cls}" aria-hidden="true"></span><span>${sl.name}</span><span class="value">${compText(sl.value)}</span></li>`;
+    legend.innerHTML = [
+      n2 !== null ? row(slices[0]) : '<li><span class="swatch s1" aria-hidden="true"></span><span>Nitrogen (N₂)</span><span class="value muted">no reading</span></li>',
+      o2 !== null ? row(slices[1]) : '<li><span class="swatch s2" aria-hidden="true"></span><span>Oxygen (O₂)</span><span class="value muted">no reading</span></li>',
+      row(slices[2]),
+      ...trace.map(([name, x]) => `<li class="sub"><span>${name}</span><span class="value${x === null ? " muted" : ""}">${x === null ? (name.startsWith("Water") ? "needs humidity, temperature and pressure" : "no reading") : compText(x)}</span></li>`),
+      over ? "" : row(slices[3]),
+      over ? `<li class="comp-note">Readings add up to ${compText(known)}, more than 100%. Check the values; the chart is scaled to the total.</li>`
+        : '<li class="comp-note">Water vapour is calculated from relative humidity, temperature and pressure. Unaccounted is the remainder up to 100% (mostly argon in Earth-like air, plus gases not entered).</li>',
+    ].join("");
+    caption.textContent = "Share of each gas in the cabin air. Water vapour and trace gases are drawn as one slice; each is listed.";
+  }
+
   function range(values) {
     const xs = values.filter((x) => x != null);
     return xs.length ? `${fmt(Math.min(...xs))}–${fmt(Math.max(...xs))}` : "–";
@@ -558,6 +627,7 @@
     renderSummary(v, result);
     renderFlags(result);
     renderMeters(v);
+    renderComposition(v);
     renderAcme(v, result);
     renderSaffire(v);
     renderRelated(v);
@@ -650,6 +720,13 @@
     });
 
     $("#acme-fuel").addEventListener("change", (e) => { acmeFilter = e.target.value; update(); });
+    $("#composition-card").addEventListener("click", (e) => {
+      const unit = e.target.closest("[data-comp-unit]")?.dataset.compUnit;
+      if (!unit || unit === compUnit) return;
+      compUnit = unit;
+      save(STORE.compUnit, compUnit);
+      update();
+    });
 
     $("#dataset-file").addEventListener("change", (e) => {
       for (const f of e.target.files) addDataset(f);
