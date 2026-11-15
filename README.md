@@ -43,7 +43,8 @@ Open `http://localhost:3000`. The dashboard calls the Flask health endpoint at `
 The page has the Ember flame simulation and, below it, the NASA data comparison from
 `fire-dashboard/` (rendered in an isolated shadow root). Both read the same Parameters
 panel: O₂, pressure, temperature, CO₂ and gravity are shared, and the NASA-only inputs
-appear there as extra sections.
+appear there as extra sections. Unit pickers on the panel's sliders switch O₂/CO₂ between
+% and ppm, pressure between kPa, psia and atm, and temperature between °C, K and °F.
 `npm run dev` and `npm run build` first copy `fire-dashboard/` into
 `frontend/public/fire-dashboard/` (generated, git-ignored), so edit `fire-dashboard/`,
 not the copy.

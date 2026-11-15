@@ -216,5 +216,60 @@
     });
   }
 
-  window.Charts = { scatter, line, fmt, setTooltipHost, removeTooltip };
+  /**
+   * Donut chart (part of a whole).
+   * opts: { slices: [{ name, value, cls, tip }], size, center: { value, label }, label }
+   * Slices are drawn in order, clockwise from 12 o'clock, with a surface-coloured
+   * gap between them. Values must be >= 0; zero slices are skipped.
+   */
+  function donut(container, opts) {
+    container.innerHTML = "";
+    const size = opts.size || 200;
+    const r = size / 2 - 4;
+    const inner = r * 0.62;
+    const cx = size / 2;
+    const cy = size / 2;
+    const slices = opts.slices.filter((s) => s.value > 0);
+    const total = slices.reduce((a, s) => a + s.value, 0);
+    const svg = el("svg", { viewBox: `0 0 ${size} ${size}`, width: size, height: size, class: "chart-svg donut", role: "img", "aria-label": opts.label || "" }, container);
+    if (!total) {
+      el("circle", { cx, cy, r: (r + inner) / 2, class: "donut-empty", "stroke-width": r - inner, fill: "none" }, svg);
+    }
+    const point = (radius, angle) => [cx + radius * Math.sin(angle), cy - radius * Math.cos(angle)];
+    let start = 0;
+    for (const s of slices) {
+      const sweep = (s.value / total) * Math.PI * 2;
+      let d;
+      if (sweep >= Math.PI * 2 - 1e-9) {
+        // A full ring needs two arcs.
+        d = `M${cx} ${cy - r}A${r} ${r} 0 1 1 ${cx} ${cy + r}A${r} ${r} 0 1 1 ${cx} ${cy - r}Z` +
+          `M${cx} ${cy - inner}A${inner} ${inner} 0 1 0 ${cx} ${cy + inner}A${inner} ${inner} 0 1 0 ${cx} ${cy - inner}Z`;
+      } else {
+        const end = start + sweep;
+        const large = sweep > Math.PI ? 1 : 0;
+        const [x1, y1] = point(r, start), [x2, y2] = point(r, end);
+        const [x3, y3] = point(inner, end), [x4, y4] = point(inner, start);
+        d = `M${x1} ${y1}A${r} ${r} 0 ${large} 1 ${x2} ${y2}L${x3} ${y3}A${inner} ${inner} 0 ${large} 0 ${x4} ${y4}Z`;
+      }
+      const path = el("path", { d, class: `donut-slice ${s.cls}`, "fill-rule": "evenodd", tabindex: 0 }, svg);
+      path.setAttribute("aria-label", s.tip.replace(/<[^>]+>/g, " "));
+      const show = (e) => {
+        const b = path.getBoundingClientRect();
+        showTip(s.tip, e.clientX ?? b.x + b.width / 2, e.clientY ?? b.y);
+      };
+      path.addEventListener("mousemove", show);
+      path.addEventListener("focus", show);
+      path.addEventListener("mouseleave", hideTip);
+      path.addEventListener("blur", hideTip);
+      start += sweep;
+    }
+    if (opts.center) {
+      const v = el("text", { x: cx, y: cy - 2, class: "donut-value", "text-anchor": "middle" }, svg);
+      v.textContent = opts.center.value;
+      const l = el("text", { x: cx, y: cy + 16, class: "donut-label", "text-anchor": "middle" }, svg);
+      l.textContent = opts.center.label;
+    }
+  }
+
+  window.Charts = { scatter, line, donut, fmt, setTooltipHost, removeTooltip };
 })();

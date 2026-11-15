@@ -54,6 +54,28 @@ const fields = [
   ["co2", "CO₂ concentration", "%", 0, 100, 0.01],
 ];
 
+// Unit choices for sliders. The first unit is the base unit the value is stored in.
+const PERCENT_UNITS = [
+  { unit: "%", toBase: (x) => x, fromBase: (x) => x },
+  { unit: "ppm", toBase: (x) => x / 10000, fromBase: (x) => x * 10000 },
+];
+const SLIDER_UNITS = {
+  oxygen: PERCENT_UNITS,
+  co2: PERCENT_UNITS,
+  pressure: [
+    { unit: "kPa", toBase: (x) => x, fromBase: (x) => x },
+    { unit: "psia", toBase: (x) => x * 6.894757, fromBase: (x) => x / 6.894757 },
+    { unit: "atm", toBase: (x) => x * 101.325, fromBase: (x) => x / 101.325 },
+  ],
+  temperature: [
+    { unit: "°C", toBase: (x) => x, fromBase: (x) => x },
+    { unit: "K", toBase: (x) => x - 273.15, fromBase: (x) => x + 273.15 },
+    { unit: "°F", toBase: (x) => ((x - 32) * 5) / 9, fromBase: (x) => (x * 9) / 5 + 32 },
+  ],
+};
+// Up to 6 significant figures, without float noise (e.g. 209000 not 208999.99999).
+const tidyNumber = (x) => Number(Number(x).toPrecision(6));
+
 function Symbol({ name, ...props }) {
   const paths = {
     plus: "M12 5v14M5 12h14",
@@ -82,16 +104,18 @@ function Symbol({ name, ...props }) {
   );
 }
 
-function Slider({ name, label, suffix, min, max, step, value, onChange }) {
+function Slider({ name, label, suffix, min, max, step, value, onChange, units, onUnitChange }) {
   const [draft, setDraft] = useState(String(value));
   useEffect(() => setDraft(String(value)), [value]);
+  // Keep at least as many decimals as the step needs (e.g. atm or psia steps).
+  const decimals = Math.min(6, Math.max(2, -Math.floor(Math.log10(Math.abs(step) || 1))));
   const change = (v) =>
-    onChange(Number(Math.min(max, Math.max(min, v)).toFixed(2)));
+    onChange(Number(Math.min(max, Math.max(min, v)).toFixed(decimals)));
   return (
     <div className="slider-field">
       <div>
         <label htmlFor={name}>{label}</label>
-        <span className="editable-value"><input aria-label={`${label} value`} type="number" required min={min} max={max} step={step} value={draft} onChange={e => {setDraft(e.target.value); const n=e.target.valueAsNumber; if(Number.isFinite(n) && n>=min && n<=max) onChange(n);}} onBlur={() => {const n=Number(draft); if(draft.trim() && Number.isFinite(n)) {const bounded=Number(Math.min(max,Math.max(min,n)).toFixed(2));onChange(bounded);setDraft(String(bounded));} else setDraft(String(value));}}/><span>{suffix}</span></span>
+        <span className="editable-value"><input aria-label={`${label} value`} type="number" required min={min} max={max} step={units ? "any" : step} value={draft} onChange={e => {setDraft(e.target.value); const n=e.target.valueAsNumber; if(Number.isFinite(n) && n>=min && n<=max) onChange(n);}} onBlur={() => {const n=Number(draft); if(draft.trim() && Number.isFinite(n)) {const bounded=Number(Math.min(max,Math.max(min,n)).toFixed(decimals));onChange(bounded);setDraft(String(bounded));} else setDraft(String(value));}}/>{units ? (<select className="slider-unit" aria-label={`${label} unit`} value={suffix} onChange={(e) => onUnitChange(e.target.value)}>{units.map((u) => <option key={u.unit}>{u.unit}</option>)}</select>) : <span>{suffix}</span>}</span>
       </div>
       <input
         id={name}
@@ -104,7 +128,7 @@ function Slider({ name, label, suffix, min, max, step, value, onChange }) {
         onChange={(e) => change(Number(e.target.value))}
       />
       <div className="slider-limits">
-        <span>{min}</span>
+        <span>{Number(Number(min).toPrecision(5))}</span>
         <button
           type="button"
           aria-label={`Decrease ${label}`}
@@ -122,7 +146,7 @@ function Slider({ name, label, suffix, min, max, step, value, onChange }) {
           +
         </button>
         <span>
-          {max} {suffix}
+          {Number(Number(max).toPrecision(5))} {suffix}
         </span>
       </div>
     </div>
@@ -196,7 +220,7 @@ export default function Home() {
     }),
     [nasaDefs, nasaRaw, nasaUnits, values],
   );
-  const [unit, setUnit] = useState("C");
+  const [sliderUnits, setSliderUnits] = useState({});
   const [snapshot, setSnapshot] = useState(null);
   const [error, setError] = useState("");
   const view = "flame";
@@ -210,15 +234,10 @@ export default function Home() {
     setSnapshot(null);
     setError("");
   };
-  const temperature =
-    values.temperature === ""
-      ? ""
-      : unit === "C"
-        ? values.temperature
-        : Number((Number(values.temperature) + 273.15).toFixed(2));
+  const sliderUnit = (key) =>
+    SLIDER_UNITS[key]?.find((u) => u.unit === sliderUnits[key]) || SLIDER_UNITS[key]?.[0];
   function reset() {
     setValues(defaults);
-    setUnit("C");
     setSnapshot(null);
     setError("");
     setNasaRaw({});
@@ -453,41 +472,28 @@ export default function Home() {
                 <div className="fields-grid">
                   {[
                     ...fields.filter(([key]) => key !== "area"),
-                    [
-                      "temperature",
-                      "Temperature",
-                      unit === "C" ? "°C" : "K",
-                      unit === "C" ? -273.15 : 0,
-                      unit === "C" ? 2000 : 2273.15,
-                      0.01,
-                    ],
-                  ].map(([key, label, suffix, min, max, step]) => (
-                    <Slider
-                      key={key}
-                      name={key}
-                      label={label}
-                      suffix={suffix}
-                      min={min}
-                      max={max}
-                      step={step}
-                      value={key === "temperature" ? temperature : values[key]}
-                      onChange={(v) =>
-                        update(
-                          key,
-                          key === "temperature" && unit === "K"
-                            ? Number((v - 273.15).toFixed(2))
-                            : v,
-                        )
-                      }
-                    />
-                  ))}
-                  <button
-                    type="button"
-                    className="unit-toggle"
-                    onClick={() => setUnit(unit === "C" ? "K" : "C")}
-                  >
-                    Temperature unit: {unit === "C" ? "°C → K" : "K → °C"}
-                  </button>
+                    ["temperature", "Temperature", "°C", -273.15, 2000, 0.01],
+                  ].map(([key, label, suffix, min, max, step]) => {
+                    // Sliders with unit choices show converted values; the
+                    // stored value stays in the base unit.
+                    const u = sliderUnit(key);
+                    const show = (x) => (u ? tidyNumber(u.fromBase(x)) : x);
+                    return (
+                      <Slider
+                        key={key}
+                        name={key}
+                        label={label}
+                        suffix={u ? u.unit : suffix}
+                        min={show(min)}
+                        max={show(max)}
+                        step={u ? tidyNumber(Math.abs(u.fromBase(min + step) - u.fromBase(min))) : step}
+                        value={values[key] === "" ? "" : show(Number(values[key]))}
+                        units={SLIDER_UNITS[key]}
+                        onUnitChange={(next) => setSliderUnits((s) => ({ ...s, [key]: next }))}
+                        onChange={(v) => update(key, u ? tidyNumber(u.toBase(v)) : v)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
               <div className="field-section">

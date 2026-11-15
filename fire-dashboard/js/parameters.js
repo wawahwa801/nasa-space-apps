@@ -42,6 +42,11 @@
       { unit: "ppm", toBase: (x) => x, fromBase: (x) => x },
       { unit: "%", toBase: (x) => x * 10000, fromBase: (x) => x / 10000 },
     ],
+    // Major gases, stored in % (1% = 10,000 ppm).
+    percent: [
+      { unit: "%", toBase: (x) => x, fromBase: (x) => x },
+      { unit: "ppm", toBase: (x) => x / 10000, fromBase: (x) => x * 10000 },
+    ],
     length: [
       { unit: "m", toBase: (x) => x, fromBase: (x) => x },
       { unit: "cm", toBase: (x) => x / 100, fromBase: (x) => x * 100 },
@@ -69,9 +74,9 @@
       id: "atmosphere",
       title: "Atmospheric composition",
       fields: [
-        { id: "o2_pct", label: "Oxygen (O₂) concentration", type: "number", unit: "%", min: 0, max: 100,
+        { id: "o2_pct", label: "Oxygen (O₂) concentration", type: "number", units: "percent", min: 0, max: 100,
           hint: "Checked for enrichment and deficiency, and placed on the ACME chart." },
-        { id: "n2_pct", label: "Nitrogen (N₂) concentration", type: "number", unit: "%", min: 0, max: 100,
+        { id: "n2_pct", label: "Nitrogen (N₂) concentration", type: "number", units: "percent", min: 0, max: 100,
           hint: "Checked with O₂ so the gas percentages add up." },
         { id: "co2_ppm", label: "Carbon dioxide (CO₂) concentration", type: "number", units: "concentration", min: 0, max: 1e6,
           hint: "Compared with NIOSH exposure limits and the Saffire-I burn." },

@@ -17,7 +17,7 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
 ## Using it
 
 - **Units:** pressure (kPa, psia, atm), temperature (°C, K, °F), gas concentrations
-  (ppm, %) and distances (m, cm, ft) can be entered in any listed unit. Switching the
+  (% or ppm, including O₂ and N₂) and distances (m, cm, ft) can be entered in any listed unit. Switching the
   unit converts the value already entered.
 - **Help and checks:** click a field to see what it is used for. Values outside a
   sensible range (for example O₂ above 100%) are marked and ignored until corrected.
@@ -34,6 +34,8 @@ is sent over the network. Click **Load example** to see a filled-in dashboard.
   flammability limits, CO and CO₂ against NIOSH limits, leaks, distance to ignition
   sources, open fuel storage, monitoring status, microgravity), each with a severity, icon and explanation.
 - **Gas levels:** H₂ and CH₄ as a share of their lower flammability limits; CO and CO₂ against exposure limits.
+- **Air composition:** a donut of N₂, O₂, trace gases (CO₂, H₂, CH₄, CO, listed individually) and the
+  unaccounted remainder, switchable between % and ppm.
 - **ACME ignition tests:** your O₂ % and pressure plotted against 195 ACME test points,
   coloured by whether they ignited, with the closest tests highlighted in the table view.
 - **Saffire-I sample 2:** O₂, CO₂, pressure and plume temperature during a large-scale burn,
