@@ -1,5 +1,17 @@
 # FLEX-2 live flame lab
 
+## Generated geometry hybrid experiment
+
+`ml/flex2_geometry.py` generates a full spatial mask and RGB image from query conditions and continuously weighted reference feature maps at 128, 64 and 32 pixels. It has no reference RGB skip, fixed silhouette or bounded image warp. Condition modulation at each decoder scale allows geometry to change. RGB, flame-region, edge, high-frequency detail, BCE and Dice objectives provide image-derived supervision. An auxiliary reconstruction objective trains the shared reference encoder; the main reference-conditioned prediction always excludes its own target run. All runs are used for fitting as previously requested, with no held-out accuracy claim.
+
+The tracked trial is `ml/data/flex2-geometry-model/`: 262 targets, 21 completed epochs (five at attention temperature 0.02, then sixteen at 0.002), with optimizer, training log and checksums. Run `python ml/flex2_compare.py --run-dir ml/data/flex2-geometry-model --port 5054` to inspect it. It demonstrably changes its generated geometry under numeric sweeps, but images remain too soft to claim dataset-level realism. This is an architectural experiment, not a validated replacement for reference imagery or a physical PINN boundary. The sharper aligned-reference prototype remains separately available at `ml/data/flex2-shape-demo/`.
+
+```bash
+ml/.venv/bin/python ml/flex2_geometry.py --dataset ml/data/flex2-continuous-model/expanded --out ml/data/flex2-geometry-demo/training --epochs 20
+```
+
+The model writes atomically saved checkpoints with optimizer state and per-epoch loss components. Serve it using `python ml/flex2_compare.py --run-dir ml/data/flex2-geometry-demo --port 5053`. The page exposes the predicted mask probability separately. This weakly supervised mask includes bright image regions as well as the existing colour mask: hardware, saturation, and reflections may be included. It is an image-space geometry prototype, not a calibrated physical flame surface or a validated PINN boundary condition. Numeric inputs have a continuous path through reference attention and the decoder; categorical inputs remain discrete. Data availability and training determine how much geometry actually changes.
+
 ## Aligned structure-preserving hybrid prototype
 
 `ml/flex2_shape.py` tests an alternative to the diffuse full-image decoder: source RGB references and weak masks receive the same integer centering translation, continuous same-fuel reference weights use temperature 0.02, and a conditioned network predicts smooth spatial displacement and RGB logit corrections. There is no hard nearest-reference switch. An auxiliary weak-mask head, image-gradient loss, and flow smoothness regularizer supplement RGB error. No artificial flame texture, colour rule or upscaling claim is introduced. Saturated hardware and background artifacts present in references can remain visible. These are spherical droplet flames, not terrestrial upward-burning plumes.

@@ -22,13 +22,13 @@ PAGE='''<!doctype html><html lang="en"><meta name="viewport" content="width=devi
 <h1>FLEX-2 trained model comparison</h1><p>Choose a recorded condition to compare the trained retrieval-conditioned CNN, published feature-only CNN, and normal pressure/temperature retrieval. All references come from training runs, with the chosen run excluded.</p>
 <select id="run" aria-label="Recorded conditions"></select><div id="controls" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px"></div><p id="status" role="status">Loading…</p>
 <main><section><h2>Trained hybrid</h2><img id="hybrid" alt="Trained hybrid prediction"><p id="hybridNote"></p></section><section><h2>Normal CNN</h2><img id="cnn" alt="Published CNN prediction"><p>Published 100-run CNN, using fuel, pressure and temperature.</p></section><section><h2>Feature retrieval</h2><img id="retrieval" alt="Retrieved recorded flame"><p id="retrievalNote"></p></section></main>
-<p id="conditions"></p><p>All numeric hybrid features have sliders; categorical features have selectors. Fuel comes from the recorded preset. Normal CNN and retrieval use only fuel, pressure and temperature. Flags indicate missing measurements; changing them does not supply a measured value. Camera codes and campaign are nuisance inputs. Slider combinations may be unsupported by training data; predictions are experimental. Display alignment translates the luminous region without resizing.</p>
+<details id="geometryPanel" hidden><summary>Predicted geometry probability (weak supervision)</summary><img id="geometryMask" style="max-width:256px" alt="Uncalibrated predicted flame mask"><p>Mask uses the centered training coordinate frame. This is an image-derived probability map, not a validated physical boundary for the PINN.</p></details><p id="conditions"></p><p>All numeric hybrid features have sliders; categorical features have selectors. Fuel comes from the recorded preset. Normal CNN and retrieval use only fuel, pressure and temperature. Flags indicate missing measurements; changing them does not supply a measured value. Camera codes and campaign are nuisance inputs. Slider combinations may be unsupported by training data; predictions are experimental. Display alignment translates the luminous region without resizing.</p>
 <script>
 let version=0,generation=0,renders=0,info,busy=false,pending=false;const $=id=>document.getElementById(id);
 function preset(){generation++;const r=info.runs.find(x=>x.id===$('run').value);for(const [key,value] of Object.entries(r.values)){const el=$(key);el.value=value;const out=$(key+'Out');if(out)out.textContent=value;}update();}
 function update(){version++;pending=true;$('status').textContent='Updating comparison…';pump();}
 async function pump(){if(busy||!pending)return;pending=false;busy=true;const v=version,g=generation;const params=new URLSearchParams({run:$('run').value});for(const s of [...info.numeric,...info.categories])params.set(s.key,$(s.key).value);
-try{const response=await fetch('/api/compare?'+params);const r=await response.json();if(!response.ok)throw Error(r.error);if(g===generation){for(const k of ['hybrid','cnn','retrieval'])$(k).src=r[k];$('hybrid').dataset.renderCount=String(++renders);$('hybrid').dataset.inputVersion=String(v);$('hybridNote').textContent=r.model_note+' · reference '+r.hybrid_reference;$('retrievalNote').textContent='Recorded training run '+r.retrieval_reference;$('conditions').textContent=r.conditions;$('status').textContent=pending?'Live prediction · updating while you drag…':'Comparison ready';}}catch(e){if(v===version)$('status').textContent=e.message;}finally{busy=false;pump();}}
+try{const response=await fetch('/api/compare?'+params);const r=await response.json();if(!response.ok)throw Error(r.error);if(g===generation){for(const k of ['hybrid','cnn','retrieval'])$(k).src=r[k];$('hybrid').dataset.renderCount=String(++renders);$('geometryPanel').hidden=!r.mask;if(r.mask)$('geometryMask').src=r.mask;$('hybrid').dataset.inputVersion=String(v);$('hybridNote').textContent=r.model_note+' · reference '+r.hybrid_reference;$('retrievalNote').textContent='Recorded training run '+r.retrieval_reference;$('conditions').textContent=r.conditions;$('status').textContent=pending?'Live prediction · updating while you drag…':'Comparison ready';}}catch(e){if(v===version)$('status').textContent=e.message;}finally{busy=false;pump();}}
 fetch('/api/runs').then(r=>r.json()).then(r=>{info=r;for(const x of r.runs)$('run').add(new Option(x.label,x.id));
 for(const s of r.numeric){const label=document.createElement('label');label.textContent=s.label+' ('+s.unit+')';const output=document.createElement('output');output.id=s.key+'Out';output.style.display='block';const input=document.createElement('input');input.type='range';input.id=s.key;input.min=s.min;input.max=s.max;input.step=s.step;input.style.width='100%';input.disabled=s.min===s.max;input.setAttribute('aria-label',s.label);input.oninput=()=>{output.textContent=Number(input.value).toFixed(3);update();};label.append(output,input);$('controls').append(label);}
 for(const s of r.categories){const label=document.createElement('label');label.textContent=s.label;const select=document.createElement('select');select.id=s.key;select.style.display='block';select.add(new Option('Unknown / unseen code','unknown'));for(const [j,value] of s.levels)select.add(new Option(value,value));select.onchange=update;label.append(select);$('controls').append(label);}
@@ -56,7 +56,7 @@ def create_app(run_dir):
     if not final_fit and hashlib.sha256((dataset/'manifest.json').read_bytes()).hexdigest()!=saved['metadata']['manifest_sha256']:
         raise ValueError('Hybrid dataset differs from training manifest')
     d,m,x,refs,evidence_hash=load_verified(dataset)
-    if saved['metadata'].get('architecture')=='soft-reference-generator-v1' and 'preprocessing' in saved['metadata']:
+    if 'preprocessing' in saved['metadata']:
         from flex2_continuous import frozen_features
         x=frozen_features(d,saved['metadata'])
     if evidence_hash!=saved['metadata']['evidence_sha256'] or d['feature_names']!=saved['metadata']['features']:
@@ -64,8 +64,14 @@ def create_app(run_dir):
     if d['groups'].tolist()!=saved['metadata']['target_ids']:raise ValueError('Hybrid target IDs differ from checkpoint')
     torch.set_num_threads(2)
     shape=saved['metadata'].get('architecture')=='aligned-soft-shape-v1'
+    geometry=saved['metadata'].get('architecture')=='multiscale-geometry-v1'
     continuous=saved['metadata'].get('architecture')=='soft-reference-generator-v1'
-    if shape:
+    if geometry:
+        from flex2_geometry import GeometryHybrid
+        from flex2_shape import aligned_data
+        from flex2_continuous import soft_references
+        hybrid=GeometryHybrid(x.shape[1])
+    elif shape:
         from flex2_shape import ShapeHybrid,aligned_data
         from flex2_continuous import soft_references
         hybrid=ShapeHybrid(x.shape[1])
@@ -76,10 +82,14 @@ def create_app(run_dir):
     hybrid.load_state_dict(saved['state']);hybrid.eval()
     cnn,cnn_saved=load();base=np.load(ROOT/'prepared.npz');train=np.where(base['splits']=='train')[0]
     images=torch.tensor(d['images']).permute(0,3,1,2).float()/255;conditions=torch.tensor(x)
-    if shape:
+    if shape or geometry:
         aligned,_=aligned_data(d['images'],d['masks']);images=torch.tensor(aligned).permute(0,3,1,2).float()/255
     if continuous:
         with torch.inference_mode():embedding_bank=torch.cat([hybrid.encode_references(b) for b in images.split(8)])
+    if geometry:
+        with torch.inference_mode():
+            encoded=[hybrid.encode_references(b) for b in images.split(8)]
+            pyramid_banks=[torch.cat([parts[k] for parts in encoded]) for k in range(3)]
     base_manifest=json.loads((ROOT/'manifest.json').read_text())
     eligible=[i for i,f in enumerate(d['fuels']) if m['fuels'][int(f)] in base_manifest['fuels']]
     eligible.sort(key=lambda i:(str(d['splits'][i])!='test',str(d['groups'][i])))
@@ -130,7 +140,13 @@ def create_app(run_dir):
         ranking,_=nearest(base['features'],base['fuels'],raw[:2],f,cnn_saved['scale'].numpy(),candidates)
         normal_ref=int(ranking[0])
         with torch.inference_mode():
-            if shape:
+            mask_image=None
+            if geometry:
+                weights=soft_references(torch.tensor(query[None]),conditions,torch.tensor(d['fuels']),torch.tensor([d['fuels'][i]]),torch.tensor([i]),saved['metadata']['temperature'])
+                pyramid=[torch.einsum('bn,nchw->bchw',weights,bank) for bank in pyramid_banks]
+                rgb,mask_logits=hybrid.decode(torch.tensor(query[None]),weights@conditions,pyramid)
+                prediction=rgb[0];mask_image=png(np.repeat(mask_logits[0,0].sigmoid().numpy()[:,:,None],3,axis=2))
+            elif shape:
                 weights=soft_references(torch.tensor(query[None]),conditions,torch.tensor(d['fuels']),torch.tensor([d['fuels'][i]]),torch.tensor([i]),saved['metadata']['temperature'])
                 prediction=hybrid(torch.tensor(query[None]),weights@conditions,torch.einsum('bn,nchw->bchw',weights,images))[0][0]
             elif continuous:
@@ -139,7 +155,7 @@ def create_app(run_dir):
                 prediction=hybrid.decode(torch.tensor(query[None]),weights@conditions,embedding)[0]
             else:prediction=hybrid(torch.tensor(query[None]),conditions[ref:ref+1],images[ref:ref+1])[0]
             original,_=cnn(encode(torch.tensor(raw[None,:2]),torch.tensor([f]),cnn_saved['low'],cnn_saved['scale'],len(base_manifest['fuels'])))
-        return jsonify(hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],model_note=f"{'Aligned shape hybrid · ' if shape else ''}All {len(x)} runs fitted · no held-out score" if final_fit else f"Validation-selected seed {saved['seed']}",hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{fuel} · {raw[0]:.2f} kPa · {raw[1]:.2f} °C · experimental input combination")
+        return jsonify(mask=mask_image,hybrid=shown(prediction),cnn=shown(original[0]),retrieval=shown(base['images'][normal_ref]),seed=saved['seed'],model_note=f"{'Generated geometry hybrid · ' if geometry else 'Aligned shape hybrid · ' if shape else ''}All {len(x)} runs fitted · no held-out score" if final_fit else f"Validation-selected seed {saved['seed']}",hybrid_reference=str(d['groups'][ref]),retrieval_reference=str(base['groups'][normal_ref]),conditions=f"{fuel} · {raw[0]:.2f} kPa · {raw[1]:.2f} °C · experimental input combination")
     return app
 
 
