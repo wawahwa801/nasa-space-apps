@@ -64,7 +64,18 @@ def search_worker(cache):
     from flex2_inputs import setting_values
     fd.ROOT=Path(cache);fd.ROOT.mkdir(parents=True,exist_ok=True)
     fd.CATEGORIES={**fd.CATEGORIES,**DISCOVERY_CATEGORIES}
-    nodes=fd.file_tree()
+    # Refresh the listing each pass without deleting the shared cached inventory.
+    try:
+        meta=json.loads(fd.read(fd.BASE+'/repo/investigations/PSI-68',8_000_000))
+        payload=dict(folder='PSI-68/',fileType='study',studyId='PSI-68',version=meta['version'],obfuscationcode='')
+        request=fd.Request(fd.BASE+'/files/v2',data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'})
+        listing=json.loads(fd.read(request,20_000_000))
+        atomic_json(fd.ROOT/'continuous-file-tree.json',listing)
+        nodes=list({json.dumps(n,sort_keys=True):n for n in fd.entries(listing)}.values())
+        print(json.dumps(dict(stage='catalog_refreshed',nodes=len(nodes))),flush=True)
+    except Exception as error:
+        print(json.dumps(dict(stage='catalog_refresh_failed',error=str(error),fallback='cached catalog')),flush=True)
+        nodes=fd.file_tree()
     selected=[n for n in nodes if n.get('subcategory') in fd.CATEGORIES and not n.get('restricted') and re.search(r'[A-Z]\d{3}[A-Z]\d{2}D\.zip$',n['key'])]
     candidates={}
     for node in selected:
@@ -83,6 +94,7 @@ def search_worker(cache):
             if groups[category]:ordered.append(groups[category].pop(0))
     def one(item):
         run,node=item
+        was_cached=(fd.ROOT/run/'record.json').exists()
         try:
             record=fd.acquire_run(node,nodes)
             matches=[n for n in nodes if Path(n['key']).name.endswith(run+'_MDCA_Testpoint_Settings.txt')]
@@ -92,7 +104,7 @@ def search_worker(cache):
             raw=p.read_bytes();values=setting_values(run,raw.decode('utf-8-sig'))
             if values['status']!='exact_run_match' or values['fiber_usage_flag'] is None:raise ValueError('Settings ID/usage rejected')
             atomic_json(fd.ROOT/run/'continuous-settings.json',dict(run=run,file=p.name,sha256=fd.sha(raw),resource_id=n['id'],version=n['version']))
-            return dict(run=run,status='source_and_settings_matched')
+            return dict(run=run,status='cached_sources_rechecked' if was_cached else 'new_sources_matched')
         except Exception as error:return dict(run=run,status='excluded',reason=str(error))
     with ThreadPoolExecutor(max_workers=4) as pool:
         for future in as_completed([pool.submit(one,item) for item in ordered]):
@@ -176,6 +188,27 @@ def train(dataset,out,hours,epochs):
         print(json.dumps(row),flush=True)
 
 
+def search_for_window(command,log,seconds):
+    """Keep refreshing/retrying for the entire requested duration, even on exit."""
+    started=time.monotonic();deadline=started+seconds;passes=[]
+    while time.monotonic()<deadline:
+        print(json.dumps(dict(stage='search_pass_started',pass_number=len(passes)+1,remaining_seconds=deadline-time.monotonic())),file=log,flush=True)
+        process=subprocess.Popen(command,stdout=log,stderr=subprocess.STDOUT)
+        expired=False
+        try:process.wait(timeout=max(.001,deadline-time.monotonic()))
+        except subprocess.TimeoutExpired:
+            expired=True;process.terminate()
+            try:process.wait(timeout=10)
+            except subprocess.TimeoutExpired:process.kill();process.wait()
+        result=dict(pass_number=len(passes)+1,returncode=process.returncode,deadline_reached=expired)
+        passes.append(result);print(json.dumps(dict(stage='search_pass_complete',**result)),file=log,flush=True)
+        # Pause between exhausted passes rather than hammer the NASA listing.
+        # Continue through early exits/errors; only the deadline ends discovery.
+        if not expired and time.monotonic()<deadline:
+            time.sleep(min(30,deadline-time.monotonic()))
+    return dict(elapsed_seconds=time.monotonic()-started,requested_seconds=seconds,passes=passes)
+
+
 def main(search_hours,train_hours,epochs):
     if not 0<search_hours<=2 or not 0<train_hours<=8 or epochs<1:raise ValueError('Invalid search/training budget')
     discovery=ORIGINAL_ROOT.parent/'flex2-discovery'
@@ -185,14 +218,9 @@ def main(search_hours,train_hours,epochs):
     stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ');workspace=discovery/f'continuous-{stamp}';workspace.mkdir(parents=True,exist_ok=False)
     command=[sys.executable,str(Path(__file__).resolve()),'--worker-cache',str(cache.resolve())]
     with (workspace/'search.log').open('w') as log:
-        print(f'Searching up to {search_hours} hours; progress: {workspace / "search.log"}',flush=True)
-        process=subprocess.Popen(command,stdout=log,stderr=subprocess.STDOUT)
-        try:process.wait(timeout=search_hours*3600)
-        except subprocess.TimeoutExpired:
-            process.terminate()
-            try:process.wait(timeout=10)
-            except subprocess.TimeoutExpired:process.kill();process.wait()
-    atomic_json(workspace/'search-status.json',dict(returncode=process.returncode,search_budget_hours=search_hours,cache=str(cache),note='Completed verified cached records are screened even when search reaches deadline'))
+        print(f'Searching for the full {search_hours} hours before training; progress: {workspace / "search.log"}',flush=True)
+        status=search_for_window(command,log,search_hours*3600)
+    atomic_json(workspace/'search-status.json',dict(**status,search_budget_hours=search_hours,cache=str(cache),note='Full search window completed; completed cached records are screened next; repeated matches are not new runs'))
     print('Screening all cached source-verified runs and preparing all-data training',flush=True)
     prepare_all(cache,workspace/'expanded')
     train(workspace/'expanded',workspace/'training',train_hours,epochs)
