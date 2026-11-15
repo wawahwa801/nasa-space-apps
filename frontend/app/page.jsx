@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
+import { FeatureRetrieval } from "../components/feature-retrieval";
 import { HybridSimulation } from "../components/hybrid-simulation";
-import { LlmInsights } from "../components/llm-insights";
 import {
   NASA_DEFAULTS,
   NasaParameterFields,
@@ -208,7 +208,6 @@ export default function Home() {
   const [error, setError] = useState("");
   const [view, setView] = useState("flame");
   const [retrievalSession, setRetrievalSession] = useState(0);
-  const [appliedHybrid, setAppliedHybrid] = useState(null);
   const [paused, setPaused] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [animationKey, setAnimationKey] = useState(0);
@@ -277,11 +276,11 @@ export default function Home() {
   }
   const nav = [
     ["flame", "Flame simulation", "flame"],
-    ["insights", "LLM insights", "chat"],
+    ["retrieval", "Feature retrieval", "sliders"],
+    ["rooms", "Room simulation", "flame"],
   ];
   function changeView(next) {
     setView(next);
-    if(next === "insights") {setParametersOpen(false);}
     window.scrollTo({ top: 0, behavior: "instant" });
     if (next === "flame") requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
   }
@@ -324,7 +323,7 @@ export default function Home() {
           }}>
             NASA data
           </a>
-          <button className="panel-toggle" hidden={view === "insights"} aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
+          <button className="panel-toggle" hidden={view !== "flame"} aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
           <span>
             Ember <span className="header-divider">/</span>{" "}
             <b>{nav.find(([key]) => key === view)[1]}</b>
@@ -353,7 +352,6 @@ export default function Home() {
                     </div>
                     <span className="preview-badge">Preview</span>
                   </div>
-                  <HybridSimulation key={retrievalSession} onResult={setAppliedHybrid} onStarted={() => {setParametersOpen(false);}} />
                   <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
                     <svg className="ember-particles" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                       <defs><radialGradient id="particle-glow"><stop stopColor="#f35b25" stopOpacity=".28" /><stop offset="1" stopColor="#f35b25" stopOpacity="0" /></radialGradient></defs>
@@ -477,7 +475,6 @@ export default function Home() {
 
               </div>
             </div>
-            <div id="hybrid-controls" />
             <form id="scenario-form" onSubmit={preview}>
               <div className="field-section">
                 <span className="field-section-title">
@@ -658,8 +655,12 @@ export default function Home() {
           </main>
 
         </div>
-        <main className="dashboard-tab-panel retrieval-tab-panel" id="insights-panel" role="tabpanel" aria-labelledby="insights-tab" hidden={view !== "insights"}>
-          <LlmInsights scenario={appliedHybrid} />
+        <main className="dashboard-tab-panel retrieval-tab-panel" id="retrieval-panel" role="tabpanel" aria-labelledby="retrieval-tab" hidden={view !== "retrieval"}>
+          <FeatureRetrieval key={retrievalSession} />
+        </main>
+        {/* CNN flame image -> room spread physics (ml/dashboard_simulation.py). */}
+        <main className="dashboard-tab-panel retrieval-tab-panel rooms-tab-panel" id="rooms-panel" role="tabpanel" aria-labelledby="rooms-tab" hidden={view !== "rooms"}>
+          <HybridSimulation key={retrievalSession} />
         </main>
       </div>
     </div>
