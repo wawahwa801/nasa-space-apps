@@ -27,7 +27,12 @@ SIZE=256
 OFFSETS=[4.0,4.1,4.2,4.3]
 CATEGORIES={
     'Reduced Gravity/Quiescent 2016 - Decane':'Decane',
+    'Reduced Gravity/Quiescent 2012 - Decane':'Decane',
     'Reduced Gravity/SurrogateFuel 2013 - Heptane':'Heptane',
+    'Reduced Gravity/SurrogateFuel 2012 - N_Octane':'N_Octane',
+    'Reduced Gravity/SurrogateFuel 2013 - N_Octane':'N_Octane',
+    'Reduced Gravity/SurrogateFuel 2014 - IsoOctane':'IsoOctane',
+    'Reduced Gravity/SurrogateFuel 2014 - Toluene':'Toluene',
 }
 
 
@@ -41,7 +46,8 @@ def file_tree():
         meta=json.loads(read(BASE+'/repo/investigations/PSI-68',8_000_000))
         payload=dict(folder='PSI-68/',fileType='study',studyId='PSI-68',version=meta['version'],obfuscationcode='')
         path.write_bytes(read(Request(BASE+'/files/v2',data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'}),20_000_000))
-    return entries(json.loads(path.read_text()))
+    nodes=entries(json.loads(path.read_text()))
+    return list({json.dumps(n,sort_keys=True):n for n in nodes}.values())
 
 
 def signed(name):
@@ -69,7 +75,10 @@ def acquire_run(node,files):
     record_path=folder/'record.json'
     if record_path.exists():
         cached=json.loads(record_path.read_text())
-        if [m['offset_after_retraction'] for m in cached['members']]==OFFSETS:return cached
+        if ([m['offset_after_retraction'] for m in cached['members']]==OFFSETS
+            and cached['archive_version']==node['version'] and cached['archive_resource_id']==node['id']
+            and all((folder/m['file']).exists() and sha((folder/m['file']).read_bytes())==m['sha256'] for m in cached['members']+cached['metadata'])):
+            return cached
     audit=[]
     def get(suffix):
         found=[f for f in files if Path(f['key']).name.endswith(run+suffix)]
@@ -83,6 +92,9 @@ def acquire_run(node,files):
     ignition=event(text,'AS Burn to Completion/Igniter On')
     retracted=event(text,'AS Retract Completed')
     chamber=rows(get('_Chamber_Readings.txt'))
+    required=['FCU TimeStamp']+[f'FCU_MP_PT{k}(PSIA)' for k in [16,17,28,29]]+[f'FCU_MP_TM{k}(Deg C)' for k in [1,2,3,4]]
+    if not chamber or any(k not in chamber[0] for k in required):
+        raise ValueError('Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry')
     before=[r for r in chamber if ignition-timedelta(seconds=5)<=stamp(r['FCU TimeStamp'])<ignition]
     if len(before)<3:raise ValueError('Insufficient pre-ignition environmental telemetry')
     pressure=float(np.mean([[float(r[f'FCU_MP_PT{k}(PSIA)']) for k in [16,17,28,29]] for r in before]))*6.894757293
@@ -134,11 +146,13 @@ def fetch(limit=16):
             name=Path(node['key']).name
             print('Excluded',name,type(error).__name__,str(error)[:200],flush=True)
             return dict(archive=name,excluded=True,reason=str(error)[:300])
+    if len({Path(n['key']).name for n in candidates})!=len(candidates):
+        raise ValueError('Conflicting archive listings; resolve source identity before acquisition')
     inventory=list(ThreadPoolExecutor(max_workers=4).map(attempt,candidates))
     (ROOT/'inventory.json').write_text(json.dumps(inventory,indent=2))
 
 
-def prepare():
+def prepare(target_runs=None):
     inventory=json.loads((ROOT/'inventory.json').read_text());records=[];images=[];masks=[]
     excluded=[r for r in inventory if r.get('excluded')]
     for r in inventory:
@@ -158,8 +172,8 @@ def prepare():
         # Limit hardware at the lower edge; no per-image recentering or scale changes.
         mask[:15]=0;mask[220:]=0;mask[:,:15]=0;mask[:,240:]=0
         count,labels,stats,_=cv2.connectedComponentsWithStats(mask,8)
-        if count<2 or stats[1:,cv2.CC_STAT_AREA].max()<100:
-            excluded.append(dict(run=r['run'],reason='No visible colour signal in fixed ROI'));continue
+        if count<2 or stats[1:,cv2.CC_STAT_AREA].max()<400:
+            excluded.append(dict(run=r['run'],reason='Fewer than 400 connected colour pixels in fixed ROI'));continue
         mask=(labels==(1+stats[1:,cv2.CC_STAT_AREA].argmax())).astype('uint8')
         images.append(shown);masks.append(mask);records.append(dict(r))
     supported={fuel for fuel in CATEGORIES.values() if sum(r['fuel']==fuel for r in records)>=6}
@@ -167,6 +181,20 @@ def prepare():
     excluded.extend(dict(run=r['run'],reason='Fewer than six usable trials for this fuel') for r in records if r['fuel'] not in supported)
     records=[records[i] for i in keep];images=[images[i] for i in keep];masks=[masks[i] for i in keep]
     if not records:raise ValueError('No supported FLEX-2 data; inspect inventory')
+    if len({r['run'] for r in records})!=len(records):raise ValueError('Duplicate independent run IDs')
+    if target_runs is not None:
+        if target_runs<6*len(supported):raise ValueError('Target must allow at least six runs per fuel')
+        if len(records)<target_runs:raise ValueError(f'Only {len(records)} usable independent runs; requested {target_runs}')
+        # Round-robin across fuels, pressure-spread ordering within each fuel.
+        pools={f:sorted([i for i,r in enumerate(records) if r['fuel']==f],key=lambda i:(records[i]['features'][0],records[i]['run'])) for f in sorted(supported)}
+        keep=[]
+        # Evenly spaced positions avoid truncating every fuel to low pressures.
+        quota={f:0 for f in pools}
+        for _ in range(target_runs):
+            f=min((f for f in pools if quota[f]<len(pools[f])),key=lambda f:(quota[f],f));quota[f]+=1
+        for f,p in pools.items():keep.extend(p[i] for i in np.linspace(0,len(p)-1,quota[f]).astype(int))
+        excluded.extend(dict(run=r['run'],reason='Verified usable run outside bounded target selection') for i,r in enumerate(records) if i not in keep)
+        records=[records[i] for i in keep];images=[images[i] for i in keep];masks=[masks[i] for i in keep]
     for fuel in sorted(supported):
         group=sorted([r for r in records if r['fuel']==fuel],key=lambda r:sha(('flex2-42/'+r['run']).encode()))
         n=max(1,round(len(group)*.2))
@@ -175,7 +203,7 @@ def prepare():
     np.savez_compressed(ROOT/'prepared.npz',features=np.array([r['features'] for r in records],dtype='float32'),
         fuels=np.array([fuels.index(r['fuel']) for r in records]),images=np.array(images),masks=np.array(masks),
         groups=np.array([r['run'] for r in records]),splits=np.array([r['split'] for r in records]))
-    manifest=dict(source='PSI-68',source_url='https://psi.nasa.gov/physci/repo/data/investigations/PSI-68',
+    manifest=dict(source='PSI-68',target_runs=target_runs,source_url='https://psi.nasa.gov/physci/repo/data/investigations/PSI-68',
         fields=FIELDS,fuels=fuels,records=records,excluded=excluded,resolution=SIZE,
         features_note='Mean of four chamber pressure and temperature channels in the five seconds before ignition; PSIA converted to kPa. Fuel is the NASA file subcategory. No per-run oxygen, droplet diameter or airflow labels inferred.',
         stage='Median of four RGB frames at 4.0/4.1/4.2/4.3 seconds after recorded igniter retraction; stage proxy, not steady-state measurement',
@@ -190,5 +218,6 @@ def prepare():
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('command',choices=['fetch','prepare']);p.add_argument('--runs-per-fuel',type=int,default=16)
-    a=p.parse_args();fetch(a.runs_per_fuel) if a.command=='fetch' else prepare()
+    p=argparse.ArgumentParser();p.add_argument('command',choices=['fetch','prepare']);p.add_argument('--runs-per-fuel',type=int,default=100,help='Maximum candidate runs per campaign category')
+    p.add_argument('--target-runs',type=int,help='Require and select exactly this many usable independent runs')
+    a=p.parse_args();fetch(a.runs_per_fuel) if a.command=='fetch' else prepare(a.target_runs)

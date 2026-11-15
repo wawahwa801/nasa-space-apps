@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
+import { FeatureRetrieval } from "../components/feature-retrieval";
 import {
   NASA_DEFAULTS,
   NasaParameterFields,
@@ -227,7 +228,8 @@ export default function Home() {
   const [sliderUnits, setSliderUnits] = useState({});
   const [snapshot, setSnapshot] = useState(null);
   const [error, setError] = useState("");
-  const view = "flame";
+  const [view, setView] = useState("flame");
+  const [retrievalSession, setRetrievalSession] = useState(0);
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
   const [paused, setPaused] = useState(false);
@@ -297,9 +299,23 @@ export default function Home() {
     }
   }
   const nav = [
-    ["workspace", "Workspace", "chat"],
     ["flame", "Flame simulation", "flame"],
+    ["retrieval", "Feature retrieval", "sliders"],
   ];
+  function changeView(next) {
+    setView(next);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    if (next === "flame") requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+  }
+  function handleViewKey(event, key) {
+    const index = nav.findIndex(([id]) => id === key);
+    const next = event.key === "ArrowRight" ? (index + 1) % nav.length
+      : event.key === "ArrowLeft" ? (index + nav.length - 1) % nav.length
+      : event.key === "Home" ? 0 : event.key === "End" ? nav.length - 1 : null;
+    if (next === null) return;
+    event.preventDefault(); changeView(nav[next][0]);
+    document.getElementById(`${nav[next][0]}-tab`)?.focus();
+  }
   return (
     <div className={`app-shell ${chatOpen ? "chat-open" : ""} ${parametersOpen ? "controls-open" : ""}`}>
       <div className="workspace-shell" id="workspace">
@@ -307,25 +323,36 @@ export default function Home() {
           <a className="brand" href="#workspace">
             ember<span>.</span>
           </a>
+          <h1 className="sr-only">Ember dashboard · {nav.find(([key]) => key === view)[1]}</h1>
+          <div className="dashboard-tabs" role="tablist" aria-label="Dashboard views">
+            {nav.map(([key, label]) => <button key={key} id={`${key}-tab`} type="button" role="tab"
+              aria-selected={view === key} aria-controls={`${key}-panel`} tabIndex={view === key ? 0 : -1}
+              onClick={() => changeView(key)} onKeyDown={event => handleViewKey(event, key)}>{label}</button>)}
+          </div>
           <button
-            className="text-button"
+            className="text-button new-scenario-button"
             aria-label="New scenario"
             onClick={() => {
               reset();
               setMessages([]);
               setPrompt("");
               setPaused(false);
+              setRetrievalSession(n => n + 1);
             }}
           >
             New scenario
           </button>
-          <a className="text-button nasa-link" href="#nasa-comparison">
+          <a className="text-button nasa-link" href="#nasa-comparison" onClick={() => {
+            changeView("flame");
+            requestAnimationFrame(() => document.getElementById("nasa-comparison")?.scrollIntoView({ block: "start" }));
+          }}>
             NASA data
           </a>
-          <button className="panel-toggle" aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
+          <button className="panel-toggle" hidden={view === "retrieval"} aria-expanded={parametersOpen} aria-controls="parameters" onClick={() => setParametersOpen(open => !open)}>Parameters</button>
           <button
             ref={chatTrigger}
             className="chat-toggle"
+            hidden={view === "retrieval"}
             aria-expanded={chatOpen}
             aria-controls="chat-panel"
             onClick={() => (chatOpen ? closeChat() : setChatOpen(true))}
@@ -341,7 +368,7 @@ export default function Home() {
             Edit parameters
           </a>
         </header>
-        <div className="content-grid">
+        <div className="content-grid dashboard-tab-panel" id="flame-panel" role="tabpanel" aria-labelledby="flame-tab" hidden={view !== "flame"}>
           {chatOpen && mobile && (
             <button
               className="chat-backdrop"
@@ -733,6 +760,9 @@ export default function Home() {
           </aside>{" "}
 
         </div>
+        <main className="dashboard-tab-panel retrieval-tab-panel" id="retrieval-panel" role="tabpanel" aria-labelledby="retrieval-tab" hidden={view !== "retrieval"}>
+          <FeatureRetrieval key={retrievalSession} />
+        </main>
       </div>
     </div>
   );

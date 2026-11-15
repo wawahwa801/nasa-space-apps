@@ -21,15 +21,23 @@
 
   // Domain padded and snapped to nice ticks.
   function niceDomain(values, count = 5) {
-    let lo = Math.min(...values);
-    let hi = Math.max(...values);
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (const value of values) {
+      lo = Math.min(lo, value);
+      hi = Math.max(hi, value);
+    }
     if (!isFinite(lo) || !isFinite(hi)) return { lo: 0, hi: 1, ticks: [0, 1] };
     if (lo === hi) { lo -= Math.abs(lo) * 0.1 || 1; hi += Math.abs(hi) * 0.1 || 1; }
-    const step = niceStep(hi - lo, count);
+    const step = Math.max(niceStep(hi - lo, count), Number.EPSILON * Math.max(Math.abs(lo), Math.abs(hi)));
+    if (!Number.isFinite(step) || step <= 0) return { lo, hi, ticks: [lo, hi] };
     lo = Math.floor(lo / step) * step;
     hi = Math.ceil(hi / step) * step;
     const ticks = [];
-    for (let t = lo; t <= hi + step / 2; t += step) ticks.push(+t.toPrecision(12));
+    // An integer counter guarantees termination even when floating-point
+    // rounding makes adding a small step leave a large value unchanged.
+    const intervals = Math.min(100, Math.round((hi - lo) / step));
+    for (let i = 0; i <= intervals; i++) ticks.push(lo + i * step);
     return { lo, hi, ticks };
   }
 

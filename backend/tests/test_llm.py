@@ -195,3 +195,15 @@ def test_too_many_columns_rejected():
         process_input(sparse)
     with pytest.raises(InputValidationError, match="columns"):
         process_input({f"k{i}": [i] for i in range(500)})
+
+
+@pytest.mark.parametrize("value", [float("inf"), float("-inf"), float("nan"), 10**400])
+@pytest.mark.parametrize("records", [False, True])
+@pytest.mark.parametrize("prefix", [1, "site A"])
+def test_invalid_numbers_in_columns_return_400(value, records, prefix):
+    data = [{"a": prefix}, {"a": value}] if records else {"a": [prefix, value]}
+    provider = RecordingProvider()
+    response = make_client(provider).post("/api/analyze", json={"data": data})
+    assert response.status_code == 400
+    assert "error" in response.get_json()
+    assert not provider.requests
