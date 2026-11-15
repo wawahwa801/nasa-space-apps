@@ -417,3 +417,9 @@ input[aria-invalid="true"] { border-color: var(--critical); }
   .composition { flex-direction: column; align-items: stretch; }
   .donut-wrap { align-self: center; }
 }
+
+/* --- BASS-II strip plot ---------------------------------------------------- */
+
+.chart-svg .row-label { fill: var(--text-secondary); font-size: 12px; }
+.chart-svg .row-label.highlight { fill: var(--text-primary); font-weight: 700; }
+.chart-svg.strip .baseline { stroke: var(--grid); }
