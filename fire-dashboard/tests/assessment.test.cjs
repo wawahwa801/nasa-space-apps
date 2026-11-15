@@ -15,8 +15,11 @@ function load() {
   for (const file of ['../data/reference-data.js', '../js/parameters.js', '../js/charts.js', '../js/monitoring.js', '../js/app.js']) {
     vm.runInContext(readFileSync(require.resolve(file), 'utf8'), context, { filename: file });
   }
+  lastContext = context;
   return context.FireDashboard._test;
 }
+let lastContext = null;
+const loadContext = () => lastContext;
 
 const { assess, smokeStatus } = load();
 const bassFlag = (v) => assess(v).flags.find((f) => f.title.includes('BASS-II'));
@@ -102,4 +105,12 @@ test('uncertainty: missing readings and context are named, never treated as safe
   const detail = assess({ material_types: ['Teflon'] }).uncertain.find((u) => /Teflon/.test(u.title)).detail;
   assert.match(detail, /loaded in this dashboard/);
   assert.doesNotMatch(detail, /didn't burn|never|No NASA/);
+});
+
+test('every example scenario produces at least one warning', () => {
+  const { EXAMPLE_INPUTS } = loadContext();
+  for (const ex of EXAMPLE_INPUTS) {
+    const worst = assess(ex.values).flags.filter((f) => ['warning', 'serious', 'critical'].includes(f.level));
+    assert.ok(worst.length > 0, ex.label);
+  }
 });

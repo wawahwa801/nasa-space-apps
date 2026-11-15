@@ -90,6 +90,17 @@
     const co2 = latest.co2_ppm;
     if (co !== null && co > T.co_ppm.serious) add("serious", "Carbon monoxide above the NIOSH ceiling", `CO is ${r1(co)} ppm (ceiling ${T.co_ppm.serious} ppm). Breathing hazard.`, "co_ppm");
     else if (co !== null && co > T.co_ppm.warning) add("warning", "Carbon monoxide above the NIOSH exposure limit", `CO is ${r1(co)} ppm (limit ${T.co_ppm.warning} ppm, 8-hour average).`, "co_ppm");
+    // Flammable gas and oxygen levels in the latest reading.
+    for (const [id, gas, name] of [["h2_ppm", "h2", "Hydrogen"], ["ch4_ppm", "ch4", "Methane"]]) {
+      const x = latest[id];
+      if (x === null) continue;
+      const share = x / (T.lfl_pct[gas] * 10000);
+      if (share >= T.lfl_critical_share) add("critical", `${name} near flammable concentration`, `${name} is ${Math.round(x)} ppm, ${r1(share * 100)}% of its lower flammability limit.`, id);
+      else if (share >= T.lfl_warning_share) add("warning", `${name} elevated`, `${name} is ${Math.round(x)} ppm, ${r1(share * 100)}% of its lower flammability limit.`, id);
+    }
+    const o2Now = latest.o2_pct;
+    if (o2Now !== null && T.o2_enriched_pct && o2Now > T.o2_enriched_pct) add("serious", "Oxygen-enriched air", `O₂ is ${r1(o2Now)}%, above ${T.o2_enriched_pct}%: materials ignite more easily and burn faster.`, "o2_pct");
+    else if (o2Now !== null && T.o2_deficient_pct && o2Now < T.o2_deficient_pct) add("warning", "Oxygen-deficient air", `O₂ is ${r1(o2Now)}%, below ${T.o2_deficient_pct}%.`, "o2_pct");
     if (co2 !== null && co2 > T.co2_ppm.serious) add("serious", "Carbon dioxide above the NIOSH short-term limit", `CO₂ is ${Math.round(co2)} ppm.`, "co2_ppm");
     else if (co2 !== null && co2 > T.co2_ppm.warning) add("warning", "Carbon dioxide above the NIOSH exposure limit", `CO₂ is ${Math.round(co2)} ppm.`, "co2_ppm");
 
@@ -237,7 +248,7 @@
       steps: [
         [1, 450, 20.9, 22.0, 0.5], [1, 455, 20.9, 22.0, 0.5], [1.2, 450, 20.9, 22.1, 0.5], [1.1, 460, 20.9, 22.0, 0.5],
         [4, 470, 20.9, 22.1, 0.5], [9, 490, 20.9, 22.2, 0.5], [16, 520, 20.9, 22.3, 0.5], [26, 620, 20.85, 22.6, 0.5],
-        [40, 950, 20.7, 23.5, 0.5], [70, 1400, 20.5, 27, 0.5], [130, 2100, 20.2, 38, 0.5], [210, 3200, 19.9, 52, 0.5],
+        [45, 1100, 20.6, 24, 0.5], [95, 2400, 20.1, 31, 0.5], [190, 4800, 19.4, 46, 0.5], [320, 7500, 18.6, 68, 0.5],
       ],
     },
     smoulder: {
@@ -246,16 +257,16 @@
       steps: [
         [1, 450, 20.9, 22.0, 0.5], [1.1, 452, 20.9, 22.0, 0.5], [1, 455, 20.9, 22.0, 0.5], [3, 465, 20.9, 22.1, 0.5],
         [8, 480, 20.9, 22.1, 0.5], [14, 500, 20.9, 22.2, 0.5], [21, 520, 20.89, 22.3, 0.5], [28, 545, 20.88, 22.4, 0.5],
-        [36, 570, 20.87, 22.5, 0.5], [44, 600, 20.86, 22.6, 0.5], [53, 630, 20.85, 22.7, 0.5], [62, 660, 20.84, 22.8, 0.5],
+        [40, 580, 20.87, 22.5, 0.5], [65, 640, 20.85, 22.7, 0.5], [100, 720, 20.82, 22.9, 0.5], [150, 820, 20.8, 23.2, 0.5],
       ],
     },
     leak: {
       label: "Oxygen and hydrogen leak",
       summary: "no combustion gases, but O₂ and H₂ build up: a leak that makes a fire more likely",
       steps: [
-        [1, 450, 20.9, 22.0, 0.5], [1, 452, 20.9, 22.0, 0.5], [1, 450, 21.0, 22.0, 5], [1, 455, 21.6, 22.0, 400],
-        [1, 452, 22.2, 22.0, 2600], [1, 455, 22.8, 22.0, 4800], [1.1, 450, 23.4, 22.1, 7000], [1, 455, 24.0, 22.0, 9300],
-        [1, 452, 24.6, 22.0, 11500], [1, 450, 25.1, 22.1, 13800], [1, 455, 25.7, 22.0, 16000], [1.1, 452, 26.2, 22.0, 18200],
+        [1, 450, 20.9, 22.0, 0.5], [1, 452, 20.9, 22.0, 0.5], [1, 450, 21.2, 22.0, 50], [1, 455, 22.0, 22.0, 1500],
+        [1, 452, 22.9, 22.0, 4000], [1, 455, 23.8, 22.0, 7000], [1.1, 450, 24.7, 22.1, 10500], [1, 455, 25.6, 22.0, 14000],
+        [1, 452, 26.5, 22.0, 18000], [1, 450, 27.4, 22.1, 22000], [1, 455, 28.3, 22.0, 26000], [1.1, 452, 29.2, 22.0, 30000],
       ],
     },
   };

@@ -446,17 +446,19 @@ export default function Home() {
                 ? "Parameters applied"
                 : "Adjust parameters to configure your scenario"}
             </div>
-          {view === "flame" && !parametersOpen && (
+          {/* One triangle tab: on the panel's right edge (◀ hides it), or on the
+              screen's left edge when hidden (▶ shows it). */}
+          {view === "flame" && (
             <button
               type="button"
-              className="parameters-tab"
+              className={`parameters-tab ${parametersOpen ? "is-open" : ""}`}
               aria-controls="parameters"
-              aria-expanded="false"
-              onClick={() => setParametersOpen(true)}
-              title="Show parameters"
+              aria-expanded={parametersOpen}
+              aria-label={parametersOpen ? "Hide parameters" : "Show parameters"}
+              title={parametersOpen ? "Hide parameters" : "Show parameters"}
+              onClick={() => setParametersOpen((open) => !open)}
             >
-              <span className="parameters-tab-arrow" aria-hidden="true">▶</span>
-              <span className="parameters-tab-label">Parameters</span>
+              <span className="parameters-tab-arrow" aria-hidden="true">{parametersOpen ? "◀" : "▶"}</span>
             </button>
           )}
           <section
@@ -470,9 +472,6 @@ export default function Home() {
                 <h2 id="parameters-heading">Parameters</h2>
 
               </div>
-              <button type="button" className="parameters-close" onClick={() => setParametersOpen(false)} aria-label="Hide parameters to the side" title="Hide to the side">
-                <span aria-hidden="true">◀</span>
-              </button>
             </div>
             <form id="scenario-form" onSubmit={preview}>
               <div className="field-section">
