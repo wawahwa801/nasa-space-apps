@@ -1,0 +1,2156 @@
+{
+  "source": "PSI-68",
+  "dataset_sha256": "97a64166836b3e1daf490092f7b17190cfd95e819cef075506e11b4f62490b90",
+  "counts": {
+    "pairs": 100,
+    "groups": 100,
+    "splits": {
+      "train": 60,
+      "validation": 20,
+      "test": 20
+    }
+  },
+  "verification": "Exact run/category joins, pre-ignition telemetry, RGB24 source geometry, selected ZIP CRC at acquisition and cached metadata/frame SHA256; fixed ROI connected-colour screening. Not physical validation or certified steady states.",
+  "coverage": {
+    "Decane": {
+      "runs": 25,
+      "splits": {
+        "test": 5,
+        "validation": 5,
+        "train": 15
+      },
+      "ranges": {
+        "pressure_kpa": {
+          "min": 50.77988746294499,
+          "max": 306.33406652798993
+        },
+        "temperature_c": {
+          "min": 25.235000000000003,
+          "max": 27.1775
+        }
+      },
+      "distinct_pressure_temperature_pairs": 25
+    },
+    "Heptane": {
+      "runs": 10,
+      "splits": {
+        "train": 6,
+        "validation": 2,
+        "test": 2
+      },
+      "ranges": {
+        "pressure_kpa": {
+          "min": 102.33888249999899,
+          "max": 103.531675511688
+        },
+        "temperature_c": {
+          "min": 23.8915,
+          "max": 26.371
+        }
+      },
+      "distinct_pressure_temperature_pairs": 10
+    },
+    "IsoOctane": {
+      "runs": 16,
+      "splits": {
+        "train": 10,
+        "test": 3,
+        "validation": 3
+      },
+      "ranges": {
+        "pressure_kpa": {
+          "min": 101.656301527992,
+          "max": 103.462727938758
+        },
+        "temperature_c": {
+          "min": 23.363,
+          "max": 27.019
+        }
+      },
+      "distinct_pressure_temperature_pairs": 16
+    },
+    "N_Octane": {
+      "runs": 25,
+      "splits": {
+        "train": 15,
+        "validation": 5,
+        "test": 5
+      },
+      "ranges": {
+        "pressure_kpa": {
+          "min": 101.015089099743,
+          "max": 304.513850602638
+        },
+        "temperature_c": {
+          "min": 22.996999999999996,
+          "max": 26.976999999999997
+        }
+      },
+      "distinct_pressure_temperature_pairs": 25
+    },
+    "Toluene": {
+      "runs": 24,
+      "splits": {
+        "train": 14,
+        "test": 5,
+        "validation": 5
+      },
+      "ranges": {
+        "pressure_kpa": {
+          "min": 102.40783007292899,
+          "max": 104.33491473632249
+        },
+        "temperature_c": {
+          "min": 24.252499999999998,
+          "max": 26.73
+        }
+      },
+      "distinct_pressure_temperature_pairs": 24
+    }
+  },
+  "campaigns": {
+    "Reduced Gravity/Quiescent 2012 - Decane": 7,
+    "Reduced Gravity/Quiescent 2016 - Decane": 18,
+    "Reduced Gravity/SurrogateFuel 2013 - Heptane": 10,
+    "Reduced Gravity/SurrogateFuel 2014 - IsoOctane": 16,
+    "Reduced Gravity/SurrogateFuel 2013 - N_Octane": 5,
+    "Reduced Gravity/SurrogateFuel 2012 - N_Octane": 20,
+    "Reduced Gravity/SurrogateFuel 2014 - Toluene": 24
+  },
+  "exclusions": [
+    {
+      "archive": "PSI-68_Raw Data_A134D06D.zip",
+      "excluded": true,
+      "reason": "Missing/ambiguous metadata .txt"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A134D08D.zip",
+      "excluded": true,
+      "reason": "Missing/ambiguous metadata .txt"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A139D02D.zip",
+      "excluded": true,
+      "reason": "Missing/ambiguous metadata .txt"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A298D07D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A186D06D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A254D02D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A254D03D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A254D04D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A254D05D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A278D01D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A278D02D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A278D08D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A278D09D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A310D02D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A310D03D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A310D04D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A310D05D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A310D07D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A310D08D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A317D01D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A317D02D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A317D03D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A317D04D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A317D06D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A317D08D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A317D09D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A324D01D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A324D02D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A324D03D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A324D04D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_A324D06D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E066C04D.zip",
+      "excluded": true,
+      "reason": "Colour RGB24 camera not verified"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E159F03D.zip",
+      "excluded": true,
+      "reason": "Negative seek"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E159F06D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_H323N04D.zip",
+      "excluded": true,
+      "reason": "Missing/duplicate stage frame"
+    },
+    {
+      "archive": "PSI-68_Raw Data_H350N03D.zip",
+      "excluded": true,
+      "reason": "Colour RGB24 camera not verified"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E163L01D.zip",
+      "excluded": true,
+      "reason": "Insufficient pre-ignition environmental telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E163L03D.zip",
+      "excluded": true,
+      "reason": "Colour RGB24 camera not verified"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E175L08D.zip",
+      "excluded": true,
+      "reason": "Missing chamber timestamp or explicitly unit-labelled PSIA/Deg C telemetry"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E233G08D.zip",
+      "excluded": true,
+      "reason": "Test point ID mismatch"
+    },
+    {
+      "archive": "PSI-68_Raw Data_E260G02D.zip",
+      "excluded": true,
+      "reason": "Test point ID mismatch"
+    },
+    {
+      "run": "A113D04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A113D09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A118D06",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A127D08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D07",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A132D08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A134D04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A298D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A301D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A186D05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A186D08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A191D02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A191D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A191D04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A191D05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A221D03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A221D06",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E073C01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C06",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E087C09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E053A01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E135F04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E135F08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E156F07",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E156F08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H323N03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H323N05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H329N02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H329N03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H329N05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H338N01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H338N02",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H338N04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "H338N05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L05",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L08",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L10",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E163L11",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E175L03",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E175L04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E175L12",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E175L16",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E183L04",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E209L12",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E209L14",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E209L15",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E209L16",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E216L01",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E233G09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "E241G09",
+      "reason": "Fewer than 400 connected colour pixels in fixed ROI"
+    },
+    {
+      "run": "A109D05",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A109D08",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A109D09",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A113D06",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A113D08",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A113D10",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A123D01",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A123D03",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A123D08",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A127D01",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A127D07",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A134D02",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A139D08",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A298D04",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A298D06",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A301D02",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A301D05",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A307D04",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A307D05",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A184D01",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A184D04",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A184D05",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A184D08",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A186D01",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A186D04",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "A221D02",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E017A01",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E053A04",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E059A02",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E061A02",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E061A04",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E065A01",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E065A02",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E065A06",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E135F03",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E156F09",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E156F11",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "H338N03",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "H350N04",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E225G07",
+      "reason": "Verified usable run outside bounded target selection"
+    },
+    {
+      "run": "E233G07",
+      "reason": "Verified usable run outside bounded target selection"
+    }
+  ],
+  "camera_settings": {
+    "ZOOM_POSITION(N/A)": {
+      "available": 100,
+      "values": {
+        "12288": 20,
+        "-10863": 5,
+        "-11368": 3,
+        "3000": 22,
+        "-11619": 12,
+        "-11620": 12,
+        "-11365": 6,
+        "-11366": 6,
+        "-10609": 3,
+        "-10610": 2,
+        "-10862": 1,
+        "-10865": 2,
+        "-11874": 6
+      }
+    },
+    "EXPOSURE_MODE(N/A)": {
+      "available": 100,
+      "values": {
+        "0.0": 20,
+        "Full Auto": 80
+      }
+    },
+    "SHUTTER_POSITION(N/A)": {
+      "available": 100,
+      "values": {
+        "1/4": 68,
+        "1/180": 4,
+        "1/60": 24,
+        "1/250": 1,
+        "1/725": 3
+      }
+    },
+    "GAIN_POSITION(N/A)": {
+      "available": 100,
+      "values": {
+        "-3dB": 20,
+        "9dB": 58,
+        "0dB": 22
+      }
+    },
+    "WBMODE(N/A)": {
+      "available": 100,
+      "values": {
+        "0.0": 20,
+        "Auto": 80
+      }
+    },
+    "RGAIN(N/A)": {
+      "available": 100,
+      "values": {
+        "11": 20,
+        "48": 58,
+        "213": 4,
+        "209": 4,
+        "210": 10,
+        "211": 3,
+        "214": 1
+      }
+    },
+    "BGAIN(N/A)": {
+      "available": 100,
+      "values": {
+        "184": 20,
+        "0": 58,
+        "145": 3,
+        "158": 4,
+        "156": 4,
+        "154": 2,
+        "157": 6,
+        "143": 2,
+        "152": 1
+      }
+    }
+  },
+  "telemetry_quality": [
+    {
+      "run": "A184D09",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01541714599551043,
+      "temperature_temporal_std_c": 0.017204650534085878,
+      "pressure_channel_spread_kpa": 0.9790555356060011,
+      "temperature_channel_spread_c": 3.3659999999999997
+    },
+    {
+      "run": "A186D09",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514585999996,
+      "temperature_temporal_std_c": 0.010839741694339702,
+      "pressure_channel_spread_kpa": 0.9514765064339912,
+      "temperature_channel_spread_c": 3.3840000000000003
+    },
+    {
+      "run": "A186D03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.017578250989247694,
+      "temperature_temporal_std_c": 0.013266499161421209,
+      "pressure_channel_spread_kpa": 0.9376869918480111,
+      "temperature_channel_spread_c": 3.2940000000000005
+    },
+    {
+      "run": "A184D07",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01757825098924379,
+      "temperature_temporal_std_c": 0.016552945357246173,
+      "pressure_channel_spread_kpa": 0.979055535605994,
+      "temperature_channel_spread_c": 3.3719999999999963
+    },
+    {
+      "run": "A184D03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268183005,
+      "temperature_temporal_std_c": 0.007516648189186945,
+      "pressure_channel_spread_kpa": 0.9514765064340054,
+      "temperature_channel_spread_c": 3.4620000000000033
+    },
+    {
+      "run": "A184D02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.025332955902274894,
+      "temperature_temporal_std_c": 0.028080242164198365,
+      "pressure_channel_spread_kpa": 1.0066345647779897,
+      "temperature_channel_spread_c": 3.458000000000002
+    },
+    {
+      "run": "A109D04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514585997155,
+      "temperature_temporal_std_c": 0.015411035007424214,
+      "pressure_channel_spread_kpa": 4.081696317455993,
+      "temperature_channel_spread_c": 3.054000000000002
+    },
+    {
+      "run": "A109D07",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.02010149905105596,
+      "temperature_temporal_std_c": 0.02123676058159454,
+      "pressure_channel_spread_kpa": 4.095485832042016,
+      "temperature_channel_spread_c": 3.257999999999999
+    },
+    {
+      "run": "A113D03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.015417145995516784,
+      "temperature_temporal_std_c": 0.019326148090087963,
+      "pressure_channel_spread_kpa": 4.095485832042002,
+      "temperature_channel_spread_c": 3.3480000000000025
+    },
+    {
+      "run": "A109D10",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514585999287,
+      "temperature_temporal_std_c": 0.015763882770434376,
+      "pressure_channel_spread_kpa": 4.109275346627996,
+      "temperature_channel_spread_c": 3.419999999999998
+    },
+    {
+      "run": "A301D01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01090156847996845,
+      "temperature_temporal_std_c": 0.013360389215887974,
+      "pressure_channel_spread_kpa": 4.771172046756007,
+      "temperature_channel_spread_c": 3.379999999999999
+    },
+    {
+      "run": "A113D07",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777684233,
+      "temperature_temporal_std_c": 0.015247950681977483,
+      "pressure_channel_spread_kpa": 4.136854375800013,
+      "temperature_channel_spread_c": 3.4399999999999977
+    },
+    {
+      "run": "A221D04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01888207048949418,
+      "temperature_temporal_std_c": 0.005999999999998332,
+      "pressure_channel_spread_kpa": 1.2272667981540053,
+      "temperature_channel_spread_c": 3.291999999999998
+    },
+    {
+      "run": "A301D04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.028842839098538645,
+      "temperature_temporal_std_c": 0.01326649916142319,
+      "pressure_channel_spread_kpa": 4.784961561341987,
+      "temperature_channel_spread_c": 3.507999999999999
+    },
+    {
+      "run": "A298D02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514586000707,
+      "temperature_temporal_std_c": 0.021059439688652395,
+      "pressure_channel_spread_kpa": 4.72980350299801,
+      "temperature_channel_spread_c": 3.3400000000000034
+    },
+    {
+      "run": "A298D05",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.006894757292997156,
+      "temperature_temporal_std_c": 0.016507574019219227,
+      "pressure_channel_spread_kpa": 4.757382532170027,
+      "temperature_channel_spread_c": 3.546000000000003
+    },
+    {
+      "run": "A123D07",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268179525,
+      "temperature_temporal_std_c": 0.026580067720004683,
+      "pressure_channel_spread_kpa": 4.31611806541801,
+      "temperature_channel_spread_c": 3.4939999999999998
+    },
+    {
+      "run": "A123D10",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.020101499051053035,
+      "temperature_temporal_std_c": 0.012206555615733923,
+      "pressure_channel_spread_kpa": 4.329907580004004,
+      "temperature_channel_spread_c": 3.4340000000000046
+    },
+    {
+      "run": "A127D02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.025332955902269867,
+      "temperature_temporal_std_c": 0.011683321445548121,
+      "pressure_channel_spread_kpa": 4.288539036245979,
+      "temperature_channel_spread_c": 3.2560000000000002
+    },
+    {
+      "run": "A123D02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.033777274536362534,
+      "temperature_temporal_std_c": 0.020211382931408055,
+      "pressure_channel_spread_kpa": 4.288539036246021,
+      "temperature_channel_spread_c": 3.2900000000000063
+    },
+    {
+      "run": "A127D04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777679674,
+      "temperature_temporal_std_c": 0.018801595676963812,
+      "pressure_channel_spread_kpa": 4.357486609175993,
+      "temperature_channel_spread_c": 3.4819999999999958
+    },
+    {
+      "run": "A134D01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634094984,
+      "temperature_temporal_std_c": 0.01620185174601939,
+      "pressure_channel_spread_kpa": 4.771172046755964,
+      "temperature_channel_spread_c": 3.328000000000003
+    },
+    {
+      "run": "A139D07",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268189968,
+      "temperature_temporal_std_c": 0.010885770528537727,
+      "pressure_channel_spread_kpa": 4.784961561341987,
+      "temperature_channel_spread_c": 3.4160000000000004
+    },
+    {
+      "run": "A307D03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.0188820704894838,
+      "temperature_temporal_std_c": 0.024361855430160565,
+      "pressure_channel_spread_kpa": 5.639911465674004,
+      "temperature_channel_spread_c": 3.490000000000002
+    },
+    {
+      "run": "A307D01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.010901568479972944,
+      "temperature_temporal_std_c": 0.014195069566579972,
+      "pressure_channel_spread_kpa": 5.6674904948459925,
+      "temperature_channel_spread_c": 3.3760000000000048
+    },
+    {
+      "run": "E073C02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268180684,
+      "temperature_temporal_std_c": 0.009949874371066576,
+      "pressure_channel_spread_kpa": 1.6685312649059938,
+      "temperature_channel_spread_c": 2.9480000000000004
+    },
+    {
+      "run": "E073C03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.015417145995513607,
+      "temperature_temporal_std_c": 0.011726039399557301,
+      "pressure_channel_spread_kpa": 1.6961102940780108,
+      "temperature_channel_spread_c": 2.9759999999999955
+    },
+    {
+      "run": "E073C04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634094984,
+      "temperature_temporal_std_c": 0.01258967831201559,
+      "pressure_channel_spread_kpa": 1.668531264906008,
+      "temperature_channel_spread_c": 3.071999999999999
+    },
+    {
+      "run": "E087C01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.010901568479972944,
+      "temperature_temporal_std_c": 0.013838352503099146,
+      "pressure_channel_spread_kpa": 1.7650578670080108,
+      "temperature_channel_spread_c": 3.099999999999998
+    },
+    {
+      "run": "E073C07",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268184747,
+      "temperature_temporal_std_c": 0.01187434208703747,
+      "pressure_channel_spread_kpa": 1.7098998086640051,
+      "temperature_channel_spread_c": 3.4340000000000046
+    },
+    {
+      "run": "E073C09",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268180105,
+      "temperature_temporal_std_c": 0.009669539802906624,
+      "pressure_channel_spread_kpa": 1.7512683524220023,
+      "temperature_channel_spread_c": 3.4539999999999935
+    },
+    {
+      "run": "E087C07",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01888207048950196,
+      "temperature_temporal_std_c": 0.010559356040972634,
+      "pressure_channel_spread_kpa": 1.765057867008025,
+      "temperature_channel_spread_c": 3.3019999999999996
+    },
+    {
+      "run": "E066C01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.02800663651948198,
+      "temperature_temporal_std_c": 0.01826198236774995,
+      "pressure_channel_spread_kpa": 1.7098998086640051,
+      "temperature_channel_spread_c": 3.4299999999999997
+    },
+    {
+      "run": "E066C02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.022867322961446626,
+      "temperature_temporal_std_c": 0.009669539802907249,
+      "pressure_channel_spread_kpa": 1.6685312649060222,
+      "temperature_channel_spread_c": 3.451999999999998
+    },
+    {
+      "run": "E066C03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634085702,
+      "temperature_temporal_std_c": 0.01881488772222651,
+      "pressure_channel_spread_kpa": 1.737478837836008,
+      "temperature_channel_spread_c": 3.4260000000000055
+    },
+    {
+      "run": "E209L01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.020684271878996678,
+      "temperature_temporal_std_c": 0.023590252224169894,
+      "pressure_channel_spread_kpa": 3.2956939860539904,
+      "temperature_channel_spread_c": 3.2639999999999993
+    },
+    {
+      "run": "E209L03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.022867322961441484,
+      "temperature_temporal_std_c": 0.004847679857416317,
+      "pressure_channel_spread_kpa": 3.268114956882002,
+      "temperature_channel_spread_c": 3.3859999999999992
+    },
+    {
+      "run": "E209L04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01757825098924156,
+      "temperature_temporal_std_c": 0.012509996003196047,
+      "pressure_channel_spread_kpa": 3.2819044714680103,
+      "temperature_channel_spread_c": 3.428000000000001
+    },
+    {
+      "run": "E209L13",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268189968,
+      "temperature_temporal_std_c": 0.006595452979136064,
+      "pressure_channel_spread_kpa": 3.2543254422960075,
+      "temperature_channel_spread_c": 3.426000000000002
+    },
+    {
+      "run": "E163L02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.017578250989253825,
+      "temperature_temporal_std_c": 0.023664319132399386,
+      "pressure_channel_spread_kpa": 3.0199036943340047,
+      "temperature_channel_spread_c": 3.4520000000000053
+    },
+    {
+      "run": "E175L01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.033423576051050716,
+      "temperature_temporal_std_c": 0.01228820572744553,
+      "pressure_channel_spread_kpa": 3.0061141797480104,
+      "temperature_channel_spread_c": 2.5459999999999994
+    },
+    {
+      "run": "E183L01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.017578250989244905,
+      "temperature_temporal_std_c": 0.024289915602981063,
+      "pressure_channel_spread_kpa": 3.075061752677982,
+      "temperature_channel_spread_c": 2.8939999999999984
+    },
+    {
+      "run": "E183L02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.02338125955734065,
+      "temperature_temporal_std_c": 0.021295539439046003,
+      "pressure_channel_spread_kpa": 3.0888512672639905,
+      "temperature_channel_spread_c": 3.1439999999999984
+    },
+    {
+      "run": "E216L02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777678156,
+      "temperature_temporal_std_c": 0.008455767262643668,
+      "pressure_channel_spread_kpa": 3.281904471467982,
+      "temperature_channel_spread_c": 3.2500000000000036
+    },
+    {
+      "run": "E216L03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.010901568479963956,
+      "temperature_temporal_std_c": 0.01779044687465873,
+      "pressure_channel_spread_kpa": 3.268114956882002,
+      "temperature_channel_spread_c": 3.2819999999999965
+    },
+    {
+      "run": "E175L11",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01378951458600568,
+      "temperature_temporal_std_c": 0.03303028912982852,
+      "pressure_channel_spread_kpa": 3.075061752677982,
+      "temperature_channel_spread_c": 3.4020000000000046
+    },
+    {
+      "run": "E175L10",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634081061,
+      "temperature_temporal_std_c": 0.032710854467592046,
+      "pressure_channel_spread_kpa": 3.047482723505979,
+      "temperature_channel_spread_c": 3.2979999999999947
+    },
+    {
+      "run": "E183L09",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01888207048949937,
+      "temperature_temporal_std_c": 0.023054283766797027,
+      "pressure_channel_spread_kpa": 3.171588354779985,
+      "temperature_channel_spread_c": 3.4019999999999975
+    },
+    {
+      "run": "E183L10",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777684233,
+      "temperature_temporal_std_c": 0.019104973174542066,
+      "pressure_channel_spread_kpa": 3.1853778693659933,
+      "temperature_channel_spread_c": 3.464000000000002
+    },
+    {
+      "run": "E175L17",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01688863726818533,
+      "temperature_temporal_std_c": 0.010074720839803538,
+      "pressure_channel_spread_kpa": 3.1164302964359933,
+      "temperature_channel_spread_c": 3.4560000000000066
+    },
+    {
+      "run": "E183L11",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634094984,
+      "temperature_temporal_std_c": 0.018275666882496655,
+      "pressure_channel_spread_kpa": 3.199167383952002,
+      "temperature_channel_spread_c": 3.524000000000001
+    },
+    {
+      "run": "H323N01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514585999287,
+      "temperature_temporal_std_c": 0.016777961735562546,
+      "pressure_channel_spread_kpa": 1.9719005857980108,
+      "temperature_channel_spread_c": 2.9079999999999977
+    },
+    {
+      "run": "E135F02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.015417145995504073,
+      "temperature_temporal_std_c": 0.014713938969562251,
+      "pressure_channel_spread_kpa": 1.1583192252239911,
+      "temperature_channel_spread_c": 3.3019999999999996
+    },
+    {
+      "run": "E135F06",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.02533295590227451,
+      "temperature_temporal_std_c": 0.019937402037377552,
+      "pressure_channel_spread_kpa": 1.0893716522939911,
+      "temperature_channel_spread_c": 3.280000000000001
+    },
+    {
+      "run": "E135F11",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01541714599551043,
+      "temperature_temporal_std_c": 0.019078784028338153,
+      "pressure_channel_spread_kpa": 1.1307401960520167,
+      "temperature_channel_spread_c": 3.3979999999999997
+    },
+    {
+      "run": "E061A01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.02884283909853015,
+      "temperature_temporal_std_c": 0.021295539439046603,
+      "pressure_channel_spread_kpa": 0.9238974772619741,
+      "temperature_channel_spread_c": 2.562000000000001
+    },
+    {
+      "run": "E017A02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.030834291991012917,
+      "temperature_temporal_std_c": 0.011726039399558665,
+      "pressure_channel_spread_kpa": 0.910107962675994,
+      "temperature_channel_spread_c": 3.4179999999999993
+    },
+    {
+      "run": "E017A04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.017578250989251594,
+      "temperature_temporal_std_c": 0.010295630140986918,
+      "pressure_channel_spread_kpa": 0.8549499043320026,
+      "temperature_channel_spread_c": 3.4060000000000024
+    },
+    {
+      "run": "E017A03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634084541,
+      "temperature_temporal_std_c": 0.009027735042632885,
+      "pressure_channel_spread_kpa": 0.8687394189179969,
+      "temperature_channel_spread_c": 3.434000000000001
+    },
+    {
+      "run": "E156F04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01688863726818649,
+      "temperature_temporal_std_c": 0.0160779351908136,
+      "pressure_channel_spread_kpa": 1.1169506814660082,
+      "temperature_channel_spread_c": 3.070000000000004
+    },
+    {
+      "run": "E059A01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777678914,
+      "temperature_temporal_std_c": 0.013910427743245104,
+      "pressure_channel_spread_kpa": 0.9652660210199997,
+      "temperature_channel_spread_c": 3.0700000000000003
+    },
+    {
+      "run": "E159F01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634094984,
+      "temperature_temporal_std_c": 0.012903487900563108,
+      "pressure_channel_spread_kpa": 1.116950681465994,
+      "temperature_channel_spread_c": 3.314
+    },
+    {
+      "run": "E156F05",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777677397,
+      "temperature_temporal_std_c": 0.026391286440794037,
+      "pressure_channel_spread_kpa": 1.1445297106379826,
+      "temperature_channel_spread_c": 3.34
+    },
+    {
+      "run": "E065A03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.020101499051066684,
+      "temperature_temporal_std_c": 0.014317821063276483,
+      "pressure_channel_spread_kpa": 0.9652660210200139,
+      "temperature_channel_spread_c": 3.113999999999997
+    },
+    {
+      "run": "E143F08",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514585994313,
+      "temperature_temporal_std_c": 0.01187434208703753,
+      "pressure_channel_spread_kpa": 1.1031611668799854,
+      "temperature_channel_spread_c": 2.802000000000003
+    },
+    {
+      "run": "E156F10",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.015417145995516784,
+      "temperature_temporal_std_c": 0.013820274961084122,
+      "pressure_channel_spread_kpa": 1.1721087398099854,
+      "temperature_channel_spread_c": 3.3619999999999983
+    },
+    {
+      "run": "E053A02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777684233,
+      "temperature_temporal_std_c": 0.017204650534085694,
+      "pressure_channel_spread_kpa": 0.910107962675994,
+      "temperature_channel_spread_c": 3.3279999999999994
+    },
+    {
+      "run": "E143F09",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.02338125955734233,
+      "temperature_temporal_std_c": 0.02690724809414822,
+      "pressure_channel_spread_kpa": 1.116950681465994,
+      "temperature_channel_spread_c": 3.107999999999997
+    },
+    {
+      "run": "E159F04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.02010149905105596,
+      "temperature_temporal_std_c": 0.018533752992850917,
+      "pressure_channel_spread_kpa": 1.1445297106379968,
+      "temperature_channel_spread_c": 3.434000000000001
+    },
+    {
+      "run": "E053A03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.015417145995516784,
+      "temperature_temporal_std_c": 0.005338539126015592,
+      "pressure_channel_spread_kpa": 0.951476506433977,
+      "temperature_channel_spread_c": 3.349999999999998
+    },
+    {
+      "run": "E065A04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514585994313,
+      "temperature_temporal_std_c": 0.013910427743243112,
+      "pressure_channel_spread_kpa": 0.9652660210199997,
+      "temperature_channel_spread_c": 3.1879999999999953
+    },
+    {
+      "run": "E143F10",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777678158,
+      "temperature_temporal_std_c": 0.009433981132055253,
+      "pressure_channel_spread_kpa": 1.1169506814660082,
+      "temperature_channel_spread_c": 3.1900000000000013
+    },
+    {
+      "run": "H350N01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.010901568479954968,
+      "temperature_temporal_std_c": 0.020124611797497194,
+      "pressure_channel_spread_kpa": 2.9233770922320446,
+      "temperature_channel_spread_c": 3.2139999999999986
+    },
+    {
+      "run": "H350N02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634067137,
+      "temperature_temporal_std_c": 0.014053469322555181,
+      "pressure_channel_spread_kpa": 2.9095875776460502,
+      "temperature_channel_spread_c": 3.346
+    },
+    {
+      "run": "H350N05",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634094984,
+      "temperature_temporal_std_c": 0.007968688725254231,
+      "pressure_channel_spread_kpa": 2.895798063059999,
+      "temperature_channel_spread_c": 3.4020000000000046
+    },
+    {
+      "run": "H338N06",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.0175782509892293,
+      "temperature_temporal_std_c": 0.014611639196203148,
+      "pressure_channel_spread_kpa": 2.854429519302016,
+      "temperature_channel_spread_c": 3.1960000000000015
+    },
+    {
+      "run": "E260G03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268179525,
+      "temperature_temporal_std_c": 0.030577769702841734,
+      "pressure_channel_spread_kpa": 3.309483500640013,
+      "temperature_channel_spread_c": 3.0979999999999954
+    },
+    {
+      "run": "E241G02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.022867322961444485,
+      "temperature_temporal_std_c": 0.011768602295938716,
+      "pressure_channel_spread_kpa": 3.3232730152260217,
+      "temperature_channel_spread_c": 3.267999999999997
+    },
+    {
+      "run": "E225G01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.017578250989242677,
+      "temperature_temporal_std_c": 0.017818529681205703,
+      "pressure_channel_spread_kpa": 3.2681149568819876,
+      "temperature_channel_spread_c": 3.0839999999999996
+    },
+    {
+      "run": "E241G03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777684233,
+      "temperature_temporal_std_c": 0.015968719422671918,
+      "pressure_channel_spread_kpa": 3.337062529812002,
+      "temperature_channel_spread_c": 3.411999999999999
+    },
+    {
+      "run": "E241G01",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.02010149905105596,
+      "temperature_temporal_std_c": 0.016124515496597967,
+      "pressure_channel_spread_kpa": 3.3232730152259933,
+      "temperature_channel_spread_c": 3.163999999999998
+    },
+    {
+      "run": "E241G04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268176045,
+      "temperature_temporal_std_c": 0.019974984355438045,
+      "pressure_channel_spread_kpa": 3.3370625298119876,
+      "temperature_channel_spread_c": 3.526
+    },
+    {
+      "run": "E233G03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514586000707,
+      "temperature_temporal_std_c": 0.01573213272255174,
+      "pressure_channel_spread_kpa": 3.2956939860539904,
+      "temperature_channel_spread_c": 3.026
+    },
+    {
+      "run": "E241G05",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.017578250989249367,
+      "temperature_temporal_std_c": 0.008455767262644425,
+      "pressure_channel_spread_kpa": 3.350852044397982,
+      "temperature_channel_spread_c": 3.5920000000000023
+    },
+    {
+      "run": "E233G04",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.017578250989247694,
+      "temperature_temporal_std_c": 0.007516648189186755,
+      "pressure_channel_spread_kpa": 3.2956939860539904,
+      "temperature_channel_spread_c": 3.067999999999998
+    },
+    {
+      "run": "E241G06",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.025332955902267546,
+      "temperature_temporal_std_c": 0.01920937271229935,
+      "pressure_channel_spread_kpa": 3.3508520443980245,
+      "temperature_channel_spread_c": 3.460000000000001
+    },
+    {
+      "run": "E233G05",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01090156847996845,
+      "temperature_temporal_std_c": 0.013784048752090057,
+      "pressure_channel_spread_kpa": 3.309483500639999,
+      "temperature_channel_spread_c": 3.2560000000000002
+    },
+    {
+      "run": "E233G06",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01378951458599431,
+      "temperature_temporal_std_c": 0.020408331631959313,
+      "pressure_channel_spread_kpa": 3.309483500639999,
+      "temperature_channel_spread_c": 3.3800000000000026
+    },
+    {
+      "run": "E260G06",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.012898909777685751,
+      "temperature_temporal_std_c": 0.010885770528540077,
+      "pressure_channel_spread_kpa": 3.3646415589840046,
+      "temperature_channel_spread_c": 3.306000000000001
+    },
+    {
+      "run": "E241G10",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.008444318634094984,
+      "temperature_temporal_std_c": 0.012942179105544268,
+      "pressure_channel_spread_kpa": 3.378431073569999,
+      "temperature_channel_spread_c": 3.552000000000003
+    },
+    {
+      "run": "E241G11",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514585996443,
+      "temperature_temporal_std_c": 0.015000000000000333,
+      "pressure_channel_spread_kpa": 3.33706252981203,
+      "temperature_channel_spread_c": 3.5980000000000025
+    },
+    {
+      "run": "E260G07",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268183005,
+      "temperature_temporal_std_c": 0.012999999999998561,
+      "pressure_channel_spread_kpa": 3.378431073569999,
+      "temperature_channel_spread_c": 3.4619999999999997
+    },
+    {
+      "run": "E233G15",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.016888637268189968,
+      "temperature_temporal_std_c": 0.019429359227726154,
+      "pressure_channel_spread_kpa": 3.3370625298119876,
+      "temperature_channel_spread_c": 3.4439999999999955
+    },
+    {
+      "run": "E260G08",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.006894757293001419,
+      "temperature_temporal_std_c": 0.02008730942660054,
+      "pressure_channel_spread_kpa": 3.4060101027420018,
+      "temperature_channel_spread_c": 3.4319999999999986
+    },
+    {
+      "run": "E260G09",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.013789514585994311,
+      "temperature_temporal_std_c": 0.013000000000000064,
+      "pressure_channel_spread_kpa": 3.3922205881560075,
+      "temperature_channel_spread_c": 3.530000000000001
+    },
+    {
+      "run": "E225G02",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01888207048949418,
+      "temperature_temporal_std_c": 0.014265342617687578,
+      "pressure_channel_spread_kpa": 3.309483500639999,
+      "temperature_channel_spread_c": 3.248000000000001
+    },
+    {
+      "run": "E225G03",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01378951458600568,
+      "temperature_temporal_std_c": 0.01854723699099107,
+      "pressure_channel_spread_kpa": 3.2819044714680103,
+      "temperature_channel_spread_c": 3.3699999999999974
+    },
+    {
+      "run": "E225G05",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.010901568479972944,
+      "temperature_temporal_std_c": 0.012942179105544955,
+      "pressure_channel_spread_kpa": 3.281904471467996,
+      "temperature_channel_spread_c": 3.3800000000000026
+    },
+    {
+      "run": "E225G06",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.010901568479972944,
+      "temperature_temporal_std_c": 0.018069310999593028,
+      "pressure_channel_spread_kpa": 3.3370625298119876,
+      "temperature_channel_spread_c": 3.466000000000001
+    },
+    {
+      "run": "E225G08",
+      "preignition_samples": 5,
+      "pressure_temporal_std_kpa": 0.01090156847996845,
+      "temperature_temporal_std_c": 0.01288409872672499,
+      "pressure_channel_spread_kpa": 3.3232730152260075,
+      "temperature_channel_spread_c": 3.5299999999999976
+    }
+  ],
+  "image_quality": [
+    {
+      "run": "A184D09",
+      "weak_mask_pixels": 2996,
+      "saturated_pixel_fraction": 0.0025482177734375
+    },
+    {
+      "run": "A186D09",
+      "weak_mask_pixels": 2873,
+      "saturated_pixel_fraction": 0.0
+    },
+    {
+      "run": "A186D03",
+      "weak_mask_pixels": 7566,
+      "saturated_pixel_fraction": 6.103515625e-05
+    },
+    {
+      "run": "A184D07",
+      "weak_mask_pixels": 3044,
+      "saturated_pixel_fraction": 0.1676788330078125
+    },
+    {
+      "run": "A184D03",
+      "weak_mask_pixels": 1062,
+      "saturated_pixel_fraction": 0.1326904296875
+    },
+    {
+      "run": "A184D02",
+      "weak_mask_pixels": 535,
+      "saturated_pixel_fraction": 0.1282196044921875
+    },
+    {
+      "run": "A109D04",
+      "weak_mask_pixels": 8663,
+      "saturated_pixel_fraction": 0.0102996826171875
+    },
+    {
+      "run": "A109D07",
+      "weak_mask_pixels": 1382,
+      "saturated_pixel_fraction": 0.0003814697265625
+    },
+    {
+      "run": "A113D03",
+      "weak_mask_pixels": 1834,
+      "saturated_pixel_fraction": 0.0010223388671875
+    },
+    {
+      "run": "A109D10",
+      "weak_mask_pixels": 3438,
+      "saturated_pixel_fraction": 0.0001068115234375
+    },
+    {
+      "run": "A301D01",
+      "weak_mask_pixels": 1527,
+      "saturated_pixel_fraction": 0.0004425048828125
+    },
+    {
+      "run": "A113D07",
+      "weak_mask_pixels": 6603,
+      "saturated_pixel_fraction": 0.001312255859375
+    },
+    {
+      "run": "A221D04",
+      "weak_mask_pixels": 877,
+      "saturated_pixel_fraction": 0.0008697509765625
+    },
+    {
+      "run": "A301D04",
+      "weak_mask_pixels": 2383,
+      "saturated_pixel_fraction": 3.0517578125e-05
+    },
+    {
+      "run": "A298D02",
+      "weak_mask_pixels": 405,
+      "saturated_pixel_fraction": 0.017730712890625
+    },
+    {
+      "run": "A298D05",
+      "weak_mask_pixels": 1462,
+      "saturated_pixel_fraction": 0.000762939453125
+    },
+    {
+      "run": "A123D07",
+      "weak_mask_pixels": 1592,
+      "saturated_pixel_fraction": 9.1552734375e-05
+    },
+    {
+      "run": "A123D10",
+      "weak_mask_pixels": 1972,
+      "saturated_pixel_fraction": 0.000823974609375
+    },
+    {
+      "run": "A127D02",
+      "weak_mask_pixels": 4086,
+      "saturated_pixel_fraction": 0.0006103515625
+    },
+    {
+      "run": "A123D02",
+      "weak_mask_pixels": 1704,
+      "saturated_pixel_fraction": 0.007110595703125
+    },
+    {
+      "run": "A127D04",
+      "weak_mask_pixels": 1668,
+      "saturated_pixel_fraction": 0.0001678466796875
+    },
+    {
+      "run": "A134D01",
+      "weak_mask_pixels": 6657,
+      "saturated_pixel_fraction": 0.007354736328125
+    },
+    {
+      "run": "A139D07",
+      "weak_mask_pixels": 3181,
+      "saturated_pixel_fraction": 0.0003662109375
+    },
+    {
+      "run": "A307D03",
+      "weak_mask_pixels": 3143,
+      "saturated_pixel_fraction": 0.0744171142578125
+    },
+    {
+      "run": "A307D01",
+      "weak_mask_pixels": 1832,
+      "saturated_pixel_fraction": 0.082763671875
+    },
+    {
+      "run": "E073C02",
+      "weak_mask_pixels": 6464,
+      "saturated_pixel_fraction": 0.0015106201171875
+    },
+    {
+      "run": "E073C03",
+      "weak_mask_pixels": 3192,
+      "saturated_pixel_fraction": 0.0006866455078125
+    },
+    {
+      "run": "E073C04",
+      "weak_mask_pixels": 3877,
+      "saturated_pixel_fraction": 0.0014495849609375
+    },
+    {
+      "run": "E087C01",
+      "weak_mask_pixels": 6492,
+      "saturated_pixel_fraction": 0.002410888671875
+    },
+    {
+      "run": "E073C07",
+      "weak_mask_pixels": 2968,
+      "saturated_pixel_fraction": 0.0163116455078125
+    },
+    {
+      "run": "E073C09",
+      "weak_mask_pixels": 1074,
+      "saturated_pixel_fraction": 0.0327301025390625
+    },
+    {
+      "run": "E087C07",
+      "weak_mask_pixels": 1373,
+      "saturated_pixel_fraction": 0.00042724609375
+    },
+    {
+      "run": "E066C01",
+      "weak_mask_pixels": 3234,
+      "saturated_pixel_fraction": 0.0011749267578125
+    },
+    {
+      "run": "E066C02",
+      "weak_mask_pixels": 2617,
+      "saturated_pixel_fraction": 0.0013580322265625
+    },
+    {
+      "run": "E066C03",
+      "weak_mask_pixels": 4669,
+      "saturated_pixel_fraction": 0.009979248046875
+    },
+    {
+      "run": "E209L01",
+      "weak_mask_pixels": 9523,
+      "saturated_pixel_fraction": 0.0128173828125
+    },
+    {
+      "run": "E209L03",
+      "weak_mask_pixels": 1934,
+      "saturated_pixel_fraction": 0.0525054931640625
+    },
+    {
+      "run": "E209L04",
+      "weak_mask_pixels": 409,
+      "saturated_pixel_fraction": 0.06024169921875
+    },
+    {
+      "run": "E209L13",
+      "weak_mask_pixels": 7960,
+      "saturated_pixel_fraction": 0.0016937255859375
+    },
+    {
+      "run": "E163L02",
+      "weak_mask_pixels": 1084,
+      "saturated_pixel_fraction": 1.52587890625e-05
+    },
+    {
+      "run": "E175L01",
+      "weak_mask_pixels": 6553,
+      "saturated_pixel_fraction": 0.016387939453125
+    },
+    {
+      "run": "E183L01",
+      "weak_mask_pixels": 7975,
+      "saturated_pixel_fraction": 0.0157470703125
+    },
+    {
+      "run": "E183L02",
+      "weak_mask_pixels": 1676,
+      "saturated_pixel_fraction": 0.0893707275390625
+    },
+    {
+      "run": "E216L02",
+      "weak_mask_pixels": 9802,
+      "saturated_pixel_fraction": 0.002899169921875
+    },
+    {
+      "run": "E216L03",
+      "weak_mask_pixels": 9186,
+      "saturated_pixel_fraction": 0.0008544921875
+    },
+    {
+      "run": "E175L11",
+      "weak_mask_pixels": 1997,
+      "saturated_pixel_fraction": 0.000244140625
+    },
+    {
+      "run": "E175L10",
+      "weak_mask_pixels": 5053,
+      "saturated_pixel_fraction": 0.042144775390625
+    },
+    {
+      "run": "E183L09",
+      "weak_mask_pixels": 1131,
+      "saturated_pixel_fraction": 0.0927276611328125
+    },
+    {
+      "run": "E183L10",
+      "weak_mask_pixels": 628,
+      "saturated_pixel_fraction": 0.0788421630859375
+    },
+    {
+      "run": "E175L17",
+      "weak_mask_pixels": 1789,
+      "saturated_pixel_fraction": 0.0045928955078125
+    },
+    {
+      "run": "E183L11",
+      "weak_mask_pixels": 690,
+      "saturated_pixel_fraction": 0.0947265625
+    },
+    {
+      "run": "H323N01",
+      "weak_mask_pixels": 982,
+      "saturated_pixel_fraction": 0.000885009765625
+    },
+    {
+      "run": "E135F02",
+      "weak_mask_pixels": 5864,
+      "saturated_pixel_fraction": 0.0422515869140625
+    },
+    {
+      "run": "E135F06",
+      "weak_mask_pixels": 449,
+      "saturated_pixel_fraction": 0.0550384521484375
+    },
+    {
+      "run": "E135F11",
+      "weak_mask_pixels": 3918,
+      "saturated_pixel_fraction": 0.0005950927734375
+    },
+    {
+      "run": "E061A01",
+      "weak_mask_pixels": 9243,
+      "saturated_pixel_fraction": 0.00225830078125
+    },
+    {
+      "run": "E017A02",
+      "weak_mask_pixels": 741,
+      "saturated_pixel_fraction": 0.0552215576171875
+    },
+    {
+      "run": "E017A04",
+      "weak_mask_pixels": 582,
+      "saturated_pixel_fraction": 0.0490875244140625
+    },
+    {
+      "run": "E017A03",
+      "weak_mask_pixels": 941,
+      "saturated_pixel_fraction": 0.056854248046875
+    },
+    {
+      "run": "E156F04",
+      "weak_mask_pixels": 3431,
+      "saturated_pixel_fraction": 0.0015106201171875
+    },
+    {
+      "run": "E059A01",
+      "weak_mask_pixels": 4755,
+      "saturated_pixel_fraction": 0.000335693359375
+    },
+    {
+      "run": "E159F01",
+      "weak_mask_pixels": 5635,
+      "saturated_pixel_fraction": 0.000518798828125
+    },
+    {
+      "run": "E156F05",
+      "weak_mask_pixels": 3535,
+      "saturated_pixel_fraction": 0.0005950927734375
+    },
+    {
+      "run": "E065A03",
+      "weak_mask_pixels": 6762,
+      "saturated_pixel_fraction": 0.00433349609375
+    },
+    {
+      "run": "E143F08",
+      "weak_mask_pixels": 2646,
+      "saturated_pixel_fraction": 0.0046234130859375
+    },
+    {
+      "run": "E156F10",
+      "weak_mask_pixels": 7514,
+      "saturated_pixel_fraction": 0.00054931640625
+    },
+    {
+      "run": "E053A02",
+      "weak_mask_pixels": 591,
+      "saturated_pixel_fraction": 0.0631103515625
+    },
+    {
+      "run": "E143F09",
+      "weak_mask_pixels": 1131,
+      "saturated_pixel_fraction": 0.003082275390625
+    },
+    {
+      "run": "E159F04",
+      "weak_mask_pixels": 7358,
+      "saturated_pixel_fraction": 0.0007171630859375
+    },
+    {
+      "run": "E053A03",
+      "weak_mask_pixels": 3358,
+      "saturated_pixel_fraction": 0.032806396484375
+    },
+    {
+      "run": "E065A04",
+      "weak_mask_pixels": 9699,
+      "saturated_pixel_fraction": 0.015594482421875
+    },
+    {
+      "run": "E143F10",
+      "weak_mask_pixels": 7809,
+      "saturated_pixel_fraction": 0.0052490234375
+    },
+    {
+      "run": "H350N01",
+      "weak_mask_pixels": 11285,
+      "saturated_pixel_fraction": 0.1160430908203125
+    },
+    {
+      "run": "H350N02",
+      "weak_mask_pixels": 13123,
+      "saturated_pixel_fraction": 0.1501617431640625
+    },
+    {
+      "run": "H350N05",
+      "weak_mask_pixels": 4719,
+      "saturated_pixel_fraction": 0.077728271484375
+    },
+    {
+      "run": "H338N06",
+      "weak_mask_pixels": 906,
+      "saturated_pixel_fraction": 0.0001373291015625
+    },
+    {
+      "run": "E260G03",
+      "weak_mask_pixels": 3390,
+      "saturated_pixel_fraction": 1.52587890625e-05
+    },
+    {
+      "run": "E241G02",
+      "weak_mask_pixels": 5643,
+      "saturated_pixel_fraction": 0.1514739990234375
+    },
+    {
+      "run": "E225G01",
+      "weak_mask_pixels": 7781,
+      "saturated_pixel_fraction": 0.143524169921875
+    },
+    {
+      "run": "E241G03",
+      "weak_mask_pixels": 7521,
+      "saturated_pixel_fraction": 0.1377410888671875
+    },
+    {
+      "run": "E241G01",
+      "weak_mask_pixels": 5741,
+      "saturated_pixel_fraction": 0.147186279296875
+    },
+    {
+      "run": "E241G04",
+      "weak_mask_pixels": 8555,
+      "saturated_pixel_fraction": 0.13055419921875
+    },
+    {
+      "run": "E233G03",
+      "weak_mask_pixels": 2734,
+      "saturated_pixel_fraction": 0.1010894775390625
+    },
+    {
+      "run": "E241G05",
+      "weak_mask_pixels": 4796,
+      "saturated_pixel_fraction": 0.08001708984375
+    },
+    {
+      "run": "E233G04",
+      "weak_mask_pixels": 16302,
+      "saturated_pixel_fraction": 0.1248931884765625
+    },
+    {
+      "run": "E241G06",
+      "weak_mask_pixels": 19005,
+      "saturated_pixel_fraction": 0.1164398193359375
+    },
+    {
+      "run": "E233G05",
+      "weak_mask_pixels": 16775,
+      "saturated_pixel_fraction": 0.1097412109375
+    },
+    {
+      "run": "E233G06",
+      "weak_mask_pixels": 1905,
+      "saturated_pixel_fraction": 0.021697998046875
+    },
+    {
+      "run": "E260G06",
+      "weak_mask_pixels": 12209,
+      "saturated_pixel_fraction": 0.0595855712890625
+    },
+    {
+      "run": "E241G10",
+      "weak_mask_pixels": 3945,
+      "saturated_pixel_fraction": 0.1684417724609375
+    },
+    {
+      "run": "E241G11",
+      "weak_mask_pixels": 1914,
+      "saturated_pixel_fraction": 0.165740966796875
+    },
+    {
+      "run": "E260G07",
+      "weak_mask_pixels": 11785,
+      "saturated_pixel_fraction": 0.054962158203125
+    },
+    {
+      "run": "E233G15",
+      "weak_mask_pixels": 2385,
+      "saturated_pixel_fraction": 3.0517578125e-05
+    },
+    {
+      "run": "E260G08",
+      "weak_mask_pixels": 11650,
+      "saturated_pixel_fraction": 0.1348114013671875
+    },
+    {
+      "run": "E260G09",
+      "weak_mask_pixels": 4668,
+      "saturated_pixel_fraction": 0.1463470458984375
+    },
+    {
+      "run": "E225G02",
+      "weak_mask_pixels": 1848,
+      "saturated_pixel_fraction": 0.13507080078125
+    },
+    {
+      "run": "E225G03",
+      "weak_mask_pixels": 1425,
+      "saturated_pixel_fraction": 0.146453857421875
+    },
+    {
+      "run": "E225G05",
+      "weak_mask_pixels": 2001,
+      "saturated_pixel_fraction": 0.1481170654296875
+    },
+    {
+      "run": "E225G06",
+      "weak_mask_pixels": 1904,
+      "saturated_pixel_fraction": 0.0
+    },
+    {
+      "run": "E225G08",
+      "weak_mask_pixels": 7798,
+      "saturated_pixel_fraction": 0.0937347412109375
+    }
+  ],
+  "candidate_features": [
+    {
+      "feature": "Pre-ignition temporal stability and sensor spread",
+      "status": "Available for all accepted runs",
+      "use": "Quality flags or optional ablation; sensor differences may be spatial offsets, not uncertainty estimates"
+    },
+    {
+      "feature": "Camera zoom, exposure, gain and white balance",
+      "status": "Coverage and raw values above",
+      "use": "Stratified evaluation or nuisance covariates after checking settings semantics; not physical slider inputs"
+    },
+    {
+      "feature": "Acquisition date/campaign",
+      "status": "Available in event timestamps and category",
+      "use": "Grouped holdout evaluation to detect campaign leakage; not a physical control"
+    },
+    {
+      "feature": "Oxygen fraction, initial droplet diameter, ambient gas composition and airflow",
+      "status": "Not verified by these chamber/camera records",
+      "use": "Keep absent until exact-run authoritative labels are joined; tracked in issue #18"
+    }
+  ],
+  "evaluation_note": "Independent run count is not unique physical-state coverage. Whole-run splits do not prevent same-day/campaign confounding. Repeated frames are never counted as independent states."
+}

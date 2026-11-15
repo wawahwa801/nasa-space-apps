@@ -45,6 +45,21 @@ class RetrievalTests(unittest.TestCase):
 
 @unittest.skipUnless((ROOT/'prepared.npz').exists(),'FLEX-2 data not prepared')
 class DataTests(unittest.TestCase):
+    def test_requested_count_and_finite_features(self):
+        m=json.loads((ROOT/'manifest.json').read_text())
+        if m.get('target_runs') is not None:
+            self.assertEqual(len(m['records']),m['target_runs'])
+            self.assertTrue((np.load(ROOT/'prepared.npz')['masks'].sum(axis=(1,2))>=400).all())
+        self.assertTrue(np.isfinite([r['features'] for r in m['records']]).all())
+        self.assertEqual(len({r['run'] for r in m['records']}),len(m['records']))
+
+    def test_insufficient_runs_does_not_replace_prepared_data(self):
+        from flex2_data import prepare
+        before=hashlib.sha256((ROOT/'prepared.npz').read_bytes()).hexdigest()
+        with self.assertRaisesRegex(ValueError,'usable independent runs'):
+            prepare(1000000)
+        self.assertEqual(hashlib.sha256((ROOT/'prepared.npz').read_bytes()).hexdigest(),before)
+
     def test_join_hashes_preignition_telemetry_and_splits(self):
         d=np.load(ROOT/'prepared.npz');m=json.loads((ROOT/'manifest.json').read_text());groups={}
         self.assertEqual(m['fields'],['pressure_kpa','temperature_c'])
@@ -78,6 +93,19 @@ class ApiTests(unittest.TestCase):
     def setUpClass(cls):
         from flex2_lab import create_app
         cls.c=create_app().test_client();cls.info=cls.c.get('/flex2/api/info').get_json()
+
+    def test_all_fuels_and_recorded_examples_are_retrievable(self):
+        manifest=json.loads((ROOT/'manifest.json').read_text())
+        self.assertEqual(len(self.info['library']),len(manifest['records']))
+        for sample in self.info['library']:
+            response=self.c.get('/flex2/api/predict',query_string=dict(fuel=sample['fuel'],mode='retrieval',**sample['features']))
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(response.get_json()['reference']['id'],sample['id'])
+        for spec in self.info['fuels']:
+            values={f['key']:f['default'] for f in spec['fields']}
+            response=self.c.get('/flex2/api/predict',query_string=dict(fuel=spec['name'],mode='cnn',**values))
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(response.get_json()['fuel'],spec['name'])
 
     def test_modes_and_reference_provenance(self):
         sample=self.info['library'][0];outputs=[]
