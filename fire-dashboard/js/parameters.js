@@ -219,12 +219,31 @@
       products: [ORGANIC, CO2, ["Soot", "Forms when the flame is short of oxygen; SPICE studied when these flames start to smoke."]] },
   };
 
-  // Example input, roughly an ISS-like cabin. Used by the "Load example" button.
-  window.EXAMPLE_INPUT = {
+  // Example inputs for testing, picked with "Load example". Illustrative values,
+  // not measurements. The first is the default.
+  const ISS_CABIN = {
     environment: "Pressurised", gravity: "Microgravity (~0 g)", internal_temp_c: 22.5, pressure_kpa: 101.3,
     o2_pct: 21.5, n2_pct: 76.3, humidity_pct: 45, co2_ppm: 3000, h2_ppm: 20, ch4_ppm: 5, co_ppm: 2,
     monitoring: "Nominal", oxidizer_leak: "None detected",
     fuel_type: "Propane", fuel_storage: "Sealed cylinder", fuel_leak: "None detected", fuel_distance_m: 2.0,
     material_types: ["Kapton", "PMMA (acrylic)", "SIBAL fabric (cotton-fiberglass)"], material_distance_m: 0.4,
   };
+  window.EXAMPLE_INPUTS = [
+    { id: "iss", label: "ISS-like cabin", values: ISS_CABIN },
+    { id: "habitat", label: "Exploration habitat (8.2 psia, 34% O₂)", values: {
+      environment: "Partially pressurised", gravity: "Lunar (0.17 g)", internal_temp_c: 22, pressure_kpa: 56.5,
+      o2_pct: 34, n2_pct: 64.6, humidity_pct: 40, co2_ppm: 2500, h2_ppm: 1, ch4_ppm: 2, co_ppm: 1,
+      monitoring: "Nominal", oxidizer_leak: "None detected",
+      fuel_type: "Methane", fuel_storage: "Sealed cylinder", fuel_leak: "None detected", fuel_distance_m: 3,
+      material_types: ["Nomex", "Pyrell", "Lampwick", "Wax (candle or slab)"], material_distance_m: 1.5,
+    } },
+    { id: "leak", label: "Degraded monitoring with leaks", values: {
+      environment: "Pressurised", gravity: "Microgravity (~0 g)", internal_temp_c: 24, pressure_kpa: 101.3,
+      o2_pct: 22.8, n2_pct: 74.8, humidity_pct: 55, co2_ppm: 6200, h2_ppm: 1500, ch4_ppm: 3, co_ppm: 40,
+      monitoring: "Degraded", oxidizer_leak: "Suspected",
+      fuel_type: "Methane", fuel_storage: "Plumbed line (in use)", fuel_leak: "Suspected", fuel_distance_m: 0.6,
+      material_types: ["Teflon", "Silicone", "Ultem"], material_distance_m: 0.8,
+    } },
+  ];
+  window.EXAMPLE_INPUT = ISS_CABIN;
 })();

@@ -77,6 +77,7 @@ export function FireSafetyComparison({ inputs, onDefinitions, onGotoField, onLoa
           sections: window.PARAMETER_SECTIONS,
           units: window.UNIT_SYSTEMS,
           example: window.EXAMPLE_INPUT,
+          examples: window.EXAMPLE_INPUTS || [],
         });
 
         const host = hostRef.current;

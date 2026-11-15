@@ -228,10 +228,14 @@ export default function Home() {
         : Object.fromEntries(Object.entries(NASA_DEFAULTS).map(([k, v]) => [k, String(v)])),
     );
   }
-  // Fill both the shared values and the NASA-only inputs from the dashboard's example.
-  function loadNasaExample() {
+  // Fill both the shared values and the NASA-only inputs from one of the
+  // dashboard's examples (the default one when no id is given).
+  function loadNasaExample(id) {
     if (!nasaDefs) return;
-    const ex = nasaDefs.example;
+    const ex = (typeof id === "string" && nasaDefs.examples?.find((x) => x.id === id)?.values) || nasaDefs.example;
+    // "Lunar (0.17 g)" -> 0.17; microgravity -> 0.
+    const g = String(ex.gravity || "");
+    const gravity = g.startsWith("Microgravity") ? 0 : Number((g.match(/([\d.]+)\s*g/) || [])[1]);
     setValues((v) => ({
       ...v,
       oxygen: ex.o2_pct,
@@ -239,7 +243,7 @@ export default function Home() {
       temperature: ex.internal_temp_c,
       co2: Number((ex.co2_ppm / 10000).toFixed(4)),
       humidity: ex.humidity_pct ?? v.humidity,
-      gravity: String(ex.gravity).startsWith("Microgravity") ? 0 : v.gravity,
+      gravity: Number.isFinite(gravity) ? gravity : v.gravity,
     }));
     setNasaRaw(rawFromBase(nasaDefs, ex, nasaUnits));
     setSnapshot(null);
@@ -440,6 +444,19 @@ export default function Home() {
                 ? "Parameters applied"
                 : "Adjust parameters to configure your scenario"}
             </div>
+          {view === "flame" && !parametersOpen && (
+            <button
+              type="button"
+              className="parameters-tab"
+              aria-controls="parameters"
+              aria-expanded="false"
+              onClick={() => setParametersOpen(true)}
+              title="Show parameters"
+            >
+              <span className="parameters-tab-arrow" aria-hidden="true">▶</span>
+              <span className="parameters-tab-label">Parameters</span>
+            </button>
+          )}
           <section
             className={`parameter-panel ${parametersOpen ? "parameters-open" : ""}`}
             id="parameters"
@@ -451,7 +468,9 @@ export default function Home() {
                 <h2 id="parameters-heading">Parameters</h2>
 
               </div>
-              <button type="button" className="parameters-close" onClick={() => setParametersOpen(false)} aria-label="Close parameters">×</button>
+              <button type="button" className="parameters-close" onClick={() => setParametersOpen(false)} aria-label="Hide parameters to the side" title="Hide to the side">
+                <span aria-hidden="true">◀</span>
+              </button>
             </div>
             <form id="scenario-form" onSubmit={preview}>
               <div className="field-section">
@@ -602,14 +621,18 @@ export default function Home() {
                 >
                   Edit parameters
                 </button>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={loadNasaExample}
+                <select
+                  className="text-button example-select"
+                  aria-label="Load an example scenario"
+                  value=""
                   disabled={!nasaDefs}
+                  onChange={(e) => e.target.value && loadNasaExample(e.target.value)}
                 >
-                  Load example
-                </button>
+                  <option value="">Load example…</option>
+                  {(nasaDefs?.examples || []).map((x) => (
+                    <option key={x.id} value={x.id}>{x.label}</option>
+                  ))}
+                </select>
                 <button
                   type="button"
                   className="text-button"
@@ -623,7 +646,7 @@ export default function Home() {
               inputs={dashboardInputs}
               onDefinitions={setNasaDefs}
               onGotoField={gotoNasaField}
-              onLoadExample={loadNasaExample}
+              onLoadExample={() => loadNasaExample()}
             />
           </section>
           </main>

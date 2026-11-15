@@ -228,18 +228,45 @@
     return { pattern: result.pattern, ratio, items };
   }
 
-  // Illustrative scenario: steady cabin air, then smouldering, then flames.
-  // Synthetic numbers for demonstrations, not NASA measurements.
-  function demoSequence(start = Date.now() - 11 * 5 * 60000, intervalMin = 5) {
-    const steps = [
-      [1, 450, 20.9, 22.0], [1, 455, 20.9, 22.0], [1.2, 450, 20.9, 22.1], [1.1, 460, 20.9, 22.0],
-      [4, 470, 20.9, 22.1], [9, 490, 20.9, 22.2], [16, 520, 20.9, 22.3], [26, 620, 20.85, 22.6],
-      [40, 950, 20.7, 23.5], [70, 1400, 20.5, 27], [130, 2100, 20.2, 38], [210, 3200, 19.9, 52],
-    ];
-    return steps.map(([co, co2, o2, temp], i) => ({
+  // Demo scenarios: 12 readings each. Synthetic numbers for demonstrations and
+  // testing, not NASA measurements. Each step is [CO ppm, CO₂ ppm, O₂ %, temp °C, H₂ ppm].
+  const DEMOS = {
+    flaming: {
+      label: "Smouldering turning into flames",
+      summary: "steady air, then CO rises without heat (smouldering), then heat and CO₂ jump (flames)",
+      steps: [
+        [1, 450, 20.9, 22.0, 0.5], [1, 455, 20.9, 22.0, 0.5], [1.2, 450, 20.9, 22.1, 0.5], [1.1, 460, 20.9, 22.0, 0.5],
+        [4, 470, 20.9, 22.1, 0.5], [9, 490, 20.9, 22.2, 0.5], [16, 520, 20.9, 22.3, 0.5], [26, 620, 20.85, 22.6, 0.5],
+        [40, 950, 20.7, 23.5, 0.5], [70, 1400, 20.5, 27, 0.5], [130, 2100, 20.2, 38, 0.5], [210, 3200, 19.9, 52, 0.5],
+      ],
+    },
+    smoulder: {
+      label: "Smouldering with no flame",
+      summary: "CO climbs steadily for an hour with little heat or CO₂: something is smouldering",
+      steps: [
+        [1, 450, 20.9, 22.0, 0.5], [1.1, 452, 20.9, 22.0, 0.5], [1, 455, 20.9, 22.0, 0.5], [3, 465, 20.9, 22.1, 0.5],
+        [8, 480, 20.9, 22.1, 0.5], [14, 500, 20.9, 22.2, 0.5], [21, 520, 20.89, 22.3, 0.5], [28, 545, 20.88, 22.4, 0.5],
+        [36, 570, 20.87, 22.5, 0.5], [44, 600, 20.86, 22.6, 0.5], [53, 630, 20.85, 22.7, 0.5], [62, 660, 20.84, 22.8, 0.5],
+      ],
+    },
+    leak: {
+      label: "Oxygen and hydrogen leak",
+      summary: "no combustion gases, but O₂ and H₂ build up: a leak that makes a fire more likely",
+      steps: [
+        [1, 450, 20.9, 22.0, 0.5], [1, 452, 20.9, 22.0, 0.5], [1, 450, 21.0, 22.0, 5], [1, 455, 21.6, 22.0, 400],
+        [1, 452, 22.2, 22.0, 2600], [1, 455, 22.8, 22.0, 4800], [1.1, 450, 23.4, 22.1, 7000], [1, 455, 24.0, 22.0, 9300],
+        [1, 452, 24.6, 22.0, 11500], [1, 450, 25.1, 22.1, 13800], [1, 455, 25.7, 22.0, 16000], [1.1, 452, 26.2, 22.0, 18200],
+      ],
+    },
+  };
+
+  // Readings for one demo, ending at about `start + 11 intervals`.
+  function demoSequence(start = Date.now() - 11 * 5 * 60000, intervalMin = 5, id = "flaming") {
+    const demo = DEMOS[id] || DEMOS.flaming;
+    return demo.steps.map(([co, co2, o2, temp, h2], i) => ({
       t: start + i * intervalMin * 60000,
       co_ppm: co, co2_ppm: co2, o2_pct: o2, internal_temp_c: temp,
-      humidity_pct: 45, h2_ppm: 0.5, ch4_ppm: 1.9, pressure_kpa: 101.3,
+      humidity_pct: 45, h2_ppm: h2, ch4_ppm: 1.9, pressure_kpa: 101.3,
     }));
   }
 
@@ -278,5 +305,5 @@
     return normalise(out);
   }
 
-  window.Monitoring = { FIELDS, detect, demoSequence, parseReadingsCsv, normalise, ratePerInterval, bassCoRatios, observedCoRatio, suspectMaterials };
+  window.Monitoring = { FIELDS, DEMOS, detect, demoSequence, parseReadingsCsv, normalise, ratePerInterval, bassCoRatios, observedCoRatio, suspectMaterials };
 })();
