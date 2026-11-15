@@ -111,15 +111,23 @@ export default function Home() {
     chatTrigger = useRef(null);
   useEffect(() => {
     const media = matchMedia("(min-width: 721px)");
+    const wideMedia = matchMedia("(min-width: 1200px)");
     const sync = () => {
       setMobile(!media.matches);
       if (!media.matches) { setParametersOpen(false); setChatOpen(false); }
     };
+    const syncPanels = () => {
+      setParametersOpen(wideMedia.matches);
+      setChatOpen(wideMedia.matches);
+    };
     sync();
-    setParametersOpen(window.matchMedia("(min-width: 1200px)").matches);
-    setChatOpen(window.matchMedia("(min-width: 1200px)").matches);
+    syncPanels();
     media.addEventListener("change", sync);
-    return () => media.removeEventListener("change", sync);
+    wideMedia.addEventListener("change", syncPanels);
+    return () => {
+      media.removeEventListener("change", sync);
+      wideMedia.removeEventListener("change", syncPanels);
+    };
   }, []);
   useEffect(() => {
     if (chatOpen && mobile) chatRef.current?.focus();
