@@ -358,7 +358,9 @@ export default function Home() {
                         const x = (i * 137.508) % 600;
                         const spread = ((i * 79) % 100) / 100;
                         const y = 155 + Math.sin(x / 85) * 38 + (spread - .5) * (50 + 95 * Math.abs(x - 300) / 300);
-                        return <circle key={i} cx={x} cy={y} r={i % 13 === 0 ? 1.5 : .65} fill={i % 4 === 0 ? "#ffad64" : "#e6542d"} opacity={.2 + (i % 5) * .1} />;
+                        // Round so server (Node) and browser Math.sin agree; avoids a hydration mismatch.
+                        const round = (v) => Math.round(v * 100) / 100;
+                        return <circle key={i} cx={round(x)} cy={round(y)} r={i % 13 === 0 ? 1.5 : .65} fill={i % 4 === 0 ? "#ffad64" : "#e6542d"} opacity={round(.2 + (i % 5) * .1)} />;
                       })}
                     </svg>
 
