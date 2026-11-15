@@ -10,7 +10,7 @@ from flex2_overnight import load_verified
 class OvernightInputTests(unittest.TestCase):
     def test_verified_features_and_references_are_run_disjoint(self):
         data,manifest,features,references,_=load_verified()
-        self.assertEqual(features.shape[0],99)
+        self.assertEqual(features.shape[0],139)
         self.assertEqual(data['excluded_unverified_settings_ids'],['E183L11'])
         train=np.where(data['splits']=='train')[0]
         for i,ref in enumerate(references):
@@ -19,6 +19,7 @@ class OvernightInputTests(unittest.TestCase):
         self.assertTrue(np.isfinite(features).all())
         names=data['feature_names']
         self.assertIn('seconds_since_igniter_on',names)
+        self.assertIn('igniter_on_time_s',names)
         self.assertTrue(any(n.startswith('camera_shutter_code=') for n in names))
         self.assertTrue(any(n.startswith('campaign=') for n in names))
 

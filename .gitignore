@@ -12,6 +12,8 @@ ml/data/*
 ml/data/flex2-study/*
 !ml/data/flex2-study/prepared.npz
 !ml/data/flex2-study/manifest.json
+!ml/data/flex2-expanded/
+!ml/data/flex2-expanded/*
 ml/artifacts/*
 !ml/artifacts/flex2-study/
 ml/artifacts/flex2-study/*

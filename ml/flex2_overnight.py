@@ -25,6 +25,7 @@ from spice_model import encode, metrics
 
 EVIDENCE = Path(__file__).resolve().parent / 'reports' / 'flex2-inputs.csv'
 OUT = ART / 'overnight'
+EXPANDED_ROOT = ROOT.parent / 'flex2-expanded'
 
 
 class RetrievalConditioned(nn.Module):
@@ -56,13 +57,15 @@ class RetrievalConditioned(nn.Module):
         return (reference + .25*torch.tanh(self.out(z))).clamp(0,1)
 
 
-def load_verified():
-    data=np.load(ROOT/'prepared.npz');manifest=json.loads((ROOT/'manifest.json').read_text())
-    raw=EVIDENCE.read_bytes();reader=csv.DictReader(raw.decode('utf-8-sig').splitlines());rows={r['run_id']:r for r in reader}
+def load_verified(dataset_root=EXPANDED_ROOT):
+    dataset_root=Path(dataset_root)
+    data=np.load(dataset_root/'prepared.npz');manifest=json.loads((dataset_root/'manifest.json').read_text())
+    evidence_path=dataset_root/'features.csv'
+    raw=evidence_path.read_bytes();reader=csv.DictReader(raw.decode('utf-8-sig').splitlines());rows={r['run_id']:r for r in reader}
     if len(set(data['groups'].tolist()))!=len(data['groups']):
         raise ValueError('Image library must have unique run IDs')
     if manifest['fields']!=FIELDS or not np.isfinite(data['features']).all():raise ValueError('Unexpected/malformed base feature schema')
-    fiber=[];power=[];power_missing=[];stage=[];campaign=[];shutter=[];gain=[];keep=[];excluded=[]
+    fiber=[];power=[];power_missing=[];duration=[];duration_missing=[];stage=[];campaign=[];shutter=[];gain=[];keep=[];excluded=[]
     records={r['run']:r for r in manifest['records']}
     for i,run in enumerate(data['groups'].tolist()):
         row=rows.get(run)
@@ -74,6 +77,10 @@ def load_verified():
         if record is None:raise ValueError(f'Image manifest missing event/camera record for {run}')
         keep.append(i)
         fiber.append(float(row['fiber_usage_flag']=='True'))
+        try:
+            on_time=float(row['igniter_on_time_s']);on_time_ok=row['igniter_on_time_status']=='exact_run_match' and math.isfinite(on_time) and on_time>0
+        except (KeyError,TypeError,ValueError):on_time_ok=False;on_time=0.
+        duration.append(on_time if on_time_ok else np.nan);duration_missing.append(float(not on_time_ok))
         ignition=datetime.fromisoformat(record['ignition'])
         frame_times=sorted(datetime.fromisoformat(m['timestamp']) for m in record['members'])
         middle=(frame_times[(len(frame_times)-1)//2]+(frame_times[len(frame_times)//2]-frame_times[(len(frame_times)-1)//2])/2)
@@ -91,9 +98,9 @@ def load_verified():
     data['campaign']=np.asarray(campaign);data['stage_since_igniter_s']=np.asarray(stage)
     cats={'campaign':campaign,'camera_shutter_code':shutter,'camera_gain_code':gain}
     columns=[np.asarray([float(v==level) for v in values],dtype='float32') for name,values in cats.items() for level in sorted(set(values[i] for i in range(len(keep)) if data['splits'][i]=='train'))]
-    names=['pressure_kpa','temperature_c','fiber_usage_flag','igniter_power_setting_w','power_missing_flag','seconds_since_igniter_on']
+    names=['pressure_kpa','temperature_c','fiber_usage_flag','igniter_power_setting_w','power_missing_flag','igniter_on_time_s','igniter_on_time_missing_flag','seconds_since_igniter_on']
     names += [f'{name}={level}' for name,values in cats.items() for level in sorted(set(values[i] for i in range(len(keep)) if data['splits'][i]=='train'))]
-    x=np.column_stack([data['features'],fiber,power,power_missing,stage,*columns]).astype('float32')
+    x=np.column_stack([data['features'],fiber,power,power_missing,duration,duration_missing,stage,*columns]).astype('float32')
     split=data['splits'];train=np.where(split=='train')[0]
     median=np.nanmedian(x[train],axis=0);median=np.nan_to_num(median,nan=0.)
     missing=~np.isfinite(x);x[missing]=np.take(median,np.where(missing)[1])
@@ -121,7 +128,7 @@ def main(hours,seed_count,patience):
     masks=torch.tensor(data['masks'],device=device).unsqueeze(1).float()
     cond=torch.tensor(x,device=device);refs=torch.tensor(refs,device=device)
     splits={s:np.where(data['splits']==s)[0] for s in ('train','validation','test')}
-    metadata={'device':str(device),'hours':hours,'target_count':len(x),'features':data['feature_names'],'feature_caveats':'Camera shutter/gain values are categorical raw device codes, not calibrated exposure measurements. Campaign one-hot may act as a proxy for acquisition conditions. Igniter on-time remains unavailable.','manifest_sha256':hashlib.sha256((ROOT/'manifest.json').read_bytes()).hexdigest(),'evidence_sha256':evidence_hash,'target_ids':data['groups'].tolist(),'split_ids':{k:data['groups'][v].tolist() for k,v in splits.items()},'selection':'validation foreground-weighted MAE; test split evaluated after training','reference_pool':'train only; self-run excluded','model':'small retrieval-conditioned CNN'}
+    metadata={'device':str(device),'hours':hours,'target_count':len(x),'features':data['feature_names'],'feature_caveats':'Camera shutter/gain values are categorical raw device codes, not calibrated exposure measurements. Campaign one-hot may act as a proxy for acquisition conditions. Igniter on-time is exact-run event-summary metadata, not measured delivered energy.','dataset_root':str(EXPANDED_ROOT),'manifest_sha256':hashlib.sha256((EXPANDED_ROOT/'manifest.json').read_bytes()).hexdigest(),'evidence_sha256':evidence_hash,'target_ids':data['groups'].tolist(),'split_ids':{k:data['groups'][v].tolist() for k,v in splits.items()},'selection':'validation foreground-weighted MAE; test split evaluated after training','reference_pool':'train only; self-run excluded','model':'small retrieval-conditioned CNN; query, reference features, feature difference, and reference image'}
     (OUT/'run.json').write_text(json.dumps(metadata,indent=2))
     run_no=0
     while time.monotonic()<deadline and run_no<seed_count:
