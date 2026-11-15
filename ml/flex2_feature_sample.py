@@ -176,7 +176,7 @@ def audit():
     (REPORTS/'flex2-feature-sample.json').write_text(json.dumps(report,indent=2)+'\n')
     columns=['run','category','catalog_fuel','configuration','event_run_verified','settings_run_verified']+list(feature_summary)
     with (REPORTS/'flex2-feature-sample.csv').open('w',newline='') as stream:
-        writer=csv.DictWriter(stream,fieldnames=columns,extrasaction='ignore');writer.writeheader()
+        writer=csv.DictWriter(stream,fieldnames=columns,extrasaction='ignore',lineterminator='\n');writer.writeheader()
         for r in records:writer.writerow(dict(r,**r['features']))
     print(json.dumps(dict(sample=report['sample'],source_counts=report['source_counts'],feature_summary=feature_summary,total_metadata_bytes=report['total_metadata_bytes']),indent=2))
 
