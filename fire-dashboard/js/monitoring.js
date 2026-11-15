@@ -90,6 +90,17 @@
     const co2 = latest.co2_ppm;
     if (co !== null && co > T.co_ppm.serious) add("serious", "Carbon monoxide above the NIOSH ceiling", `CO is ${r1(co)} ppm (ceiling ${T.co_ppm.serious} ppm). Breathing hazard.`, "co_ppm");
     else if (co !== null && co > T.co_ppm.warning) add("warning", "Carbon monoxide above the NIOSH exposure limit", `CO is ${r1(co)} ppm (limit ${T.co_ppm.warning} ppm, 8-hour average).`, "co_ppm");
+    // Flammable gas and oxygen levels in the latest reading.
+    for (const [id, gas, name] of [["h2_ppm", "h2", "Hydrogen"], ["ch4_ppm", "ch4", "Methane"]]) {
+      const x = latest[id];
+      if (x === null) continue;
+      const share = x / (T.lfl_pct[gas] * 10000);
+      if (share >= T.lfl_critical_share) add("critical", `${name} near flammable concentration`, `${name} is ${Math.round(x)} ppm, ${r1(share * 100)}% of its lower flammability limit.`, id);
+      else if (share >= T.lfl_warning_share) add("warning", `${name} elevated`, `${name} is ${Math.round(x)} ppm, ${r1(share * 100)}% of its lower flammability limit.`, id);
+    }
+    const o2Now = latest.o2_pct;
+    if (o2Now !== null && T.o2_enriched_pct && o2Now > T.o2_enriched_pct) add("serious", "Oxygen-enriched air", `O₂ is ${r1(o2Now)}%, above ${T.o2_enriched_pct}%: materials ignite more easily and burn faster.`, "o2_pct");
+    else if (o2Now !== null && T.o2_deficient_pct && o2Now < T.o2_deficient_pct) add("warning", "Oxygen-deficient air", `O₂ is ${r1(o2Now)}%, below ${T.o2_deficient_pct}%.`, "o2_pct");
     if (co2 !== null && co2 > T.co2_ppm.serious) add("serious", "Carbon dioxide above the NIOSH short-term limit", `CO₂ is ${Math.round(co2)} ppm.`, "co2_ppm");
     else if (co2 !== null && co2 > T.co2_ppm.warning) add("warning", "Carbon dioxide above the NIOSH exposure limit", `CO₂ is ${Math.round(co2)} ppm.`, "co2_ppm");
 
@@ -228,18 +239,45 @@
     return { pattern: result.pattern, ratio, items };
   }
 
-  // Illustrative scenario: steady cabin air, then smouldering, then flames.
-  // Synthetic numbers for demonstrations, not NASA measurements.
-  function demoSequence(start = Date.now() - 11 * 5 * 60000, intervalMin = 5) {
-    const steps = [
-      [1, 450, 20.9, 22.0], [1, 455, 20.9, 22.0], [1.2, 450, 20.9, 22.1], [1.1, 460, 20.9, 22.0],
-      [4, 470, 20.9, 22.1], [9, 490, 20.9, 22.2], [16, 520, 20.9, 22.3], [26, 620, 20.85, 22.6],
-      [40, 950, 20.7, 23.5], [70, 1400, 20.5, 27], [130, 2100, 20.2, 38], [210, 3200, 19.9, 52],
-    ];
-    return steps.map(([co, co2, o2, temp], i) => ({
+  // Demo scenarios: 12 readings each. Synthetic numbers for demonstrations and
+  // testing, not NASA measurements. Each step is [CO ppm, CO₂ ppm, O₂ %, temp °C, H₂ ppm].
+  const DEMOS = {
+    flaming: {
+      label: "Smouldering turning into flames",
+      summary: "steady air, then CO rises without heat (smouldering), then heat and CO₂ jump (flames)",
+      steps: [
+        [1, 450, 20.9, 22.0, 0.5], [1, 455, 20.9, 22.0, 0.5], [1.2, 450, 20.9, 22.1, 0.5], [1.1, 460, 20.9, 22.0, 0.5],
+        [4, 470, 20.9, 22.1, 0.5], [9, 490, 20.9, 22.2, 0.5], [16, 520, 20.9, 22.3, 0.5], [26, 620, 20.85, 22.6, 0.5],
+        [45, 1100, 20.6, 24, 0.5], [95, 2400, 20.1, 31, 0.5], [190, 4800, 19.4, 46, 0.5], [320, 7500, 18.6, 68, 0.5],
+      ],
+    },
+    smoulder: {
+      label: "Smouldering with no flame",
+      summary: "CO climbs steadily for an hour with little heat or CO₂: something is smouldering",
+      steps: [
+        [1, 450, 20.9, 22.0, 0.5], [1.1, 452, 20.9, 22.0, 0.5], [1, 455, 20.9, 22.0, 0.5], [3, 465, 20.9, 22.1, 0.5],
+        [8, 480, 20.9, 22.1, 0.5], [14, 500, 20.9, 22.2, 0.5], [21, 520, 20.89, 22.3, 0.5], [28, 545, 20.88, 22.4, 0.5],
+        [40, 580, 20.87, 22.5, 0.5], [65, 640, 20.85, 22.7, 0.5], [100, 720, 20.82, 22.9, 0.5], [150, 820, 20.8, 23.2, 0.5],
+      ],
+    },
+    leak: {
+      label: "Oxygen and hydrogen leak",
+      summary: "no combustion gases, but O₂ and H₂ build up: a leak that makes a fire more likely",
+      steps: [
+        [1, 450, 20.9, 22.0, 0.5], [1, 452, 20.9, 22.0, 0.5], [1, 450, 21.2, 22.0, 50], [1, 455, 22.0, 22.0, 1500],
+        [1, 452, 22.9, 22.0, 4000], [1, 455, 23.8, 22.0, 7000], [1.1, 450, 24.7, 22.1, 10500], [1, 455, 25.6, 22.0, 14000],
+        [1, 452, 26.5, 22.0, 18000], [1, 450, 27.4, 22.1, 22000], [1, 455, 28.3, 22.0, 26000], [1.1, 452, 29.2, 22.0, 30000],
+      ],
+    },
+  };
+
+  // Readings for one demo, ending at about `start + 11 intervals`.
+  function demoSequence(start = Date.now() - 11 * 5 * 60000, intervalMin = 5, id = "flaming") {
+    const demo = DEMOS[id] || DEMOS.flaming;
+    return demo.steps.map(([co, co2, o2, temp, h2], i) => ({
       t: start + i * intervalMin * 60000,
       co_ppm: co, co2_ppm: co2, o2_pct: o2, internal_temp_c: temp,
-      humidity_pct: 45, h2_ppm: 0.5, ch4_ppm: 1.9, pressure_kpa: 101.3,
+      humidity_pct: 45, h2_ppm: h2, ch4_ppm: 1.9, pressure_kpa: 101.3,
     }));
   }
 
@@ -278,5 +316,5 @@
     return normalise(out);
   }
 
-  window.Monitoring = { FIELDS, detect, demoSequence, parseReadingsCsv, normalise, ratePerInterval, bassCoRatios, observedCoRatio, suspectMaterials };
+  window.Monitoring = { FIELDS, DEMOS, detect, demoSequence, parseReadingsCsv, normalise, ratePerInterval, bassCoRatios, observedCoRatio, suspectMaterials };
 })();

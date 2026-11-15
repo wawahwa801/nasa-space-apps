@@ -23,6 +23,12 @@ is sent over the network unless you click **Generate insight** (below). Click
 - **Help and checks:** click a field to see what it is used for. Values outside a
   sensible range (for example O₂ above 100%) are marked and ignored until corrected.
 - **Progress:** each section heading shows how many of its fields are filled.
+- **Test data:** **Load example** has three scenarios (`EXAMPLE_INPUTS` in `js/parameters.js`): an
+  ISS-like cabin, an exploration habitat at 8.2 psia with 34% O₂, and degraded monitoring with fuel
+  and oxidizer leaks. **Play demo** has three live-monitoring demos (`DEMOS` in `js/monitoring.js`):
+  smouldering turning into flames, smouldering with no flame, and an oxygen and hydrogen leak. The
+  same demos are in `data/sample-readings/*.csv` for testing **Import readings CSV**; regenerate them
+  with `node fire-dashboard/scripts/make_sample_readings.cjs`. All of these are synthetic.
 - **Hide and collapse sections:** click a section title to collapse it, or use **Sections** above the
   results to hide sections entirely (**Expand all**, **Collapse all**, **Show all** and **Reset view** are
   there too). Results are grouped into *Current conditions* and *Compared with NASA experiments*; the

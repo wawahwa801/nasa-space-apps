@@ -1825,3 +1825,54 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
   width: 76px;
   text-align: left;
 }
+
+/* Parameters panel tucked to the side. One triangle tab: on the panel's right
+   edge when open (◀ hides it), on the screen's left edge when hidden (▶). */
+.app-shell { --pp-left: 16px; --pp-width: min(430px, calc(100vw - 32px)); }
+@media (min-width: 1200px) { .app-shell { --pp-width: 320px; } }
+@media (max-width: 720px) { .app-shell { --pp-left: 12px; --pp-width: calc(100vw - 24px - 26px); } }
+.parameter-panel { left: var(--pp-left); width: var(--pp-width); }
+.parameters-tab {
+  position: fixed;
+  z-index: 46;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 64px;
+  padding: 0;
+  border: 1px solid #263140;
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+  background: #101720f5;
+  color: #e7b18e;
+  box-shadow: 0 8px 24px #0006;
+  cursor: pointer;
+}
+.parameters-tab.is-open { left: calc(var(--pp-left) + var(--pp-width) - 1px); }
+.parameters-tab:hover { background: #172130; color: #f2c4a5; }
+.parameters-tab:focus-visible { outline: 2px solid #e7b18e; outline-offset: 2px; }
+.parameters-tab-arrow { font-size: 12px; line-height: 1; }
+/* Slide in and out the same way: the panel stays rendered while closed
+   (hidden with visibility, so it leaves the tab order) and slides off to the left. */
+.parameter-panel,
+.parameter-panel.parameters-open { display: block; }
+.parameter-panel {
+  transform: translateX(calc(-100% - var(--pp-left) - 4px));
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.24s ease, opacity 0.24s ease, visibility 0s linear 0.24s;
+}
+.parameter-panel.parameters-open {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.24s ease, opacity 0.24s ease, visibility 0s;
+}
+.parameters-tab { transition: left 0.24s ease, background-color 0.15s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .parameter-panel, .parameter-panel.parameters-open, .parameters-tab { transition: none; }
+}
+.comparison-actions .example-select { width: auto; cursor: pointer; }

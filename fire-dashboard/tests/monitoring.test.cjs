@@ -106,3 +106,38 @@ test('which listed material could be burning: smouldering favours cotton, flamin
   assert.equal(rank(3), null);
   assert.equal(suspectMaterials(detect(seq, T, seq[11].t + MIN), seq, [], profiles, ratios), null);
 });
+
+test('the two extra demos: smouldering without flames, and an O2 / H2 leak', () => {
+  const at = (id, n) => { const s = demoSequence(0, 5, id); return detect(s.slice(0, n), T, s[n - 1].t + MIN); };
+  assert.equal(at('smoulder', 4).level, 'good');
+  const sm = at('smoulder', 12);
+  assert.equal(sm.pattern, 'smouldering');
+  assert.notEqual(sm.level, 'critical'); // never reaches a flaming fire
+  const leak = at('leak', 12);
+  assert.equal(leak.pattern, null); // no combustion
+  assert.ok(titles(leak).includes('Hydrogen accumulating'));
+  assert.ok(titles(leak).includes('Oxygen rising'));
+});
+
+test('sample readings CSVs import to the same readings as their demos', () => {
+  const { readdirSync } = require('node:fs');
+  const dir = require('node:path').join(__dirname, '../data/sample-readings');
+  const files = readdirSync(dir).filter((f) => f.endsWith('.csv'));
+  assert.deepEqual(files.sort(), Object.keys(context.Monitoring.DEMOS).map((id) => `${id}.csv`).sort());
+  for (const f of files) {
+    const [head, ...lines] = readFileSync(require('node:path').join(dir, f), 'utf8').trim().split('\n');
+    const rows = parseReadingsCsv(lines.map((l) => l.split(',')), head.split(','), 0);
+    const demo = demoSequence(0, 5, f.replace('.csv', ''));
+    assert.equal(rows.length, 12);
+    assert.deepEqual(JSON.parse(JSON.stringify(rows)), JSON.parse(JSON.stringify(demo)));
+  }
+});
+
+test('latest readings: flammable gas and oxygen levels are flagged, not only trends', () => {
+  const r = run(series([{ co_ppm: 1, h2_ppm: 11000, o2_pct: 24 }, { co_ppm: 1, h2_ppm: 11000, o2_pct: 24 }]));
+  assert.ok(titles(r).includes('Hydrogen near flammable concentration'));
+  assert.ok(titles(r).includes('Oxygen-enriched air'));
+  assert.equal(r.level, 'critical');
+  const leak = demoSequence(0, 5, 'leak');
+  assert.equal(detect(leak, T, leak[11].t + MIN).level, 'critical');
+});

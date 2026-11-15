@@ -582,17 +582,18 @@
     if (b) b.textContent = "Play demo";
   }
 
-  function playDemo() {
+  function playDemo(id = "flaming") {
     if (demoTimer) { stopDemo(); monNote("Demo stopped."); return; }
     if (readings.length && !window.confirm("Replace the current readings with the demo sequence?")) return;
-    const seq = MON.demoSequence(Date.now() - 11 * monInterval * 60000, monInterval);
+    const demo = MON.DEMOS[id] || MON.DEMOS.flaming;
+    const seq = MON.demoSequence(Date.now() - 11 * monInterval * 60000, monInterval, id);
     readings = [];
     saveReadings();
     let i = 0;
     const step = () => {
-      if (i >= seq.length) { stopDemo(); monNote("Demo finished: 12 synthetic readings, smouldering turning into flames."); return; }
+      if (i >= seq.length) { stopDemo(); monNote(`Demo finished: ${demo.label.toLowerCase()} (12 synthetic readings).`); return; }
       addReading(seq[i++]);
-      monNote(`Demo: reading ${i} of ${seq.length} (each is ${monInterval} min apart, played every 1.5 s).`);
+      monNote(`Demo "${demo.label}": reading ${i} of ${seq.length} (each is ${monInterval} min apart, played every 1.5 s). ${demo.summary}.`);
     };
     step();
     demoTimer = setInterval(step, 1500);
@@ -1317,7 +1318,14 @@
     $("#input-form").addEventListener("change", scheduleUpdate);
     $("#input-form").addEventListener("submit", (e) => e.preventDefault());
     const status = (msg) => { $("#input-status").textContent = msg; };
-    const loadExample = () => { writeValues(window.EXAMPLE_INPUT); update(); status("Example loaded. Change any value to see the dashboard update."); };
+    const examples = window.EXAMPLE_INPUTS || [{ id: "default", label: "Example", values: window.EXAMPLE_INPUT }];
+    $("#example-pick").innerHTML = examples.map((x) => `<option value="${esc(x.id)}">${esc(x.label)}</option>`).join("");
+    const loadExample = () => {
+      const ex = examples.find((x) => x.id === $("#example-pick").value) || examples[0];
+      writeValues(ex.values);
+      update();
+      status(`Example loaded: ${ex.label}. Change any value to see the dashboard update.`);
+    };
     $("#load-example").addEventListener("click", loadExample);
     $("#flags").addEventListener("click", (e) => {
       if (e.target.closest("[data-action=example]")) {
@@ -1428,7 +1436,21 @@
     });
     $("#mon-record-now").addEventListener("click", () => recordReading(false));
     $("#mon-record-next").addEventListener("click", () => recordReading(true));
-    $("#mon-demo").addEventListener("click", playDemo);
+    $("#mon-demo-list").innerHTML = Object.entries(MON.DEMOS)
+      .map(([id, d]) => `<button type="button" class="secondary demo-option" data-demo="${id}"><strong>${esc(d.label)}</strong><small>${esc(d.summary)}</small></button>`).join("");
+    // While a demo plays the button stops it instead of opening the list.
+    $("#mon-demo").addEventListener("click", (e) => {
+      if (!demoTimer) return;
+      e.preventDefault();
+      stopDemo();
+      monNote("Demo stopped.");
+    });
+    $("#mon-demo-list").addEventListener("click", (e) => {
+      const id = e.target.closest("[data-demo]")?.dataset.demo;
+      if (!id) return;
+      $("#mon-demo-menu").open = false;
+      playDemo(id);
+    });
     $("#mon-clear").addEventListener("click", () => {
       if (readings.length && !window.confirm(`Clear all ${readings.length} readings?`)) return;
       stopDemo();

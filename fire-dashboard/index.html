@@ -20,6 +20,7 @@
     <aside class="panel inputs" id="inputs" aria-label="Inputs">
       <div class="toolbar">
         <button type="button" id="load-example">Load example</button>
+        <select id="example-pick" aria-label="Example to load"></select>
         <button type="button" id="export" class="secondary">Export</button>
         <label class="file-btn secondary">Import<input id="import-file" type="file" accept=".json,application/json"></label>
         <button type="button" id="clear-inputs" class="secondary">Clear</button>
@@ -55,7 +56,10 @@
         <div class="mon-toolbar">
           <button type="button" id="mon-record-now">Record reading now</button>
           <button type="button" id="mon-record-next" class="secondary">Record next (+5 min)</button>
-          <button type="button" id="mon-demo" class="secondary">Play demo</button>
+          <details class="menu" id="mon-demo-menu">
+            <summary class="menu-btn" id="mon-demo">Play demo</summary>
+            <div class="menu-body" id="mon-demo-list"></div>
+          </details>
           <details class="menu">
             <summary class="menu-btn">More</summary>
             <div class="menu-body">
