@@ -410,7 +410,7 @@
       { key: "o2_pct", title: "Oxygen", unit: "%", ref: has(v.o2_pct) ? v.o2_pct : null },
       { key: "co2_pct", title: "Carbon dioxide", unit: "%", ref: has(v.co2_ppm) ? v.co2_ppm / 10000 : null },
       { key: "pressure_kpa", title: "Pressure", unit: "kPa", ref: has(v.pressure_kpa) ? v.pressure_kpa : null },
-      { key: "plume_max_c", title: "Hottest plume thermocouple", unit: "°C", ref: has(v.internal_temp_c) ? v.internal_temp_c : null, refName: "Your internal temp" },
+      { key: "plume_max_c", title: "Hottest plume thermocouple (not cabin air)", unit: "°C" },
     ];
     $("#saffire-charts").innerHTML = panels.map((p) => `<figure class="mini"><figcaption>${p.title} <span class="muted">(${p.unit})</span></figcaption><div class="chart" id="saffire-${p.key}"></div></figure>`).join("");
     for (const p of panels) {
