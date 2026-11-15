@@ -352,7 +352,93 @@ export default function Home() {
                     </div>
                     <span className="preview-badge">Preview</span>
                   </div>
-                  <HybridSimulation key={retrievalSession} onResult={setAppliedHybrid} onStarted={() => {setParametersOpen(false);}} />
+                  <div className={`flame-stage ${paused ? "paused" : ""}`} style={{ "--playback-speed": speed }} key={animationKey}>
+                    <svg className="ember-particles" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                      <defs><radialGradient id="particle-glow"><stop stopColor="#f35b25" stopOpacity=".28" /><stop offset="1" stopColor="#f35b25" stopOpacity="0" /></radialGradient></defs>
+                      <ellipse cx="300" cy="165" rx="250" ry="130" fill="url(#particle-glow)" />
+                      {Array.from({ length: 180 }, (_, i) => {
+                        const x = (i * 137.508) % 600;
+                        const spread = ((i * 79) % 100) / 100;
+                        const y = 155 + Math.sin(x / 85) * 38 + (spread - .5) * (50 + 95 * Math.abs(x - 300) / 300);
+                        // Round so server (Node) and browser Math.sin agree; avoids a hydration mismatch.
+                        const round = (v) => Math.round(v * 100) / 100;
+                        return <circle key={i} cx={round(x)} cy={round(y)} r={i % 13 === 0 ? 1.5 : .65} fill={i % 4 === 0 ? "#ffad64" : "#e6542d"} opacity={round(.2 + (i % 5) * .1)} />;
+                      })}
+                    </svg>
+
+                    <div className="field-annotations" aria-label="Current flame scenario inputs">
+                      <div className="field-annotation annotation-oxygen"><span>ATMOSPHERE / O₂</span><strong>{values.oxygen}<small> %</small></strong><i /></div>
+                      <div className="field-annotation annotation-pressure"><span>AMBIENT PRESSURE</span><strong>{values.pressure}<small> kPa</small></strong><i /></div>
+                      <div className="field-annotation annotation-airflow"><span>AIRFLOW</span><strong>{values.flow}<small> m/s</small></strong><i /></div>
+                      <div className="field-annotation annotation-gravity"><span>GRAVITY</span><strong>{values.gravity}<small> g</small></strong><i /></div>
+                    </div>
+                    <svg
+                      viewBox="0 0 400 250"
+                      role="img"
+                      aria-label="Decorative flame illustration; not a calculated flame prediction"
+                      className="flame-art"
+                    >
+                      <defs>
+                        <linearGradient id="flame-fill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0" stopColor="#ff9a43" />
+                          <stop offset=".38" stopColor="#ff9359" />
+                          <stop offset=".61" stopColor="#b475a2" />
+                          <stop offset=".82" stopColor="#287cc4" />
+                          <stop offset="1" stopColor="#2445ad" stopOpacity=".7" />
+                        </linearGradient>
+                        <linearGradient id="flame-rim" x1="0" y1="0" x2="0" y2="1">
+                          <stop stopColor="#2449ce" />
+                          <stop offset=".55" stopColor="#359df1" />
+                          <stop offset="1" stopColor="#4bb9f4" stopOpacity=".65" />
+                        </linearGradient>
+                        <filter id="flame-soft" x="-30%" y="-25%" width="160%" height="150%">
+                          <feGaussianBlur stdDeviation="4" />
+                        </filter>
+                        <filter id="flame-glow" x="-50%" y="-40%" width="200%" height="180%">
+                          <feGaussianBlur stdDeviation="9" />
+                        </filter>
+                      </defs>
+                      <g className="flame-shape">
+                        <path
+                          className="flame-aura"
+                          d="M146 218C130 191 126 162 132 131C140 87 165 49 200 48C235 49 260 87 268 131C274 162 270 191 254 218Z"
+                          fill="#1d65e8"
+                          opacity=".55"
+                          filter="url(#flame-glow)"
+                        />
+                        <path
+                          className="flame-core"
+                          d="M146 216C132 191 129 163 135 133C143 91 168 53 200 53C232 53 257 91 265 133C271 163 268 191 254 216Z"
+                          fill="url(#flame-fill)"
+                          stroke="url(#flame-rim)"
+                          strokeWidth="9"
+                          filter="url(#flame-soft)"
+                        />
+                        <path
+                          className="flame-edge"
+                          d="M147 211C132 182 133 152 140 130M253 211C268 182 267 152 260 130"
+                          fill="none"
+                          stroke="#50bcff"
+                          strokeWidth="3"
+                          opacity=".65"
+                          filter="url(#flame-soft)"
+                        />
+                      </g>
+                    </svg>
+
+                  </div>
+                  <div className="card-footer">
+                    <span>{values.fuel}</span>
+                    <div className="playback-controls"><label>Speed <select value={speed} onChange={e => setSpeed(Number(e.target.value))} aria-label="Animation playback speed"><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option></select></label>
+                    <button className="text-button" type="button" onClick={() => { setAnimationKey(k => k + 1); setPaused(false); }}>Restart</button>
+                    <button
+                      className="text-button"
+                      aria-pressed={paused}
+                      onClick={() => setPaused(!paused)}
+                    >
+                      {paused ? "Play" : "Pause"}
+                    </button></div>
+                  </div>
                 </section>
               )}
             </div>
@@ -389,8 +475,7 @@ export default function Home() {
 
               </div>
             </div>
-            <div id="hybrid-controls" />
-            <details className="hybrid-comparison-settings"><summary>NASA comparison parameters</summary><form id="scenario-form" onSubmit={preview}>
+            <form id="scenario-form" onSubmit={preview}>
               <div className="field-section">
                 <span className="field-section-title">
                   Atmospheric conditions
@@ -514,7 +599,7 @@ export default function Home() {
                   Reset
                 </button>
               </div>
-            </form></details>
+            </form>
           </section>
 
           <section
