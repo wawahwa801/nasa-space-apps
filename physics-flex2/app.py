@@ -4,6 +4,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from pathlib import Path
 from model import INDEX, fit, predict, records
+from rooms import example, simulate
 
 
 def main():
@@ -37,13 +38,17 @@ def main():
         def do_GET(self):
             if self.path == '/':
                 self.reply(200, Path(__file__).with_name('index.html').read_bytes(), 'text/html; charset=utf-8')
+            elif self.path in ('/spaceship', '/spaceship/'):
+                self.reply(200, Path(__file__).with_name('spaceship.html').read_bytes(), 'text/html; charset=utf-8')
+            elif self.path == '/api/rooms/example':
+                self.reply(200, example())
             elif self.path == '/api/runs':
                 self.reply(200, dict(records=records(), fitted=fitted is not None))
             else:
                 self.reply(404, {'error': 'Not found'})
 
         def do_POST(self):
-            if self.path != '/api/predict':
+            if self.path not in ('/api/predict', '/api/rooms/simulate'):
                 self.reply(404, {'error': 'Not found'})
                 return
             try:
@@ -51,7 +56,8 @@ def main():
                 if not 0 < size <= 16000:
                     raise ValueError('Expected JSON body of at most 16000 bytes')
                 query = json.loads(self.rfile.read(size))
-                self.reply(200, predict(query, fitted))
+                result = simulate(query, fitted) if self.path == '/api/rooms/simulate' else predict(query, fitted)
+                self.reply(200, result)
             except (ValueError, KeyError, TypeError, AttributeError) as exc:
                 self.reply(400, {'error': str(exc)})
 
