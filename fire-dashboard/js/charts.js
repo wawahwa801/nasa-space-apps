@@ -42,6 +42,15 @@
     return v.toLocaleString(undefined, { maximumSignificantDigits: 3 });
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   // Tick labels show as many decimals as the tick spacing needs.
   function tickFmt(v, ticks) {
     const step = ticks.length > 1 ? Math.abs(ticks[1] - ticks[0]) : 1;
@@ -198,7 +207,7 @@
       dot.setAttribute("cx", sx(best[0]));
       dot.setAttribute("cy", sy(best[1]));
       dot.setAttribute("visibility", "visible");
-      showTip(`<strong>${fmt(best[1])} ${opts.unit || ""}</strong><br>${opts.xLabel}: ${fmt(best[0])}`, e.clientX, e.clientY);
+      showTip(`<strong>${fmt(best[1])} ${opts.unit || ""}</strong><br>${escapeHtml(opts.xLabel)}: ${fmt(best[0])}`, e.clientX, e.clientY);
     });
     hit.addEventListener("mouseleave", () => {
       cross.setAttribute("visibility", "hidden");

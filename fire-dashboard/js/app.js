@@ -566,7 +566,6 @@
   const scheduleUpdate = () => { clearTimeout(timer); timer = setTimeout(update, 150); };
 
   function init() {
-    try { localStorage.removeItem("fd.customParams"); } catch { /* storage unavailable */ }
     renderForm();
     writeValues(load(STORE.values, {}));
     renderDatasets();
