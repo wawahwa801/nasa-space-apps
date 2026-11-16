@@ -14,6 +14,10 @@ const MODULES = ["Forward dock", "Cargo", "Habitat node", "Station core", "Scien
   "Command", "Crew quarters", "Medical", "EVA airlock", "Life support", "Engineering", "Power systems", "Greenhouse"];
 
 export function HybridSimulation({ controlsContainerId, title = "Room simulation" }) {
+  // The Flame tab portals its controls into the Parameters panel and shows only the
+  // flame; the room map, room inputs, Simulate and its AI explanation live on the
+  // Room simulation tab, so the spread simulation appears in one place.
+  const showRooms = !controlsContainerId;
   const controlId = useId();
   const workspaceRef = useRef(null);
   const [controlsContainer, setControlsContainer] = useState(null);
@@ -125,7 +129,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
         if (!active) return;
         setInfo(data);
         setControls({ run: data.runs[0].id, ...data.runs[0].values });
-        setStatus("Choose model conditions, then Simulate.");
+        setStatus(showRooms ? "Choose model conditions, then Simulate." : "Choose model conditions; the flame preview updates live.");
       })
       .catch(() => {
         if (!active) return;
@@ -178,7 +182,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
     setFrame(0);
     setDisplayTime(null);
     playTime.current=0;
-    setStatus("Inputs changed. Press Simulate to run.");
+    setStatus(showRooms ? "Inputs changed. Press Simulate to run." : "Choose model conditions; the flame preview updates live.");
   }
   function change(key, value) {
     invalidate();
@@ -278,6 +282,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                   </select>
                 </label>
               ))}
+              {showRooms && <>
               <label>Image scale (mm/pixel, visual only)
                 <input type="number" min="0.0001" max="0.1" step="0.001" value={scale} onChange={(e) => { invalidate(); setScale(Number(e.target.value)); }} />
               </label>
@@ -288,6 +293,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                 </select>
               </label>
               <button type="submit" disabled={busy}>{busy ? "Simulating…" : "Simulate"}</button>
+              </>}
             </>
           ) : (
             <p className="hybrid-muted">Controls appear once the model service responds.</p>
@@ -314,7 +320,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
         {controlsContainerId ? (controlsContainer && createPortal(modelControls, controlsContainer)) : editing ? roomEditor : modelControls}
 
         <div className="hybrid-results">
-          {!preview && !result && <p className="hybrid-muted">The generated flame appears here; Simulate shows how fire spreads between modules.</p>}
+          {!preview && !result && <p className="hybrid-muted">{showRooms ? "The generated flame appears here; Simulate shows how fire spreads between modules." : "The generated flame appears here."}</p>}
           {preview && (
             <>
               <div className="hybrid-flame">
@@ -350,6 +356,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
               )}
             </>
           )}
+          {showRooms && <>
           {environment && <div className="room-environment-tools"><button type="button" aria-expanded={editing} onClick={()=>setEditing(v=>!v)}>{editing?'Close environment editor':'Edit environment'}</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}
           <div className={`room-workspace ${editing?'is-editing':''}`}>
 
@@ -371,10 +378,11 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
           <p className="hybrid-muted">
             Dimensioned thermal-network scenarios with assumed growth, fuel load and transfer. These are sensitivity ranges, not calibrated spacecraft predictions; ventilation, smoke and oxygen depletion are not solved.
           </p>
+          </>}
         </div>
       </div>
 
-      <LlmInsights scenario={applied} />
+      {showRooms && <LlmInsights scenario={applied} />}
     </section>
   );
 }
