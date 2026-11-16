@@ -13,7 +13,8 @@ from database.registry import ModelRegistry
 def isolate_environment(monkeypatch):
     monkeypatch.setattr(app_module, 'load_dotenv', lambda *args: None)
     monkeypatch.setenv('LLM_PROVIDER', 'mock')
-    monkeypatch.delenv('DATABASE_URL', raising=False)
+    for key in ('DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_SSLMODE', 'DB_SSLROOTCERT'):
+        monkeypatch.delenv(key, raising=False)
 
 
 @pytest.fixture
@@ -55,12 +56,12 @@ def registry():
                 row[key] = datetime.fromisoformat(row[key])
             return row
 
-    def connect(url, **kwargs):
+    def connect(**kwargs):
         assert kwargs['connect_timeout'] == 5
         assert 'statement_timeout=5000' in kwargs['options']
         return Connection()
 
-    yield ModelRegistry('postgresql://test-only', connect=connect)
+    yield ModelRegistry(dict(host='localhost', port='5432', dbname='pyroclast', user='reader', password='test-only'), connect=connect)
     db.close()
 
 
@@ -102,8 +103,38 @@ def test_missing_configuration_keeps_health_available():
 def test_connection_failure_does_not_expose_credentials():
     def fail(*args, **kwargs):
         raise psycopg.OperationalError('password=secret internal-db.example')
-    registry = ModelRegistry('postgresql://secret', connect=fail)
+    registry = ModelRegistry(dict(host='localhost', port='5432', dbname='pyroclast', user='reader', password='secret'), connect=fail)
     client = app_module.create_app(model_registry=registry).test_client()
     response = client.get('/api/models/latest')
     assert response.status_code == 503
     assert b'secret' not in response.data and b'internal-db' not in response.data
+
+
+@pytest.mark.parametrize('port', ['f', '0', '65536', ''])
+def test_invalid_port_never_connects(port):
+    def forbidden(**kwargs): raise AssertionError('Must not connect')
+    from database.registry import RegistryUnavailable
+    registry = ModelRegistry(dict(host='localhost', port=port, dbname='pyroclast', user='reader', password='secret'), connect=forbidden)
+    with pytest.raises(RegistryUnavailable): registry.latest('flex2')
+
+
+def test_route_uses_separate_environment_fields_and_raw_password(monkeypatch):
+    for key, value in dict(DB_HOST='db.example', DB_PORT='5433', DB_NAME='pyroclast', DB_USER='reader', DB_PASSWORD='p@ss:/?#%word').items():
+        monkeypatch.setenv(key, value)
+    captured = {}
+    class Connection:
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def execute(self, *args): return self
+        def fetchone(self): return None
+    def connect(**kwargs):
+        captured.update(kwargs)
+        return Connection()
+    monkeypatch.setattr(psycopg, 'connect', connect)
+    client = app_module.create_app().test_client()
+    assert client.get('/api/models/latest').status_code == 404
+    assert captured['host'] == 'db.example'
+    assert captured['port'] == 5433
+    assert captured['dbname'] == 'pyroclast'
+    assert captured['user'] == 'reader'
+    assert captured['password'] == 'p@ss:/?#%word'

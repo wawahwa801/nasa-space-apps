@@ -32,7 +32,15 @@ def create_app(service: AnalysisService | None = None, model_registry=None) -> F
     def health():
         return jsonify(status="Connected", service="project-api")
 
-    registry = model_registry if model_registry is not None else ModelRegistry(os.getenv("DATABASE_URL"))
+    registry = model_registry if model_registry is not None else ModelRegistry({
+        "host": os.getenv("DB_HOST"),
+        "port": os.getenv("DB_PORT", "5432"),
+        "dbname": os.getenv("DB_NAME"),
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASSWORD"),
+        **({"sslmode": os.environ["DB_SSLMODE"]} if os.getenv("DB_SSLMODE") else {}),
+        **({"sslrootcert": os.environ["DB_SSLROOTCERT"]} if os.getenv("DB_SSLROOTCERT") else {}),
+    })
 
     @app.get("/api/models/latest")
     def latest_model():

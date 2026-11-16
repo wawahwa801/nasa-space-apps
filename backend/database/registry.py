@@ -17,15 +17,22 @@ class RegistryUnavailable(Exception):
 
 
 class ModelRegistry:
-    def __init__(self, database_url, connect=None):
-        self.database_url = database_url
+    def __init__(self, connection_params, connect=None):
+        self.connection_params = dict(connection_params or {})
         self.connect = connect or psycopg.connect
 
     def latest(self, model_name):
-        if not self.database_url:
+        params = self.connection_params.copy()
+        if any(params.get(key) in (None, "") for key in ("host", "port", "dbname", "user", "password")):
             raise RegistryUnavailable('Database is not configured')
         try:
-            with self.connect(self.database_url, row_factory=dict_row,
+            params["port"] = int(params["port"])
+            if not 1 <= params["port"] <= 65535:
+                raise ValueError
+        except (TypeError, ValueError):
+            raise RegistryUnavailable('Database port is invalid') from None
+        try:
+            with self.connect(**params, row_factory=dict_row,
                               connect_timeout=5, options='-c statement_timeout=5000') as conn:
                 conn.read_only = True
                 row = conn.execute(LATEST_MODEL_SQL, (model_name,)).fetchone()

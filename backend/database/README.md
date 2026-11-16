@@ -39,10 +39,21 @@ Expected: true, false, false, false. Existing PUBLIC or inherited grants can aff
 
 Install the backend requirements. If `backend/.env` does not exist, copy
 `backend/.env.example` to it. Otherwise preserve your existing settings and add
-`DATABASE_URL` with your database connection string. Use an actual
+these settings (no connection URL or URL-encoding needed):
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=pyroclast
+DB_USER=your_app_login
+DB_PASSWORD=YOUR_PASSWORD
+```
+
+`DB_PORT` must be an integer from 1 to 65535; it defaults to 5432 if omitted.
+The other fields are required. `DATABASE_URL` is no longer used. Use an actual
 LOGIN user granted `pyroclast_model_reader`; the permission group itself cannot
 log in. Keep this setting on the server, never in `NEXT_PUBLIC_*` or Git. For a
-remote deployment use verified TLS (`sslmode=verify-full` and the database
+remote deployment use verified TLS (`DB_SSLMODE=verify-full` and `DB_SSLROOTCERT` pointing to the database
 provider's CA certificate).
 
 Start the backend and request:
