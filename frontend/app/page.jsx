@@ -272,7 +272,6 @@ export default function Home() {
   const [sliderUnits, setSliderUnits] = useState({});
   const [, setSnapshot] = useState(null);
   const [error, setError] = useState("");
-  const [view, setView] = useState("flame");
   const [retrievalSession, setRetrievalSession] = useState(0);
   const update = (key, value) => {
     setValues((v) => ({ ...v, [key]: value }));
@@ -346,33 +345,6 @@ export default function Home() {
     setSnapshot(next);
     setError("");
   }
-  const nav = [
-    ["flame", "Simulation", "flame"],
-    ["insights", "AI insights", "chat"],
-  ];
-  function changeView(next) {
-    setView(next);
-    window.scrollTo({ top: 0, behavior: "instant" });
-    if (next === "flame")
-      requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
-  }
-  function handleViewKey(event, key) {
-    const index = nav.findIndex(([id]) => id === key);
-    const next =
-      event.key === "ArrowRight"
-        ? (index + 1) % nav.length
-        : event.key === "ArrowLeft"
-          ? (index + nav.length - 1) % nav.length
-          : event.key === "Home"
-            ? 0
-            : event.key === "End"
-              ? nav.length - 1
-              : null;
-    if (next === null) return;
-    event.preventDefault();
-    changeView(nav[next][0]);
-    document.getElementById(`${nav[next][0]}-tab`)?.focus();
-  }
   return (
     <div className={`app-shell ${parametersOpen ? "controls-open" : ""}`}>
       <div className="workspace-shell" id="workspace">
@@ -380,12 +352,7 @@ export default function Home() {
           <a className="brand" href="#workspace">
             pyroclast<span>.</span>
           </a>
-          <h1 className="sr-only">Pyroclast dashboard · {nav.find(([key]) => key === view)[1]}</h1>
-          <div className="dashboard-tabs" role="tablist" aria-label="Dashboard views">
-            {nav.map(([key, label]) => <button key={key} id={`${key}-tab`} type="button" role="tab"
-              aria-selected={view === key} aria-controls={`${key}-panel`} tabIndex={view === key ? 0 : -1}
-              onClick={() => changeView(key)} onKeyDown={event => handleViewKey(event, key)}>{label}</button>)}
-          </div>
+          <h1 className="sr-only">Pyroclast simulation dashboard</h1>
           <button
             className="text-button new-scenario-button"
             aria-label="New scenario"
@@ -400,7 +367,6 @@ export default function Home() {
             className="text-button nasa-link"
             href="#nasa-comparison"
             onClick={() => {
-              changeView("flame");
               requestAnimationFrame(() =>
                 document
                   .getElementById("nasa-comparison")
@@ -412,7 +378,6 @@ export default function Home() {
           </a>
           <button
             className="panel-toggle"
-            hidden={view !== "flame"}
             aria-expanded={parametersOpen}
             aria-controls="parameters"
             onClick={() => setParametersOpen((open) => !open)}
@@ -421,7 +386,7 @@ export default function Home() {
           </button>
           <span>
             Pyroclast <span className="header-divider">/</span>{" "}
-            <b>{nav.find(([key]) => key === view)[1]}</b>
+            <b>Simulation</b>
           </span>
           <a href="#parameters" className="parameter-link">
             <Symbol name="sliders" />
@@ -431,9 +396,6 @@ export default function Home() {
         <div
           className="content-grid dashboard-tab-panel"
           id="flame-panel"
-          role="tabpanel"
-          aria-labelledby="flame-tab"
-          hidden={view !== "flame"}
         >
           <main className="conversation">
             <HybridSimulation
@@ -441,11 +403,9 @@ export default function Home() {
               controlsContainerId="model-parameters"
               title="From flame to environment"
               insightsContainerId="simulation-insights"
-              active={view === "flame"}
             />
             {/* One triangle tab: on the panel's right edge (◀ hides it), or on the
               screen's left edge when hidden (▶ shows it). */}
-            {view === "flame" && (
               <button
                 type="button"
                 className={`parameters-tab ${parametersOpen ? "is-open" : ""}`}
@@ -461,7 +421,6 @@ export default function Home() {
                   {parametersOpen ? "◀" : "▶"}
                 </span>
               </button>
-            )}
             <section
               className={`parameter-panel ${parametersOpen ? "parameters-open" : ""}`}
               id="parameters"
@@ -697,12 +656,9 @@ export default function Home() {
                 onLoadExample={() => loadNasaExample()}
               />
             </section>
+            <div id="simulation-insights" className="inline-insights" />
           </main>
         </div>
-        <main className="dashboard-tab-panel insights-tab-panel" id="insights-panel"
-          role="tabpanel" aria-labelledby="insights-tab" hidden={view !== "insights"}>
-          <div id="simulation-insights" />
-        </main>
       </div>
     </div>
   );

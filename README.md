@@ -89,7 +89,9 @@ The page has the Pyroclast flame simulation and, below it, the NASA data compari
 - **Room fire spread** opens below the main preview when you press **Simulate**.
   Edit the environment beside the map, choose ignition, toggle doors and control playback
   in the same workspace. There is no separate room page.
-- **AI insights** has its own tab and explains the last applied simulation.
+- **AI insights** is a collapsible header at the bottom of the simulation page.
+  Its Summary, Applied parameters and Assumptions & uncertainty headers organize
+  the explanation and the last applied scenario.
 - The selected CNN image is stationary at rest. Hover or keyboard focus prepares and
   plays a cached nearby-condition sweep; leaving restores the selected prediction.
   Reduced-motion users keep a stationary image. These alternatives are sensitivity

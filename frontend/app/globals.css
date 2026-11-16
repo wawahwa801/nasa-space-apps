@@ -2178,3 +2178,26 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 @media (prefers-reduced-transparency: reduce) {
   .glass-surface, #flame-panel .parameter-panel, .integrated-room-section, .insights-tab-panel .insights-content { background: #171819; backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
+
+/* Insights live at the bottom of the same simulation workspace. */
+#flame-panel .inline-insights { grid-column: 1; min-width: 0; }
+@media (min-width: 721px) { .controls-open #flame-panel .inline-insights { grid-column: 2; } }
+.inline-insights .insights-content { border: 1px solid #ffe7d429; border-radius: 20px; background: linear-gradient(145deg, #ffe9d614, #ffffff06 50%, #f99b5c0a); box-shadow: inset 0 1px 0 #ffffff19, 0 12px 32px #0003; backdrop-filter: blur(24px); color: #d6d2ce; }
+.inline-insights h2, .inline-insights h3 { margin: 0; }
+.insights-toggle, .insight-header { display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; border: 0; background: transparent; color: #e7e2dc; cursor: pointer; font: inherit; }
+.insights-toggle { padding: 24px; font-size: 23px; letter-spacing: -.03em; }
+.insights-toggle small { display: block; color: #efb38c; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 8px; }
+.insights-toggle > span:last-child, .insight-header > span:last-child { font-size: 20px; color: #efb38c; }
+.insights-toggle:focus-visible, .insight-header:focus-visible { outline: 2px solid #efb38c; outline-offset: -4px; border-radius: 14px; }
+.insights-body { padding: 0 24px 24px; font-size: 13px; line-height: 1.7; }
+.insight-group { border-top: 1px solid #ffffff17; }
+.insight-header { padding: 17px 0; font-size: 14px; font-weight: 500; }
+.insight-group-body { padding: 0 0 18px; }
+.insight-generate { border: 1px solid #ffd7b8; border-radius: 10px; padding: 10px 16px; background: #f2a774; color: #29170b; cursor: pointer; }
+.insight-generate:disabled { opacity: .5; cursor: wait; }
+.insight-output { white-space: pre-wrap; overflow-wrap: anywhere; }
+.insight-parameters { margin: 0; }
+.insight-parameters > div { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 16px; padding: 8px 0; }
+.insight-parameters dt { color: #9d9791; }
+.insight-parameters dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .insights-toggle { padding: 20px; }.insights-body { padding: 0 20px 20px; }.insight-parameters > div { grid-template-columns: 1fr; gap: 2px; } }
