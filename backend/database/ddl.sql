@@ -39,17 +39,19 @@ CREATE UNIQUE INDEX IF NOT EXISTS one_active_version_per_model
 -- Permission group: assign it to a separately managed login; no password here.
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'pyroclast_model_reader') THEN
-        CREATE ROLE pyroclast_model_reader NOLOGIN;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'model_reader') THEN
+        CREATE ROLE model_reader NOLOGIN;
     END IF;
 END;
 $$;
 
-GRANT CONNECT ON DATABASE pyroclast TO pyroclast_model_reader;
-GRANT USAGE ON SCHEMA model_registry TO pyroclast_model_reader;
-GRANT SELECT ON TABLE model_registry.models TO pyroclast_model_reader;
+GRANT CONNECT ON DATABASE pyroclast TO model_reader;
+GRANT USAGE ON SCHEMA model_registry TO model_reader;
+GRANT SELECT ON TABLE model_registry.models TO model_reader;
+
+GRANT model_reader TO model_publisher;
 
 COMMIT;
 
 -- As an admin, replace your_app_login with an existing PostgreSQL login:
--- GRANT pyroclast_model_reader TO your_app_login;
+-- GRANT model_reader TO your_app_login;
