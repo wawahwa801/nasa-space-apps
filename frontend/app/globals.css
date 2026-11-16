@@ -2036,7 +2036,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .room-editor-heading {display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .room-editor-heading h3 {margin:0;font-size:14px;}
 .room-editor label {display:grid;gap:6px;margin:12px 0;color:#ccc;}
-.room-editor input:not([type=checkbox]),.room-editor select,.room-playback-toolbar select {width:100%;min-width:0;padding:8px;color:#eee;background:#111;border:1px solid var(--border);border-radius:7px;font:inherit;}
+.room-editor input:not([type=checkbox]),.room-editor select,.room-playback-toolbar select {width:100%;min-width:0;padding:8px;color:#eee;background:#0d1015;border:1px solid var(--border);border-radius:7px;font:inherit;}
 .room-coordinate-fields {display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .room-editor .room-check {display:flex;align-items:center;gap:8px;}
 .room-editor .room-check input {accent-color:#f7964b;}
