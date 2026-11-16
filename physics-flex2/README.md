@@ -82,8 +82,16 @@ inference. Frontend and ML service must be deployed together for this feature.
 The main dashboard now uses `compartments.py` for dimensioned thermal-network
 scenarios. The standalone droplet/legacy graph stays separate. Room width, length
 and height, hallway length/width, selected fire-growth scenarios and a 20-minute
-default horizon replace whole-room droplet lifetimes. The CNN mask is visual
-provenance only. The prototype-style deck offers clickable/bulk doors, room
+default horizon replace whole-room droplet lifetimes. The CNN mask defines an equivalent-droplet proxy through assumed image calibration;
+its D² history is scaled into the current room heat-release scenario. The prototype-style deck offers clickable/bulk doors, room
 inspection and scenario sensitivity ranges. Door changes recompute from time zero.
 See [THERMAL_NETWORK.md](THERMAL_NETWORK.md) for equations, defaults, sources and
 limitations. These ranges are not calibrated confidence intervals.
+
+### Scaled-droplet follow-up
+
+The six-room default uses the CNN mask's equivalent diameter and assumed K through
+an explicit D² aggregation time scale. Room dimensions and hallway lengths still
+enter thermal/transport calculations. This replaces the previous fixed HRR input;
+see THERMAL_NETWORK.md for the equations, source/proxy distinction and limits.
+Playback starts at 30× while the clock remains in simulated minutes/seconds.

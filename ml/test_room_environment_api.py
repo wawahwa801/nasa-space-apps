@@ -24,7 +24,7 @@ class EnvironmentApiTests(unittest.TestCase):
         cls.query=dict(controls={},mm_per_pixel=.03,k_mm2_s=.8,source=0,environment=dict(
             rooms=[dict(id='a',name='A',x=0,y=0,fuel=True,width_m=4,length_m=5,height_m=2.7),dict(id='b',name='B',x=9,y=9,fuel=True,width_m=6,length_m=5,height_m=2.7)],edges=[dict(a=0,b=1,open=True)]))
     def test_default_environment(self):
-        r=self.client.get('/api/environment');self.assertEqual(r.status_code,200);self.assertEqual(len(r.json['rooms']),16)
+        r=self.client.get('/api/environment');self.assertEqual(r.status_code,200);self.assertEqual(len(r.json['rooms']),6)
     def test_custom_layout_and_doors_reach_solver(self):
         r=self.client.post('/api/simulate',json=self.query);self.assertEqual(r.status_code,200)
         self.assertEqual(r.json['simulation']['scenario']['rooms'],self.query['environment']['rooms'])

@@ -1,69 +1,81 @@
-# Dimensioned room-scenario model
+# Scaled equivalent-droplet room scenarios
 
-This is a thermal-network sensitivity study, not a calibrated compartment fire
-or spacecraft safety model. It replaces the main dashboard's use of the FLEX-2
-D² liquid-droplet lifetime as the lifetime of a whole room. The original droplet
-and legacy graph experiments remain available in their standalone prototype.
+This is a dimensioned thermal-network sensitivity study, not calibrated spacecraft
+fire prediction. The CNN predicts a luminous flame mask. Its equivalent-area size,
+multiplied by a user-supplied image scale, is treated as an **equivalent droplet
+proxy**, not a measured liquid-droplet diameter. Actual droplet diameter and its
+physical calibration remain missing evidence (issue #81).
 
-## Dimensions and explicit assumptions
+## Droplet coupling and time units
 
-Room width/length/height (m) affect effective heat capacity. Fuel energy is an
-assumed 30 MJ per square metre of floor area. Air density is fixed at 1.2 kg/m³
-and specific heat at 1 kJ/(kg K); a thermal inertia multiplier represents
-unresolved contents/linings. This is not a measurement of actual wall properties.
+For proxy diameter d (mm) and assumed K (mm²/s), the idealized D² law gives a raw
+lifetime tau_d = d²/K seconds. An explicit assumed aggregation multiplier S (default
+600, adjustable 60–3600) gives the nominal room-release lifetime tau = S tau_d.
+The three sensitivity profiles multiply tau by 0.5, 1 and 2. No empirical similarity
+law establishes these multipliers for room fires; they are adjustable assumptions.
 
-Each ignited room has specified heat release Q = min(1000, 20 + 1000(t/tg)²) kW,
-limited by remaining assumed fuel energy. Source ignition is imposed at time zero.
-An open hallway receives a bounded fraction of HRR split by hallway width, delayed
-by ceil(length/assumed transport speed), attenuated by exp(-length/20 m).
-Closed doors transfer zero in this model; leakage/door failure is not modeled.
+A 1.05 mm proxy at K=0.8 has tau_d=1.378 s and nominal scaled lifetime 826.875 s.
+This calculation is exported and shown in the UI; changing the CNN-derived size,
+image scale, K or aggregation multiplier changes the actual solver output.
 
-Room temperature uses an explicit 1-second heat-capacity update with a 1200-second
-cooling timescale plus effective radiative loss (emissivity 0.15) to ambient 22 °C.
-This single mean temperature is used for an assumed ignition threshold; real
-material surface ignition, stratification, oxygen, pressure-driven ventilation,
-smoke and microgravity flow are not resolved. New ignitions are synchronous.
+D² implies a relative volume F(t)=max(0,1-t/tau)^(3/2). Per-step release is the
+finite difference E_initial [F(t)-F(t+1)] kJ over a 1-second step, multiplied by a
+bounded startup ramp min(1,((age+0.5)/ramp_time)²). Ramp time is the smaller of the
+profile's 150/300/600-second parameter and 30% of scaled lifetime. Finite fuel
+energy is enforced. Unconsumed fuel after the scaled release ends is retained and
+the room is labeled extinguished; a curve ending does not claim complete burnout.
 
-The default 16-module schematic now has room widths 4–6 m, lengths 5–6 m, height
-2.7 m, hallway lengths 4–10 m and widths 1.2 m. It runs for 20 minutes. The default
-nominal scenario reaches some adjacent rooms after roughly 12 minutes; that is a
-result of these assumptions, not a validated fire-spread time or a minimum delay.
-Some rooms are not reached before the horizon. Faster real events remain possible.
+Every fueled room has an assumed 30 MJ/m² floor fuel load. The D² shape distributes
+that energy in time. This is an assumed aggregate-source construction, not an
+assertion that many droplets or arbitrary solid materials obey isolated-droplet
+combustion. HRR is derived from this construction, not independently measured.
 
-The CNN mask/diameter is retained as visual provenance only. It supplies no
-calibrated heat release, fuel load, room growth rate or ignition boundary.
-Changing the image's assumed mm/pixel conversion does not alter cabin timing.
+Simulation time uses actual modeled seconds (1-second integration and 5-second
+output frames). Playback defaults to **30×**, so one real second displays 30
+simulated seconds. Speed affects presentation only. The clock shows minutes and
+seconds plus total simulated seconds; it does not relabel display frames as time.
 
-## Sensitivity ranges
+## Room and hallway effects
 
-Three deterministic profiles vary t² growth time, ignition threshold, effective
-thermal inertia, transfer fraction and corridor transport speed together:
+Room width/length/height affect effective heat capacity; floor area also changes
+assumed fuel energy. Air density is fixed at 1.2 kg/m³, specific heat at
+1 kJ/(kg K), and an assumed inertia multiplier represents unresolved linings.
+Open corridors receive a bounded HRR share split by corridor width, delayed by
+ceil(length/assumed velocity), and attenuated by exp(-length/20 m). Closed doors
+transfer zero. Heat loss uses a 1200-second timescale and an effective radiative
+loss with emissivity 0.15 to ambient 22 °C. New ignitions are synchronous.
 
-| Profile | tg (s) | Threshold (°C) | Inertia | Fraction | Speed (m/s) |
-|---|---:|---:|---:|---:|---:|
-| Earlier spread | 150 | 140 | 1.5 | 0.60 | 0.80 |
-| Nominal | 300 | 180 | 2.0 | 0.50 | 0.50 |
-| Later spread | 600 | 240 | 3.0 | 0.35 | 0.25 |
+The simple default is six 5×5×2.7 m rooms, five 6 m long / 1.2 m wide corridors,
+and a 20-minute horizon. The compact editor opens beside the map. Basic controls
+are room width/length, ignition, hallway length and doors. Name/position/add/remove/
+connect/fuel/height and scaling settings are grouped under disclosure sections.
+Deck coordinates are schematic; numeric lengths are the solver's physical inputs.
 
-The UI reports min/max temperature across these profiles and ignition-time ranges.
-A null latest time means at least one profile never ignited within the horizon;
-it must be displayed as censored, not as a bounded interval or proof of safety.
-These are selected scenario envelopes, not all possible parameter extremes, not
-95% confidence/credible intervals, and not calibrated image-model uncertainty.
-No probability coverage is asserted. Calibration needs matched compartment-scale
-HRR, material/ventilation, wall/thermal and ignition data; see issues #46/#55.
+## Sensitivity ranges and limits
+
+Earlier/nominal/later profiles vary assumed ignition threshold (140/180/240 °C),
+inertia (1.5/2/3), transfer (0.60/0.50/0.35), velocity (0.80/0.50/0.25 m/s), and
+scaled burn duration (0.5/1/2× nominal). The UI reports min/max temperature and
+ignition-time envelopes across these three profiles. If any profile does not
+ignite within the horizon, the upper ignition bound is null and displayed as
+censored. Unreached does not mean safe. These are selected assumption envelopes,
+not comprehensive bounds or calibrated 95% confidence/credible intervals.
+
+There is no resolved gas stratification, pressure-driven ventilation, oxygen
+depletion, smoke, surface ignition, wall conduction or radiative ignition. K and
+scale are not learned cabin parameters. Calibration needs matched compartment-
+scale measurements and independent evaluation (issue #81; #46 remains open).
 
 ## Scientific context
 
-NIST CFAST uses user-specified heat release and distinguishes model assumptions,
-geometry, ventilation, sensitivity and validation. We use the t² HRR *form* as
-scenario input only; we do not implement CFAST's two-zone equations or inherit its
-validation. Numeric defaults above are explicit illustrative choices.
+The isolated-droplet D² law and its approximations are described by NASA. It is
+not generally valid for interacting droplets, and no direct transfer to room
+fire times is established by these references:
 
-- NIST CFAST technical reference: https://www.nist.gov/publications/cfast-consolidated-model-fire-growth-and-smoke-transport-version-6-technical-reference
-- NIST user guide, specified t² fires: https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.1041r1.pdf
-- NASA Saffire full-scale motivation and scaling limitations: https://ntrs.nasa.gov/citations/20180005168
+- NASA classical droplet theory: https://ntrs.nasa.gov/citations/19890010934
+- NASA interacting arrays and departures from D²: https://ntrs.nasa.gov/citations/19990054030
+- NASA Saffire full-scale/scaling motivation: https://ntrs.nasa.gov/citations/20180005168
+- NIST compartment geometry, specified HRR and validation context: https://www.nist.gov/publications/cfast-consolidated-model-fire-growth-and-smoke-transport-version-6-technical-reference
 
-The NASA work emphasizes that small-scale flames and spacecraft fire interactions
-do not scale linearly. These sources motivate the design/limitations; they do not
-validate this implementation or its numeric scenario settings.
+This implementation is not CFAST/FDS and does not inherit their validation.
+References motivate the assumptions/limits, not the selected scale or accuracy.

@@ -34,10 +34,13 @@ class DimensionedTests(unittest.TestCase):
                 self.assertLessEqual(s['temperature_lower_c'],s['temperature_c']);self.assertLessEqual(s['temperature_c'],s['temperature_upper_c'])
         for interval in r['ignition_intervals'].values():
             if interval['not_reached_in_some_scenarios']:self.assertIsNone(interval['latest_s'])
-    def test_image_size_does_not_invent_heat_release(self):
-        a=simulate_dimensioned(self.pair(),{'initial_diameter_mm':.1})
-        b=simulate_dimensioned(self.pair(),{'initial_diameter_mm':9})
-        self.assertEqual(a['frames'],b['frames'])
+    def test_droplet_size_and_K_drive_scaled_burn_history(self):
+        a=simulate_dimensioned(self.pair(),{'initial_diameter_mm':.8,'k_mm2_s':.8})
+        b=simulate_dimensioned(self.pair(),{'initial_diameter_mm':1.6,'k_mm2_s':.8})
+        self.assertAlmostEqual(b['diagnostics']['scaled_burn_duration_s']/a['diagnostics']['scaled_burn_duration_s'],4.)
+        self.assertNotEqual(a['frames'],b['frames'])
+        c=simulate_dimensioned(self.pair(),{'initial_diameter_mm':.8,'k_mm2_s':1.6})
+        self.assertAlmostEqual(c['diagnostics']['scaled_burn_duration_s'],a['diagnostics']['scaled_burn_duration_s']/2.)
     def test_validation_and_determinism(self):
         q=self.pair();self.assertEqual(simulate_dimensioned(q),simulate_dimensioned(copy.deepcopy(q)))
         for field,val in [('width_m',0),('length_m',float('nan')),('height_m',7)]:
