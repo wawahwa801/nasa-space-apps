@@ -73,25 +73,36 @@ npm.cmd run dev
 - `Failed to proxy http://127.0.0.1:5055/api/runs ... ECONNREFUSED` in the frontend terminal means the hybrid model service is not running. Check its own terminal for the error.
 - Clone with Git rather than downloading a ZIP, so `git pull` keeps your copy current.
 
-Open `http://localhost:3000`. The retrieval and NASA-comparison views work with the frontend alone. The separate Flask API provides `http://localhost:5000/api/health` and the analysis endpoints below.
+Open `http://localhost:3000`. The NASA-comparison view works with the frontend alone. The separate Flask API provides `http://localhost:5000/api/health` and the analysis endpoints below.
 
 The page has the Pyroclast flame simulation and, below it, the NASA data comparison from
 `fire-dashboard/` (rendered in an isolated shadow root). The two take separate inputs:
 
-- **Parameters** (left panel): the flame model's conditions. They change the generated flame
-  image on the Flame simulation page only.
+- **Parameters** (left panel): the flame model's conditions. The live selected image updates as you edit;
+  **Simulate** passes the same conditions and equivalent diameter into the room solver.
+  Binary apparatus flags, missingness flags and camera codes remain at recorded preset
+  values and are omitted from the controls. Image-scale and K assumptions are collapsed.
 - **NASA comparison parameters** (collapsible, under "NASA data comparison"): air quality
   (O₂, pressure, temperature, humidity, CO₂, gravity) and the NASA-only inputs (fuels,
   materials, leaks, monitoring). They change the comparison, assessment, gas levels, charts
   and live monitoring, not the flame.
-- **Room simulation** page: its own model conditions, separate from the Flame page's.
+- **Room fire spread** opens below the main preview when you press **Simulate**.
+  Edit the environment beside the map, choose ignition, toggle doors and control playback
+  in the same workspace. There is no separate room page.
+- **AI insights** is a collapsible header at the bottom of the simulation page.
+  Its Summary, Applied parameters and Assumptions & uncertainty headers organize
+  the explanation and the last applied scenario.
+- The selected CNN image is stationary at rest. Hover or keyboard focus prepares and
+  plays a cached nearby-condition sweep; leaving restores the selected prediction.
+  Reduced-motion users keep a stationary image. These alternatives are sensitivity
+  illustrations, not elapsed-time frames or calibrated uncertainty.
 
 Unit pickers on the air-quality sliders switch O₂/CO₂ between % and ppm, pressure between
 kPa, psia and atm, and temperature between °C, K and °F.
 The app serves `fire-dashboard/` directly at `/nasa-dashboard/`, so there is no copy or
 sync step; edit `fire-dashboard/` and reload.
 
-The **Feature retrieval** tab searches a bundled set of 100 verified FLEX-2 colour targets across five fuels by fuel, chamber pressure and temperature. Sliders update locally while dragging; numeric inputs validate the recorded ranges, and the result shows the actual matched conditions and source. This tab works with the frontend alone, without Flask, Torch or an inference service. Its controls apply to the droplet dataset separately from the simulation's broader scenario inputs. Switching tabs preserves both sets of inputs.
+The **Compare CNN & reference** button reveals the feature-only CNN and retrieved source images for the selected prediction. The standalone feature-retrieval component is retained in source, but has no separate dashboard tab.
 
 The images and provenance are in `frontend/public/flames/flex2/`. After acquiring and preparing FLEX-2 data as described in [ml/FLEX2.md](ml/FLEX2.md), regenerate them with `python ml/export_flex2_retrieval.py --data /path/to/flex2-study`. Verify the bundled image hashes and joins using `node frontend/scripts/check-feature-retrieval.mjs`.
 
