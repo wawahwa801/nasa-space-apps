@@ -274,7 +274,6 @@ export default function Home() {
   const [, setSnapshot] = useState(null);
   const [error, setError] = useState("");
   const [view, setView] = useState("flame");
-  const [retrievalSession, setRetrievalSession] = useState(0);
   const update = (key, value) => {
     setValues((v) => ({ ...v, [key]: value }));
     setSnapshot(null);
@@ -387,39 +386,6 @@ export default function Home() {
               aria-selected={view === key} aria-controls={`${key}-panel`} tabIndex={view === key ? 0 : -1}
               onClick={() => changeView(key)} onKeyDown={event => handleViewKey(event, key)}>{label}</button>)}
           </div>
-          <button
-            className="text-button new-scenario-button"
-            aria-label="New scenario"
-            onClick={() => {
-              reset();
-              setRetrievalSession((n) => n + 1);
-            }}
-          >
-            New scenario
-          </button>
-          <a
-            className="text-button nasa-link"
-            href="#nasa-comparison"
-            onClick={() => {
-              changeView("flame");
-              requestAnimationFrame(() =>
-                document
-                  .getElementById("nasa-comparison")
-                  ?.scrollIntoView({ block: "start" }),
-              );
-            }}
-          >
-            NASA data
-          </a>
-          <button
-            className="panel-toggle"
-            hidden={view !== "flame"}
-            aria-expanded={parametersOpen}
-            aria-controls="parameters"
-            onClick={() => setParametersOpen((open) => !open)}
-          >
-            Parameters
-          </button>
           <span>
             Pyroclast <span className="header-divider">/</span>{" "}
             <b>{nav.find(([key]) => key === view)[1]}</b>
@@ -438,7 +404,6 @@ export default function Home() {
         >
           <main className="conversation">
             <HybridSimulation
-              key={retrievalSession}
               controlsContainerId="model-parameters"
               title="Flame simulation"
             />
@@ -696,7 +661,7 @@ export default function Home() {
           aria-labelledby="retrieval-tab"
           hidden={view !== "retrieval"}
         >
-          <FeatureRetrieval key={retrievalSession} />
+          <FeatureRetrieval />
         </main>
         {/* CNN flame image -> room spread physics (ml/dashboard_simulation.py). */}
         <main
@@ -706,7 +671,7 @@ export default function Home() {
           aria-labelledby="rooms-tab"
           hidden={view !== "rooms"}
         >
-          <HybridSimulation key={retrievalSession} />
+          <HybridSimulation />
         </main>
       </div>
     </div>
