@@ -473,10 +473,10 @@ export default function Home() {
                 <div>
                   <h2 id="parameters-heading">Parameters</h2>
                   <p>
-                    Flame model conditions. They change the generated flame image (and any
-                    simulation you run) on this page only. Air quality, fuels and materials are
-                    set in NASA comparison parameters below; the Room simulation page has its
-                    own conditions.
+                    Flame model conditions. They change the generated flame image on this page
+                    only. Air quality, fuels and materials are set in NASA comparison parameters
+                    below; room fire spread is on the Room simulation page, which has its own
+                    conditions.
                   </p>
                 </div>
               </div>
