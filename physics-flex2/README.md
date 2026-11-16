@@ -76,3 +76,14 @@ explicit time scrubbing. Closed hallways use dashed lines on the map.
 The ML service exposes `GET /api/environment` for the default layout and accepts
 `environment: {rooms, edges}` on `POST /api/simulate`. Layout validation runs before
 inference. Frontend and ML service must be deployed together for this feature.
+
+## Updated dashboard room engine
+
+The main dashboard now uses `compartments.py` for dimensioned thermal-network
+scenarios. The standalone droplet/legacy graph stays separate. Room width, length
+and height, hallway length/width, selected fire-growth scenarios and a 20-minute
+default horizon replace whole-room droplet lifetimes. The CNN mask is visual
+provenance only. The prototype-style deck offers clickable/bulk doors, room
+inspection and scenario sensitivity ranges. Door changes recompute from time zero.
+See [THERMAL_NETWORK.md](THERMAL_NETWORK.md) for equations, defaults, sources and
+limitations. These ranges are not calibrated confidence intervals.

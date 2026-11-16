@@ -8,7 +8,7 @@ from PIL import Image
 from flask import request, jsonify
 from flex2_compare import create_app
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'physics-flex2'))
-from rooms import example, simulate, validate_layout
+from compartments import default_environment, dimensions, simulate_dimensioned
 from model import number
 
 
@@ -18,7 +18,7 @@ def build_app():
     app.config['MAX_CONTENT_LENGTH'] = 16000
     @app.get('/api/environment')
     def environment():
-        return jsonify(example())
+        return jsonify(default_environment())
 
     @app.post('/api/simulate')
     def run():
@@ -30,14 +30,14 @@ def build_app():
             scale = number(q['mm_per_pixel'], 'Assumed mm/pixel', .0001, .1)
             k = number(q['k_mm2_s'], 'Assumed K', .000001, 10)
             source = q['source']
-            scenario = example()
+            scenario = default_environment()
             if 'environment' in q:
                 custom = q['environment']
-                if not isinstance(custom, dict) or set(custom) - {'rooms', 'edges'}:
-                    raise ValueError('Environment must contain only rooms and edges')
-                scenario.update(rooms=custom['rooms'], edges=custom['edges'])
+                if not isinstance(custom, dict) or set(custom) - {'rooms', 'edges', 'duration_s'}:
+                    raise ValueError('Environment must contain rooms, edges and optional duration_s')
+                scenario.update(rooms=custom['rooms'], edges=custom['edges'], duration_s=custom.get('duration_s',1200))
             scenario.update(source=source, k_mm2_s=k)
-            validate_layout(scenario)
+            scenario=dimensions(scenario)
             # Reuse the exact inference validation and model used by the live demo.
             with app.test_client() as client:
                 response = client.get('/api/compare', query_string=controls)
@@ -49,11 +49,11 @@ def build_app():
             if area == 0:
                 raise ValueError('No usable flame mask; simulation cannot start')
             pixels = 2 * (area / np.pi) ** .5
-            size = number(pixels * scale, 'Assumed proxy diameter', .01, 10)
-            burn = dict(initial_diameter_mm=size, k_mm2_s=k, mode='illustrative_cnn_flame_proxy',
+            size = number(pixels * scale, 'Visual diameter', .000001, 10000)
+            burn = dict(initial_diameter_mm=size, legacy_k_mm2_s_ignored=k, mode='visual_mask_provenance',
                         controls=controls, diameter_px=pixels, assumed_mm_per_pixel=scale,
-                        warning='Flame mask area converted to an assumed room proxy size; no liquid-droplet measurement or calibrated cabin spread.')
-            simulation = simulate(scenario, burn_override=burn)
+                        warning='Uncalibrated image diameter only; it does not set compartment heat release or ignition timing.')
+            simulation = simulate_dimensioned(scenario, image_provenance=burn)
             return jsonify(prediction=result, simulation=simulation)
         except (ValueError, KeyError, TypeError) as exc:
             return jsonify(error=str(exc)), 400
