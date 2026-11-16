@@ -358,7 +358,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
             </>
           )}
           {showRooms && <>
-          {environment && <div className="room-environment-tools"><button type="button" aria-pressed={editing} onClick={()=>setEditing(true)}>Environment</button><button type="button" aria-pressed={!editing} onClick={()=>setEditing(false)}>Model parameters</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}
+          {environment && <div className="room-environment-tools"><button type="button" aria-pressed={editing} onClick={()=>setEditing(true)}>Environment</button><button type="button" aria-pressed={!editing} onClick={()=>{setPlacingRooms(false);setEditing(false);}}>Model parameters</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}
           {result?.simulation.burn_model.droplet_scaling && <p className="hybrid-muted">Equivalent droplet: {result.simulation.burn_model.droplet_scaling.diameter_mm.toFixed(2)} mm · D² lifetime {result.simulation.burn_model.droplet_scaling.raw_lifetime_s.toFixed(2)} s × assumed {result.simulation.burn_model.droplet_scaling.aggregate_time_scale} scale = {result.simulation.diagnostics.scaled_burn_duration_s.toFixed(0)} simulated seconds (nominal).</p>}
           <div className={`room-workspace ${editing?'is-editing':''}`}>
 
