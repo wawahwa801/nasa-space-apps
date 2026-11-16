@@ -1,0 +1,26 @@
+name: Full-stack container
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build CPU inference and frontend image
+        run: docker build -t pyroclast-fullstack .
+      - name: Check frontend and API through one public port
+        shell: bash
+        run: |
+          docker run -d --name pyroclast -p 8080:8080 pyroclast-fullstack
+          trap 'docker logs pyroclast; docker rm -f pyroclast' EXIT
+          ready=0
+          for attempt in {1..60}; do
+            if curl -fsS http://127.0.0.1:8080/api/health; then ready=1; break; fi
+            sleep 2
+          done
+          test "$ready" = 1
+          curl -fsS http://127.0.0.1:8080/ -o /dev/null
+          # No database/credentials in CI: hybrid must fail closed, without 5055.
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/hybrid/runs)" = 503

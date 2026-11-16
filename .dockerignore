@@ -6,3 +6,10 @@
 **/.next
 **/__pycache__
 **/.vercel
+**/.aws
+**/.agents
+**/.codex
+**/.model-cache
+ml/data
+ml/artifacts
+backend/tests
