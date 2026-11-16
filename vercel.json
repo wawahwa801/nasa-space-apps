@@ -4,14 +4,7 @@
     "backend": {
       "root": "backend",
       "framework": "flask",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "ml",
-          "format": "url",
-          "env": "ML_URL"
-        }
-      ]
+      "entrypoint": "wsgi.py"
     },
     "frontend": {
       "root": "frontend",
@@ -22,12 +15,19 @@
           "service": "backend",
           "format": "url",
           "env": "BACKEND_URL"
+        },
+        {
+          "type": "service",
+          "service": "ml",
+          "format": "url",
+          "env": "ML_URL"
         }
       ]
     },
     "ml": {
-      "root": "ml",
-      "framework": "flask"
+      "root": ".",
+      "runtime": "container",
+      "entrypoint": "deploy/ml.Dockerfile"
     }
   },
   "rewrites": [
