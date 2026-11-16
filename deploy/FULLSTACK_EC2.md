@@ -1,5 +1,12 @@
 # One-container public deployment
 
+Live demo: [Pyroclast](http://pyroclast-s3-env.eba-hgm9zkyj.us-west-2.elasticbeanstalk.com/).
+The separate `Pyroclast-s3-env` environment in `us-west-2` runs source version
+`fullstack-d227d92b`. Public frontend, health, registry/S3 flame prediction and
+121-frame room simulation passed; a browser check confirmed zero localhost
+requests. The existing Python environment was retained. This demo currently
+uses HTTP; application HTTPS is still a follow-up.
+
 Work from the original repository: `nasa-space-apps`. The root Dockerfile builds
 Next.js and the CPU PyTorch API together. Only port 8080 is exposed. Next.js
 proxies prediction requests to Flask on container-local port 5000. The runtime
@@ -113,6 +120,6 @@ Official setup references:
 [Docker images on Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/single-container-docker-configuration.html),
 [runtime secrets](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.secrets.env-vars.html).
 
-This repository prepares the deployment; no environment is created or public
-deployment claimed by generating these files. An independent review and passing
-container build should precede the live rollout.
+Creating these files alone does not deploy future changes. Rebuild, run the
+container checks, publish a new source version and update the intended environment
+to roll out later changes. Obtain independent PR review before merging into main.
