@@ -88,7 +88,7 @@ function rgb(hex) {
 
 export function BlackHole({
   color1 = "#ff7a14",
-  color2 = "#161616",
+  color2 = "#0a1028",
   color3 = "#ffa25b",
   speed = 0.6,
   scale = 1.2,
