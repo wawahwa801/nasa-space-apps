@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { LiquidButton } from "../components/ui/liquid-glass-button";
 import { FireSafetyComparison } from "../components/fire-safety-comparison";
-import { FeatureRetrieval } from "../components/feature-retrieval";
 import { HybridSimulation } from "../components/hybrid-simulation";
 import {
   NASA_DEFAULTS,
@@ -348,8 +347,8 @@ export default function Home() {
     setError("");
   }
   const nav = [
-    ["flame", "Flame simulation", "flame"],
-    ["rooms", "Room simulation", "flame"],
+    ["flame", "Simulation", "flame"],
+    ["insights", "AI insights", "chat"],
   ];
   function changeView(next) {
     setView(next);
@@ -440,7 +439,9 @@ export default function Home() {
             <HybridSimulation
               key={retrievalSession}
               controlsContainerId="model-parameters"
-              title="Flame simulation"
+              title="From flame to environment"
+              insightsContainerId="simulation-insights"
+              active={view === "flame"}
             />
             {/* One triangle tab: on the panel's right edge (◀ hides it), or on the
               screen's left edge when hidden (▶ shows it). */}
@@ -473,10 +474,8 @@ export default function Home() {
                 <div>
                   <h2 id="parameters-heading">Parameters</h2>
                   <p>
-                    Flame model conditions. They change the generated flame image on this page
-                    only. Air quality, fuels and materials are set in NASA comparison parameters
-                    below; room fire spread is on the Room simulation page, which has its own
-                    conditions.
+                    Choose the flame conditions, then press Simulate to run room fire spread
+                    with the same prediction. Air-quality inputs for the NASA comparison are below.
                   </p>
                 </div>
               </div>
@@ -700,24 +699,9 @@ export default function Home() {
             </section>
           </main>
         </div>
-        <main
-          className="dashboard-tab-panel retrieval-tab-panel"
-          id="retrieval-panel"
-          role="tabpanel"
-          aria-labelledby="retrieval-tab"
-          hidden={view !== "retrieval"}
-        >
-          <FeatureRetrieval key={retrievalSession} />
-        </main>
-        {/* CNN flame image -> room spread physics (ml/dashboard_simulation.py). */}
-        <main
-          className="dashboard-tab-panel retrieval-tab-panel rooms-tab-panel"
-          id="rooms-panel"
-          role="tabpanel"
-          aria-labelledby="rooms-tab"
-          hidden={view !== "rooms"}
-        >
-          <HybridSimulation key={retrievalSession} />
+        <main className="dashboard-tab-panel insights-tab-panel" id="insights-panel"
+          role="tabpanel" aria-labelledby="insights-tab" hidden={view !== "insights"}>
+          <div id="simulation-insights" />
         </main>
       </div>
     </div>
