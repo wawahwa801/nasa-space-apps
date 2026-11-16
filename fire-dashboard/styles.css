@@ -159,29 +159,44 @@ code { font-size: 0.9em; background: var(--surface-2); padding: 1px 4px; border-
   border-radius: var(--radius, 12px);
 }
 
-/* Emerald cut: a thin soft-orange outline with chamfered corners. The box's own
-   background is the line colour, clipped to the outer shape; ::before repaints the
-   surface just inside it (corners cut 0.6px less, so the diagonals stay ~1px thick).
-   Only for boxes without dropdowns or tooltips, which clip-path would cut off. */
-.tile {
-  --cut: 12px;
-  position: relative;
-  isolation: isolate;
+/* Emerald cut: every card, panel and tile gets a thin soft-orange outline with
+   chamfered corners. It is drawn entirely in background layers (a diagonal stroke in
+   each corner, four straight edges, then the fill), and the outside of each corner is
+   painted in the page colour. Nothing is clipped, so menus and chart tooltips can still
+   overflow a card. --ec-cut: corner size; --ec-fill: inside colour; --ec-out: what
+   shows outside the corners. */
+.panel, .card, .tile, .menu-body {
+  --ec-cut: 14px;
+  --ec-line: var(--emerald-line, #f2a774);
+  --ec-fill: var(--surface);
+  --ec-out: var(--page);
+  --ec-t: 0.75px;
+  --ec-bg:
+    linear-gradient(to bottom right, var(--ec-out) calc(50% - var(--ec-t)), var(--ec-line) 0 calc(50% + var(--ec-t)), transparent 0) top left / var(--ec-cut) var(--ec-cut) no-repeat,
+    linear-gradient(to bottom left, var(--ec-out) calc(50% - var(--ec-t)), var(--ec-line) 0 calc(50% + var(--ec-t)), transparent 0) top right / var(--ec-cut) var(--ec-cut) no-repeat,
+    linear-gradient(to top right, var(--ec-out) calc(50% - var(--ec-t)), var(--ec-line) 0 calc(50% + var(--ec-t)), transparent 0) bottom left / var(--ec-cut) var(--ec-cut) no-repeat,
+    linear-gradient(to top left, var(--ec-out) calc(50% - var(--ec-t)), var(--ec-line) 0 calc(50% + var(--ec-t)), transparent 0) bottom right / var(--ec-cut) var(--ec-cut) no-repeat,
+    linear-gradient(var(--ec-line) 0 0) top / calc(100% - 2 * var(--ec-cut)) 1px no-repeat,
+    linear-gradient(var(--ec-line) 0 0) bottom / calc(100% - 2 * var(--ec-cut)) 1px no-repeat,
+    linear-gradient(var(--ec-line) 0 0) left / 1px calc(100% - 2 * var(--ec-cut)) no-repeat,
+    linear-gradient(var(--ec-line) 0 0) right / 1px calc(100% - 2 * var(--ec-cut)) no-repeat;
   border-color: transparent;
   border-radius: 0;
-  background: var(--emerald-line, #f3b083);
-  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
-    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+  background: var(--ec-bg), var(--ec-fill);
+  background-origin: border-box;
 }
-.tile::before {
-  --in: calc(var(--cut) - 0.6px);
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--surface);
-  clip-path: polygon(var(--in) 0, calc(100% - var(--in)) 0, 100% var(--in), 100% calc(100% - var(--in)),
-    calc(100% - var(--in)) 100%, var(--in) 100%, 0 calc(100% - var(--in)), 0 var(--in));
+.tile { --ec-cut: 12px; }
+/* Dropdown menus float over other cards, so their corners are clipped instead of painted.
+   ".menu .menu-body" outranks the menu's own later background/border rule. */
+.menu .menu-body {
+  --ec-cut: 10px;
+  --ec-out: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  background: var(--ec-bg), var(--ec-fill);
+  background-origin: border-box;
+  clip-path: polygon(var(--ec-cut) 0, calc(100% - var(--ec-cut)) 0, 100% var(--ec-cut), 100% calc(100% - var(--ec-cut)),
+    calc(100% - var(--ec-cut)) 100%, var(--ec-cut) 100%, 0 calc(100% - var(--ec-cut)), 0 var(--ec-cut));
 }
 
 .inputs {
@@ -488,7 +503,7 @@ input[aria-invalid="true"] { border-color: var(--critical); }
 .mon-status { display: flex; align-items: center; gap: 8px; max-width: 420px; }
 .mon-headline { font-weight: 600; font-size: 0.92rem; }
 #monitor-card .flags { max-height: none; margin-bottom: 8px; }
-#monitor-card { border-color: var(--accent); }
+#monitor-card { --ec-line: var(--accent); border-color: transparent; } /* highlighted emerald outline */
 @container fd-results (max-width: 640px) {
   .mon-toolbar .filter { margin-left: 0; }
 }

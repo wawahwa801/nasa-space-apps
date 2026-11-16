@@ -1914,31 +1914,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .rooms-tab-panel .hybrid-flame > div { max-width: 640px; }
 .rooms-tab-panel .hybrid-flame img,
 .rooms-tab-panel .source-comparison img { border-radius: 0; background: transparent; mix-blend-mode: screen; }
-/* Emerald cut: thin soft-orange outline with chamfered corners on the room simulation
-   boxes. The box background is the line colour, clipped to the outer shape; ::before
-   repaints the panel just inside (corners cut 0.6px less so diagonals stay ~1px). */
-.rooms-tab-panel .hybrid-controls,
-.rooms-tab-panel .hybrid-results {
-  --cut: 18px;
-  position: relative;
-  isolation: isolate;
-  border-color: transparent;
-  border-radius: 0;
-  background: #f3b083;
-  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
-    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
-}
-.rooms-tab-panel .hybrid-controls::before,
-.rooms-tab-panel .hybrid-results::before {
-  --in: calc(var(--cut) - 0.6px);
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: #13171d;
-  clip-path: polygon(var(--in) 0, calc(100% - var(--in)) 0, 100% var(--in), 100% calc(100% - var(--in)),
-    calc(100% - var(--in)) 100%, var(--in) 100%, 0 calc(100% - var(--in)), 0 var(--in));
-}
 .rooms-tab-panel .insights-content { max-width: none; margin: 20px 0 0; }
 @media (max-width: 860px) { .hybrid-layout { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 720px) { .rooms-tab-panel .hybrid-active { padding: 84px 12px 32px; } .hybrid-results svg { min-height: 240px; } }
@@ -2178,3 +2153,52 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .room-remove-link {display:block;margin-top:6px;}
 .rooms-tab-panel .hybrid-flame img {width:128px;height:128px;object-fit:contain;}
 @media(max-width:700px){.rooms-tab-panel .hybrid-layout{grid-template-columns:160px minmax(0,1fr);gap:8px;}.rooms-tab-panel .hybrid-results{padding:8px;}.rooms-tab-panel .room-editor{padding:10px;position:static;max-height:650px;}.rooms-tab-panel .room-coordinate-fields{gap:5px;}.rooms-tab-panel .room-editor .room-hallway-item{grid-template-columns:1fr;}.rooms-tab-panel .hybrid-active{padding:84px 8px 24px;}.orbit-map-actions{gap:4px;}.orbit-stats{grid-template-columns:1fr;}.orbit-inspector{font-size:11px;}}
+
+/* Emerald cut on the site's boxes: a thin soft-orange outline with chamfered corners,
+   matching the NASA dashboard (fire-dashboard/styles.css). Drawn in background layers
+   (a diagonal stroke in each corner, four straight edges, then the fill) and clipped to
+   the cut shape, because these boxes sit over varied backgrounds. None of them hold
+   pop-ups that need to spill outside. --ec-cut: corner size; --ec-fill: inside colour. */
+.parameter-panel,
+.comparison-section,
+.nasa-comparison-inputs,
+.nasa-comparison-inputs .field-section,
+.room-editor,
+.orbit-deck,
+.orbit-map-viewport,
+.rooms-tab-panel .insights-content,
+.rooms-tab-panel .hybrid-controls,
+.rooms-tab-panel .hybrid-results {
+  --ec-cut: 16px;
+  --ec-line: #f2a774;
+  --ec-fill: #13171d;
+  --ec-t: 0.75px;
+  --ec-corner: transparent calc(50% - var(--ec-t)), var(--ec-line) 0 calc(50% + var(--ec-t)), transparent 0;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  background:
+    linear-gradient(to bottom right, var(--ec-corner)) top left / var(--ec-cut) var(--ec-cut) no-repeat,
+    linear-gradient(to bottom left, var(--ec-corner)) top right / var(--ec-cut) var(--ec-cut) no-repeat,
+    linear-gradient(to top right, var(--ec-corner)) bottom left / var(--ec-cut) var(--ec-cut) no-repeat,
+    linear-gradient(to top left, var(--ec-corner)) bottom right / var(--ec-cut) var(--ec-cut) no-repeat,
+    linear-gradient(var(--ec-line) 0 0) top / calc(100% - 2 * var(--ec-cut)) 1px no-repeat,
+    linear-gradient(var(--ec-line) 0 0) bottom / calc(100% - 2 * var(--ec-cut)) 1px no-repeat,
+    linear-gradient(var(--ec-line) 0 0) left / 1px calc(100% - 2 * var(--ec-cut)) no-repeat,
+    linear-gradient(var(--ec-line) 0 0) right / 1px calc(100% - 2 * var(--ec-cut)) no-repeat,
+    var(--ec-fill) !important;
+  background-origin: border-box !important;
+  clip-path: polygon(var(--ec-cut) 0, calc(100% - var(--ec-cut)) 0, 100% var(--ec-cut), 100% calc(100% - var(--ec-cut)),
+    calc(100% - var(--ec-cut)) 100%, var(--ec-cut) 100%, 0 calc(100% - var(--ec-cut)), 0 var(--ec-cut));
+}
+.parameter-panel { --ec-fill: rgba(19, 23, 29, 0.96); }
+.comparison-section { --ec-fill: #0e1116; --ec-cut: 18px; }
+.nasa-comparison-inputs { --ec-fill: #0f1217; }
+.nasa-comparison-inputs .field-section { --ec-cut: 12px; }
+.room-editor { --ec-fill: #0b0d11; --ec-cut: 12px; }
+.orbit-deck { --ec-fill: #121a24; }
+.orbit-map-viewport { --ec-fill: #0b1017; --ec-cut: 12px; }
+
+/* "NASA comparison parameters": shortened to line up with the dashboard cards below
+   (they sit 24px inside the comparison section on each side). */
+.nasa-comparison-inputs { margin: 16px 24px; }
+@media (max-width: 700px) { .nasa-comparison-inputs { margin: 12px 10px; } }
