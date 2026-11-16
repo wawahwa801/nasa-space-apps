@@ -331,15 +331,21 @@
     const flags = [];
     const add = (level, title, detail, field) => flags.push({ level, title, detail, field });
 
+    // NASA-STD-3001 habitability (OCHMO-TB-003): computed first so a normal O₂ % at low
+    // pressure isn't reported as "normal" next to a hypoxia flag.
+    const habitable = MON.habitableAtmosphere(v.o2_pct, v.pressure_kpa, T);
+    const lowInspiredO2 = habitable.some((f) => f.field === "o2_pct" && (f.level === "warning" || f.level === "serious"));
     if (has(v.o2_pct)) {
       if (v.o2_pct > T.o2_enriched_pct) add("serious", "Oxygen-enriched atmosphere", `O₂ is ${fmt(v.o2_pct)}%, above ${T.o2_enriched_pct}%. Materials ignite more easily and burn faster.`, "o2_pct");
       else if (v.o2_pct < T.o2_deficient_pct) add("warning", "Oxygen-deficient atmosphere", `O₂ is ${fmt(v.o2_pct)}%, below ${T.o2_deficient_pct}%. A crew health concern; check for leaks of other gases.`, "o2_pct");
-      else add("good", "Oxygen concentration in normal range", `O₂ is ${fmt(v.o2_pct)}%.`, "o2_pct");
+      else if (!lowInspiredO2) add("good", "Oxygen concentration in normal range", `O₂ is ${fmt(v.o2_pct)}%.`, "o2_pct");
     }
     if (has(v.o2_pct) && has(v.pressure_kpa)) {
       const pp = (v.o2_pct / 100) * v.pressure_kpa;
       if (pp > T.sea_level_ppo2_kpa * 1.05) add("info", "Oxygen partial pressure above sea-level air", `${fmt(pp)} kPa vs ${T.sea_level_ppo2_kpa} kPa at sea level. Flammability depends on both O₂ % and pressure.`, "pressure_kpa");
     }
+    // Is the air safe to breathe? NASA-STD-3001 pressure and inspired-O₂ limits.
+    for (const f of habitable) add(f.level, f.title, f.detail, f.field);
     if (has(v.o2_pct) && has(v.n2_pct) && v.o2_pct + v.n2_pct > 100.5) {
       add("warning", "Gas percentages add up to more than 100%", `O₂ ${fmt(v.o2_pct)}% + N₂ ${fmt(v.n2_pct)}% = ${fmt(v.o2_pct + v.n2_pct)}%. Check the readings.`, "n2_pct");
     }
@@ -466,6 +472,8 @@
     const top = issues[0]?.level || (result.flags.length ? "good" : null);
     const pu = unitOf(FIELDS.pressure_kpa);
     const pp = has(v.o2_pct) && has(v.pressure_kpa) ? (v.o2_pct / 100) * v.pressure_kpa : null;
+    const H = T.habitable;
+    const pio2 = pp != null && !isVacuum(v) ? MON.inspiredO2(v.o2_pct, v.pressure_kpa, H) : null;
     const tile = (label, value, unit, sub) =>
       `<div class="tile"><div class="tile-label">${label}</div><div class="tile-value">${value}<span class="tile-unit">${unit}</span></div>${sub ? `<div class="tile-sub">${sub}</div>` : ""}</div>`;
     $("#summary").innerHTML = `
@@ -475,8 +483,11 @@
         <div class="tile-sub">${top ? badge(top) + (issues.length ? ` <span class="tile-top">${esc(issues[0].title.replace(/<[^>]+>/g, ""))}</span>` : ` nothing flagged in the readings given${result.uncertain.length ? ` · ${result.uncertain.length} uncertain` : ""}`) : "Enter conditions to assess"}</div>
       </div>
       ${tile("Oxygen", has(v.o2_pct) ? fmt(v.o2_pct) : "–", "%", has(v.o2_pct) ? `Enrichment threshold ${T.o2_enriched_pct}%` : "")}
-      ${tile("O₂ partial pressure", pp != null ? fmt(pu.fromBase(pp)) : "–", pu.unit, `Sea-level air ${fmt(pu.fromBase(T.sea_level_ppo2_kpa))} ${pu.unit}`)}
-      ${tile("Internal pressure", isVacuum(v) ? "≈ 0" : has(v.pressure_kpa) ? fmt(pu.fromBase(v.pressure_kpa)) : "–", pu.unit, isVacuum(v) ? "Vacuum: value ignored" : v.environment ? esc(v.environment) : "")}`;
+      ${tile("O₂ partial pressure", pp != null ? fmt(pu.fromBase(pp)) : "–", pu.unit, pio2 != null
+        ? `Inspired ${Math.round(pio2)} mmHg · NASA minimum ${H.pio2_mmhg.exploration_min}`
+        : `Sea-level air ${fmt(pu.fromBase(T.sea_level_ppo2_kpa))} ${pu.unit}`)}
+      ${tile("Internal pressure", isVacuum(v) ? "≈ 0" : has(v.pressure_kpa) ? fmt(pu.fromBase(v.pressure_kpa)) : "–", pu.unit, isVacuum(v) ? "Vacuum: value ignored"
+        : [v.environment ? esc(v.environment) : "", `NASA safe range ${fmt(pu.fromBase(H.pressure_kpa.min))}–${fmt(pu.fromBase(H.pressure_kpa.max))} ${pu.unit}`].filter(Boolean).join(" · "))}`;
     $("#results-bar-summary").innerHTML = top
       ? `${badge(top)} ${issues.length} issue${issues.length === 1 ? "" : "s"}`
       : "No inputs yet";

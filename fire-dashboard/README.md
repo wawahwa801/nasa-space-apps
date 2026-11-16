@@ -63,15 +63,27 @@ is sent over the network unless you click **Generate insight** (below). Click
   fire starting or smoke building up: CO rising for several intervals without heat (possible
   smouldering), CO and CO₂ rising together as O₂ falls (combustion signature), fast heating with
   combustion gases (possible flaming fire), flammable gas accumulating, O₂ rising, CO/CO₂ above NIOSH
-  limits with a time-to-limit projection, and missed readings. Readings come from **Record reading**
+  limits with a time-to-limit projection, air that is unhealthy or unsafe to breathe (NASA habitable
+  limits, below), pressure changing faster than NASA's 13.5 psi/min limit or projected to fall below
+  34.5 kPa, and missed readings. Readings come from **Record reading**
   (the current inputs), a CSV import (a time column plus gas/temperature columns), the accelerated
   demo, or `FireDashboard.addReading({...})` for a sensor feed. Detection logic is in
   `js/monitoring.js`; its rise thresholds (`THRESHOLDS.monitoring` in `js/parameters.js`) are
   placeholders to tune with real sensor data, and the demo sequence is synthetic.
-- **Summary tiles:** issue count and highest severity, O₂ %, O₂ partial pressure, internal pressure.
+- **Summary tiles:** issue count and highest severity, O₂ %, O₂ partial pressure (with inspired O₂
+  against NASA's minimum), internal pressure (with NASA's safe range).
 - **Assessment:** rule-based flags (oxygen enrichment, flammable gases against their
   flammability limits, CO and CO₂ against NIOSH limits, leaks, distance to ignition
   sources, open fuel storage, monitoring status, microgravity), each with a severity, icon and explanation.
+- **Habitable atmosphere (NASA-STD-3001):** whether the air is safe to breathe, from NASA's technical
+  brief OCHMO-TB-003 (`data/ochmo-tb-003-habitable-atmosphere.pdf`, limits in `THRESHOLDS.habitable`).
+  Unsafe (serious/critical): cabin pressure ≤ 34.5 kPa, below 17.3 kPa where even supplemental O₂ may
+  not suffice, or near ebullism (6.27 kPa); inspired O₂ (PIO₂ = (P − 47 mmHg) × O₂ fraction) below
+  122 mmHg. Unhealthy (warning): PIO₂ 122–127 mmHg (mild hypoxia), pressure above 103 kPa, or less than
+  30 % inert diluent gas (O₂ above 70 %). PIO₂ between 127 mmHg and sea-level normoxia (149) is noted
+  as mildly reduced. "Breathable" is shown only for PIO₂ from 127 mmHg up to about sea-level air;
+  above that, upper (hyperoxia) exposure is marked as not checked, because the brief's Table 6.2-1
+  (an image) isn't transcribed. The brief gives no humidity, temperature or CO₂ limits.
 - **Gas levels:** H₂ and CH₄ as a share of their lower flammability limits; CO and CO₂ against exposure limits.
 - **Air composition:** a donut of N₂, O₂, trace gases (CO₂, H₂, CH₄, CO, listed individually) and the
   unaccounted remainder, switchable between % and ppm.

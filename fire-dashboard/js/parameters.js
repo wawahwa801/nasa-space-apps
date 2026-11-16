@@ -150,6 +150,30 @@
     // NIOSH recommended exposure limits.
     co_ppm: { warning: 35, serious: 200 },     // TWA, ceiling
     co2_ppm: { warning: 5000, serious: 30000 }, // TWA, STEL
+    // NASA-STD-3001 habitable-atmosphere limits for crew health, from NASA OCHMO
+    // Technical Brief OCHMO-TB-003 "Habitable Atmosphere", Rev A (11/30/2023):
+    // data/ochmo-tb-003-habitable-atmosphere.pdf. The brief is reference only and
+    // does not supersede program requirements. It gives no humidity, temperature,
+    // CO₂ or upper (hyperoxia) PIO₂ limits; those stay with the other thresholds.
+    habitable: {
+      source: "NASA OCHMO-TB-003 Habitable Atmosphere, Rev A (2023)",
+      pressure_kpa: { min: 34.5, max: 103 }, // [V2 6006] 34.5 < P ≤ 103 kPa for indefinite exposure
+      supplemental_o2_min_kpa: 17.3,         // 130 mmHg / 2.5 psia: supplemental O₂ may not keep tissues oxygenated below this
+      ebullism_kpa: 6.27,                    // body fluids vaporise at 37 °C (0.91 psi, 47 mmHg)
+      min_diluent_pct: 30,                   // [V2 6002] at least 30 % inert diluent gas (balance O₂), i.e. O₂ ≤ 70 %
+      // Inspired O₂, PIO₂ = (Pb − 47 mmHg) × FiO₂ ([V2 6003], Table 6.2-1 notes).
+      pio2_mmhg: {
+        normoxia: 149,          // sea-level air
+        exploration_min: 127,   // mild hypoxia allowed only with a health monitoring and mitigation plan
+        absolute_min: 122,      // absolute lower limit (1-hour time-weighted average)
+      },
+      water_vapour_mmhg: 47,    // PH₂O of inspired air at 37 °C
+      // Dashboard choice (not from the brief): flag "below sea-level normoxia" only
+      // when PIO₂ is more than this share below 149 mmHg, so ordinary cabin air (20.5–21 %) isn't flagged.
+      normoxia_tolerance: 0.03,
+      // [V2 6007] For pressure changes > 1.0 psi, at most 13.5 psi/min.
+      pressure_rate: { max_psi_per_min: 13.5, applies_above_psi: 1.0 },
+    },
     // Placeholder: set to your own minimum separation from ignition sources.
     min_ignition_distance_m: 1.0,
     // Number of nearest ACME test points to compare against.
