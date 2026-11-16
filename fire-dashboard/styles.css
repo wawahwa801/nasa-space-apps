@@ -159,6 +159,31 @@ code { font-size: 0.9em; background: var(--surface-2); padding: 1px 4px; border-
   border-radius: var(--radius, 12px);
 }
 
+/* Emerald cut: a thin soft-orange outline with chamfered corners. The box's own
+   background is the line colour, clipped to the outer shape; ::before repaints the
+   surface just inside it (corners cut 0.6px less, so the diagonals stay ~1px thick).
+   Only for boxes without dropdowns or tooltips, which clip-path would cut off. */
+.tile {
+  --cut: 12px;
+  position: relative;
+  isolation: isolate;
+  border-color: transparent;
+  border-radius: 0;
+  background: var(--emerald-line, #f2a774);
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+}
+.tile::before {
+  --in: calc(var(--cut) - 0.6px);
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--surface);
+  clip-path: polygon(var(--in) 0, calc(100% - var(--in)) 0, 100% var(--in), 100% calc(100% - var(--in)),
+    calc(100% - var(--in)) 100%, var(--in) 100%, 0 calc(100% - var(--in)), 0 var(--in));
+}
+
 .inputs {
   align-self: start;
   position: sticky;

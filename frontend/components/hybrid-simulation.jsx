@@ -10,7 +10,7 @@ import { LlmInsights } from "./llm-insights";
 
 const MODULES = ["Forward dock", "Cargo", "Habitat node", "Station core", "Science node", "Laboratory", "Observatory", "Cupola",
   "Command", "Crew quarters", "Medical", "EVA airlock", "Life support", "Engineering", "Power systems", "Greenhouse"];
-const ROOM_FILL = { burning: "#e72c25", burned: "#444", warming: "#b65308", unignited: "#363636", inert: "#222" };
+const ROOM_FILL = { burning: "#e72c25", burned: "#444", warming: "#b65308", unignited: "#2f62a8", inert: "#222" };
 
 export function HybridSimulation({ controlsContainerId, title = "Room simulation" }) {
   const controlId = useId();
