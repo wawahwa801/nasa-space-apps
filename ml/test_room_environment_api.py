@@ -22,7 +22,7 @@ class EnvironmentApiTests(unittest.TestCase):
             module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
             cls.client=module.build_app().test_client()
         cls.query=dict(controls={},mm_per_pixel=.03,k_mm2_s=.8,source=0,environment=dict(
-            rooms=[dict(id='a',name='A',x=0,y=0,fuel=True),dict(id='b',name='B',x=9,y=9,fuel=True)],edges=[dict(a=0,b=1,open=True)]))
+            rooms=[dict(id='a',name='A',x=0,y=0,fuel=True,width_m=4,length_m=5,height_m=2.7),dict(id='b',name='B',x=9,y=9,fuel=True,width_m=6,length_m=5,height_m=2.7)],edges=[dict(a=0,b=1,open=True)]))
     def test_default_environment(self):
         r=self.client.get('/api/environment');self.assertEqual(r.status_code,200);self.assertEqual(len(r.json['rooms']),16)
     def test_custom_layout_and_doors_reach_solver(self):
@@ -32,6 +32,6 @@ class EnvironmentApiTests(unittest.TestCase):
         q=copy.deepcopy(self.query);q['environment']['edges'][0]['open']=False
         self.assertIsNone(self.client.post('/api/simulate',json=q).json['simulation']['ignition_times_s']['b'])
     def test_invalid_layouts_rejected(self):
-        for mutate in [lambda q:q['environment']['rooms'][1].update(x=0,y=0),lambda q:q['environment']['edges'][0].update(b=12),lambda q:q.update(source=3),lambda q:q['environment']['rooms'][0].update(fuel=False),lambda q:q['environment'].update(duration_s=999),lambda q:q['environment']['rooms'][1].update(x=10)]:
+        for mutate in [lambda q:q['environment']['rooms'][1].update(x=0,y=0),lambda q:q['environment']['edges'][0].update(b=12),lambda q:q.update(source=3),lambda q:q['environment']['rooms'][0].update(fuel=False),lambda q:q['environment'].update(duration_s=7200),lambda q:q['environment']['rooms'][1].update(x=10)]:
             q=copy.deepcopy(self.query);mutate(q);self.assertEqual(self.client.post('/api/simulate',json=q).status_code,400)
 if __name__=='__main__':unittest.main()
