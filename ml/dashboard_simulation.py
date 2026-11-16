@@ -33,9 +33,9 @@ def build_app():
             scenario = default_environment()
             if 'environment' in q:
                 custom = q['environment']
-                if not isinstance(custom, dict) or set(custom) - {'rooms', 'edges', 'duration_s'}:
+                if not isinstance(custom, dict) or set(custom) - {'rooms', 'edges', 'duration_s', 'droplet_time_scale'}:
                     raise ValueError('Environment must contain rooms, edges and optional duration_s')
-                scenario.update(rooms=custom['rooms'], edges=custom['edges'], duration_s=custom.get('duration_s',1200))
+                scenario.update(rooms=custom['rooms'], edges=custom['edges'], duration_s=custom.get('duration_s',1200),droplet_time_scale=custom.get('droplet_time_scale',600.))
             scenario.update(source=source, k_mm2_s=k)
             scenario=dimensions(scenario)
             # Reuse the exact inference validation and model used by the live demo.
@@ -50,9 +50,9 @@ def build_app():
                 raise ValueError('No usable flame mask; simulation cannot start')
             pixels = 2 * (area / np.pi) ** .5
             size = number(pixels * scale, 'Visual diameter', .000001, 10000)
-            burn = dict(initial_diameter_mm=size, legacy_k_mm2_s_ignored=k, mode='visual_mask_provenance',
+            burn = dict(initial_diameter_mm=size, k_mm2_s=k, mode='visual_mask_provenance',
                         controls=controls, diameter_px=pixels, assumed_mm_per_pixel=scale,
-                        warning='Uncalibrated image diameter only; it does not set compartment heat release or ignition timing.')
+                        warning='Equivalent droplet proxy derived from a luminous mask and assumed image scale; aggregate time scaling is not a calibrated compartment measurement.')
             simulation = simulate_dimensioned(scenario, image_provenance=burn)
             return jsonify(prediction=result, simulation=simulation)
         except (ValueError, KeyError, TypeError) as exc:

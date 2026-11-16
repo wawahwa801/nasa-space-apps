@@ -1,11 +1,11 @@
 "use client";
 import {useRef,useState} from 'react';
-const COLORS={burning:'#ff8d55',warming:'#d2ac68',unignited:'#6283a2',inert:'#52606e',burned:'#716a67'};
+const COLORS={burning:'#ff8d55',warming:'#d2ac68',unignited:'#6283a2',inert:'#52606e',burned:'#716a67',extinguished:'#807b83'};
 const time=t=>t===null?'Not reached':`${(t/60).toFixed(1)} min`;
 export function RoomDeck({environment,current,source,selected,onSelect,onIgnite,onDoor,onAllDoors,onPlace,editing,intervals,uncertainty,onExport}) {
   const [zoom,setZoom]=useState(1),[picking,setPicking]=useState(false);const viewport=useRef(null);
-  const width=(Math.max(editing?9:4,...environment.rooms.map(r=>r.x))+1)*200+50;
-  const height=(Math.max(editing?9:3,...environment.rooms.map(r=>r.y))+1)*200+50;
+  const width=(Math.max(editing?9:2,...environment.rooms.map(r=>r.x))+1)*200+50;
+  const height=(Math.max(editing?9:1,...environment.rooms.map(r=>r.y))+1)*200+50;
   const chosen=environment.rooms[selected]||environment.rooms[0];
   function choose(i){onSelect(i);if(picking&&environment.rooms[i].fuel){onIgnite(i);setPicking(false);}}
   function place(e){if(!editing||e.target.closest('[data-room],[data-door]'))return;const matrix=e.currentTarget.getScreenCTM();if(!matrix)return;const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(matrix.inverse());onPlace(Math.max(0,Math.min(9,Math.round((p.x-125)/200))),Math.max(0,Math.min(9,Math.round((p.y-125)/200))));}
@@ -13,7 +13,7 @@ export function RoomDeck({environment,current,source,selected,onSelect,onIgnite,
   return <div className="orbit-deck">
     <div className="orbit-deck-top"><div><span className="orbit-eyebrow">ORBIT / DECK PLAN</span><h3>Station environment</h3></div><div className="orbit-map-actions"><button type="button" aria-pressed={picking} onClick={()=>setPicking(v=>!v)}>{picking?'Cancel ignition pick':'Pick ignition'}</button><button type="button" onClick={()=>setZoom(z=>Math.max(.5,z/1.25))} aria-label="Zoom out">−</button><button type="button" onClick={()=>setZoom(z=>Math.min(2,z*1.25))} aria-label="Zoom in">+</button><button type="button" onClick={()=>setZoom(1)}>Fit</button><button type="button" disabled={!current} onClick={onExport}>Export</button></div></div>
     <div className="orbit-legend">{Object.entries(COLORS).map(([s,c])=><span key={s}><i style={{background:c}}/>{s}</span>)}</div>
-    {current && <div className="orbit-stats"><div><b>{current.rooms.filter(r=>r.state==='burning').length}</b><span>burning rooms</span></div><div><b>{current.rooms.filter(r=>r.state==='burning'||r.state==='burned').length}</b><span>rooms reached</span></div><div><b>{Math.round(100*current.rooms.reduce((sum,r)=>sum+r.remaining_fraction,0)/Math.max(1,environment.rooms.filter(r=>r.fuel).length))}%</b><span>assumed fuel remaining</span></div></div>}
+    {current && <div className="orbit-stats"><div><b>{current.rooms.filter(r=>r.state==='burning').length}</b><span>burning rooms</span></div><div><b>{current.rooms.filter(r=>r.state==='burning'||r.state==='burned'||r.state==='extinguished').length}</b><span>rooms reached</span></div><div><b>{Math.round(100*current.rooms.reduce((sum,r)=>sum+r.remaining_fraction,0)/Math.max(1,environment.rooms.filter(r=>r.fuel).length))}%</b><span>assumed fuel remaining</span></div></div>}
     <div className="orbit-map-viewport" ref={viewport}>
       <svg style={{width:`${zoom*100}%`,minWidth:zoom===1?undefined:'600px'}} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Station deck with interactive doors" onClick={place}>
         <rect x="12" y="12" width={width-24} height={height-24} rx="30" fill="#0e151e" stroke="#26384b"/>
@@ -23,7 +23,7 @@ export function RoomDeck({environment,current,source,selected,onSelect,onIgnite,
       </svg>
     </div>
     <div className="orbit-inspector"><div><h4>{chosen.name}</h4><p>{selectedState?.state||'Awaiting simulation'} · {chosen.width_m||5} × {chosen.length_m||5} × {chosen.height_m||2.7} m</p>{bounds&&<p>{bounds.scenarios_reached}/{bounds.scenarios_total} scenarios reached · Ignition assumption range: {bounds.earliest_s===null?'Not reached in any scenario':`${time(bounds.earliest_s)} – ${bounds.latest_s===null?`beyond ${(environment.duration_s||1200)/60} min in some scenarios`:time(bounds.latest_s)}`}</p>}{selectedState&&<p>Modeled mean temperature: {selectedState.temperature_c?.toFixed(0)} °C · scenario envelope {selectedState.temperature_lower_c?.toFixed(0)}–{selectedState.temperature_upper_c?.toFixed(0)} °C</p>}</div><div className="orbit-map-actions"><button type="button" disabled={!chosen.fuel} onClick={()=>onIgnite(selected)}>Ignite selected</button><button type="button" onClick={()=>onAllDoors(true)}>Open all doors</button><button type="button" onClick={()=>onAllDoors(false)}>Close all doors</button></div></div>
-    {uncertainty&&<details className="orbit-uncertainty"><summary>Assumption ranges · not a confidence interval</summary><p>{uncertainty.statement}</p><p>Fixed scenario assumptions: 22 °C ambient, 30 MJ/m² fuel load, 1 MW peak per burning room, effective emissivity 0.15 and 1,200 s cooling. CNN chamber conditions are image inputs, not calibrated compartment fire inputs.</p>{Object.entries(uncertainty.profiles).map(([name,p])=><p key={name}>{name.replaceAll('_',' ')}: t² growth to 1 MW at {p.growth}s; ignition threshold {p.ignition} °C; effective thermal inertia ×{p.inertia}; heat-transfer fraction {p.transfer}; transport speed {p.velocity} m/s.</p>)}</details>}
+    {uncertainty&&<details className="orbit-uncertainty"><summary>Assumption ranges · not a confidence interval</summary><p>{uncertainty.statement}</p><p>Scenario assumptions: 22 °C ambient, 30 MJ/m² fuel load, effective emissivity 0.15 and 1,200 s cooling. CNN mask size plus image scale defines an equivalent droplet; K and aggregation scaling remain assumptions.</p>{Object.entries(uncertainty.profiles).map(([name,p])=><p key={name}>{name.replaceAll('_',' ')}: aggregate lifetime multiplier {p.growth/300}; ignition threshold {p.ignition} °C; effective thermal inertia ×{p.inertia}; heat-transfer fraction {p.transfer}; transport speed {p.velocity} m/s.</p>)}</details>}
     <p className="hybrid-muted">Select rooms to inspect. Click a door to open/close it; changes recompute an existing simulation from time zero. This is a schematic deck; dimension labels give the physical inputs used by the solver.</p>
   </div>;
 }

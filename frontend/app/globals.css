@@ -2058,3 +2058,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .orbit-stats>div {background:#0e151f;border-radius:8px;padding:12px;}
 .orbit-stats b {display:block;font-size:22px;font-weight:500;}
 .orbit-stats span {font-size:10px;color:#9bacbe;}
+/* Compact room workspace: editor and default deck remain side by side. */
+.rooms-tab-panel .hybrid-layout {grid-template-columns:250px minmax(0,1fr);gap:16px;}
+.rooms-tab-panel .room-editor {position:sticky;top:88px;max-height:calc(100dvh - 105px);overflow:auto;}
+.rooms-tab-panel .room-editor h4 {font-size:12px;margin:18px 0 8px;}
+.rooms-tab-panel .room-editor .room-hallway-item {display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px;}
+.rooms-tab-panel .room-editor .hallway-length {font-size:10px;margin:4px 0;}
+.room-clock small {display:block;font-size:10px;color:var(--muted);}
+.room-remove-link {display:block;margin-top:6px;}
+.rooms-tab-panel .hybrid-flame img {width:128px;height:128px;object-fit:contain;}
+@media(max-width:700px){.rooms-tab-panel .hybrid-layout{grid-template-columns:160px minmax(0,1fr);gap:8px;}.rooms-tab-panel .hybrid-results{padding:8px;}.rooms-tab-panel .room-editor{padding:10px;position:static;max-height:650px;}.rooms-tab-panel .room-coordinate-fields{gap:5px;}.rooms-tab-panel .room-editor .room-hallway-item{grid-template-columns:1fr;}.rooms-tab-panel .hybrid-active{padding:84px 8px 24px;}.orbit-map-actions{gap:4px;}.orbit-stats{grid-template-columns:1fr;}.orbit-inspector{font-size:11px;}}

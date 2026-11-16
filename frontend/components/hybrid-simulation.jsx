@@ -20,10 +20,11 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
   useEffect(() => {
     setControlsContainer(controlsContainerId ? document.getElementById(controlsContainerId) : null);
   }, [controlsContainerId]);
+  const [placingRooms, setPlacingRooms] = useState(false);
   const [environment, setEnvironment] = useState(null), [defaultEnvironment, setDefaultEnvironment] = useState(null);
-  const [editing, setEditing] = useState(false), [selectedRoom, setSelectedRoom] = useState(0);
+  const [editing, setEditing] = useState(!controlsContainerId), [selectedRoom, setSelectedRoom] = useState(0);
   const playTime = useRef(0);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [playbackSpeed, setPlaybackSpeed] = useState(30);
   const [info, setInfo] = useState(null);
   const [controls, setControls] = useState({});
   const [result, setResult] = useState(null);
@@ -31,7 +32,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
   const [status, setStatus] = useState("Loading hybrid model controls…");
   const [busy, setBusy] = useState(false);
   const [scale, setScale] = useState(0.03);
-  const k = 0.8;
+  const [k, setK] = useState(0.8);
   const [source, setSource] = useState(3);
   const [frame, setFrame] = useState(0);
   const [displayTime, setDisplayTime] = useState(null);
@@ -118,7 +119,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
       .then(async ([r, env]) => {
         if (!r.ok || !env.ok) throw Error("unavailable");
         const data=await env.json();
-        if(active){setDefaultEnvironment(data);setEnvironment({rooms:data.rooms,edges:data.edges,duration_s:data.duration_s||1200});}
+        if(active){setDefaultEnvironment(data);setSource(data.source);setEnvironment({rooms:data.rooms,edges:data.edges,duration_s:data.duration_s||1200,droplet_time_scale:data.droplet_time_scale||600});}
         return r.json();
       })
       .then((data) => {
@@ -277,9 +278,10 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                   </select>
                 </label>
               ))}
-              <label>Image scale (mm/pixel, visual only)
+              <label>Equivalent-droplet image scale (mm/pixel)
                 <input type="number" min="0.0001" max="0.1" step="0.001" value={scale} onChange={(e) => { invalidate(); setScale(Number(e.target.value)); }} />
               </label>
+              <label>Assumed droplet K (mm²/s)<input type="number" min="0.000001" max="10" step="0.01" value={k} onChange={e=>{invalidate();setK(Number(e.target.value));}}/></label>
               <label>Ignition module
                 <select value={source} onChange={(e) => { invalidate(); setSource(Number(e.target.value)); }}>
                   {source<0 && <option value={-1}>Choose a fueled room</option>}
@@ -295,14 +297,14 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
   );
 
   const roomEditor = (<>
-          {environment && <RoomEnvironmentEditor environment={environment} source={source} selected={selectedRoom} onSelect={setSelectedRoom} onChange={editEnvironment} onSource={i=>{invalidate();setSource(i);}} onReset={()=>{editEnvironment({rooms:defaultEnvironment.rooms,edges:defaultEnvironment.edges,duration_s:defaultEnvironment.duration_s||1200},defaultEnvironment.source);setSelectedRoom(0);}}/>}
+          {environment && <RoomEnvironmentEditor environment={environment} source={source} selected={selectedRoom} onSelect={setSelectedRoom} onLayoutMode={setPlacingRooms} onChange={editEnvironment} onSource={i=>{invalidate();setSource(i);}} onReset={()=>{editEnvironment({rooms:defaultEnvironment.rooms,edges:defaultEnvironment.edges,duration_s:defaultEnvironment.duration_s||1200,droplet_time_scale:defaultEnvironment.droplet_time_scale||600},defaultEnvironment.source);setSelectedRoom(0);}}/>}
   </>);
   return (
     <section ref={workspaceRef} className={`hybrid-active ${controlsContainerId ? "hybrid-with-panel" : ""}`} aria-label={title}>
       <header className="hybrid-head">
         <h2>{title}</h2>
         <p>
-          The hybrid CNN generates a flame image for the chosen conditions; room dimensions, specified fire growth and open hallways drive the separate thermal scenario.
+          The hybrid CNN generates a flame image for the chosen conditions; the equivalent droplet D² history is scaled into finite room fuel release, with room dimensions and hallway transport included.
         </p>
         <p role="status" className="hybrid-status">{status}</p>
       </header>
@@ -336,7 +338,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                 <div>
                   <p className="hybrid-muted" aria-live="polite">{previewStatus}</p>
                   <p>{!controlsContainerId && `${preview.conditions} · `}{preview.model_note}</p>
-                  {result && <p>Visual prediction mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm (visual only; does not set room fire power)</p>}
+                  {result && <p>Visual prediction mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm (equivalent-droplet proxy)</p>}
                   {result && <p className="hybrid-muted">Drag the flame onto a room, or select a room, to restart the fire there.</p>}
                   <button type="button" aria-expanded={comparison} onClick={() => setComparison((v) => !v)}>{controlsContainerId ? "Compare selected prediction sources" : "Compare source images"}</button>
                 </div>
@@ -349,7 +351,8 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
               )}
             </>
           )}
-          {environment && <div className="room-environment-tools"><button type="button" aria-expanded={editing} onClick={()=>setEditing(v=>!v)}>{editing?'Close environment editor':'Edit environment'}</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}
+          {environment && <div className="room-environment-tools"><button type="button" aria-pressed={editing} onClick={()=>setEditing(true)}>Environment</button><button type="button" aria-pressed={!editing} onClick={()=>setEditing(false)}>Model parameters</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}
+          {result?.simulation.burn_model.droplet_scaling && <p className="hybrid-muted">Equivalent droplet: {result.simulation.burn_model.droplet_scaling.diameter_mm.toFixed(2)} mm · D² lifetime {result.simulation.burn_model.droplet_scaling.raw_lifetime_s.toFixed(2)} s × assumed {result.simulation.burn_model.droplet_scaling.aggregate_time_scale} scale = {result.simulation.diagnostics.scaled_burn_duration_s.toFixed(0)} simulated seconds (nominal).</p>}
           <div className={`room-workspace ${editing?'is-editing':''}`}>
 
           {controlsContainerId && editing && roomEditor}
@@ -357,18 +360,18 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
           {result && current && <div className="room-playback-toolbar">
             <button type="button" onClick={()=>{if(!playing && playTime.current>=result.simulation.frames.at(-1).time_s)seek(0);setPlaying(v=>!v);}}>{playing?'Pause':'Play'}</button>
             <button type="button" onClick={()=>{seek(0);setPlaying(true);}}>Restart</button>
-            <span className="room-clock">Time <strong>{(displayTime ?? current.time_s).toFixed(2)} s</strong></span>
-            <label>Speed<select aria-label="Room playback speed" value={playbackSpeed} onChange={e=>setPlaybackSpeed(Number(e.target.value))}>{[.5,1,2,4,8].map(v=><option key={v} value={v}>{v}×</option>)}</select></label>
+            <span className="room-clock">Simulated time <strong>{Math.floor((displayTime ?? current.time_s)/60)}:{((displayTime ?? current.time_s)%60).toFixed(1).padStart(4,"0")}</strong><small>{(displayTime ?? current.time_s).toFixed(1)} seconds · {playbackSpeed}× playback</small></span>
+            <label>Speed<select aria-label="Room playback speed" value={playbackSpeed} onChange={e=>setPlaybackSpeed(Number(e.target.value))}>{[1,8,16,30,60,120].map(v=><option key={v} value={v}>{v}×</option>)}</select></label>
             <label className="room-time-scrub">Playback<input aria-label="Room playback time" type="range" min="0" max={result.simulation.frames.at(-1).time_s} step="0.1" value={displayTime ?? current.time_s} onChange={e=>{setPlaying(false);seek(Number(e.target.value));}}/></label>
           </div>}
-          {mapEnvironment && <RoomDeck environment={mapEnvironment} current={current} source={source} selected={selectedRoom} onSelect={setSelectedRoom} onIgnite={restartAt} editing={editing}
+          {mapEnvironment && <RoomDeck environment={mapEnvironment} current={current} source={source} selected={selectedRoom} onSelect={setSelectedRoom} onIgnite={restartAt} editing={editing && placingRooms}
             onDoor={i=>changeDoors({...environment,edges:environment.edges.map((e,j)=>j===i?{...e,open:!e.open}:e)})}
             onAllDoors={open=>changeDoors({...environment,edges:environment.edges.map(e=>({...e,open}))})}
             onPlace={(x,y)=>{if(environment.rooms.some((r,i)=>i!==selectedRoom&&r.x===x&&r.y===y))return;editEnvironment({...environment,rooms:environment.rooms.map((r,i)=>i===selectedRoom?{...r,x,y}:r)});}}
             onExport={exportSimulation} intervals={result?.simulation.ignition_intervals} uncertainty={result?.simulation.uncertainty}/>}
           </div></div>
           <p className="hybrid-muted">
-            Dimensioned thermal-network scenarios with assumed growth, fuel load and transfer. These are sensitivity ranges, not calibrated spacecraft predictions; ventilation, smoke and oxygen depletion are not solved.
+            Equivalent-droplet-scaled thermal scenarios with assumed aggregation, fuel load and transfer. These are sensitivity ranges, not calibrated spacecraft predictions; ventilation, smoke and oxygen depletion are not solved.
           </p>
         </div>
       </div>

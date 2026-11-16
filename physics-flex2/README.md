@@ -87,3 +87,11 @@ provenance only. The prototype-style deck offers clickable/bulk doors, room
 inspection and scenario sensitivity ranges. Door changes recompute from time zero.
 See [THERMAL_NETWORK.md](THERMAL_NETWORK.md) for equations, defaults, sources and
 limitations. These ranges are not calibrated confidence intervals.
+
+### Scaled-droplet follow-up
+
+The six-room default uses the CNN mask's equivalent diameter and assumed K through
+an explicit D² aggregation time scale. Room dimensions and hallway lengths still
+enter thermal/transport calculations. This replaces the previous fixed HRR input;
+see THERMAL_NETWORK.md for the equations, source/proxy distinction and limits.
+Playback starts at 30× while the clock remains in simulated minutes/seconds.
