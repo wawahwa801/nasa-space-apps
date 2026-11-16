@@ -472,6 +472,12 @@ export default function Home() {
               <div className="parameters-heading">
                 <div>
                   <h2 id="parameters-heading">Parameters</h2>
+                  <p>
+                    Flame model conditions. They change the generated flame image (and any
+                    simulation you run) on this page only. Air quality, fuels and materials are
+                    set in NASA comparison parameters below; the Room simulation page has its
+                    own conditions.
+                  </p>
                 </div>
               </div>
               <div id="model-parameters" />
@@ -486,8 +492,10 @@ export default function Home() {
                 <div>
                   <h2 id="nasa-comparison-title">NASA data comparison</h2>
                   <p>
-                    Your parameters checked against ACME, Saffire-I, SPICE and
-                    SAME-R microgravity fire experiments. Edit values in NASA comparison parameters below.
+                    Air quality, fuels and materials checked against ACME, Saffire-I, SPICE and
+                    SAME-R microgravity fire experiments. Set them in NASA comparison parameters
+                    below: they change this section only (assessment, gas levels, charts and live
+                    monitoring), not the flame image or room simulation.
                   </p>
                 </div>
                 <div className="comparison-actions">
@@ -528,7 +536,10 @@ export default function Home() {
                 </div>
               </div>
               <details className="nasa-comparison-inputs" id="nasa-inputs">
-                <summary>NASA comparison parameters</summary>
+                <summary>
+                  NASA comparison parameters: air quality, fuels and materials
+                  <span className="summary-scope"> · changes this section only</span>
+                </summary>
               <form id="scenario-form" onSubmit={preview}>
                 <div className="field-section">
                   <span className="field-section-title">
