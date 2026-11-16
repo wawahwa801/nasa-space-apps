@@ -28,6 +28,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
   const [k, setK] = useState(0.8);
   const [source, setSource] = useState(3);
   const [frame, setFrame] = useState(0);
+  const [displayTime, setDisplayTime] = useState(null);
   const [playing, setPlaying] = useState(false);
   const [comparison, setComparison] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -135,14 +136,28 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
 
   useEffect(() => {
     if (!playing || !result) return;
-    const timer = setInterval(() => setFrame((i) => {
-      if (i >= result.simulation.frames.length - 1) {
+    const frames = result.simulation.frames;
+    let previous = null;
+    let elapsed = frames[frame]?.time_s ?? 0;
+    let raf;
+    const tick = (now) => {
+      if (previous !== null) elapsed += (now - previous) / 1000;
+      previous = now;
+      const last = frames.length - 1;
+      if (elapsed >= frames[last].time_s) {
+        setFrame(last);
+        setDisplayTime(frames[last].time_s);
         setPlaying(false);
-        return i;
+        return;
       }
-      return i + 1;
-    }), 500);
-    return () => clearInterval(timer);
+      let next = 0;
+      while (next < last - 1 && frames[next + 1].time_s < elapsed) next++;
+      setFrame(next);
+      setDisplayTime(elapsed);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [playing, result]);
 
   function invalidate() {
@@ -152,6 +167,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
     setPlaying(false);
     setBusy(false);
     setFrame(0);
+    setDisplayTime(null);
     setStatus("Inputs changed. Press Simulate to run.");
   }
   function change(key, value) {
@@ -184,6 +200,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
         assumptions: data.simulation.assumptions,
       });
       setFrame(0);
+      setDisplayTime(0);
       setPlaying(true);
       setStatus("Simulation ready · illustrative flame-size proxy");
     } catch (e) {
@@ -309,7 +326,14 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
           )}
           {result && current && (
             <>
-              <svg viewBox="0 0 800 500" role="img" aria-label={`Room spread at ${current.time_s} seconds`}>
+              <div className="room-playback-toolbar">
+                <button type="button" onClick={() => { if (frame === result.simulation.frames.length - 1) { setFrame(0); setDisplayTime(0); } else setDisplayTime(current.time_s); setPlaying((p) => !p); }}>{playing ? "Pause" : "Play"}</button>
+                <span className="room-clock">Time <strong>{(displayTime ?? current.time_s).toFixed(2)} s</strong></span>
+                <label>Playback
+                  <input type="range" min="0" max={result.simulation.frames.length - 1} value={frame} onChange={(e) => { setPlaying(false); const value=Number(e.target.value); setFrame(value); setDisplayTime(result.simulation.frames[value].time_s); }} />
+                </label>
+              </div>
+              <svg viewBox="0 0 800 500" role="img" aria-label={`Room spread at ${(displayTime ?? current.time_s).toFixed(1)} seconds`}>
                 {result.simulation.scenario.edges.map((e, i) => {
                   const a = result.simulation.scenario.rooms[e.a];
                   const b = result.simulation.scenario.rooms[e.b];
@@ -324,12 +348,6 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                   </g>
                 ))}
               </svg>
-              <div className="hybrid-playback">
-                <button type="button" onClick={() => { if (frame === result.simulation.frames.length - 1) setFrame(0); setPlaying((p) => !p); }}>{playing ? "Pause" : "Play"}</button>
-                <label>Time: {current.time_s.toFixed(1)} s
-                  <input type="range" min="0" max={result.simulation.frames.length - 1} value={frame} onChange={(e) => { setPlaying(false); setFrame(Number(e.target.value)); }} />
-                </label>
-              </div>
             </>
           )}
           <p className="hybrid-muted">
