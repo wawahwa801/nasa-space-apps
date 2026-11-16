@@ -27,7 +27,7 @@ def example():
                                  calibration_source='Illustrative scale, not verified calibration', image_kind='cnn_estimate'))
 
 
-def simulate(query, fitted=None, burn_override=None):
+def validate_layout(query):
     rooms, edges = query['rooms'], query['edges']
     if not isinstance(rooms,list) or not 1 <= len(rooms) <= 16 or not isinstance(edges,list) or len(edges)>120:
         raise ValueError('Supply 1–16 rooms and at most 120 edges')
@@ -61,6 +61,11 @@ def simulate(query, fitted=None, burn_override=None):
         seen.add(key)
         if edge['open']:
             links[a].append(b);links[b].append(a)
+    return rooms, edges, source, links
+
+
+def simulate(query, fitted=None, burn_override=None):
+    rooms, edges, source, links = validate_layout(query)
     duration=number(query.get('duration_s',60),'duration_s',1,180)
     capture=number(query.get('transfer_fraction',.8),'transfer_fraction',0,1)
     threshold=number(query.get('ignition_threshold',.1),'ignition_threshold',.001,1)
