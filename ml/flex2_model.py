@@ -101,8 +101,8 @@ def run(epochs=250):
     (ART/'report.json').write_text(json.dumps(report,indent=2));print(json.dumps({k:v for k,v in report.items() if k!='history'},indent=2),flush=True)
 
 
-def load():
-    saved=torch.load(ART/'selected.pt',map_location='cpu',weights_only=True)
+def load(checkpoint=None):
+    saved=torch.load(checkpoint if checkpoint is not None else ART/'selected.pt',map_location='cpu',weights_only=True)
     net=DropletCNN(len(FIELDS)+len(saved['report']['fuels']));net.load_state_dict(saved['state']);net.eval();return net,saved
 
 

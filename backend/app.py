@@ -5,6 +5,11 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from database.registry import ModelRegistry, RegistryUnavailable
+from hybrid_artifacts import ArtifactUnavailable
+from hybrid_service import HybridService, ModelNotReady
+from botocore.exceptions import BotoCoreError, ClientError
+import zipfile
+import pickle
 
 from llm import (
     AnalysisService,
@@ -18,7 +23,7 @@ from llm import (
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
 
 
-def create_app(service: AnalysisService | None = None, model_registry=None) -> Flask:
+def create_app(service: AnalysisService | None = None, model_registry=None, hybrid_service=None) -> Flask:
     load_dotenv(Path(__file__).with_name(".env"))
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
@@ -41,6 +46,29 @@ def create_app(service: AnalysisService | None = None, model_registry=None) -> F
         **({"sslmode": os.environ["DB_SSLMODE"]} if os.getenv("DB_SSLMODE") else {}),
         **({"sslrootcert": os.environ["DB_SSLROOTCERT"]} if os.getenv("DB_SSLROOTCERT") else {}),
     })
+
+    hybrid = hybrid_service if hybrid_service is not None else HybridService(registry)
+
+    def hybrid_request(action):
+        raw_id = request.headers.get("X-Model-ID")
+        if raw_id is not None and (len(raw_id) > 19 or not raw_id.isascii() or not raw_id.isdigit() or not 0 < int(raw_id) < 2**63):
+            return jsonify(error="Invalid model version identifier."), 400
+        try:
+            data, status = hybrid.handle(action, request.method, list(request.args.items(multi=True)),
+                                         request.get_json(silent=True) if request.method == "POST" else None,
+                                         int(raw_id) if raw_id is not None else None)
+        except ModelNotReady:
+            return jsonify(error="No ready hybrid model is available for this version. Reload after publishing a verified hybrid package."), 503
+        except (RegistryUnavailable, ArtifactUnavailable, BotoCoreError, ClientError, OSError, ValueError, KeyError, ImportError, RuntimeError, EOFError, pickle.UnpicklingError, zipfile.BadZipFile) as error:
+            app.logger.warning("Hybrid model unavailable (%s)", type(error).__name__)
+            return jsonify(error="Hybrid model could not be loaded. Check server database, S3 permissions and package configuration."), 503
+        response = jsonify(data)
+        response.headers["Cache-Control"] = "no-store"
+        return response, status
+
+    for action, methods in (("runs", ["GET"]), ("compare", ["GET"]), ("simulate", ["POST"]), ("environment", ["GET"])):
+        app.add_url_rule("/api/hybrid/" + action, endpoint="hybrid_" + action,
+                         view_func=lambda action=action: hybrid_request(action), methods=methods)
 
     @app.get("/api/models/latest")
     def latest_model():

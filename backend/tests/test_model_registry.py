@@ -138,3 +138,9 @@ def test_route_uses_separate_environment_fields_and_raw_password(monkeypatch):
     assert captured['dbname'] == 'pyroclast'
     assert captured['user'] == 'reader'
     assert captured['password'] == 'p@ss:/?#%word'
+
+
+def test_pinned_ready_version_is_not_replaced_by_latest(registry):
+    assert registry.by_id('flex2', 1)['model_version'] == 'old'
+    assert registry.by_id('flex2', 3) is None  # staged
+    assert registry.by_id('other', 1) is None

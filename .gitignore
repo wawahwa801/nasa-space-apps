@@ -28,3 +28,6 @@ ml/artifacts/flex2-study/*
 !ml/artifacts/flex2-study/report.json
 .DS_Store
 .vercel
+
+# Verified server-side S3 model cache
+backend/.model-cache/

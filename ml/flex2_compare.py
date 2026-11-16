@@ -36,7 +36,8 @@ for(const s of r.renderer||[]){const label=document.createElement('label');label
 </script></html>'''
 
 
-def create_app(run_dir,texture=False):
+def create_app(run_dir,texture=False,*,baseline_data_dir=None,baseline_checkpoint=None):
+    base_root=Path(baseline_data_dir) if baseline_data_dir is not None else ROOT
     run_dir=Path(run_dir);training=run_dir/'training'
     snapshot=run_dir/'snapshot.json'
     if snapshot.exists():
@@ -80,7 +81,7 @@ def create_app(run_dir,texture=False):
         hybrid=ContinuousCNN(x.shape[1])
     else:hybrid=RetrievalConditioned(x.shape[1]*3)
     hybrid.load_state_dict(saved['state']);hybrid.eval()
-    cnn,cnn_saved=load();base=np.load(ROOT/'prepared.npz');train=np.where(base['splits']=='train')[0]
+    cnn,cnn_saved=load(baseline_checkpoint);base=np.load(base_root/'prepared.npz');train=np.where(base['splits']=='train')[0]
     images=torch.tensor(d['images']).permute(0,3,1,2).float()/255;conditions=torch.tensor(x)
     if shape or geometry:
         aligned,aligned_masks=aligned_data(d['images'],d['masks']);images=torch.tensor(aligned).permute(0,3,1,2).float()/255
@@ -95,7 +96,7 @@ def create_app(run_dir,texture=False):
         with torch.inference_mode():
             encoded=[hybrid.encode_references(b) for b in images.split(8)]
             pyramid_banks=[torch.cat([parts[k] for parts in encoded]) for k in range(3)]
-    base_manifest=json.loads((ROOT/'manifest.json').read_text())
+    base_manifest=json.loads((base_root/'manifest.json').read_text())
     eligible=[i for i,f in enumerate(d['fuels']) if m['fuels'][int(f)] in base_manifest['fuels']]
     eligible.sort(key=lambda i:(str(d['splits'][i])!='test',str(d['groups'][i])))
     numeric_labels=[('Pressure','kPa'),('Chamber temperature','°C'),('Support fiber','0 / 1'),('Igniter power','W'),('Power missing flag','0 / 1'),('Igniter on-time','s'),('On-time missing flag','0 / 1'),('Time since igniter-on','s')]

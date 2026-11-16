@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 const { chromium } = createRequire(import.meta.url)('playwright');
 const base = process.env.TEST_BASE_URL || 'http://127.0.0.1:3012';
 const pixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=';
-const info = {runs:[{id:'run-a', label:'Demo fuel', values:{n0:1.123456789, n1:25}}],
+const info = {model:{id:42},runs:[{id:'run-a', label:'Demo fuel', values:{n0:1.123456789, n1:25}}],
   numeric:[{key:'n0',label:'Pressure',unit:'kPa',min:1.123456789,max:200.987654321,step:'any'},
            {key:'n1',label:'Temperature',unit:'°C',min:20,max:30,step:'any'}],categories:[]};
 const browser = await chromium.launch({headless:true});
@@ -14,6 +14,7 @@ try {
   const calls=[]; let delay=0;
   await page.route('**/hybrid/runs',r=>r.fulfill({json:info}));
   await page.route('**/hybrid/compare?*',async route=>{
+    assert.equal(route.request().headers()['x-model-id'],'42','All prediction frames pin the registry model selected by /runs');
     const q=Object.fromEntries(new URL(route.request().url()).searchParams); calls.push(q);
     if(delay) await new Promise(resolve=>setTimeout(resolve,delay));
     try { await route.fulfill({json:{hybrid:pixel,cnn:pixel,retrieval:pixel,conditions:`Pressure ${q.n0}; temperature ${q.n1}`,model_note:'Fixture prediction'}}); } catch { /* An expected cancellation can close this request. */ }

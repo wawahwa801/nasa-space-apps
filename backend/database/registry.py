@@ -22,6 +22,14 @@ class ModelRegistry:
         self.connect = connect or psycopg.connect
 
     def latest(self, model_name):
+        return self._query(LATEST_MODEL_SQL, (model_name,))
+
+    def by_id(self, model_name, model_id):
+        sql = LATEST_MODEL_SQL.replace("WHERE model_name = %s AND status = 'ready'",
+                                      "WHERE model_name = %s AND status = 'ready' AND id = %s")
+        return self._query(sql, (model_name, model_id))
+
+    def _query(self, sql, values):
         params = self.connection_params.copy()
         if any(params.get(key) in (None, "") for key in ("host", "port", "dbname", "user", "password")):
             raise RegistryUnavailable('Database is not configured')
@@ -35,7 +43,7 @@ class ModelRegistry:
             with self.connect(**params, row_factory=dict_row,
                               connect_timeout=5, options='-c statement_timeout=5000') as conn:
                 conn.read_only = True
-                row = conn.execute(LATEST_MODEL_SQL, (model_name,)).fetchone()
+                row = conn.execute(sql, values).fetchone()
         except psycopg.Error:
             # Driver errors may contain connection details; do not expose them.
             raise RegistryUnavailable('Model registry is unavailable') from None

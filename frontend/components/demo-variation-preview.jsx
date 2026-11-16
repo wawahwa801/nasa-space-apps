@@ -22,7 +22,7 @@ export function variationQueries(controls, numeric, percent) {
   return queries;
 }
 
-export function DemoVariationPreview({ preview, controls, info, disabled, onPointerDown }) {
+export function DemoVariationPreview({ preview, controls, info, modelId, disabled, onPointerDown }) {
   const [frames, setFrames] = useState([]);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -70,7 +70,7 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
       for (const query of queries) {
         if (!active.current || current !== version.current) return;
         setStatus(`Generating variation ${generated.length + 1} of ${queries.length}…`);
-        const response = await fetch("/hybrid/compare?" + new URLSearchParams(query), { signal: abort.signal });
+        const response = await fetch("/hybrid/compare?" + new URLSearchParams(query), { signal: abort.signal, headers: modelId ? { "X-Model-ID": String(modelId) } : {} });
         const data = await response.json();
         if (!response.ok) throw Error(data.error || "Variation service unavailable");
         const image = new Image(); image.src = data.hybrid; await image.decode();
@@ -88,7 +88,7 @@ export function DemoVariationPreview({ preview, controls, info, disabled, onPoin
       clearTimeout(timeout);
       if (active.current && current === version.current) setLoading(false);
     }
-  }, [controls, info, reset]);
+  }, [controls, info, modelId, reset]);
 
   // Debounce edits, then prepare each frame once; playback never queries the model.
   useEffect(() => {

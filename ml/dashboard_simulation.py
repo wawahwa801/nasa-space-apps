@@ -12,9 +12,10 @@ from rooms import example, simulate
 from model import number
 
 
-def build_app():
+def build_app(run_dir=None,*,baseline_data_dir=None,baseline_checkpoint=None):
     root = Path(__file__).resolve().parent
-    app = create_app(root / 'data/flex2-geometry-model', texture=True)
+    app = create_app(run_dir if run_dir is not None else root / 'data/flex2-geometry-model', texture=True,
+                     baseline_data_dir=baseline_data_dir, baseline_checkpoint=baseline_checkpoint)
     @app.post('/api/simulate')
     def run():
         try:

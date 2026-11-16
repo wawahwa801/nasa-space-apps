@@ -70,7 +70,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
           const next = previewQueue.current;
           previewQueue.current = null;
           try {
-            const response = await fetch("/hybrid/compare?" + new URLSearchParams(next.controls));
+            const response = await fetch("/hybrid/compare?" + new URLSearchParams(next.controls), { headers: info.model ? { "X-Model-ID": String(info.model.id) } : {} });
             const data = await response.json();
             if (!response.ok) throw Error(data.error || "Preview unavailable");
             if (alive.current && next.version === previewVersion.current) {
@@ -120,7 +120,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
       })
       .catch(() => {
         if (!active) return;
-        setStatus("Connecting to the hybrid model service (python ml/dashboard_simulation.py)… retrying automatically.");
+        setStatus("Connecting to the model API… retrying automatically.");
         retry = setTimeout(() => setAttempt((n) => n + 1), 3000);
       })
       .finally(() => clearTimeout(timeout));
@@ -168,7 +168,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
     try {
       const response = await fetch("/hybrid/simulate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(info?.model ? { "X-Model-ID": String(info.model.id) } : {}) },
         body: JSON.stringify({ controls, mm_per_pixel: scale, k_mm2_s: k, source: start }),
       });
       const data = await response.json();
@@ -277,7 +277,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
               <div className="hybrid-flame">
                 {controlsContainerId ? (
                   <DemoVariationPreview key={JSON.stringify([controls, scale, k, source, busy])}
-                    preview={preview} controls={controls} info={info} disabled={busy || previewStatus !== "Live hybrid preview"}
+                    preview={preview} controls={controls} info={info} modelId={info?.model?.id} disabled={busy || previewStatus !== "Live hybrid preview"}
                     onPointerDown={(e) => { e.preventDefault(); dragging.current = true; }} />
                 ) : (
                 <img
@@ -293,7 +293,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                 )}
                 <div>
                   <p className="hybrid-muted" aria-live="polite">{previewStatus}</p>
-                  <p>{!controlsContainerId && `${preview.conditions} · `}{preview.model_note}</p>
+                  <p>{!controlsContainerId && `${preview.conditions} · `}{preview.model_note}{preview.model && ` · Version ${preview.model.version}`}</p>
                   {result && <p>Selected prediction mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm</p>}
                   {result && <p className="hybrid-muted">Drag the flame onto a room, or select a room, to restart the fire there.</p>}
                   <button type="button" aria-expanded={comparison} onClick={() => setComparison((v) => !v)}>{controlsContainerId ? "Compare selected prediction sources" : "Compare source images"}</button>
