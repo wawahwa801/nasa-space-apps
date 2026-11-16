@@ -41,5 +41,8 @@ BASS (first experiment), ISS, 2012–2013. Columns: Date (a few typos, e.g. 6/29
 
 The build script groups both files' materials into categories (PMMA, SIBAL fabric, Nomex, Ultem, wax).
 
+## ochmo-tb-003-habitable-atmosphere (.pdf, 21 pages)
+NASA-STD-3001 Technical Brief, Rev A (2023): crew-health limits, not experiment data. Not parsed by the build script; values are transcribed into `THRESHOLDS.habitable` in `fire-dashboard/js/parameters.js`. Used: total pressure 34.5 < P ≤ 103 kPa for indefinite exposure [V2 6006]; ebullism at 6.27 kPa; supplemental O₂ may not suffice below 130 mmHg (17.3 kPa); at least 30 % inert diluent gas [V2 6002]; PIO₂ = (Pb − 47 mmHg) × FiO₂ with normoxia 149, exploration minimum 127 and absolute minimum 122 mmHg (1-hour average) [V2 6003]; pressure changes > 1 psi at most 13.5 psi/min [V2 6007]. Table 6.2-1 is an image (not transcribed). No humidity, temperature or CO₂ limits (CO₂ is in OCHMO-TB-004).
+
 ## Gaps
 No liquid fuels, no gravity other than microgravity, and no recorded ignition/extinction outcomes for solids (BASS-II gives the O₂ levels flames were studied at). CO/CO₂ during fires come only from BASS-II chamber readings. BASS-II is PSI-25 (CC0-1.0); the PSI-26/BASS record and license still need checking (see README.md).

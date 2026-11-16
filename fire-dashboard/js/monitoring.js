@@ -57,6 +57,110 @@
     return null;
   }
 
+  const KPA_PER_MMHG = 0.133322;
+  const KPA_PER_PSI = 6.894757;
+
+  /** Inspired O₂ partial pressure (mmHg): PIO₂ = (Pb − PH₂O) × FiO₂. */
+  function inspiredO2(o2_pct, pressure_kpa, H) {
+    if (num(o2_pct) === null || num(pressure_kpa) === null) return null;
+    return Math.max(0, pressure_kpa / KPA_PER_MMHG - H.water_vapour_mmhg) * (o2_pct / 100);
+  }
+
+  /**
+   * Is the air habitable for the crew? NASA-STD-3001 limits from T.habitable
+   * (OCHMO-TB-003): total pressure, inspired O₂ (PIO₂) and inert diluent gas.
+   * Either value may be null. Returns [{ level, title, detail, field }], where
+   * "critical" / "serious" mean unsafe, "warning" unhealthy and "good" within limits.
+   */
+  function habitableAtmosphere(o2_pct, pressure_kpa, T) {
+    const H = T.habitable;
+    const out = [];
+    if (!H) return out;
+    const add = (level, title, detail, field) => out.push({ level, title, detail, field });
+    const o2 = num(o2_pct), p = num(pressure_kpa);
+    const mmHg = (kpa) => Math.round(kpa / KPA_PER_MMHG);
+    let pressureOk = null, pio2Ok = null, diluentOk = null;
+
+    if (p !== null) {
+      const { min, max } = H.pressure_kpa;
+      pressureOk = p > min && p <= max;
+      if (p <= H.ebullism_kpa) {
+        add("critical", "Pressure low enough for body fluids to boil",
+          `Pressure is ${r1(p)} kPa, at or below ${H.ebullism_kpa} kPa where body fluids vaporise at body temperature (ebullism). Unsurvivable without a pressure suit.`, "pressure_kpa");
+      } else if (p < H.supplemental_o2_min_kpa) {
+        add("critical", "Pressure too low even for supplemental oxygen",
+          `Pressure is ${r1(p)} kPa (${mmHg(p)} mmHg), below ${H.supplemental_o2_min_kpa} kPa (130 mmHg) where oxygen masks may not keep the crew conscious. Pressure suits are needed.`, "pressure_kpa");
+      } else if (p <= min) {
+        add("serious", "Cabin pressure below NASA's safe range",
+          `Pressure is ${r1(p)} kPa. NASA-STD-3001 [V2 6006] allows ${min}–${max} kPa for indefinite crew exposure.`, "pressure_kpa");
+      } else if (p > max) {
+        add("warning", "Cabin pressure above NASA's indefinite-exposure range",
+          `Pressure is ${r1(p)} kPa, above ${max} kPa ([V2 6006]). Limit how long the crew is exposed.`, "pressure_kpa");
+      }
+    }
+
+    if (o2 !== null) {
+      const maxO2 = 100 - H.min_diluent_pct;
+      diluentOk = o2 <= maxO2;
+      if (!diluentOk) {
+        add("warning", "Too little inert gas in the cabin air",
+          `O₂ is ${r1(o2)}%, leaving ${r1(100 - o2)}% inert (diluent) gas. NASA requires at least ${H.min_diluent_pct}% ([V2 6002]): without it, long exposures can collapse lung air sacs (atelectasis) and fires burn more easily.`, "o2_pct");
+      }
+    }
+
+    if (o2 !== null && p !== null && p > H.ebullism_kpa) {
+      const pio2 = inspiredO2(o2, p, H);
+      const L = H.pio2_mmhg;
+      const shown = Math.round(pio2);
+      // Upper (hyperoxia) exposure limits are in the brief's Table 6.2-1, an image that is
+      // not transcribed, so above the sea-level band the result is "not checked", never "Breathable".
+      const upper = L.normoxia * (1 + H.normoxia_tolerance);
+      pio2Ok = pio2 >= L.exploration_min && pio2 <= upper;
+      if (pio2 > upper) {
+        add("info", "Oxygen above sea-level air: upper exposure limits not checked",
+          `Inspired O₂ (PIO₂) is about ${shown} mmHg vs ${L.normoxia} mmHg in sea-level air. NASA's upper (hyperoxia) exposure limits and durations (Table 6.2-1 of the brief) are not assessed here, so this air is not confirmed safe for long exposure. More O₂ also makes fires start and spread more easily.`, "o2_pct");
+      } else if (pio2 < L.absolute_min) {
+        add("serious", "Unsafe oxygen level: crew at risk of hypoxia",
+          `Inspired O₂ (PIO₂) is about ${shown} mmHg, below NASA's absolute minimum of ${L.absolute_min} mmHg ([V2 6003]). Expect impaired thinking and vision, then loss of consciousness. Use supplemental oxygen and restore pressure or O₂.`, "o2_pct");
+      } else if (pio2 < L.exploration_min) {
+        add("warning", "Unhealthy oxygen level: mild hypoxia",
+          `Inspired O₂ (PIO₂) is about ${shown} mmHg, below ${L.exploration_min} mmHg. NASA allows ${L.absolute_min}–${L.exploration_min} mmHg only as a 1-hour average; expect fatigue, headache and slower thinking.`, "o2_pct");
+      } else if (pio2 < L.normoxia * (1 - H.normoxia_tolerance)) {
+        add("info", "Mildly reduced oxygen (within NASA's exploration range)",
+          `Inspired O₂ (PIO₂) is about ${shown} mmHg vs ${L.normoxia} mmHg in sea-level air. NASA accepts down to ${L.exploration_min} mmHg with a crew health monitoring plan.`, "o2_pct");
+      }
+    }
+
+    if (pressureOk && pio2Ok && diluentOk) {
+      add("good", "Breathable: pressure and oxygen within NASA's habitable limits",
+        `Pressure ${r1(p)} kPa and inspired O₂ about ${Math.round(inspiredO2(o2, p, H))} mmHg, between NASA's exploration minimum and sea-level air (NASA-STD-3001). Humidity, temperature and CO₂ are checked separately.`, "pressure_kpa");
+    }
+    return out;
+  }
+
+  /**
+   * Fastest pressure change between consecutive readings, checked against
+   * [V2 6007]: changes > 1 psi must not exceed 13.5 psi/min. Returns an event or null.
+   * Readings minutes apart only show an average rate, which can hide brief faster changes.
+   */
+  function pressureRateEvent(rs, T) {
+    const R = T.habitable && T.habitable.pressure_rate;
+    if (!R) return null;
+    const ps = rs.filter((r) => num(r.pressure_kpa) !== null);
+    let worst = null;
+    for (let i = 1; i < ps.length; i++) {
+      const dPsi = Math.abs(ps[i].pressure_kpa - ps[i - 1].pressure_kpa) / KPA_PER_PSI;
+      const min = (ps[i].t - ps[i - 1].t) / 60000;
+      if (min <= 0 || dPsi <= R.applies_above_psi) continue;
+      const rate = dPsi / min;
+      if (rate > R.max_psi_per_min && (!worst || rate > worst.rate)) worst = { rate, dPsi, min };
+    }
+    if (!worst) return null;
+    return { level: "serious", title: "Pressure changing faster than NASA's limit",
+      detail: `Pressure changed ${r1(worst.dPsi)} psi in ${r1(worst.min)} min (${r1(worst.rate)} psi/min). NASA-STD-3001 [V2 6007] allows at most ${R.max_psi_per_min} psi/min for changes over ${R.applies_above_psi} psi; fast changes risk ear and lung injury (barotrauma) and decompression sickness.`,
+      field: "pressure_kpa" };
+  }
+
   /**
    * Detect fire / smoke indicators.
    * T: the full THRESHOLDS object (uses T.monitoring, T.co_ppm, T.co2_ppm, T.lfl_pct).
@@ -103,6 +207,10 @@
     else if (o2Now !== null && T.o2_deficient_pct && o2Now < T.o2_deficient_pct) add("warning", "Oxygen-deficient air", `O₂ is ${r1(o2Now)}%, below ${T.o2_deficient_pct}%.`, "o2_pct");
     if (co2 !== null && co2 > T.co2_ppm.serious) add("serious", "Carbon dioxide above the NIOSH short-term limit", `CO₂ is ${Math.round(co2)} ppm.`, "co2_ppm");
     else if (co2 !== null && co2 > T.co2_ppm.warning) add("warning", "Carbon dioxide above the NIOSH exposure limit", `CO₂ is ${Math.round(co2)} ppm.`, "co2_ppm");
+    // Habitable atmosphere (NASA-STD-3001): unsafe / unhealthy pressure and oxygen.
+    for (const e of habitableAtmosphere(latest.o2_pct, latest.pressure_kpa, T)) {
+      if (e.level !== "good") add(e.level, e.title, e.detail, e.field);
+    }
 
     if (rs.length < 2) {
       add("info", "Need at least two readings to detect changes", `Record another reading in about ${M.interval_min} min.`, null);
@@ -159,6 +267,16 @@
       // Oxygen rising: possible oxidizer leak.
       if (o2Rate !== null && o2Rate >= M.o2_rise_pct) {
         add("warning", "Oxygen rising", `O₂ ${show(o2Rate, "%")} ${per}. Possible oxygen or oxidizer leak; materials burn more readily.`, "o2_pct");
+      }
+
+      // Pressure: NASA rate-of-change limit, and time until it leaves the safe range.
+      const rateEvent = pressureRateEvent(rs, T);
+      if (rateEvent) add(rateEvent.level, rateEvent.title, rateEvent.detail, rateEvent.field);
+      const p = latest.pressure_kpa, pRate = rates.pressure_kpa, H = T.habitable;
+      if (H && p !== null && pRate !== null && pRate < 0 && p > H.pressure_kpa.min) {
+        const minutes = ((p - H.pressure_kpa.min) / -pRate) * M.interval_min;
+        if (minutes <= 60) add(minutes <= 15 ? "warning" : "info", `Pressure could fall below ${H.pressure_kpa.min} kPa in about ${Math.max(1, Math.round(minutes))} min`,
+          `Pressure ${show(pRate, "kPa")} ${per}. Below ${H.pressure_kpa.min} kPa is outside NASA's safe range for the crew; check for a leak.`, "pressure_kpa");
       }
     }
 
@@ -316,5 +434,5 @@
     return normalise(out);
   }
 
-  window.Monitoring = { FIELDS, DEMOS, detect, demoSequence, parseReadingsCsv, normalise, ratePerInterval, bassCoRatios, observedCoRatio, suspectMaterials };
+  window.Monitoring = { FIELDS, DEMOS, detect, demoSequence, parseReadingsCsv, normalise, ratePerInterval, bassCoRatios, observedCoRatio, suspectMaterials, habitableAtmosphere, inspiredO2 };
 })();
