@@ -112,8 +112,14 @@
       const pio2 = inspiredO2(o2, p, H);
       const L = H.pio2_mmhg;
       const shown = Math.round(pio2);
-      pio2Ok = pio2 >= L.exploration_min;
-      if (pio2 < L.absolute_min) {
+      // Upper (hyperoxia) exposure limits are in the brief's Table 6.2-1, an image that is
+      // not transcribed, so above the sea-level band the result is "not checked", never "Breathable".
+      const upper = L.normoxia * (1 + H.normoxia_tolerance);
+      pio2Ok = pio2 >= L.exploration_min && pio2 <= upper;
+      if (pio2 > upper) {
+        add("info", "Oxygen above sea-level air: upper exposure limits not checked",
+          `Inspired O₂ (PIO₂) is about ${shown} mmHg vs ${L.normoxia} mmHg in sea-level air. NASA's upper (hyperoxia) exposure limits and durations (Table 6.2-1 of the brief) are not assessed here, so this air is not confirmed safe for long exposure. More O₂ also makes fires start and spread more easily.`, "o2_pct");
+      } else if (pio2 < L.absolute_min) {
         add("serious", "Unsafe oxygen level: crew at risk of hypoxia",
           `Inspired O₂ (PIO₂) is about ${shown} mmHg, below NASA's absolute minimum of ${L.absolute_min} mmHg ([V2 6003]). Expect impaired thinking and vision, then loss of consciousness. Use supplemental oxygen and restore pressure or O₂.`, "o2_pct");
       } else if (pio2 < L.exploration_min) {
@@ -127,7 +133,7 @@
 
     if (pressureOk && pio2Ok && diluentOk) {
       add("good", "Breathable: pressure and oxygen within NASA's habitable limits",
-        `Pressure ${r1(p)} kPa and inspired O₂ about ${Math.round(inspiredO2(o2, p, H))} mmHg (NASA-STD-3001). Humidity, temperature and CO₂ are checked separately.`, "pressure_kpa");
+        `Pressure ${r1(p)} kPa and inspired O₂ about ${Math.round(inspiredO2(o2, p, H))} mmHg, between NASA's exploration minimum and sea-level air (NASA-STD-3001). Humidity, temperature and CO₂ are checked separately.`, "pressure_kpa");
     }
     return out;
   }

@@ -81,7 +81,9 @@ is sent over the network unless you click **Generate insight** (below). Click
   not suffice, or near ebullism (6.27 kPa); inspired O₂ (PIO₂ = (P − 47 mmHg) × O₂ fraction) below
   122 mmHg. Unhealthy (warning): PIO₂ 122–127 mmHg (mild hypoxia), pressure above 103 kPa, or less than
   30 % inert diluent gas (O₂ above 70 %). PIO₂ between 127 mmHg and sea-level normoxia (149) is noted
-  as mildly reduced. The brief gives no humidity, temperature, CO₂ or upper O₂ limits.
+  as mildly reduced. "Breathable" is shown only for PIO₂ from 127 mmHg up to about sea-level air;
+  above that, upper (hyperoxia) exposure is marked as not checked, because the brief's Table 6.2-1
+  (an image) isn't transcribed. The brief gives no humidity, temperature or CO₂ limits.
 - **Gas levels:** H₂ and CH₄ as a share of their lower flammability limits; CO and CO₂ against exposure limits.
 - **Air composition:** a donut of N₂, O₂, trace gases (CO₂, H₂, CH₄, CO, listed individually) and the
   unaccounted remainder, switchable between % and ppm.

@@ -67,6 +67,16 @@ test('at least 30 % inert diluent gas [V2 6002]', () => {
   assert.ok(!find(check(70, 40), /inert gas/));
 });
 
+test('#85: high PIO2 is never "Breathable"; upper exposure is marked not checked', () => {
+  const e = check(70, 101.3); // PIO2 ≈ 499 mmHg
+  assert.ok(!find(e, /Breathable/));
+  assert.equal(find(e, /upper exposure limits not checked/).level, 'info');
+  assert.ok(!find(check(22, 101.3), /Breathable/), '≈157 mmHg is above the sea-level band');
+  assert.ok(find(check(21, 101.3), /Breathable/), 'sea-level air still passes');
+  const r = assess({ o2_pct: 70, pressure_kpa: 101.3 });
+  assert.ok(!r.flags.some((f) => /Breathable/.test(f.title)));
+});
+
 test('missing values give no verdict', () => {
   assert.equal(check(null, null).length, 0);
   assert.ok(!find(check(21, null), /Breathable/));
