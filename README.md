@@ -148,7 +148,9 @@ The response contains `output` (the model's text), `provider`, `model`, `usage`,
 
 ### Configuration
 
-Copy `backend/.env.example` to `backend/.env` and set `LLM_PROVIDER`, `LLM_MODEL`, and `LLM_API_KEY`. Do not commit `.env`.
+Copy `backend/.env.example` to `backend/.env` and set `LLM_PROVIDER`, `LLM_MODEL`, and `LLM_API_KEY`. Do not commit `.env` (it is gitignored), and never put the key in frontend code or a `NEXT_PUBLIC_*` variable: the browser calls the backend, and only the backend talks to the provider.
+
+For the public site, set the same variables in Vercel's environment settings, not in the repository; see [deploy/README.md](deploy/README.md#ai-insights-key-never-in-the-repository). On Vercel the insight endpoints only answer requests from the same site and are rate limited per visitor (configurable with the `LLM_*` variables listed in `backend/.env.example`). `GET /api/llm/status` reports `configured: true/false` without revealing the key.
 
 ### Adding a provider
 
