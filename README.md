@@ -76,10 +76,18 @@ npm.cmd run dev
 Open `http://localhost:3000`. The retrieval and NASA-comparison views work with the frontend alone. The separate Flask API provides `http://localhost:5000/api/health` and the analysis endpoints below.
 
 The page has the Pyroclast flame simulation and, below it, the NASA data comparison from
-`fire-dashboard/` (rendered in an isolated shadow root). Both read the same Parameters
-panel: O₂, pressure, temperature, CO₂ and gravity are shared, and the NASA-only inputs
-appear there as extra sections. Unit pickers on the panel's sliders switch O₂/CO₂ between
-% and ppm, pressure between kPa, psia and atm, and temperature between °C, K and °F.
+`fire-dashboard/` (rendered in an isolated shadow root). The two take separate inputs:
+
+- **Parameters** (left panel): the flame model's conditions. They change the generated flame
+  image on the Flame simulation page only.
+- **NASA comparison parameters** (collapsible, under "NASA data comparison"): air quality
+  (O₂, pressure, temperature, humidity, CO₂, gravity) and the NASA-only inputs (fuels,
+  materials, leaks, monitoring). They change the comparison, assessment, gas levels, charts
+  and live monitoring, not the flame.
+- **Room simulation** page: its own model conditions, separate from the Flame page's.
+
+Unit pickers on the air-quality sliders switch O₂/CO₂ between % and ppm, pressure between
+kPa, psia and atm, and temperature between °C, K and °F.
 The app serves `fire-dashboard/` directly at `/nasa-dashboard/`, so there is no copy or
 sync step; edit `fire-dashboard/` and reload.
 

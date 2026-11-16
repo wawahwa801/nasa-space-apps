@@ -248,6 +248,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
   const modelControls = (
     <form className="hybrid-controls" noValidate onSubmit={(e) => { e.preventDefault(); run(); }}>
           <h3>Model conditions</h3>
+          {showRooms && <p className="hybrid-muted">Separate from the Flame simulation page&apos;s Parameters: these change this page&apos;s flame and fire spread only.</p>}
           {info ? (
             <>
               <label>Recorded fuel / state
