@@ -79,7 +79,9 @@ The page has the Pyroclast flame simulation and, below it, the NASA data compari
 `fire-dashboard/` (rendered in an isolated shadow root). The two take separate inputs:
 
 - **Parameters** (left panel): the flame model's conditions. The live selected image updates as you edit;
-  **Simulate** passes the same conditions and equivalent diameter into the room solver.
+  **Simulate** opens the environment for ignition placement. Drag the selected model
+  image from the placement tray onto a fueled room (or select a room with touch/keyboard)
+  to pass those conditions and equivalent diameter into the room solver.
   Binary apparatus flags, missingness flags and camera codes remain at recorded preset
   values and are omitted from the controls. Image-scale and K assumptions are collapsed.
 - **NASA comparison parameters** (collapsible, under "NASA data comparison"): air quality
@@ -87,7 +89,8 @@ The page has the Pyroclast flame simulation and, below it, the NASA data compari
   materials, leaks, monitoring). They change the comparison, assessment, gas levels, charts
   and live monitoring, not the flame.
 - **Room fire spread** opens below the main preview when you press **Simulate**.
-  Edit the environment beside the map, choose ignition, toggle doors and control playback
+  Burning rooms display the applied model image. Edit the environment beside the map,
+  choose ignition, toggle doors and control playback
   in the same workspace. There is no separate room page.
 - **AI insights** is a collapsible header at the bottom of the simulation page.
   Its Summary, Applied parameters and Assumptions & uncertainty headers organize

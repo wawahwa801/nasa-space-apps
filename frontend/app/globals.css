@@ -2273,3 +2273,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .insight-parameters dt { color: #9d9791; }
 .insight-parameters dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 600px) { .insights-toggle { padding: 20px; }.insights-body { padding: 0 20px 20px; }.insight-parameters > div { grid-template-columns: 1fr; gap: 2px; } }
+
+/* The exact selected image doubles as a placement token and burning-room marker. */
+.ignition-placement-tray { display: flex; align-items: center; gap: 18px; padding: 16px; margin: 0 0 18px; border: 1px solid #f2a77440; border-radius: 16px; background: #f2a77408; }
+.ignition-placement-tray h3 { margin: 0 0 6px; font-size: 16px; font-weight: 500; }
+.ignition-placement-tray p { margin: 4px 0; font-size: 12px; line-height: 1.5; color: #b3aaa3; }
+.hybrid-active .ignition-image-source, .hybrid-active .ignition-image-source:hover:not(:disabled) { flex: none; padding: 0; width: 88px; height: 88px; border: 1px dashed #f2a77490; border-radius: 12px; background: #07090c; cursor: grab; touch-action: none; }
+.ignition-image-source img { display: block; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; pointer-events: none; }
+.ignition-image-source:active { cursor: grabbing; }
+.ignition-drag-ghost { position: fixed; z-index: 1000; pointer-events: none; transform: translate(-50%, -50%); width: 72px; height: 72px; border-radius: 50%; background: #090c11dd; border: 1px solid #f2a77480; box-shadow: 0 0 32px #f2a77425; }
+.ignition-drag-ghost img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; }
+@media (max-width: 600px) { .ignition-placement-tray { gap: 12px; padding: 12px; }.hybrid-active .ignition-image-source { width: 66px; height: 66px; }.ignition-placement-tray h3 { font-size: 14px; } }

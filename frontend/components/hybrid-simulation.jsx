@@ -21,6 +21,8 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
   const workspaceRef = useRef(null);
   const roomRef = useRef(null);
   const [roomOpen, setRoomOpen] = useState(false);
+  const [placement, setPlacement] = useState(null);
+  const [dragVisual, setDragVisual] = useState(null);
   const [insightsContainer, setInsightsContainer] = useState(null);
   const [controlsContainer, setControlsContainer] = useState(null);
   useEffect(() => {
@@ -50,7 +52,7 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
   const [preview, setPreview] = useState(null);
   const [previewStatus, setPreviewStatus] = useState("");
   const generation = useRef(0);
-  const dragging = useRef(false);
+  const dragging = useRef(null);
   const alive = useRef(true);
   const previewQueue = useRef(null);
   const previewBusy = useRef(false);
@@ -104,16 +106,39 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
     return () => clearTimeout(timer);
   }, [info, controls]);
 
-  // Dropping the flame image on a room restarts the fire there.
+  // Pointer dragging works with mouse, pen and touch; the nearby placement tray
+  // keeps the selected image reachable while the environment is on screen.
   useEffect(() => {
-    function drop(e) {
-      if (!dragging.current) return;
-      dragging.current = false;
+    function targetAt(e) {
       const room = document.elementFromPoint(e.clientX, e.clientY)?.closest("[data-room]");
-      if (room && workspaceRef.current?.contains(room)) {const i=Number(room.getAttribute("data-room"));if(environment?.rooms[i]?.fuel)restartAt(i);}
+      return room && workspaceRef.current?.contains(room) ? Number(room.getAttribute("data-room")) : -1;
     }
+    function move(e) {
+      if (dragging.current?.pointerId !== e.pointerId) return;
+      const target = targetAt(e);
+      setDragVisual({ x: e.clientX, y: e.clientY, target });
+    }
+    function cancel() { dragging.current = null; setDragVisual(null); }
+    function drop(e) {
+      if (dragging.current?.pointerId !== e.pointerId) return;
+      const target = targetAt(e);
+      cancel();
+      if (target >= 0 && environment?.rooms[target]?.fuel) restartAt(target);
+      else setStatus("Drop the model image onto a room containing fuel, or select a room to ignite.");
+    }
+    function escape(e) { if (e.key === "Escape") cancel(); }
+    window.addEventListener("keydown", escape);
+    window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", drop);
-    return () => window.removeEventListener("pointerup", drop);
+    window.addEventListener("pointercancel", cancel);
+    window.addEventListener("blur", cancel);
+    return () => {
+      window.removeEventListener("keydown", escape);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", drop);
+      window.removeEventListener("pointercancel", cancel);
+      window.removeEventListener("blur", cancel);
+    };
   });
 
   // Load the recorded runs and control ranges; retry while the service starts.
@@ -178,6 +203,9 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
   }, [playing, result, playbackSpeed]);
 
   function invalidate() {
+    setPlacement(null);
+    dragging.current = null;
+    setDragVisual(null);
     setApplied(null);
     generation.current++;
     setResult(null);
@@ -200,6 +228,22 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
     requestAnimationFrame(() => roomRef.current?.scrollIntoView({ block: "start", behavior: "instant" }));
   }
 
+  function prepareIgnition() {
+    if (busy || !preview || previewStatus !== "Live hybrid preview") return;
+    invalidate();
+    setPlacement({ prediction: preview, controls: { ...controls }, scale, k });
+    openRooms();
+    setStatus("Drag the model image onto your preferred room, or select a room to ignite.");
+  }
+
+  function startImageDrag(e) {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    if (busy || (!placement && !result)) return;
+    dragging.current = { pointerId: e.pointerId };
+    setDragVisual({ x: e.clientX, y: e.clientY, target: -1 });
+  }
+
   async function run(start = source, selectedEnvironment = environment) {
     if(selectedEnvironment && !selectedEnvironment.rooms[start]?.fuel){setStatus("Choose an ignition room containing fuel.");return;}
     openRooms();
@@ -213,11 +257,12 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
       const response = await fetch("/hybrid/simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ controls, mm_per_pixel: scale, k_mm2_s: k, source: start, ...(selectedEnvironment ? {environment:selectedEnvironment} : {}) }),
+        body: JSON.stringify({ controls: placement?.controls ?? controls, mm_per_pixel: placement?.scale ?? scale, k_mm2_s: placement?.k ?? k, source: start, ...(selectedEnvironment ? {environment:selectedEnvironment} : {}) }),
       });
       const data = await response.json();
       if (!response.ok) throw Error(data.error || "Simulation failed");
       if (id !== generation.current) return;
+      setPlacement(null);
       setPreview(data.prediction);
       setResult(data);
       setApplied({
@@ -243,6 +288,8 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
   }
 
   function restartAt(i) {
+    if (busy || (!placement && !result)) return;
+    setSelectedRoom(i);
     setSource(i);
     run(i);
   }
@@ -259,7 +306,7 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
   function seek(time) {playTime.current=time;setDisplayTime(time);setFrame(result.simulation.frames.findLastIndex(f=>f.time_s<=time));}
 
   const modelControls = (
-    <form className="hybrid-controls" noValidate onSubmit={(e) => { e.preventDefault(); run(); }}>
+    <form className="hybrid-controls" noValidate onSubmit={(e) => { e.preventDefault(); prepareIgnition(); }}>
           <h3>Flame conditions</h3>
           {info ? (
             <>
@@ -326,18 +373,18 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
               <div className="hybrid-flame">
                 <DemoVariationPreview preview={preview} controls={controls} info={info} active={active}
                   disabled={busy || previewStatus !== "Live hybrid preview"}
-                  onPointerDown={(e) => { e.preventDefault(); dragging.current = true; }} />
+                  onPointerDown={startImageDrag} />
                 <div className="flame-summary glass-surface">
                   <span className="workspace-eyebrow">Live hybrid prediction</span>
                   <h3>Your starting point</h3>
                   <p>{preview.conditions}</p>
-                  <p className="hybrid-muted">Hover to explore nearby flame variations. Drag the selected flame onto a room to set ignition.</p>
-                  <button className="simulate-primary" type="button" disabled={busy || !info || previewStatus !== "Live hybrid preview"} onClick={() => run()}>{busy ? "Simulating…" : "Simulate"}<span aria-hidden="true"> ↗</span></button>
+                  <p className="hybrid-muted">Hover to explore nearby flame variations. Press Simulate, then drag the selected flame onto a room to start the fire.</p>
+                  <button className="simulate-primary" type="button" disabled={busy || !info || previewStatus !== "Live hybrid preview"} onClick={prepareIgnition}>{busy ? "Simulating…" : "Simulate"}<span aria-hidden="true"> ↗</span></button>
                   <button className="secondary-action" type="button" onClick={() => {setEditing(true);openRooms();}}>Edit environment</button>
                   <p className="hybrid-muted" aria-live="polite">{previewStatus}</p>
                   <p>{preview.model_note}</p>
                   {result && <p>Visual prediction mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm (equivalent-droplet proxy)</p>}
-                  {result && <p className="hybrid-muted">Drag the flame onto a room, or select a room, to restart the fire there.</p>}
+                  {result && <p className="hybrid-muted">Drag the model image in the environment tray onto another room to restart there.</p>}
                   <button type="button" aria-expanded={comparison} onClick={() => setComparison((v) => !v)}>Compare CNN & reference</button>
                 </div>
               </div>
@@ -352,6 +399,15 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
           <section ref={roomRef} className="integrated-room-section" aria-label="Room fire spread" hidden={!roomOpen}>
           <div className="room-section-heading"><div><span className="workspace-eyebrow">Environment / playback</span><h2>Follow the fire</h2></div>
           {environment && <div className="room-environment-tools"><button className="secondary-action" type="button" aria-expanded={editing} onClick={()=>{setPlacingRooms(false);setEditing(v=>!v);}}>{editing ? "Hide editor" : "Edit environment"}</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}</div>
+          {(placement || result) && <div className="ignition-placement-tray">
+            <button type="button" className="ignition-image-source" aria-label="Drag model image to choose ignition room"
+              disabled={busy} onPointerDown={startImageDrag} onClick={()=>{if(!busy)setStatus("Select any fueled room in the map, or use Ignite selected, to place this model image.");}}>
+              <img draggable={false} src={(placement?.prediction || result?.prediction).hybrid} alt="Selected model image for room ignition" width="80" height="80" />
+            </button>
+            <div><h3>{placement ? "Choose where the fire begins" : "Move the ignition point"}</h3>
+              <p>{placement ? "Drag this model image onto a fueled room to start. You can also select a room with touch or keyboard." : "Drag this image onto another room to restart the simulation there."}</p>
+              <p role="status" className="hybrid-status">{status}</p></div>
+          </div>}
           {busy && <p role="status" className="hybrid-status">Running the selected flame through room physics…</p>}
           {!result && !busy && <p role="status" className="hybrid-muted">{status}</p>}
           {result?.simulation.burn_model.droplet_scaling && <p className="hybrid-muted">Equivalent droplet: {result.simulation.burn_model.droplet_scaling.diameter_mm.toFixed(2)} mm · D² lifetime {result.simulation.burn_model.droplet_scaling.raw_lifetime_s.toFixed(2)} s × assumed {result.simulation.burn_model.droplet_scaling.aggregate_time_scale} scale = {result.simulation.diagnostics.scaled_burn_duration_s.toFixed(0)} simulated seconds (nominal).</p>}
@@ -366,7 +422,7 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
             <label>Speed<select aria-label="Room playback speed" value={playbackSpeed} onChange={e=>setPlaybackSpeed(Number(e.target.value))}>{[1,8,16,30,60,120].map(v=><option key={v} value={v}>{v}×</option>)}</select></label>
             <label className="room-time-scrub">Playback<input aria-label="Room playback time" type="range" min="0" max={result.simulation.frames.at(-1).time_s} step="0.1" value={displayTime ?? current.time_s} onChange={e=>{setPlaying(false);seek(Number(e.target.value));}}/></label>
           </div>}
-          {mapEnvironment && <RoomDeck environment={mapEnvironment} current={current} source={source} selected={selectedRoom} onSelect={setSelectedRoom} onIgnite={restartAt} editing={editing && placingRooms}
+          {mapEnvironment && <RoomDeck environment={mapEnvironment} current={current} source={result ? source : -1} flameImage={result?.prediction.hybrid} awaitingIgnition={Boolean(placement) && !busy} canIgnite={!busy && Boolean(placement || result)} dropTarget={dragVisual?.target ?? -1} selected={selectedRoom} onSelect={setSelectedRoom} onIgnite={restartAt} editing={editing && placingRooms}
             onDoor={i=>changeDoors({...environment,edges:environment.edges.map((e,j)=>j===i?{...e,open:!e.open}:e)})}
             onAllDoors={open=>changeDoors({...environment,edges:environment.edges.map(e=>({...e,open}))})}
             onPlace={(x,y)=>{if(environment.rooms.some((r,i)=>i!==selectedRoom&&r.x===x&&r.y===y))return;editEnvironment({...environment,rooms:environment.rooms.map((r,i)=>i===selectedRoom?{...r,x,y}:r)});}}
@@ -379,6 +435,9 @@ export function HybridSimulation({ controlsContainerId, insightsContainerId, act
         </div>
       </div>
 
+      {dragVisual && (placement || result) && createPortal(<div className="ignition-drag-ghost" style={{left:dragVisual.x,top:dragVisual.y}} aria-hidden="true">
+        <img src={(placement?.prediction || result?.prediction).hybrid} alt="" width="72" height="72" />
+      </div>, document.body)}
       {insightsContainer ? createPortal(<LlmInsights scenario={applied} />, insightsContainer) : !insightsContainerId && <LlmInsights scenario={applied} />}
     </section>
   );
