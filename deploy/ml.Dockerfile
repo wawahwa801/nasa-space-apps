@@ -7,4 +7,4 @@ COPY ml /app/ml
 COPY physics-flex2 /app/physics-flex2
 COPY frontend/public/flames/flex2 /app/frontend/public/flames/flex2
 WORKDIR /app/ml
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 1 --threads 1 --timeout 180 --preload deployment:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 1 --threads 1 --timeout 180 deployment:app"]
