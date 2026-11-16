@@ -1957,6 +1957,78 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .nasa-comparison-inputs .slider-field > div:first-child { flex-wrap: wrap; gap: 8px; }
 .nasa-comparison-inputs .editable-value { min-width: 0; max-width: 100%; }
 .nasa-comparison-inputs .editable-value input { width: 76px; }
+
+/* Centre dashboard: NASA comparison parameters.
+   The field styles above were written for the Parameters panel (".parameter-panel ...") and
+   stopped applying when this form moved here, leaving ~20px number boxes beside full-width
+   unit menus, oversized checkboxes and 9-10px menu text. This block styles the form in its
+   own place: one card per section, consistent field sizes, and readable spacing. */
+.nasa-comparison-inputs { padding: 20px 24px 24px; background: #0f1217; }
+.nasa-comparison-inputs > summary { padding: 4px 0; margin: 0; font-size: 15px; font-weight: 600; color: #ebebeb; }
+.nasa-comparison-inputs[open] > summary { margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid #28313e; }
+.nasa-comparison-inputs .field-section,
+.nasa-comparison-inputs .field-section + .field-section {
+  margin: 0 0 16px; padding: 20px; border: 1px solid #222a35; border-radius: 12px; background: #13171d;
+}
+.nasa-comparison-inputs .field-section-title { display: block; margin: 0 0 16px; font-size: 13px; font-weight: 600; letter-spacing: .2px; color: #f2a774; }
+.nasa-comparison-inputs .fields-grid { gap: 20px 28px; }
+.nasa-comparison-inputs .nasa-fields { margin: 8px 0 0; padding: 0; border: 0; }
+.nasa-comparison-inputs .nasa-fields-intro { margin: 8px 0 16px; font-size: 12px; color: #a9a9a9; }
+.nasa-comparison-inputs .nasa-fields-intro b { font-size: 14px; color: #ebebeb; }
+
+/* Labels and controls: one size everywhere. */
+.nasa-comparison-inputs .field { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.nasa-comparison-inputs .field > span,
+.nasa-comparison-inputs .nasa-field > label,
+.nasa-comparison-inputs .nasa-checks legend,
+.nasa-comparison-inputs .slider-field > div:first-child > label { font-size: 13px; line-height: 1.35; color: #c9c9c9; }
+.nasa-comparison-inputs .field input:not([type="checkbox"]):not([type="range"]),
+.nasa-comparison-inputs .field select {
+  width: 100%; min-width: 0; height: 40px; padding: 0 12px; font-size: 14px; color: #ebebeb;
+  background: #0c0f14; border: 1px solid #2a3442; border-radius: 8px;
+}
+.nasa-comparison-inputs .field input:focus-visible,
+.nasa-comparison-inputs .field select:focus-visible { outline: 2px solid #f2a77499; outline-offset: 1px; border-color: #f2a774; }
+.nasa-comparison-inputs .nasa-field input[aria-invalid="true"] { border-color: #ff4e48; }
+
+/* Number + unit: the number gets the room, the unit menu sizes to its text. */
+.nasa-comparison-inputs .nasa-unit-row { gap: 8px; }
+.nasa-comparison-inputs .nasa-unit-row input:not([type="checkbox"]) { flex: 1 1 auto; width: auto; min-width: 6rem; }
+.nasa-comparison-inputs .nasa-unit-row select { flex: 0 0 auto; width: auto; min-width: 4.5rem; padding: 0 8px; }
+.nasa-comparison-inputs .nasa-unit { flex: none; font-size: 13px; }
+
+/* Shared sliders: value box and unit picker sized like the other fields. */
+.nasa-comparison-inputs .slider-field > div:first-child { align-items: center; justify-content: space-between; gap: 8px 12px; }
+.nasa-comparison-inputs .editable-value { display: inline-flex; align-items: center; gap: 6px; }
+.nasa-comparison-inputs .editable-value input {
+  width: 84px; height: 34px; padding: 4px 8px; text-align: right; font-size: 14px; font-variant-numeric: tabular-nums;
+  color: #f2ab7b; background: #0c0f14; border: 1px solid #2a3442; border-radius: 7px;
+}
+.nasa-comparison-inputs .slider-unit {
+  height: 34px; padding: 0 6px; font-size: 13px; color: #f2ab7b; background: #0c0f14; border: 1px solid #2a3442; border-radius: 7px;
+}
+
+/* Materials: compact chips with a normal-size checkbox beside each name. */
+.nasa-comparison-inputs .nasa-checks legend { margin-bottom: 10px; }
+.nasa-comparison-inputs .nasa-check-list { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.nasa-comparison-inputs .nasa-check {
+  display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 12px; font-size: 13px; color: #e4e4e4;
+  border: 1px solid #222a35; border-radius: 8px; background: #0f1217; cursor: pointer;
+}
+.nasa-comparison-inputs .nasa-check:hover { border-color: #3a4556; }
+.nasa-comparison-inputs .nasa-check:has(input:checked) { border-color: #f2a77480; background: #f2a7741a; }
+.nasa-comparison-inputs .nasa-check input { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; flex: none; accent-color: #f2a774; }
+
+/* Slider min/max labels and -/+ steppers were 9px. */
+.nasa-comparison-inputs .slider-limits span { font-size: 11px; color: #8f8f8f; }
+.nasa-comparison-inputs .slider-limits button { width: 32px; height: 32px; font-size: 14px; }
+
+.nasa-comparison-inputs .form-actions { margin-top: 8px; }
+@media (max-width: 700px) {
+  .nasa-comparison-inputs { padding: 16px 12px; }
+  .nasa-comparison-inputs .field-section,
+  .nasa-comparison-inputs .field-section + .field-section { padding: 16px 14px; }
+}
 .comparison-actions { flex-wrap: wrap; min-width: 0; max-width: 100%; }
 .comparison-actions .example-select { min-width: 0; max-width: 100%; }
 
