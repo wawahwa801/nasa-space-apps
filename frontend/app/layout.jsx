@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Ember | Environmental Fire Safety Dashboard",
+  title: "Pyroclast | Environmental Fire Safety Dashboard",
   description:
     "Explore environmental and fuel parameters in an interactive fire safety dashboard preview.",
 };

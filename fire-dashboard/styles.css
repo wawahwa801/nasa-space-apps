@@ -80,8 +80,8 @@
 
 * { box-sizing: border-box; }
 
-/* "ember" theme: matches the flame simulation UI in frontend/ (set data-theme="ember"). */
-:root[data-theme="ember"], :host([data-theme="ember"]) {
+/* "pyroclast" theme: matches the flame simulation UI in frontend/ (set data-theme="pyroclast"). */
+:root[data-theme="pyroclast"], :host([data-theme="pyroclast"]) {
   color-scheme: dark;
   --page: #0b1018;
   --surface: #101720;

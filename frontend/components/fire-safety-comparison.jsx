@@ -136,7 +136,7 @@ export function FireSafetyComparison({ inputs, onDefinitions, onGotoField, onLoa
           {error}
         </p>
       )}
-      <div ref={hostRef} className="fire-dashboard-host" data-theme="ember" />
+      <div ref={hostRef} className="fire-dashboard-host" data-theme="pyroclast" />
     </>
   );
 }
