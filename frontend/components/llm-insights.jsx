@@ -22,7 +22,9 @@ export function LlmInsights({ scenario }) {
     const current = ++version.current;
     setBusy(true); setStatus("Generating insights…"); setResult(null);
     try {
-      const response = await fetch("/insight-api/analyze", {
+      // Same-origin call to the Flask backend (Vercel routes /api/* to it; locally Next.js
+      // rewrites it to port 5000). The LLM key stays on the server.
+      const response = await fetch("/api/analyze", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data: JSON.stringify(scenario), data_type: "qualitative",
           instructions: "Explain these experimental simulation results and their assumptions. Do not claim validated physical safety or invent confidence scores.",
