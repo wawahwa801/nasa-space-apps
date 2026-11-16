@@ -2154,21 +2154,120 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .rooms-tab-panel .hybrid-flame img {width:128px;height:128px;object-fit:contain;}
 @media(max-width:700px){.rooms-tab-panel .hybrid-layout{grid-template-columns:160px minmax(0,1fr);gap:8px;}.rooms-tab-panel .hybrid-results{padding:8px;}.rooms-tab-panel .room-editor{padding:10px;position:static;max-height:650px;}.rooms-tab-panel .room-coordinate-fields{gap:5px;}.rooms-tab-panel .room-editor .room-hallway-item{grid-template-columns:1fr;}.rooms-tab-panel .hybrid-active{padding:84px 8px 24px;}.orbit-map-actions{gap:4px;}.orbit-stats{grid-template-columns:1fr;}.orbit-inspector{font-size:11px;}}
 
-/* Emerald cut on the site's boxes: a thin soft-orange outline with chamfered corners,
-   matching the NASA dashboard (fire-dashboard/styles.css). Drawn in background layers
-   (a diagonal stroke in each corner, four straight edges, then the fill) and clipped to
-   the cut shape, because these boxes sit over varied backgrounds. None of them hold
-   pop-ups that need to spill outside. --ec-cut: corner size; --ec-fill: inside colour. */
+/* A single glass workspace, from selected flame to room spread. */
+#flame-panel .hybrid-head { margin: 12px 0 24px; }
+#flame-panel .hybrid-head h2 { font-size: clamp(26px, 3vw, 40px); letter-spacing: -.04em; margin: 8px 0; }
+.workspace-eyebrow { color: #efb38c; font-size: 10px; text-transform: uppercase; letter-spacing: .18em; }
+#flame-panel .hybrid-head > p { color: #a8a5a2; }
+#flame-panel .hybrid-status { font-size: 11px; }
+#flame-panel .hybrid-layout { margin-top: 0; }
+#flame-panel .hybrid-flame { grid-template-columns: minmax(0, 1.4fr) minmax(230px, 1fr); gap: 28px; min-height: 440px; text-align: left; }
+#flame-panel .hybrid-flame > .demo-variation-preview { min-width: 0; gap: 4px; }
+#flame-panel .demo-image-button { width: 100%; max-width: 510px; cursor: grab; }
+#flame-panel .demo-flame-image { width: 100%; }
+#flame-panel .demo-frame-conditions { font-size: 11px; color: #aaa; text-align: center; margin: 4px 0; }
+.demo-hover-note { font-size: 10px !important; color: #8e8984; text-align: center; min-height: 15px; }
+.glass-surface, #flame-panel .parameter-panel, .integrated-room-section, .insights-tab-panel .insights-content {
+  border: 1px solid rgba(255, 231, 212, .16);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(255, 233, 214, .085), rgba(255, 255, 255, .025) 42%, rgba(249, 155, 92, .04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .10), inset 0 -1px 0 rgba(255, 255, 255, .025), 0 20px 65px rgba(0, 0, 0, .22);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+  backdrop-filter: blur(24px) saturate(130%);
+}
+#flame-panel .flame-summary { padding: 28px; width: 100%; max-width: 380px; position: relative; overflow: hidden; }
+#flame-panel .flame-summary::before { content: ''; position: absolute; top: -70px; right: -70px; width: 170px; height: 170px; background: radial-gradient(circle, #f2a7741a, transparent 70%); pointer-events: none; }
+.flame-summary h3 { font-size: 23px; letter-spacing: -.03em; font-weight: 500; margin: 12px 0; }
+#flame-panel .flame-summary p { font-size: 12px; line-height: 1.65; }
+.hybrid-active .simulate-primary { display: block; width: 100%; margin: 22px 0 10px; border-radius: 14px; padding: 14px 18px; text-align: left; background: linear-gradient(135deg, #f5c39f, #ee9c64); color: #2b190f; border-color: #ffd7b8; box-shadow: inset 0 1px 0 #ffffff60, 0 6px 22px #f2a77416; }
+.simulate-primary span { float: right; }
+.hybrid-active .secondary-action, .hybrid-flame .flame-summary > button:not(.simulate-primary) { background: #ffffff06; color: #d7c9bd; border: 1px solid #ffffff17; border-radius: 10px; font-size: 11px; font-weight: 400; }
+.hybrid-active .secondary-action:hover:not(:disabled), .hybrid-flame .flame-summary > button:not(.simulate-primary):hover { background: #ffffff10; border-color: #f2a77466; }
+#flame-panel .parameter-panel { padding: 22px; }
+#model-parameters .hybrid-controls { box-shadow: none; }
+#model-parameters .hybrid-controls h3 { display: none; }
+#model-parameters .hybrid-controls label { line-height: 1.4; }
+#model-parameters .hybrid-controls select, #model-parameters .hybrid-controls input[type=number] { background: #090a0bb3; border-color: #ffffff17; border-radius: 8px; }
+.model-assumptions { margin-top: 24px; padding-top: 16px; border-top: 1px solid #ffffff14; font-size: 11px; color: #a8a5a2; }
+.model-assumptions summary { cursor: pointer; }
+.model-assumptions label { display: grid; gap: 8px; margin: 16px 0; }
+.model-assumptions input { width: 100%; padding: 8px; color: #ddd; }
+.integrated-room-section { margin-top: 36px; padding: 22px; scroll-margin-top: 90px; }
+.integrated-room-section[hidden] { display: none; }
+.room-section-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.room-section-heading h2 { font-size: 24px; font-weight: 500; letter-spacing: -.03em; margin: 6px 0 0; }
+.room-section-heading .room-environment-tools { margin: 0; gap: 10px; }
+.integrated-room-section .room-workspace.is-editing { grid-template-columns: 210px minmax(0, 1fr); gap: 14px; }
+.integrated-room-section .room-editor { background: #ffffff03; border-color: #ffffff10; border-radius: 16px; max-height: 750px; }
+.integrated-room-section .room-hallway-item { grid-template-columns: minmax(0, 1fr) 65px; }
+.integrated-room-section .orbit-deck { background: #080e16b3; border-color: #ffffff12; border-radius: 16px; padding: 16px; }
+.integrated-room-section .room-playback-toolbar { margin-bottom: 12px; background: #ffffff04; border-color: #ffffff12; border-radius: 14px; }
+.insights-tab-panel { max-width: 900px; margin: 0 auto; padding: 120px 24px 40px; }
+.insights-tab-panel .insights-content { padding: 32px; color: #d6d2ce; line-height: 1.7; }
+.insights-content h3 { font-size: 28px; letter-spacing: -.03em; font-weight: 500; }
+.insights-content button { background: #f2a774; color: #26170c; border: 1px solid #f6c4a1; border-radius: 12px; padding: 12px 20px; cursor: pointer; }
+@media (max-width: 1100px) {
+  #flame-panel .hybrid-flame { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  #flame-panel .flame-summary { max-width: none; }
+  #flame-panel .demo-image-button { max-width: 420px; }
+}
+@media (max-width: 720px) {
+  #flame-panel .conversation { padding-top: 100px; }
+  #flame-panel .hybrid-head { margin-top: 0; }
+  #flame-panel .flame-summary { padding: 22px; }
+  .integrated-room-section { padding: 12px; border-radius: 18px; }
+  .integrated-room-section .room-workspace.is-editing { grid-template-columns: 140px minmax(0, 1fr); gap: 8px; }
+  .integrated-room-section .room-editor { padding: 10px; }
+  .integrated-room-section .room-hallway-item { grid-template-columns: 1fr; }
+  .integrated-room-section .orbit-deck { padding: 10px; }
+  .insights-tab-panel { padding: 100px 12px 24px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass-surface, #flame-panel .parameter-panel, .integrated-room-section, .insights-tab-panel .insights-content { background: #171819; backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+/* Insights live at the bottom of the same simulation workspace. */
+#flame-panel .inline-insights { grid-column: 1; min-width: 0; }
+@media (min-width: 721px) { .controls-open #flame-panel .inline-insights { grid-column: 2; } }
+.inline-insights .insights-content { border: 1px solid #ffe7d429; border-radius: 20px; background: linear-gradient(145deg, #ffe9d614, #ffffff06 50%, #f99b5c0a); box-shadow: inset 0 1px 0 #ffffff19, 0 12px 32px #0003; backdrop-filter: blur(24px); color: #d6d2ce; }
+.inline-insights h2, .inline-insights h3 { margin: 0; }
+.insights-toggle, .insight-header { display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left; border: 0; background: transparent; color: #e7e2dc; cursor: pointer; font: inherit; }
+.insights-toggle { padding: 24px; font-size: 23px; letter-spacing: -.03em; }
+.insights-toggle small { display: block; color: #efb38c; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 8px; }
+.insights-toggle > span:last-child, .insight-header > span:last-child { font-size: 20px; color: #efb38c; }
+.insights-toggle:focus-visible, .insight-header:focus-visible { outline: 2px solid #efb38c; outline-offset: -4px; border-radius: 14px; }
+.insights-body { padding: 0 24px 24px; font-size: 13px; line-height: 1.7; }
+.insight-group { border-top: 1px solid #ffffff17; }
+.insight-header { padding: 17px 0; font-size: 14px; font-weight: 500; }
+.insight-group-body { padding: 0 0 18px; }
+.insight-generate { border: 1px solid #ffd7b8; border-radius: 10px; padding: 10px 16px; background: #f2a774; color: #29170b; cursor: pointer; }
+.insight-generate:disabled { opacity: .5; cursor: wait; }
+.insight-output { white-space: pre-wrap; overflow-wrap: anywhere; }
+.insight-parameters { margin: 0; }
+.insight-parameters > div { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 16px; padding: 8px 0; }
+.insight-parameters dt { color: #9d9791; }
+.insight-parameters dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .insights-toggle { padding: 20px; }.insights-body { padding: 0 20px 20px; }.insight-parameters > div { grid-template-columns: 1fr; gap: 2px; } }
+
+/* Emerald cut: thin outline with chamfered corners, matching the NASA dashboard
+   (fire-dashboard/styles.css). Drawn in background layers (a diagonal stroke in each
+   corner, four straight edges, then the fill) and clipped to the cut shape; none of
+   these boxes hold pop-ups that need to spill outside. Placed after the glass styles
+   so it wins. --ec-cut: corner size; --ec-fill: inside (colour or gradient);
+   --ec-line: outline colour.
+   Soft orange marks the outer boxes (and the NASA comparison parameters box, which
+   holds the smaller section cards); boxes nested inside them use a quiet outline. */
 .parameter-panel,
+.flame-summary,
+.integrated-room-section,
+.inline-insights .insights-content,
 .comparison-section,
 .nasa-comparison-inputs,
 .nasa-comparison-inputs .field-section,
-.room-editor,
-.orbit-deck,
+.integrated-room-section .room-editor,
+.integrated-room-section .orbit-deck,
 .orbit-map-viewport,
-.rooms-tab-panel .insights-content,
-.rooms-tab-panel .hybrid-controls,
-.rooms-tab-panel .hybrid-results {
+.integrated-room-section .room-playback-toolbar {
   --ec-cut: 16px;
   --ec-line: #f2a774;
   --ec-fill: #13171d;
@@ -2190,13 +2289,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
   clip-path: polygon(var(--ec-cut) 0, calc(100% - var(--ec-cut)) 0, 100% var(--ec-cut), 100% calc(100% - var(--ec-cut)),
     calc(100% - var(--ec-cut)) 100%, var(--ec-cut) 100%, 0 calc(100% - var(--ec-cut)), 0 var(--ec-cut));
 }
-.parameter-panel { --ec-fill: rgba(19, 23, 29, 0.96); }
+/* Outer boxes keep their own fills; the glass ones keep their frosted gradient. */
+.parameter-panel,
+.flame-summary,
+.integrated-room-section {
+  --ec-fill: linear-gradient(145deg, rgba(255, 233, 214, .085), rgba(255, 255, 255, .025) 42%, rgba(249, 155, 92, .04));
+}
+.inline-insights .insights-content { --ec-fill: linear-gradient(145deg, #ffe9d614, #ffffff06 50%, #f99b5c0a); }
 .comparison-section { --ec-fill: #0e1116; --ec-cut: 18px; }
 .nasa-comparison-inputs { --ec-fill: #0f1217; }
-.nasa-comparison-inputs .field-section { --ec-cut: 12px; }
-.room-editor { --ec-fill: #0b0d11; --ec-cut: 12px; }
-.orbit-deck { --ec-fill: #121a24; }
-.orbit-map-viewport { --ec-fill: #0b1017; --ec-cut: 12px; }
+/* Inner boxes: same shape, quiet outline. */
+.nasa-comparison-inputs .field-section,
+.integrated-room-section .room-editor,
+.integrated-room-section .orbit-deck,
+.orbit-map-viewport,
+.integrated-room-section .room-playback-toolbar { --ec-line: rgba(255, 255, 255, .14); --ec-cut: 12px; }
+.integrated-room-section .room-editor { --ec-fill: #ffffff03; }
+.integrated-room-section .orbit-deck { --ec-fill: #080e16b3; --ec-cut: 14px; }
+.orbit-map-viewport { --ec-fill: #0b1017; }
+.integrated-room-section .room-playback-toolbar { --ec-fill: #ffffff04; --ec-cut: 10px; }
+@media (prefers-reduced-transparency: reduce) {
+  .parameter-panel, .flame-summary, .integrated-room-section { --ec-fill: #171819; }
+}
 
 /* "NASA comparison parameters": shortened to line up with the dashboard cards below
    (they sit 24px inside the comparison section on each side). */

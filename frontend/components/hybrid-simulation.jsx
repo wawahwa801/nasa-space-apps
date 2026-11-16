@@ -1,7 +1,6 @@
 "use client";
 
-// Shared model workspace for the flame and room tabs. The main tab portals
-// the same working controls into its collapsible Parameters panel.
+// One model workspace: live flame preview, main-page room spread and shared inputs.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -10,23 +9,27 @@ import { RoomDeck } from "./room-deck";
 import { RoomEnvironmentEditor } from "./room-environment-editor";
 import { LlmInsights } from "./llm-insights";
 
-const MODULES = ["Forward dock", "Cargo", "Habitat node", "Station core", "Science node", "Laboratory", "Observatory", "Cupola",
-  "Command", "Crew quarters", "Medical", "EVA airlock", "Life support", "Engineering", "Power systems", "Greenhouse"];
+// Apparatus codes and binary missingness flags stay at the selected recorded preset.
+// They are required model inputs, but are not useful scenario controls.
+function isScenarioControl(spec) {
+  return !/camera|campaign|missing|support fiber/i.test(spec.label) &&
+    !/0\s*\/\s*1/.test(spec.unit || "") && Number(spec.max) > Number(spec.min);
+}
 
-export function HybridSimulation({ controlsContainerId, title = "Room simulation" }) {
-  // The Flame tab portals its controls into the Parameters panel and shows only the
-  // flame; the room map, room inputs, Simulate and its AI explanation live on the
-  // Room simulation tab, so the spread simulation appears in one place.
-  const showRooms = !controlsContainerId;
+export function HybridSimulation({ controlsContainerId, insightsContainerId, active = true, title = "From flame to environment" }) {
   const controlId = useId();
   const workspaceRef = useRef(null);
+  const roomRef = useRef(null);
+  const [roomOpen, setRoomOpen] = useState(false);
+  const [insightsContainer, setInsightsContainer] = useState(null);
   const [controlsContainer, setControlsContainer] = useState(null);
   useEffect(() => {
     setControlsContainer(controlsContainerId ? document.getElementById(controlsContainerId) : null);
-  }, [controlsContainerId]);
+    setInsightsContainer(insightsContainerId ? document.getElementById(insightsContainerId) : null);
+  }, [controlsContainerId, insightsContainerId]);
   const [placingRooms, setPlacingRooms] = useState(false);
   const [environment, setEnvironment] = useState(null), [defaultEnvironment, setDefaultEnvironment] = useState(null);
-  const [editing, setEditing] = useState(!controlsContainerId), [selectedRoom, setSelectedRoom] = useState(0);
+  const [editing, setEditing] = useState(false), [selectedRoom, setSelectedRoom] = useState(0);
   const playTime = useRef(0);
   const [playbackSpeed, setPlaybackSpeed] = useState(30);
   const [info, setInfo] = useState(null);
@@ -107,7 +110,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
       if (!dragging.current) return;
       dragging.current = false;
       const room = document.elementFromPoint(e.clientX, e.clientY)?.closest("[data-room]");
-      if (room && workspaceRef.current?.contains(room)) {const i=Number(room.getAttribute("data-room"));if(editing)setSelectedRoom(i);else if(environment?.rooms[i]?.fuel)restartAt(i);}
+      if (room && workspaceRef.current?.contains(room)) {const i=Number(room.getAttribute("data-room"));if(environment?.rooms[i]?.fuel)restartAt(i);}
     }
     window.addEventListener("pointerup", drop);
     return () => window.removeEventListener("pointerup", drop);
@@ -130,7 +133,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
         if (!active) return;
         setInfo(data);
         setControls({ run: data.runs[0].id, ...data.runs[0].values });
-        setStatus(showRooms ? "Choose model conditions, then Simulate." : "Choose model conditions; the flame preview updates live.");
+        setStatus("Choose your conditions. The flame preview updates live.");
       })
       .catch(() => {
         if (!active) return;
@@ -183,15 +186,24 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
     setFrame(0);
     setDisplayTime(null);
     playTime.current=0;
-    setStatus(showRooms ? "Inputs changed. Press Simulate to run." : "Choose model conditions; the flame preview updates live.");
+    setStatus("Inputs changed. Press Simulate to run the updated scenario.");
   }
   function change(key, value) {
     invalidate();
     setControls((c) => ({ ...c, [key]: value }));
   }
 
+  useEffect(() => { if (!active) setPlaying(false); }, [active]);
+
+  function openRooms() {
+    setRoomOpen(true);
+    requestAnimationFrame(() => roomRef.current?.scrollIntoView({ block: "start", behavior: "instant" }));
+  }
+
   async function run(start = source, selectedEnvironment = environment) {
     if(selectedEnvironment && !selectedEnvironment.rooms[start]?.fuel){setStatus("Choose an ignition room containing fuel.");return;}
+    openRooms();
+    setApplied(null);
     const id = ++generation.current;
     setBusy(true);
     setResult(null);
@@ -248,8 +260,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
 
   const modelControls = (
     <form className="hybrid-controls" noValidate onSubmit={(e) => { e.preventDefault(); run(); }}>
-          <h3>Model conditions</h3>
-          {showRooms && <p className="hybrid-muted">Separate from the Flame simulation page&apos;s Parameters: these change this page&apos;s flame and fire spread only.</p>}
+          <h3>Flame conditions</h3>
           {info ? (
             <>
               <label>Recorded fuel / state
@@ -261,7 +272,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                   {info.runs.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
                 </select>
               </label>
-              {info.numeric.map((s) => (
+              {info.numeric.filter(isScenarioControl).map((s) => (
                 <div className="slider-field" key={s.key}>
                   <div>
                     <label htmlFor={`${controlId}-${s.key}`}>{s.label}</label>
@@ -275,27 +286,13 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                     value={controls[s.key] ?? s.min} onChange={(e) => change(s.key, e.target.value)} />
                 </div>
               ))}
-              {info.categories.map((s) => (
-                <label key={s.key}>{s.label}
-                  <select value={controls[s.key]} onChange={(e) => change(s.key, e.target.value)}>
-                    <option value="unknown">Unknown</option>
-                    {s.levels.map(([, v]) => <option key={v} value={v}>{v}</option>)}
-                  </select>
-                </label>
-              ))}
-              {showRooms && <>
+              <details className="model-assumptions"><summary>Image scale & burn assumptions</summary>
               <label>Equivalent-droplet image scale (mm/pixel)
                 <input type="number" min="0.0001" max="0.1" step="0.001" value={scale} onChange={(e) => { invalidate(); setScale(Number(e.target.value)); }} />
               </label>
               <label>Assumed droplet K (mm²/s)<input type="number" min="0.000001" max="10" step="0.01" value={k} onChange={e=>{invalidate();setK(Number(e.target.value));}}/></label>
-              <label>Ignition module
-                <select value={source} onChange={(e) => { invalidate(); setSource(Number(e.target.value)); }}>
-                  {source<0 && <option value={-1}>Choose a fueled room</option>}
-                  {(environment?.rooms || MODULES.map(name=>({name,fuel:true}))).map((r,i)=><option key={r.id||i} value={i} disabled={!r.fuel}>{r.name}</option>)}
-                </select>
-              </label>
-              <button type="submit" disabled={busy}>{busy ? "Simulating…" : "Simulate"}</button>
-              </>}
+              <p className="hybrid-muted">Image scale and K are assumptions. Choose the ignition room in the environment editor.</p>
+              </details>
             </>
           ) : (
             <p className="hybrid-muted">Controls appear once the model service responds.</p>
@@ -309,9 +306,10 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
   return (
     <section ref={workspaceRef} className={`hybrid-active ${controlsContainerId ? "hybrid-with-panel" : ""}`} aria-label={title}>
       <header className="hybrid-head">
+        <span className="workspace-eyebrow">CNN + physics workspace</span>
         <h2>{title}</h2>
         <p>
-          The hybrid CNN generates a flame image for the chosen conditions; the equivalent droplet D² history is scaled into finite room fuel release, with room dimensions and hallway transport included.
+          Explore a flame. Shape the environment. Follow the spread.
         </p>
         <p role="status" className="hybrid-status">{status}</p>
       </header>
@@ -319,35 +317,28 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
       <div className="hybrid-layout">
         {/* noValidate: the service validates ranges; browser step checks would
             otherwise silently block defaults such as K = 0.8 with step 0.01. */}
-        {controlsContainerId ? (controlsContainer && createPortal(modelControls, controlsContainer)) : editing ? roomEditor : modelControls}
+        {controlsContainerId ? (controlsContainer && createPortal(modelControls, controlsContainer)) : modelControls}
 
         <div className="hybrid-results">
-          {!preview && !result && <p className="hybrid-muted">{showRooms ? "The generated flame appears here; Simulate shows how fire spreads between modules." : "The generated flame appears here."}</p>}
+          {!preview && !result && <p className="hybrid-muted">The generated flame appears here. Simulate starts room fire spread.</p>}
           {preview && (
             <>
               <div className="hybrid-flame">
-                {controlsContainerId ? (
-                  <DemoVariationPreview key={JSON.stringify([controls, scale, k, source, busy])}
-                    preview={preview} controls={controls} info={info} disabled={busy || previewStatus !== "Live hybrid preview"}
-                    onPointerDown={(e) => { e.preventDefault(); dragging.current = true; }} />
-                ) : (
-                <img
-                  draggable={false}
-                  style={{ touchAction: "none" }}
-                  onPointerDown={(e) => { e.preventDefault(); dragging.current = true; }}
-                  title="Drag onto a room to set its ignition point"
-                  src={preview.hybrid}
-                  alt="Hybrid CNN flame estimate"
-                  width="256"
-                  height="256"
-                />
-                )}
-                <div>
+                <DemoVariationPreview preview={preview} controls={controls} info={info} active={active}
+                  disabled={busy || previewStatus !== "Live hybrid preview"}
+                  onPointerDown={(e) => { e.preventDefault(); dragging.current = true; }} />
+                <div className="flame-summary glass-surface">
+                  <span className="workspace-eyebrow">Live hybrid prediction</span>
+                  <h3>Your starting point</h3>
+                  <p>{preview.conditions}</p>
+                  <p className="hybrid-muted">Hover to explore nearby flame variations. Drag the selected flame onto a room to set ignition.</p>
+                  <button className="simulate-primary" type="button" disabled={busy || !info || previewStatus !== "Live hybrid preview"} onClick={() => run()}>{busy ? "Simulating…" : "Simulate"}<span aria-hidden="true"> ↗</span></button>
+                  <button className="secondary-action" type="button" onClick={() => {setEditing(true);openRooms();}}>Edit environment</button>
                   <p className="hybrid-muted" aria-live="polite">{previewStatus}</p>
-                  <p>{!controlsContainerId && `${preview.conditions} · `}{preview.model_note}</p>
+                  <p>{preview.model_note}</p>
                   {result && <p>Visual prediction mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm (equivalent-droplet proxy)</p>}
                   {result && <p className="hybrid-muted">Drag the flame onto a room, or select a room, to restart the fire there.</p>}
-                  <button type="button" aria-expanded={comparison} onClick={() => setComparison((v) => !v)}>{controlsContainerId ? "Compare selected prediction sources" : "Compare source images"}</button>
+                  <button type="button" aria-expanded={comparison} onClick={() => setComparison((v) => !v)}>Compare CNN & reference</button>
                 </div>
               </div>
               {comparison && (
@@ -358,12 +349,15 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
               )}
             </>
           )}
-          {showRooms && <>
-          {environment && <div className="room-environment-tools"><button type="button" aria-pressed={editing} onClick={()=>setEditing(true)}>Environment</button><button type="button" aria-pressed={!editing} onClick={()=>{setPlacingRooms(false);setEditing(false);}}>Model parameters</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}
+          <section ref={roomRef} className="integrated-room-section" aria-label="Room fire spread" hidden={!roomOpen}>
+          <div className="room-section-heading"><div><span className="workspace-eyebrow">Environment / playback</span><h2>Follow the fire</h2></div>
+          {environment && <div className="room-environment-tools"><button className="secondary-action" type="button" aria-expanded={editing} onClick={()=>{setPlacingRooms(false);setEditing(v=>!v);}}>{editing ? "Hide editor" : "Edit environment"}</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}</div>
+          {busy && <p role="status" className="hybrid-status">Running the selected flame through room physics…</p>}
+          {!result && !busy && <p role="status" className="hybrid-muted">{status}</p>}
           {result?.simulation.burn_model.droplet_scaling && <p className="hybrid-muted">Equivalent droplet: {result.simulation.burn_model.droplet_scaling.diameter_mm.toFixed(2)} mm · D² lifetime {result.simulation.burn_model.droplet_scaling.raw_lifetime_s.toFixed(2)} s × assumed {result.simulation.burn_model.droplet_scaling.aggregate_time_scale} scale = {result.simulation.diagnostics.scaled_burn_duration_s.toFixed(0)} simulated seconds (nominal).</p>}
           <div className={`room-workspace ${editing?'is-editing':''}`}>
 
-          {controlsContainerId && editing && roomEditor}
+          {editing && roomEditor}
           <div className="room-map-panel">
           {result && current && <div className="room-playback-toolbar">
             <button type="button" onClick={()=>{if(!playing && playTime.current>=result.simulation.frames.at(-1).time_s)seek(0);setPlaying(v=>!v);}}>{playing?'Pause':'Play'}</button>
@@ -381,11 +375,11 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
           <p className="hybrid-muted">
             Equivalent-droplet-scaled thermal scenarios with assumed aggregation, fuel load and transfer. These are sensitivity ranges, not calibrated spacecraft predictions; ventilation, smoke and oxygen depletion are not solved.
           </p>
-          </>}
+          </section>
         </div>
       </div>
 
-      {showRooms && <LlmInsights scenario={applied} />}
+      {insightsContainer ? createPortal(<LlmInsights scenario={applied} />, insightsContainer) : !insightsContainerId && <LlmInsights scenario={applied} />}
     </section>
   );
 }

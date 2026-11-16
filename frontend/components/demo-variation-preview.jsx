@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // A finite sensitivity sweep, never a calibrated confidence interval. Keep all
 // other conditions (including fuel and apparatus flags) at their selected values.
@@ -22,105 +22,85 @@ export function variationQueries(controls, numeric, percent) {
   return queries;
 }
 
-export function DemoVariationPreview({ preview, controls, info, disabled, onPointerDown }) {
+// Nearby-condition images are prepared only while the image is hovered or
+// keyboard-focused. Leaving returns immediately to the selected prediction.
+export function DemoVariationPreview({ preview, controls, info, disabled, active = true, onPointerDown }) {
   const [frames, setFrames] = useState([]);
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [status, setStatus] = useState("");
-  const [reduced, setReduced] = useState(false);
-  const active = useRef(true);
-  const request = useRef(null);
-  const version = useRef(0);
+  const [reduced, setReduced] = useState(true);
+  const [visible, setVisible] = useState(true);
+  const exploring = active && visible && !disabled && !reduced && (hovered || focused);
+  const signature = JSON.stringify(controls);
+  const cache = useRef({ signature: "", frames: [] });
 
   useEffect(() => {
-    active.current = true;
     const media = matchMedia("(prefers-reduced-motion: reduce)");
-    function sync() { setReduced(media.matches); if (media.matches) setPlaying(false); }
-    sync();
+    const sync = () => setReduced(media.matches);
+    const visibility = () => setVisible(!document.hidden);
+    sync(); visibility();
     media.addEventListener("change", sync);
-    return () => { active.current = false; request.current?.abort(); media.removeEventListener("change", sync); };
+    document.addEventListener("visibilitychange", visibility);
+    return () => { media.removeEventListener("change", sync); document.removeEventListener("visibilitychange", visibility); };
   }, []);
 
   useEffect(() => {
-    if (!playing || reduced || frames.length < 2) return;
+    setFrames([]); setIndex(0); setStatus("");
+    if (!exploring || !info) return;
+    if (cache.current.signature === signature) { setFrames(cache.current.frames); return; }
+    const selected = JSON.parse(signature);
+    if (info.numeric.some(s => selected[s.key] === "" || !Number.isFinite(Number(selected[s.key])))) return;
+    const queries = variationQueries(selected, info.numeric, 5);
+    if (queries.length < 2) return;
+    const abort = new AbortController();
+    let current = true;
+    const timeout = setTimeout(() => abort.abort(), 60000);
+    async function generate() {
+      try {
+        const generated = [];
+        for (const query of queries) {
+          if (!current) return;
+          setStatus(`Preparing hover preview ${generated.length + 1} of ${queries.length}…`);
+          const response = await fetch("/hybrid/compare?" + new URLSearchParams(query), { signal: abort.signal });
+          const data = await response.json();
+          if (!response.ok) throw Error(data.error || "Variation service unavailable");
+          const image = new Image(); image.src = data.hybrid; await image.decode();
+          generated.push({ hybrid: data.hybrid, conditions: data.conditions });
+        }
+        if (!current) return;
+        cache.current = { signature, frames: generated };
+        setFrames(generated); setStatus("Exploring nearby conditions; not a time prediction.");
+      } catch (error) {
+        if (current) setStatus(abort.signal.aborted ? "Hover preview timed out." : error.message);
+      } finally { clearTimeout(timeout); }
+    }
+    generate();
+    return () => { current = false; abort.abort(); clearTimeout(timeout); };
+  }, [exploring, info, signature]);
+
+  useEffect(() => {
+    if (!exploring || frames.length < 2) return;
     const timer = setInterval(() => setIndex(i => (i + 1) % frames.length), 100);
     return () => clearInterval(timer);
-  }, [playing, reduced, frames.length]);
+  }, [exploring, frames.length]);
 
-  const reset = useCallback(() => {
-    version.current++;
-    request.current?.abort();
-    setFrames([]); setIndex(0); setPlaying(false); setLoading(false); setStatus("");
-  }, []);
-
-  const generate = useCallback(async () => {
-    reset();
-    if (!info || info.numeric.some(s => controls[s.key] === "" || !Number.isFinite(Number(controls[s.key])))) {
-      setStatus("Enter valid model conditions first."); return;
-    }
-    const queries = variationQueries(controls, info.numeric, 5);
-    if (queries.length < 2) { setStatus("Choose a range from 1% to 20%."); return; }
-    const current = version.current;
-    const abort = new AbortController(); request.current = abort;
-    const timeout = setTimeout(() => abort.abort(), 60000);
-    setLoading(true);
-    try {
-      const generated = [];
-      for (const query of queries) {
-        if (!active.current || current !== version.current) return;
-        setStatus(`Generating variation ${generated.length + 1} of ${queries.length}…`);
-        const response = await fetch("/hybrid/compare?" + new URLSearchParams(query), { signal: abort.signal });
-        const data = await response.json();
-        if (!response.ok) throw Error(data.error || "Variation service unavailable");
-        const image = new Image(); image.src = data.hybrid; await image.decode();
-        generated.push({ hybrid: data.hybrid, conditions: data.conditions, controls: query });
-      }
-      if (!active.current || current !== version.current) return;
-      setFrames(generated); setIndex(0);
-      setPlaying(!matchMedia("(prefers-reduced-motion: reduce)").matches);
-      setStatus(`${generated.length} generated alternatives ready.`);
-    } catch (error) {
-      if (active.current && current === version.current) {
-        setStatus(abort.signal.aborted ? "Generation timed out. Try again." : `Could not generate variations: ${error.message}`);
-      }
-    } finally {
-      clearTimeout(timeout);
-      if (active.current && current === version.current) setLoading(false);
-    }
-  }, [controls, info, reset]);
-
-  // Debounce edits, then prepare each frame once; playback never queries the model.
-  useEffect(() => {
-    if (disabled) return;
-    const timer = setTimeout(generate, 250);
-    return () => {
-      clearTimeout(timer);
-      version.current++;
-      request.current?.abort();
-    };
-  }, [disabled, generate]);
-
-  const shown = frames[index] || preview;
-  const action = frames.length
-    ? reduced ? "Next flame variation" : playing ? "Pause flame animation" : "Resume flame animation"
-    : loading ? "Loading flame animation" : "Retry flame animation";
-  function interact() {
-    if (!frames.length) { generate(); return; }
-    if (reduced) setIndex(i => (i + 1) % frames.length);
-    else setPlaying(p => !p);
-  }
+  const shown = exploring && frames[index] ? frames[index] : preview;
   return (
     <div className="demo-variation-preview">
-      <button className="demo-image-button" type="button" aria-label={action} disabled={disabled || loading}
-        title="Exploratory variation, not calibrated uncertainty. Click to pause or resume; reduced motion advances one image."
-        onClick={interact}>
-        <img className="demo-flame-image" draggable={false}
-          style={{ touchAction: "none" }} onPointerDown={frames.length ? undefined : onPointerDown}
-          src={shown.hybrid} alt={frames.length ? "Exploratory CNN variation" : "Hybrid CNN flame estimate"} width="256" height="256" />
+      <button className="demo-image-button" type="button" aria-label="Explore flame variations"
+        aria-disabled={disabled || undefined}
+        title="Hover or focus to explore nearby conditions. Move away for the selected prediction."
+        onPointerEnter={e => { if (e.pointerType !== "touch") setHovered(true); }}
+        onPointerLeave={() => setHovered(false)}
+        onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+        onPointerDown={e => { if (!disabled) onPointerDown?.(e); }}>
+        <img className="demo-flame-image" draggable={false} style={{ touchAction: "none" }}
+          src={shown.hybrid} alt={exploring && frames.length ? "Nearby-condition CNN variation" : "Selected hybrid CNN flame estimate"} width="256" height="256" />
       </button>
       <p className="demo-frame-conditions">{shown.conditions}</p>
-      <p role="status" className="sr-only">{status}</p>
+      <p className="demo-hover-note">{exploring ? status || "Hover preview" : "Selected prediction · hover to explore"}</p>
     </div>
   );
 }

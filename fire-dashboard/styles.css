@@ -98,6 +98,10 @@
   --grid: #1e242e;
   --axis: #2c3646;
   --border: #28313e;
+  /* Embedded in the site, the dashboard sits inside the orange-outlined comparison
+     section, so its cards, tiles and menus use a quiet emerald outline. */
+  --emerald-line: #2f3a49;
+  --monitor-line: #2f3a49;
   --accent: #f1a776;
   --accent-ink: #2c1402;
   --info: #6aa7e8;
@@ -503,7 +507,7 @@ input[aria-invalid="true"] { border-color: var(--critical); }
 .mon-status { display: flex; align-items: center; gap: 8px; max-width: 420px; }
 .mon-headline { font-weight: 600; font-size: 0.92rem; }
 #monitor-card .flags { max-height: none; margin-bottom: 8px; }
-#monitor-card { --ec-line: var(--accent); border-color: transparent; } /* highlighted emerald outline */
+#monitor-card { --ec-line: var(--monitor-line, var(--accent)); border-color: transparent; } /* accent outline on the standalone page */
 @container fd-results (max-width: 640px) {
   .mon-toolbar .filter { margin-left: 0; }
 }
