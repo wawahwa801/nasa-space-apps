@@ -1,6 +1,10 @@
+import os
+from pathlib import Path
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+
+from database.registry import ModelRegistry, RegistryUnavailable
 
 from llm import (
     AnalysisService,
@@ -14,8 +18,8 @@ from llm import (
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
 
 
-def create_app(service: AnalysisService | None = None) -> Flask:
-    load_dotenv()
+def create_app(service: AnalysisService | None = None, model_registry=None) -> Flask:
+    load_dotenv(Path(__file__).with_name(".env"))
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
@@ -27,6 +31,25 @@ def create_app(service: AnalysisService | None = None) -> Flask:
     @app.get("/api/health")
     def health():
         return jsonify(status="Connected", service="project-api")
+
+    registry = model_registry if model_registry is not None else ModelRegistry(os.getenv("DATABASE_URL"))
+
+    @app.get("/api/models/latest")
+    def latest_model():
+        if set(request.args) - {"model_name"} or len(request.args.getlist("model_name")) > 1:
+            return jsonify(error="Supply only one model_name parameter."), 400
+        name = request.args.get("model_name", "flex2").strip()
+        if not name or len(name) > 100 or "\x00" in name:
+            return jsonify(error="model_name must contain 1–100 characters."), 400
+        try:
+            model = registry.latest(name)
+        except RegistryUnavailable:
+            return jsonify(error="Model registry is unavailable. Check backend database configuration."), 503
+        if model is None:
+            return jsonify(error="No ready model found.", model_name=name), 404
+        response = jsonify(model=model)
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
     @app.get("/api/llm/status")
     def llm_status():

@@ -1,0 +1,1 @@
+"""PostgreSQL model registry access."""
