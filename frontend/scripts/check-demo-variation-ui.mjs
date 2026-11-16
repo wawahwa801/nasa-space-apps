@@ -13,6 +13,8 @@ try {
   const page = await browser.newPage({viewport:{width:1200,height:1000}});
   const calls=[]; let delay=0;
   await page.route('**/hybrid/runs',r=>r.fulfill({json:info}));
+  await page.route('**/hybrid/environment',r=>r.fulfill({json:{source:0,
+    rooms:[{id:'room-a',name:'Demo room',x:0,y:0,fuel:true}],edges:[]}}));
   await page.route('**/hybrid/compare?*',async route=>{
     assert.equal(route.request().headers()['x-model-id'],'42','All prediction frames pin the registry model selected by /runs');
     const q=Object.fromEntries(new URL(route.request().url()).searchParams); calls.push(q);

@@ -73,6 +73,7 @@ The first request includes download and model warm-up and can take longer.
 
 ```sh
 backend/.venv/bin/python -m pytest backend/tests
+node --test frontend/scripts/test-service-proxy.mjs
 cd frontend
 npm run lint
 npm run build
@@ -85,3 +86,8 @@ defaults to `backend/.model-cache`; ensure that directory is writable and has
 room for packages. The runtime retains two loaded versions. Removing ready
 status also stops pinned requests for that version. Select the worker count
 after measuring available memory and prediction latency.
+
+On Windows PowerShell replace `backend/.venv/bin/python` with
+`backend/.venv/Scripts/python.exe`, use `$env:BACKEND_URL='http://127.0.0.1:5000'`
+before `npm run dev`, and use a new path under `$env:TEMP` for the ZIP. Use a
+production Linux EC2 environment for the Gunicorn command.

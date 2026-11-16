@@ -94,3 +94,6 @@ jobs:
 
       - name: Feature retrieval data check
         run: node frontend/scripts/check-feature-retrieval.mjs
+
+      - name: Service proxy tests
+        run: node --test frontend/scripts/test-service-proxy.mjs
