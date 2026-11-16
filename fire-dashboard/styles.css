@@ -2,16 +2,16 @@
    (see frontend/components/fire-safety-comparison.jsx). */
 :root, :host {
   color-scheme: light;
-  --page: #f9f9f7;
-  --surface: #fcfcfb;
-  --surface-2: #f0efec;
+  --page: #f8f8f8;
+  --surface: #fcfcfc;
+  --surface-2: #f0f0f0;
   --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #898781;
-  --grid: #e1e0d9;
-  --axis: #c3c2b7;
+  --text-secondary: #3e4c62;
+  --text-muted: #858585;
+  --grid: #dddddd;
+  --axis: #bdbdbd;
   --border: rgba(11, 11, 11, 0.10);
-  --accent: #2a78d6;
+  --accent: #c2410c;
   --accent-ink: #ffffff;
   --series-1: #2a78d6;
   --series-2: #eb6834;
@@ -21,28 +21,31 @@
   --warning: #fab219;
   --serious: #ec835a;
   --critical: #d03b3b;
-  --info: #898781;
+  --info: #2f6fb5;
   --track-good: #d6efd6;
   --track-warning: #fdebc4;
   --track-critical: #f5d3d3;
-  --highlight: #e6f0fc;
-  --error-text: #b42323;
+  --highlight: #fff1e6;
+  --error-text: #c21b16;
   --font: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]), :host(:not([data-theme="light"])) {
     color-scheme: dark;
-    --page: #0d0d0d;
-    --surface: #1a1a19;
-    --surface-2: #262624;
-    --text-primary: #f0efec;
-    --text-secondary: #c3c2b7;
-    --text-muted: #898781;
-    --grid: #2c2c2a;
-    --axis: #383835;
+    --page: #0a0c10;
+    --surface: #141920;
+    --surface-2: #1d232d;
+    --text-primary: #eeeeee;
+    --text-secondary: #bdbdbd;
+    --text-muted: #858585;
+    --grid: #222934;
+    --axis: #2b3543;
     --border: rgba(255, 255, 255, 0.10);
-    --accent: #3987e5;
+    --accent: #f1a573;
+    --accent-ink: #160900;
+    --info: #6aa7e8;
+    --good: #0ca30c;
     --series-1: #3987e5;
     --series-2: #d95926;
     --series-3: #199e70;
@@ -50,23 +53,26 @@
     --track-good: #1f3a1f;
     --track-warning: #3d3218;
     --track-critical: #3d1f1f;
-    --highlight: #1c2c40;
-  --error-text: #f28b82;
+    --highlight: #2a1608;
+  --error-text: #ed5a54;
   }
 }
 
 :root[data-theme="dark"], :host([data-theme="dark"]) {
   color-scheme: dark;
-  --page: #0d0d0d;
-  --surface: #1a1a19;
-  --surface-2: #262624;
-  --text-primary: #f0efec;
-  --text-secondary: #c3c2b7;
-  --text-muted: #898781;
-  --grid: #2c2c2a;
-  --axis: #383835;
+  --page: #0a0c10;
+  --surface: #141920;
+  --surface-2: #1d232d;
+  --text-primary: #eeeeee;
+  --text-secondary: #bdbdbd;
+  --text-muted: #858585;
+  --grid: #222934;
+  --axis: #2b3543;
   --border: rgba(255, 255, 255, 0.10);
-  --accent: #3987e5;
+  --accent: #f1a573;
+  --accent-ink: #160900;
+  --info: #6aa7e8;
+  --good: #0ca30c;
   --series-1: #3987e5;
   --series-2: #d95926;
   --series-3: #199e70;
@@ -74,8 +80,8 @@
   --track-good: #1f3a1f;
   --track-warning: #3d3218;
   --track-critical: #3d1f1f;
-  --highlight: #1c2c40;
-  --error-text: #f28b82;
+  --highlight: #2a1608;
+  --error-text: #ed5a54;
 }
 
 * { box-sizing: border-box; }
@@ -83,17 +89,19 @@
 /* "pyroclast" theme: matches the flame simulation UI in frontend/ (set data-theme="pyroclast"). */
 :root[data-theme="pyroclast"], :host([data-theme="pyroclast"]) {
   color-scheme: dark;
-  --page: #0b1018;
-  --surface: #101720;
-  --surface-2: #151f2b;
-  --text-primary: #e4eaf2;
-  --text-secondary: #a9b4c3;
-  --text-muted: #8290a2;
-  --grid: #1b2430;
-  --axis: #2b3746;
-  --border: #263140;
-  --accent: #e7b18e;
-  --accent-ink: #21150d;
+  --page: #0e1116;
+  --surface: #13171d;
+  --surface-2: #191f27;
+  --text-primary: #ebebeb;
+  --text-secondary: #b6b6b6;
+  --text-muted: #929292;
+  --grid: #1e242e;
+  --axis: #2c3646;
+  --border: #28313e;
+  --accent: #f1a776;
+  --accent-ink: #2c1402;
+  --info: #6aa7e8;
+  --good: #0ca30c;
   --series-1: #3987e5;
   --series-2: #d95926;
   --series-3: #199e70;
@@ -101,8 +109,8 @@
   --track-good: #1f3a1f;
   --track-warning: #3d3218;
   --track-critical: #3d1f1f;
-  --highlight: #2a1f17;
-  --error-text: #ffb5aa;
+  --highlight: #3e1d03;
+  --error-text: #ff605b;
   --radius: 14px;
   --font: Arial, Helvetica, sans-serif;
   --font-size: 14px;
@@ -149,6 +157,31 @@ code { font-size: 0.9em; background: var(--surface-2); padding: 1px 4px; border-
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius, 12px);
+}
+
+/* Emerald cut: a thin soft-orange outline with chamfered corners. The box's own
+   background is the line colour, clipped to the outer shape; ::before repaints the
+   surface just inside it (corners cut 0.6px less, so the diagonals stay ~1px thick).
+   Only for boxes without dropdowns or tooltips, which clip-path would cut off. */
+.tile {
+  --cut: 12px;
+  position: relative;
+  isolation: isolate;
+  border-color: transparent;
+  border-radius: 0;
+  background: var(--emerald-line, #f3b083);
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+}
+.tile::before {
+  --in: calc(var(--cut) - 0.6px);
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--surface);
+  clip-path: polygon(var(--in) 0, calc(100% - var(--in)) 0, 100% var(--in), 100% calc(100% - var(--in)),
+    calc(100% - var(--in)) 100%, var(--in) 100%, 0 calc(100% - var(--in)), 0 var(--in));
 }
 
 .inputs {
