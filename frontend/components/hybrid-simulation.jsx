@@ -6,12 +6,12 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { DemoVariationPreview } from "./demo-variation-preview";
+import { RoomDeck } from "./room-deck";
 import { RoomEnvironmentEditor } from "./room-environment-editor";
 import { LlmInsights } from "./llm-insights";
 
 const MODULES = ["Forward dock", "Cargo", "Habitat node", "Station core", "Science node", "Laboratory", "Observatory", "Cupola",
   "Command", "Crew quarters", "Medical", "EVA airlock", "Life support", "Engineering", "Power systems", "Greenhouse"];
-const ROOM_FILL = { burning: "#e72c25", burned: "#444", warming: "#b65308", unignited: "#2f62a8", inert: "#222" };
 
 export function HybridSimulation({ controlsContainerId, title = "Room simulation" }) {
   // The Flame tab portals its controls into the Parameters panel and shows only the
@@ -35,7 +35,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
   const [status, setStatus] = useState("Loading hybrid model controls…");
   const [busy, setBusy] = useState(false);
   const [scale, setScale] = useState(0.03);
-  const [k, setK] = useState(0.8);
+  const k = 0.8;
   const [source, setSource] = useState(3);
   const [frame, setFrame] = useState(0);
   const [displayTime, setDisplayTime] = useState(null);
@@ -122,7 +122,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
       .then(async ([r, env]) => {
         if (!r.ok || !env.ok) throw Error("unavailable");
         const data=await env.json();
-        if(active){setDefaultEnvironment(data);setEnvironment({rooms:data.rooms,edges:data.edges});}
+        if(active){setDefaultEnvironment(data);setEnvironment({rooms:data.rooms,edges:data.edges,duration_s:data.duration_s||1200});}
         return r.json();
       })
       .then((data) => {
@@ -189,8 +189,8 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
     setControls((c) => ({ ...c, [key]: value }));
   }
 
-  async function run(start = source) {
-    if(environment && !environment.rooms[start]?.fuel){setStatus("Choose an ignition room containing fuel.");return;}
+  async function run(start = source, selectedEnvironment = environment) {
+    if(selectedEnvironment && !selectedEnvironment.rooms[start]?.fuel){setStatus("Choose an ignition room containing fuel.");return;}
     const id = ++generation.current;
     setBusy(true);
     setResult(null);
@@ -200,7 +200,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
       const response = await fetch("/hybrid/simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ controls, mm_per_pixel: scale, k_mm2_s: k, source: start, ...(environment ? {environment} : {}) }),
+        body: JSON.stringify({ controls, mm_per_pixel: scale, k_mm2_s: k, source: start, ...(selectedEnvironment ? {environment:selectedEnvironment} : {}) }),
       });
       const data = await response.json();
       if (!response.ok) throw Error(data.error || "Simulation failed");
@@ -213,12 +213,15 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
         ...data.simulation.burn_model,
         ignition_module: data.simulation.scenario.rooms[start].name,
         assumptions: data.simulation.assumptions,
+        environment: data.simulation.scenario,
+        ignition_intervals: data.simulation.ignition_intervals,
+        uncertainty: data.simulation.uncertainty,
       });
       setFrame(0);
       setDisplayTime(0);
       playTime.current=0;
       setPlaying(true);
-      setStatus("Simulation ready · illustrative flame-size proxy");
+      setStatus("Simulation ready · dimensioned thermal scenarios");
     } catch (e) {
       if (id === generation.current) setStatus(e.message);
     } finally {
@@ -233,18 +236,12 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
 
   const current = result?.simulation.frames[frame];
   const mapEnvironment = result?.simulation.scenario || environment;
-  const mapWidth = mapEnvironment ? (editing ? 10 : Math.max(8,...mapEnvironment.rooms.map(r=>r.x+1)))*110 : 880;
-  const mapHeight = mapEnvironment ? (editing ? 10 : Math.max(5,...mapEnvironment.rooms.map(r=>r.y+1)))*90 : 450;
   function editEnvironment(next, nextSource=source) {invalidate();setEnvironment(next);setSource(nextSource);}
-  function placeSelected(event) {
-    if(!editing || event.target.closest('[data-room]')) return;
-    const matrix=event.currentTarget.getScreenCTM();
-    if(!matrix)return;
-    const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(matrix.inverse());
-    const x=Math.max(0,Math.min(9,Math.round((point.x-60)/110)));
-    const y=Math.max(0,Math.min(9,Math.round((point.y-45)/90)));
-    if(environment.rooms.some((r,i)=>i!==selectedRoom&&r.x===x&&r.y===y))return;
-    editEnvironment({...environment,rooms:environment.rooms.map((r,i)=>i===selectedRoom?{...r,x,y}:r)});
+  function changeDoors(next) {const recompute=Boolean(result)||busy;editEnvironment(next);if(recompute)run(source,next); }
+  function exportSimulation() {
+    if(!result)return;
+    const url=URL.createObjectURL(new Blob([JSON.stringify(result.simulation,null,2)],{type:'application/json'}));
+    const link=document.createElement('a');link.href=url;link.download='dimensioned-room-scenario.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
   function seek(time) {playTime.current=time;setDisplayTime(time);setFrame(result.simulation.frames.findLastIndex(f=>f.time_s<=time));}
 
@@ -285,14 +282,12 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                 </label>
               ))}
               {showRooms && <>
-              <label>Assumed size conversion (mm/pixel)
+              <label>Image scale (mm/pixel, visual only)
                 <input type="number" min="0.0001" max="0.1" step="0.001" value={scale} onChange={(e) => { invalidate(); setScale(Number(e.target.value)); }} />
-              </label>
-              <label>Assumed burn coefficient (mm²/s)
-                <input type="number" min="0.000001" max="10" step="0.01" value={k} onChange={(e) => { invalidate(); setK(Number(e.target.value)); }} />
               </label>
               <label>Ignition module
                 <select value={source} onChange={(e) => { invalidate(); setSource(Number(e.target.value)); }}>
+                  {source<0 && <option value={-1}>Choose a fueled room</option>}
                   {(environment?.rooms || MODULES.map(name=>({name,fuel:true}))).map((r,i)=><option key={r.id||i} value={i} disabled={!r.fuel}>{r.name}</option>)}
                 </select>
               </label>
@@ -305,13 +300,15 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
         </form>
   );
 
+  const roomEditor = (<>
+          {environment && <RoomEnvironmentEditor environment={environment} source={source} selected={selectedRoom} onSelect={setSelectedRoom} onChange={editEnvironment} onSource={i=>{invalidate();setSource(i);}} onReset={()=>{editEnvironment({rooms:defaultEnvironment.rooms,edges:defaultEnvironment.edges,duration_s:defaultEnvironment.duration_s||1200},defaultEnvironment.source);setSelectedRoom(0);}}/>}
+  </>);
   return (
     <section ref={workspaceRef} className={`hybrid-active ${controlsContainerId ? "hybrid-with-panel" : ""}`} aria-label={title}>
       <header className="hybrid-head">
         <h2>{title}</h2>
         <p>
-          The hybrid CNN generates a flame image for the chosen conditions; its flame size drives an illustrative fire-spread
-          model across station modules.
+          The hybrid CNN generates a flame image for the chosen conditions; room dimensions, specified fire growth and open hallways drive the separate thermal scenario.
         </p>
         <p role="status" className="hybrid-status">{status}</p>
       </header>
@@ -319,7 +316,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
       <div className="hybrid-layout">
         {/* noValidate: the service validates ranges; browser step checks would
             otherwise silently block defaults such as K = 0.8 with step 0.01. */}
-        {controlsContainerId ? (controlsContainer && createPortal(modelControls, controlsContainer)) : modelControls}
+        {controlsContainerId ? (controlsContainer && createPortal(modelControls, controlsContainer)) : editing ? roomEditor : modelControls}
 
         <div className="hybrid-results">
           {!preview && !result && <p className="hybrid-muted">{showRooms ? "The generated flame appears here; Simulate shows how fire spreads between modules." : "The generated flame appears here."}</p>}
@@ -345,7 +342,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
                 <div>
                   <p className="hybrid-muted" aria-live="polite">{previewStatus}</p>
                   <p>{!controlsContainerId && `${preview.conditions} · `}{preview.model_note}</p>
-                  {result && <p>Selected prediction mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm</p>}
+                  {result && <p>Visual prediction mask diameter: {result.simulation.burn_model.diameter_px.toFixed(1)} px → assumed proxy {result.simulation.burn_model.initial_diameter_mm.toFixed(2)} mm (visual only; does not set room fire power)</p>}
                   {result && <p className="hybrid-muted">Drag the flame onto a room, or select a room, to restart the fire there.</p>}
                   <button type="button" aria-expanded={comparison} onClick={() => setComparison((v) => !v)}>{controlsContainerId ? "Compare selected prediction sources" : "Compare source images"}</button>
                 </div>
@@ -361,7 +358,8 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
           {showRooms && <>
           {environment && <div className="room-environment-tools"><button type="button" aria-expanded={editing} onClick={()=>setEditing(v=>!v)}>{editing?'Close environment editor':'Edit environment'}</button><span>{environment.rooms.length} rooms · {environment.edges.length} hallways</span></div>}
           <div className={`room-workspace ${editing?'is-editing':''}`}>
-          {editing && environment && <RoomEnvironmentEditor environment={environment} source={source} selected={selectedRoom} onSelect={setSelectedRoom} onChange={editEnvironment} onSource={i=>{invalidate();setSource(i);}} onReset={()=>{editEnvironment({rooms:defaultEnvironment.rooms,edges:defaultEnvironment.edges},defaultEnvironment.source);setSelectedRoom(0);}}/>}
+
+          {controlsContainerId && editing && roomEditor}
           <div className="room-map-panel">
           {result && current && <div className="room-playback-toolbar">
             <button type="button" onClick={()=>{if(!playing && playTime.current>=result.simulation.frames.at(-1).time_s)seek(0);setPlaying(v=>!v);}}>{playing?'Pause':'Play'}</button>
@@ -370,27 +368,14 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
             <label>Speed<select aria-label="Room playback speed" value={playbackSpeed} onChange={e=>setPlaybackSpeed(Number(e.target.value))}>{[.5,1,2,4,8].map(v=><option key={v} value={v}>{v}×</option>)}</select></label>
             <label className="room-time-scrub">Playback<input aria-label="Room playback time" type="range" min="0" max={result.simulation.frames.at(-1).time_s} step="0.1" value={displayTime ?? current.time_s} onChange={e=>{setPlaying(false);seek(Number(e.target.value));}}/></label>
           </div>}
-          {mapEnvironment && (              <svg onClick={placeSelected} viewBox={`0 0 ${mapWidth} ${mapHeight}`} role="img" aria-label={`Room spread at ${(displayTime ?? current?.time_s ?? 0).toFixed(1)} seconds`}>
-                {editing && <><defs><pattern id={`${controlId}-grid`} width="110" height="90" patternUnits="userSpaceOnUse"><circle cx="60" cy="45" r="2" fill="#666"/></pattern></defs><rect width={mapWidth} height={mapHeight} fill={`url(#${controlId}-grid)`}/></>}
-                {mapEnvironment.edges.map((e, i) => {
-                  const a = mapEnvironment.rooms[e.a];
-                  const b = mapEnvironment.rooms[e.b];
-                  return <line key={i} x1={a.x * 110 + 60} y1={a.y * 90 + 45} x2={b.x * 110 + 60} y2={b.y * 90 + 45} stroke={e.open ? "#888" : "#444"} strokeDasharray={e.open ? undefined : "8 6"} strokeWidth="5" />;
-                })}
-                {mapEnvironment.rooms.map((r, i) => (
-                  <g key={r.id} data-room={i} role="button" tabIndex={0} aria-label={editing ? `Edit ${r.name}` : `Start fire in ${r.name}`}
-                    onClick={() => editing ? setSelectedRoom(i) : r.fuel && restartAt(i)}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if(editing)setSelectedRoom(i);else if(r.fuel)restartAt(i); } }}>
-                    <rect x={r.x * 110 + 10} y={r.y * 90 + 10} width="100" height="70" rx="6" stroke={source===i ? "#f7964b" : editing && selectedRoom===i ? "#fff" : "transparent"} strokeWidth="3" fill={ROOM_FILL[current?.rooms[i]?.state || (r.fuel ? "unignited" : "inert")]} />
-                    <text x={r.x * 110 + 60} y={r.y * 90 + 47} textAnchor="middle" fill="white" fontSize="10">{r.name}</text>
-                  </g>
-                ))}
-              </svg>)}
-          <p className="hybrid-muted">Orange outline: ignition room · dashed hallway: closed · select a room to {editing?'edit it':'restart ignition'}.</p>
+          {mapEnvironment && <RoomDeck environment={mapEnvironment} current={current} source={source} selected={selectedRoom} onSelect={setSelectedRoom} onIgnite={restartAt} editing={editing}
+            onDoor={i=>changeDoors({...environment,edges:environment.edges.map((e,j)=>j===i?{...e,open:!e.open}:e)})}
+            onAllDoors={open=>changeDoors({...environment,edges:environment.edges.map(e=>({...e,open}))})}
+            onPlace={(x,y)=>{if(environment.rooms.some((r,i)=>i!==selectedRoom&&r.x===x&&r.y===y))return;editEnvironment({...environment,rooms:environment.rooms.map((r,i)=>i===selectedRoom?{...r,x,y}:r)});}}
+            onExport={exportSimulation} intervals={result?.simulation.ignition_intervals} uncertainty={result?.simulation.uncertainty}/>}
           </div></div>
           <p className="hybrid-muted">
-            Illustrative room spread using an assumed conversion from flame mask size. Burn rate and room transfer are assumptions;
-            airflow and oxygen effects are not solved.
+            Dimensioned thermal-network scenarios with assumed growth, fuel load and transfer. These are sensitivity ranges, not calibrated spacecraft predictions; ventilation, smoke and oxygen depletion are not solved.
           </p>
           </>}
         </div>

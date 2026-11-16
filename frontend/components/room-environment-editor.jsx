@@ -14,21 +14,21 @@ export function RoomEnvironmentEditor({environment, source, onChange, onSource, 
     let point;
     for(let y=0;y<10&&!point;y++)for(let x=0;x<10;x++)if(!rooms.some(r=>r.x===x&&r.y===y)){point={x,y};break;}
     const id='custom-'+Date.now();
-    onChange({...environment,rooms:[...rooms,{id,name:`Room ${rooms.length+1}`,fuel:true,...point}]});onSelect(rooms.length);setError('');
+    onChange({...environment,rooms:[...rooms,{id,name:`Room ${rooms.length+1}`,fuel:true,width_m:5,length_m:5,height_m:2.7,...point}]});onSelect(rooms.length);setError('');
   }
   function removeRoom() {
     if(rooms.length===1)return;
     const index=rooms.indexOf(room);
     const next=rooms.filter((_,i)=>i!==index);
     const edges=environment.edges.filter(e=>e.a!==index&&e.b!==index).map(e=>({...e,a:e.a>index?e.a-1:e.a,b:e.b>index?e.b-1:e.b}));
-    const newSource=source===index?Math.max(0,next.findIndex(r=>r.fuel)):source>index?source-1:source;
+    const newSource=source===index?next.findIndex(r=>r.fuel):source>index?source-1:source;
     onChange({...environment,rooms:next,edges},newSource);onSelect(Math.min(index,next.length-1));setEnd('');setError('');
   }
   function connect() {
     const a=rooms.indexOf(room),b=rooms.findIndex(r=>r.id===end);
     if(b<0||a===b)return;
     if(environment.edges.some(e=>(e.a===a&&e.b===b)||(e.a===b&&e.b===a))){setError('These rooms are already connected.');return;}
-    setError('');onChange({...environment,edges:[...environment.edges,{a,b,open:true}]});
+    setError('');onChange({...environment,edges:[...environment.edges,{a,b,open:true,length_m:6,width_m:1.2}]});
   }
   return <aside className="room-editor" aria-label="Environment editor">
     <div className="room-editor-heading"><h3>Environment</h3><span>{rooms.length}/16 rooms</span></div>
@@ -36,11 +36,13 @@ export function RoomEnvironmentEditor({environment, source, onChange, onSource, 
     <label>Selected room<select value={room.id} onChange={e=>{onSelect(rooms.findIndex(r=>r.id===e.target.value));setError('');}}>{rooms.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label>
     <label>Room name<input maxLength={60} value={room.name} onChange={e=>updateRoom({name:e.target.value})}/></label>
     <div className="room-coordinate-fields">{['x','y'].map(axis=><label key={axis}>{axis.toUpperCase()} position<input type="number" min="0" max="9" step="1" value={room[axis]} onChange={e=>{const n=e.target.valueAsNumber;if(Number.isInteger(n)&&n>=0&&n<=9)updateRoom({[axis]:n});}}/></label>)}</div>
+    <details className="room-dimensions" open><summary>Room dimensions</summary><div className="room-coordinate-fields">{[['width_m','Width',2,12],['length_m','Length',2,12],['height_m','Height',2,5]].map(([key,label,min,max])=><label key={key}>{label} (m)<input type="number" min={min} max={max} step="0.1" value={room[key]??(key==='height_m'?2.7:5)} onChange={e=>{const n=e.target.valueAsNumber;if(Number.isFinite(n)&&n>=min&&n<=max)updateRoom({[key]:n});}}/></label>)}</div></details>
+    <label>Simulation horizon (minutes)<input type="number" min="1" max="60" value={(environment.duration_s||1200)/60} onChange={e=>{const n=e.target.valueAsNumber;if(Number.isFinite(n)&&n>=1&&n<=60)onChange({...environment,duration_s:n*60});}}/></label>
     <label className="room-check"><input type="checkbox" checked={room.fuel} onChange={e=>updateRoom({fuel:e.target.checked})}/>Contains fuel</label>
     <button type="button" disabled={!room.fuel} onClick={()=>onSource(rooms.indexOf(room))}>{source===rooms.indexOf(room)?'Ignition starts here':'Set ignition here'}</button>
     <div className="room-editor-actions"><button type="button" disabled={rooms.length>=16} onClick={addRoom}>Add room</button><button type="button" disabled={rooms.length===1} onClick={removeRoom}>Remove room</button></div>
     <details open><summary>Hallways</summary><label>Connect to<select aria-label="Connect to" value={end} onChange={e=>setEnd(e.target.value)}><option value="">Choose a room</option>{rooms.filter(r=>r.id!==room.id).map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label><button type="button" disabled={!end||!rooms.some(r=>r.id===end)} onClick={connect}>Connect rooms</button>
-    <ul className="room-hallways">{environment.edges.map((edge,i)=>{const index=rooms.indexOf(room);if(edge.a!==index&&edge.b!==index)return null;const other=rooms[edge.a===index?edge.b:edge.a];return <li key={`${edge.a}-${edge.b}`}><label className="room-check"><input type="checkbox" aria-label={`Open hallway to ${other.name}`} checked={edge.open} onChange={e=>onChange({...environment,edges:environment.edges.map((v,j)=>j===i?{...v,open:e.target.checked}:v)})}/>{other.name}</label><button type="button" aria-label={`Remove hallway to ${other.name}`} onClick={()=>onChange({...environment,edges:environment.edges.filter((_,j)=>j!==i)})}>×</button></li>;})}</ul></details>
+    <ul className="room-hallways">{environment.edges.map((edge,i)=>{const index=rooms.indexOf(room);if(edge.a!==index&&edge.b!==index)return null;const other=rooms[edge.a===index?edge.b:edge.a];return <li className="room-hallway-item" key={`${edge.a}-${edge.b}`}><label className="room-check"><input type="checkbox" aria-label={`Open hallway to ${other.name}`} checked={edge.open} onChange={e=>onChange({...environment,edges:environment.edges.map((v,j)=>j===i?{...v,open:e.target.checked}:v)})}/>{other.name}</label><div className="hallway-dimensions">{[["length_m","Length",1,100,6],["width_m","Width",.5,3,1.2]].map(([key,label,min,max,fallback])=><label key={key}>{label} (m)<input type="number" aria-label={`${label} of hallway to ${other.name}`} min={min} max={max} step="0.1" value={edge[key]??fallback} onChange={event=>{const n=event.target.valueAsNumber;if(Number.isFinite(n)&&n>=min&&n<=max)onChange({...environment,edges:environment.edges.map((v,j)=>j===i?{...v,[key]:n}:v)});}}/></label>)}</div><button type="button" aria-label={`Remove hallway to ${other.name}`} onClick={()=>onChange({...environment,edges:environment.edges.filter((_,j)=>j!==i)})}>×</button></li>;})}</ul></details>
     {error&&<p role="alert" className="room-editor-error">{error}</p>}
     <button className="room-reset" type="button" onClick={()=>{onReset();setError('');setEnd('');}}>Reset station layout</button>
   </aside>;

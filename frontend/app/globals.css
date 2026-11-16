@@ -2063,3 +2063,33 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -
 .room-playback-toolbar select {width:auto;display:block;padding:4px;}
 @media(max-width:1100px){.room-workspace.is-editing{grid-template-columns:minmax(0,1fr);}.room-editor{max-height:420px;overflow:auto;}.room-hallways{max-height:140px;}}
 @media(prefers-reduced-motion:reduce){.room-workspace * {scroll-behavior:auto;}}
+
+/* Orbit-style deck: room inspector, passage doors and restrained map tools. */
+.orbit-deck {border:1px solid #293747;border-radius:12px;background:#121a24;padding:18px;color:#e7eef7;}
+.orbit-deck-top,.orbit-inspector {display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start;}
+.orbit-eyebrow {font-size:10px;letter-spacing:.14em;color:#79d8e5;}
+.orbit-deck h3 {font-size:16px;margin:4px 0;}
+.orbit-map-actions {display:flex;gap:6px;flex-wrap:wrap;}
+.hybrid-active .orbit-map-actions button {padding:7px 10px;background:#192431;border-color:#293747;font-size:11px;color:#e7eef7;}
+.hybrid-active .orbit-map-actions button[aria-pressed=true] {border-color:#79d8e5;color:#79d8e5;}
+.orbit-legend {display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:#9bacbe;margin:14px 0;}
+.orbit-legend i {display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;}
+.orbit-map-viewport {overflow:auto;max-height:620px;background:#0b1017;border-radius:10px;}
+.hybrid-results .orbit-map-viewport svg {display:block;max-height:none;margin:0;min-height:0;}
+.orbit-deck text {pointer-events:none;font-family:system-ui,sans-serif;}
+.orbit-deck g[role=button] {cursor:pointer;}
+.orbit-deck g[role=button]:focus {outline:none;}
+.orbit-deck g[role=button]:focus-visible rect {stroke:white;stroke-width:3;}
+.orbit-inspector {border-top:1px solid #293747;padding-top:14px;margin-top:14px;}
+.orbit-inspector h4 {font-size:14px;margin:0 0 6px;}
+.orbit-inspector p,.orbit-uncertainty {font-size:11px;line-height:1.6;color:#9bacbe;margin:6px 0;}
+.orbit-uncertainty {border-left:2px solid #79d8e5;padding-left:10px;margin-top:14px;}
+.room-editor .room-hallway-item {display:grid;grid-template-columns:1fr auto;gap:4px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.hallway-dimensions {grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.room-editor .hallway-dimensions label {margin:4px 0;}
+.room-workspace.is-editing {grid-template-columns:minmax(0,1fr);}
+@media(max-width:720px){.orbit-deck{padding:12px;}.orbit-map-viewport{max-height:450px;}.orbit-inspector{gap:10px;}}
+.orbit-stats {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0;}
+.orbit-stats>div {background:#0e151f;border-radius:8px;padding:12px;}
+.orbit-stats b {display:block;font-size:22px;font-weight:500;}
+.orbit-stats span {font-size:10px;color:#9bacbe;}
