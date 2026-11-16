@@ -4,7 +4,7 @@ Source data for the fire safety dashboard.
 
 ## Scope
 
-- Contains only fire safety data from NASA. Do not add data from other sources.
+- Contains only fire safety and crew habitability data from NASA. Do not add data from other sources.
 - Data sets are supplied by the project team.
 
 ## Data sets
@@ -17,6 +17,7 @@ Source data for the fire safety dashboard.
 | `PSI-101_Experimental table_SAME-R.csv` | SAME-R (Smoke Aerosol Measurement Experiment – Reflight) | Smoke tests: material, flow, heater ratio, aging times |
 | `BASS-II Test Matrix by PI Final.xlsx` | BASS-II (Burning and Suppression of Solids II), ISS, 2014–2016 | One sheet per principal investigator: sample material, calibrated chamber O₂ at start/end, CO₂ (%) and CO (ppm) before/after, air-flow display notes |
 | `PSI-26_Experimental table_BASS.csv` | BASS (Burning and Suppression of Solids), ISS, 2012–2013 | As-run test log: date, test and sample numbers, sample material (no atmosphere or flow data) |
+| `ochmo-tb-003-habitable-atmosphere.pdf` | NASA-STD-3001 Technical Brief OCHMO-TB-003 *Habitable Atmosphere*, Rev A (11/30/2023) | Crew-health limits for cabin air: total pressure range, inspired O₂ (PIO₂) limits, minimum inert diluent gas, rate of pressure change, ebullism pressure, and the related NASA-STD-3001 requirement text (not experiment data) |
 
 ## Sources, citation, and reuse
 
@@ -42,6 +43,20 @@ and [NASA's science data license guidance](https://science.data.nasa.gov/about/l
 
 `fire-dashboard/scripts/build_reference_data.py` turns these files into the
 dashboard's reference data.
+
+### Habitable atmosphere technical brief
+
+| File | NASA source | Reuse terms |
+|---|---|---|
+| `ochmo-tb-003-habitable-atmosphere.pdf` | NASA Office of the Chief Health & Medical Officer, [OCHMO-TB-003 Habitable Atmosphere](https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-003-habitable-atmosphere.pdf) | NASA material (generally not copyrighted in the US); some figures are credited to third parties and keep their own terms (not checked) |
+
+Supplied by Cody and added on 2026-11-15 (downloaded that day). Its SHA-256 (`a53c44ae…77163`)
+matched the copy at the NASA link above when checked on 2026-11-16 UTC. The brief is for reference
+only and does not supersede program requirements. It is not read by the build script: the limits the
+dashboard uses are transcribed into `THRESHOLDS.habitable` in `fire-dashboard/js/parameters.js`, each
+with its NASA-STD-3001 requirement number. Table 6.2-1 (PIO₂ exposure ranges, including any
+hyperoxia limits) is an image in the PDF and was not transcribed; humidity, temperature and CO₂
+limits are not in this brief.
 
 ## How this data will be used
 
