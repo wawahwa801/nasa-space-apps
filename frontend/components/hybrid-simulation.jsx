@@ -321,8 +321,7 @@ export function HybridSimulation({ controlsContainerId, title = "Room simulation
             <>
               <div className="hybrid-flame">
                 {controlsContainerId ? (
-                  <DemoVariationPreview key={JSON.stringify([controls, scale, k, source, busy])}
-                    preview={preview} controls={controls} info={info} modelId={info?.model?.id} disabled={busy || previewStatus !== "Live hybrid preview"}
+                  <DemoVariationPreview preview={preview}
                     onPointerDown={(e) => { e.preventDefault(); dragging.current = true; }} />
                 ) : (
                 <img

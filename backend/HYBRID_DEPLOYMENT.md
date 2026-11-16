@@ -63,8 +63,8 @@ npm install
 BACKEND_URL=http://127.0.0.1:5000 npm run dev
 ```
 
-Open localhost:3000. The flame automatically cycles cached predictions and the
-Room simulation uses the same model version. Responses include `model.source`
+Open localhost:3000. The flame shows the selected prediction and updates when
+inputs change. Room simulation uses the same model version. Responses include `model.source`
 equal to `s3`. Requests after loading the controls send `X-Model-ID` so an
 animation cannot mix versions during a publication. Reload to select a newer
 ready version. No ready row, missing AWS access, or a checksum failure returns
