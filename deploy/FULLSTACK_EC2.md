@@ -70,7 +70,10 @@ Do not change the existing Python platform in place.
 
    Set `DB_PASSWORD` using Beanstalk's runtime variable **Secrets Manager** or
    **SSM Parameter Store** source, rather than a committed configuration file.
-   Set TLS settings (`DB_SSLMODE`, `DB_SSLROOTCERT`) to match the database. Ensure
+   Set `DB_SSLMODE=verify-full` and
+   `DB_SSLROOTCERT=/app/deploy/rds-ca-bundle.pem` for the existing database. The
+   image ships its public CA bundle; Mac-local certificate paths do not exist in
+   the container. Ensure
    the database permits traffic from this environment's security group on 5432.
    Database access should not be opened to all IP addresses. BACKEND_URL is fixed
    internally by the launcher; it is not a public backend URL in this layout.

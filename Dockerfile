@@ -26,6 +26,7 @@ COPY physics-flex2/*.py /app/physics-flex2/
 COPY --from=frontend-build /app/frontend/ /app/frontend/
 COPY --from=frontend-build /app/fire-dashboard/ /app/fire-dashboard/
 COPY deploy/run_fullstack.py /app/deploy/run_fullstack.py
+COPY deploy/rds-ca-bundle.pem /app/deploy/rds-ca-bundle.pem
 RUN useradd --create-home --uid 10001 pyroclast \
     && mkdir -p /app/backend/.model-cache \
     && chown -R pyroclast:pyroclast /app/backend/.model-cache /app/frontend/.next

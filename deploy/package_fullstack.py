@@ -11,7 +11,7 @@ def main():
     if args.out.exists():
         parser.error('Choose a new output path; existing archives are preserved.')
     root = Path(__file__).resolve().parents[1]
-    paths = ['Dockerfile', '.dockerignore', 'deploy/run_fullstack.py',
+    paths = ['Dockerfile', '.dockerignore', 'deploy/run_fullstack.py', 'deploy/rds-ca-bundle.pem',
              'frontend', 'fire-dashboard', 'backend', 'ml/*.py', 'physics-flex2/*.py']
     # Export HEAD rather than a working directory that could contain credentials.
     archive = subprocess.check_output(['git', 'archive', '--format=zip', 'HEAD', *paths], cwd=root)
