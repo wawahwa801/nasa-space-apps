@@ -54,3 +54,25 @@ The numerical step is at most 0.1 s; displayed states sample every five steps (n
 **This is an illustrative graph spread rule, not a calibrated spacecraft fire simulation.** Rooms are graph nodes, with no physical dimensions. The proxy is not joules, heat flux or room temperature. Cabin ignition thresholds and coupling cannot be learned from the available FLEX-2 droplets. No smoke transport, compartment radiation, oxygen depletion, suppression or ventilation field is solved. Validate a separate cabin model with matched solid-fuel spread measurements before interpreting displayed times as physical predictions. Tracked in issue #55, related to scope #25 and physical calibration #52.
 
 API: `GET /api/rooms/example` returns the editable scenario. `POST /api/rooms/simulate` takes this scenario (at most 16 rooms/120 unique undirected edges, duration ≤180 s) and returns frames, ignition times, burn-model provenance and finite-budget diagnostics. The API retains fitted-model support from `--model`; the graph's transfer/ignition parameters remain assumptions even with a fitted droplet coefficient.
+
+## Custom environment in the main dashboard
+
+Open **Room simulation → Edit environment** to show the compact editor beside
+the map (stacked above it on smaller screens). Select a room on the map or from
+the dropdown, rename it, change integer X/Y grid coordinates (0–9), toggle fuel,
+and set ignition. Occupied positions are rejected. Up to 16 rooms are supported;
+removing a room also removes/reindexes its hallways and adjusts ignition.
+Choose a destination and **Connect rooms**, then toggle a hallway open/closed or
+remove it. **Reset station layout** restores the default graph.
+
+Edits clear prior simulation and explanation results; press **Simulate** again.
+Layouts are held for the current page session. Grid distance does not change the
+transfer coefficient: open graph connections determine spread in this illustrative
+solver. The live CNN remains conditioned on the model controls, not room geometry.
+
+Playback uses continuous elapsed time, speed 0.5–8×, pause/resume, restart, and
+explicit time scrubbing. Closed hallways use dashed lines on the map.
+
+The ML service exposes `GET /api/environment` for the default layout and accepts
+`environment: {rooms, edges}` on `POST /api/simulate`. Layout validation runs before
+inference. Frontend and ML service must be deployed together for this feature.

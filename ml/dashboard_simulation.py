@@ -8,13 +8,18 @@ from PIL import Image
 from flask import request, jsonify
 from flex2_compare import create_app
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'physics-flex2'))
-from rooms import example, simulate
+from rooms import example, simulate, validate_layout
 from model import number
 
 
 def build_app():
     root = Path(__file__).resolve().parent
     app = create_app(root / 'data/flex2-geometry-model', texture=True)
+    app.config['MAX_CONTENT_LENGTH'] = 16000
+    @app.get('/api/environment')
+    def environment():
+        return jsonify(example())
+
     @app.post('/api/simulate')
     def run():
         try:
@@ -25,6 +30,14 @@ def build_app():
             scale = number(q['mm_per_pixel'], 'Assumed mm/pixel', .0001, .1)
             k = number(q['k_mm2_s'], 'Assumed K', .000001, 10)
             source = q['source']
+            scenario = example()
+            if 'environment' in q:
+                custom = q['environment']
+                if not isinstance(custom, dict) or set(custom) - {'rooms', 'edges'}:
+                    raise ValueError('Environment must contain only rooms and edges')
+                scenario.update(rooms=custom['rooms'], edges=custom['edges'])
+            scenario.update(source=source, k_mm2_s=k)
+            validate_layout(scenario)
             # Reuse the exact inference validation and model used by the live demo.
             with app.test_client() as client:
                 response = client.get('/api/compare', query_string=controls)
@@ -37,8 +50,6 @@ def build_app():
                 raise ValueError('No usable flame mask; simulation cannot start')
             pixels = 2 * (area / np.pi) ** .5
             size = number(pixels * scale, 'Assumed proxy diameter', .01, 10)
-            scenario = example()
-            scenario.update(source=source, k_mm2_s=k)
             burn = dict(initial_diameter_mm=size, k_mm2_s=k, mode='illustrative_cnn_flame_proxy',
                         controls=controls, diameter_px=pixels, assumed_mm_per_pixel=scale,
                         warning='Flame mask area converted to an assumed room proxy size; no liquid-droplet measurement or calibrated cabin spread.')
